@@ -37,7 +37,7 @@
 #   files first to ensure that everything is properly compiled.  Use the "clean" target.
 #
 #   In fact, if you change any settings between builds, it's a good idea to build from scratch
-#      
+#
 #   On the make command line, use PROFILE=YES to build the VLM using the profiling option
 #   to gather statistics on execution frequencies.
 #
@@ -71,7 +71,7 @@ OPT = -O -mtune=nocona \
 -fcse-follow-jumps \
 -fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse \
 -fgcse-lm  -fgcse-sm  -fgcse-las -fdelete-null-pointer-checks \
--foptimize-sibling-calls -fcaller-saves 
+-foptimize-sibling-calls -fcaller-saves
 
 # broken
 #-fstrict-aliasing
@@ -129,7 +129,7 @@ else
 #  EMULATOROBJ = $(EMULATOR)/fake_emulator.o
   ASMS = stub/stub.c
   EMULATOROBJ = stub/stub.o
-  COMPONENTS = 
+  COMPONENTS =
 endif
 
 OBJS = $(LIFE)/cold_load.o $(LIFE)/console.o $(LIFE)/disks.o $(LIFE)/initialization.o \
@@ -141,10 +141,10 @@ OBJS = $(LIFE)/cold_load.o $(LIFE)/console.o $(LIFE)/disks.o $(LIFE)/initializat
 
 EMULATORINCLUDES = $(EMULATOR)/aihead.h $(CPU)/aistat.h $(EMULATOR)/ivoryrep.h
 
-OTHEROBJS = 
+OTHEROBJS =
 
 ifdef NONSHARED
-  OTHEROBJS += 
+  OTHEROBJS +=
   LIBRARIES = -lpthread -lc -lX11 -lm -lpcap
   EARLYLIBS = -L/opt/ppc64/X11R6/lib
 else
