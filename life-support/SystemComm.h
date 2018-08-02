@@ -121,6 +121,6 @@ typedef struct {
 
 #endif
 
-extern SystemCommArea* SystemCommAreaPtr;
+extern SystemCommArea *SystemCommAreaPtr;
 
 #endif

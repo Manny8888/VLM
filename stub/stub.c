@@ -151,8 +151,8 @@ hwdispatch      22      ; = T9 (the halfword dispatch table)
 static u64 old_rdtsc;
 
 // these need to be in-line for DECODEFAULT to work
-#define LDQ_U(ptr) *(u64*)(ptr & ~7L)
-#define STQ_U(ptr, v) *(u64*)(ptr & ~7L) = v
+#define LDQ_U(ptr) *(u64 *)(ptr & ~7L)
+#define STQ_U(ptr, v) *(u64 *)(ptr & ~7L) = v
 
 static u64 f0, f1, f2, f3, f31;
 
@@ -203,7 +203,7 @@ void exception(int which, u64 r)
     printf("exception(%d, %p)!!!\n", which, r);
 }
 
-char* halfwordnames[256 * 4] = {
+char *halfwordnames[256 * 4] = {
     "DoCarFP", "DoCarLP", "DoCarSP", "DoCarIM", /* #o00 */
     "DoCdrFP", "DoCdrLP", "DoCdrSP", "DoCdrIM", /* #o01 */
     "DoEndpFP", "DoEndpLP", "DoEndpSP", "DoEndpIM", /* #o02 */
@@ -680,7 +680,7 @@ int iInterpret(PROCESSORSTATEP ivoryp)
     {
         CACHELINEP c, ce;
         int i, n;
-        char* name;
+        char *name;
 
         printf("icachebase %p, endicache %p\n", processor->icachebase,
             processor->endicache);
@@ -712,10 +712,10 @@ int iInterpret(PROCESSORSTATEP ivoryp)
     {
         static int c = 0;
         static u64 bsp;
-        u64* p = (u64*)iSP;
+        u64 *p = (u64 *)iSP;
         u64 tos = *p;
         u32 cc, t, v;
-        char* str = 0;
+        char *str = 0;
         int i;
 
         cc = ((tos >> 32) & 0xc0) >> 6;
@@ -745,7 +745,7 @@ int iInterpret(PROCESSORSTATEP ivoryp)
 
     printf("[iInterpret]\n");
 
-    processor = (PROCESSORSTATEP)((char*)ivory - PROCESSORSTATE_SIZE);
+    processor = (PROCESSORSTATEP)((char *)ivory - PROCESSORSTATE_SIZE);
     printf("%p\n", processor);
     printf("ivory %p\n", ivory);
     printf("epc %p, fp %p, lp %p, sp %p, cp %p\n", processor->epc,

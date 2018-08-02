@@ -11,10 +11,10 @@ Boolean Trace = FALSE;
 Boolean EnableIDS = FALSE;
 Boolean TestFunction = FALSE;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    char* searchPath = strdup(DefaultWorldSearchPath);
-    char* worldPath;
+    char *searchPath = strdup(DefaultWorldSearchPath);
+    char *worldPath;
     size_t argLength;
     int i;
     boolean sawWorld = FALSE;

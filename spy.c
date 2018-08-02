@@ -82,7 +82,7 @@ static pthread_mutex_t spyLock;
 static boolean spyLockSetup = FALSE;
 static pthread_t spyThread;
 static boolean spyThreadSetup = FALSE;
-EmbMBINChannel* activeMBINChannel = NULL;
+EmbMBINChannel *activeMBINChannel = NULL;
 static struct {
     unsigned int id;
     boolean acked;
@@ -107,9 +107,9 @@ static int divine_port_number(unsigned long diagnosticAddress)
     return port;
 }
 
-static void bind_a_port(int spy, struct sockaddr_in* sin, int len)
+static void bind_a_port(int spy, struct sockaddr_in *sin, int len)
 {
-    if (bind(spy, (struct sockaddr*)sin, len)) {
+    if (bind(spy, (struct sockaddr *)sin, len)) {
         verror("spy", NULL);
         sin->sin_port = htons(ntohs(sin->sin_port) + 1);
         bind_a_port(spy, sin, len);
@@ -120,15 +120,15 @@ static void bind_a_port(int spy, struct sockaddr_in* sin, int len)
 static void signal_handler(int x) { HaltMachine(); }
 
 static int spy_transmit(
-    struct rm_pkt* pkt, int rm_length, struct sockaddr_in* sin)
+    struct rm_pkt *pkt, int rm_length, struct sockaddr_in *sin)
 {
     int result = 0;
     pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_mutex_unlock, (void*)&spyLock);
+        (pthread_cleanuproutine_t)pthread_mutex_unlock, (void *)&spyLock);
     if (pthread_mutex_lock(&spyLock))
         vpunt("spy", "Unable to lock the spy lock in thread %x",
             pthread_self());
-    if (sendto(spy, &pkt->rm_pad[0], rm_length, 0, (struct sockaddr*)sin,
+    if (sendto(spy, &pkt->rm_pad[0], rm_length, 0, (struct sockaddr *)sin,
             sizeof(struct sockaddr_in))
         < 0) {
         verror("spy", NULL);
@@ -141,12 +141,12 @@ static int spy_transmit(
     return (result);
 }
 
-static unsigned int read_long(unsigned char* bytes)
+static unsigned int read_long(unsigned char *bytes)
 {
     return (bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24));
 }
 
-static void write_long(unsigned char* bytes, unsigned int data)
+static void write_long(unsigned char *bytes, unsigned int data)
 {
     bytes[0] = data;
     bytes[1] = data >> 8;
@@ -168,7 +168,7 @@ static void SpyTopLevel(pthread_addr_t argument)
     pthread_t self = pthread_self();
 
     pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void*)self);
+        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
     if (pthread_mutex_lock(&spyLock))
         vpunt("spy", "Unable to lock the spy lock in thread %x", self);
     if (pthread_mutex_unlock(&spyLock))
@@ -196,8 +196,8 @@ static void RemoteMemorySpyLoop()
 {
     struct rm_pkt pkt, reply;
     LispObj buffer[PageSize];
-    LispObj* bufferp;
-    unsigned char* p;
+    LispObj *bufferp;
+    unsigned char *p;
     unsigned int vma, operand;
     int nwords, nchunks, i, pkt_length, reply_length, sinlen;
     int booted = 0;
@@ -237,7 +237,7 @@ static void RemoteMemorySpyLoop()
         sinlen = sizeof(struct sockaddr_in);
         if ((pkt_length = recvfrom(spy, &pkt.rm_pad[0],
                  REMOTE_MEMORY_PACKET_HEADER + REMOTE_MEMORY_PACKET_DATA, 0,
-                 (struct sockaddr*)&pkt_source, &sinlen))
+                 (struct sockaddr *)&pkt_source, &sinlen))
             < 0)
             vpunt("spy", "Reading packet from remote debugger");
 
@@ -453,7 +453,7 @@ static void RemoteMemorySpyLoop()
 
         case rm_mbin: {
             EmbPtr bufferEmbPtr;
-            struct rm_aligned_pkt* buffer;
+            struct rm_aligned_pkt *buffer;
             unsigned int id;
             int historyID;
             memcpy(&mbin_sin, &pkt_source, sizeof(struct sockaddr_in));
@@ -472,7 +472,7 @@ static void RemoteMemorySpyLoop()
                     bufferEmbPtr = EmbQueueTakeWord(
                         activeMBINChannel->hostToGuestSupplyQueue);
                     if (bufferEmbPtr && (bufferEmbPtr != NullEmbPtr)) {
-                        buffer = (struct rm_aligned_pkt*)HostPointer(
+                        buffer = (struct rm_aligned_pkt *)HostPointer(
                             bufferEmbPtr);
                         memcpy(&buffer->rm_id[0], &pkt.rm_id[0],
                             REMOTE_MEMORY_ALIGNED_PACKET_HEADER);
@@ -501,7 +501,7 @@ void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress)
 
     if (pthread_key_create(&mainThread, NULL))
         vpunt(NULL, "Unable to establish per-thread data.");
-    pthread_setspecific(mainThread, (void*)TRUE);
+    pthread_setspecific(mainThread, (void *)TRUE);
 
     atexit(&TerminateSpy);
 
@@ -515,7 +515,7 @@ void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress)
     bind_a_port(spy, &sin, sizeof(sin));
     send_trap = sendTrapP;
 
-    memset((char*)&MBINHistory[0], 0, sizeof(MBINHistory));
+    memset((char *)&MBINHistory[0], 0, sizeof(MBINHistory));
 
     if (pthread_mutex_init(&spyLock, NULL))
         vpunt("spy", "Unable to create the spy lock");
@@ -536,12 +536,12 @@ void ReleaseSpyLock()
             pthread_self());
 }
 
-void SendMBINBuffers(EmbMBINChannel* mbinChannel)
+void SendMBINBuffers(EmbMBINChannel *mbinChannel)
 {
-    register EmbQueue* gthQ = mbinChannel->guestToHostQueue;
-    register EmbQueue* gthrQ = mbinChannel->guestToHostReturnQueue;
+    register EmbQueue *gthQ = mbinChannel->guestToHostQueue;
+    register EmbQueue *gthrQ = mbinChannel->guestToHostReturnQueue;
     EmbPtr bufferPtr;
-    struct rm_aligned_pkt* buffer;
+    struct rm_aligned_pkt *buffer;
     struct rm_pkt pkt;
     unsigned int nBytes, id;
     int historyID;
@@ -572,7 +572,7 @@ void SendMBINBuffers(EmbMBINChannel* mbinChannel)
         }
         bufferPtr = EmbQueueTakeWord(gthQ);
         if (bufferPtr && (bufferPtr != NullEmbPtr) && mbin_sinValid) {
-            buffer = (struct rm_aligned_pkt*)HostPointer(bufferPtr);
+            buffer = (struct rm_aligned_pkt *)HostPointer(bufferPtr);
             nBytes = read_long(&buffer->rm_operand[0]) & 0xFFFFFF;
             memcpy(&pkt.rm_id[0], &buffer->rm_id[0],
                 REMOTE_MEMORY_ALIGNED_PACKET_HEADER);
@@ -593,7 +593,7 @@ void SendMBINBuffers(EmbMBINChannel* mbinChannel)
 void TerminateSpy()
 {
     struct timespec killSleep;
-    void* exit_code;
+    void *exit_code;
 
     if (NULL == pthread_getspecific(mainThread))
         return;

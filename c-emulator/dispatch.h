@@ -5,7 +5,7 @@
 
 extern int InstructionCacheMiss(void);
 
-extern const char* ivory_dispatch_names[];
+extern const char *ivory_dispatch_names[];
 
 typedef enum _IvoryDispatch {
     DispatchCarFP,

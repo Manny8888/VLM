@@ -10,7 +10,7 @@ typedef unsigned char Tag;
 typedef unsigned int Integer;
 typedef int Boolean;
 typedef float Float;
-typedef void* Pointer;
+typedef void *Pointer;
 
 #define False 0
 #define True 1
@@ -50,8 +50,8 @@ typedef union {
 #define DATA parts.data
 #define TAG parts.tag
 
-#define LispObjTag(lo) (((LispObj*)(&lo))->TAG)
-#define LispObjData(lo) (((LispObj*)(&lo))->DATA.u)
+#define LispObjTag(lo) (((LispObj *)(&lo))->TAG)
+#define LispObjData(lo) (((LispObj *)(&lo))->DATA.u)
 
 typedef struct _InstructionCacheLine {
     PC pc;
@@ -59,7 +59,7 @@ typedef struct _InstructionCacheLine {
     int code;
     int operand;
     unsigned int instruction;
-    struct _InstructionCacheLine* next_cp;
+    struct _InstructionCacheLine *next_cp;
 } InstructionCacheLine;
 
 #define InstructionCacheSize 2048
@@ -84,18 +84,18 @@ typedef struct _InstructionCacheLine {
 #define StackCacheSize 4
 
 typedef struct _ProcessorState {
-    LispObj* sp;
-    LispObj* restartsp;
-    LispObj* fp;
-    LispObj* lp;
+    LispObj *sp;
+    LispObj *restartsp;
+    LispObj *fp;
+    LispObj *lp;
     PC pc;
     PC continuation;
-    InstructionCacheLine* InstructionCache;
-    LispObj* StackCache;
-    LispObj* StackCacheLimit;
+    InstructionCacheLine *InstructionCache;
+    LispObj *StackCache;
+    LispObj *StackCacheLimit;
     struct _bar {
         LispObj address;
-        LispObj* mapped;
+        LispObj *mapped;
     } bar[4];
     LispObj ListCacheArea;
     LispObj ListCacheAddress;
@@ -133,10 +133,10 @@ typedef struct _ProcessorState {
     unsigned int instruction_count;
 } ProcessorState;
 
-extern ProcessorState* processor;
+extern ProcessorState *processor;
 extern Boolean Trace;
 
-extern void InitializeIvoryProcessor(Integer* dataBase, Tag* tagsBase);
+extern void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase);
 extern Boolean IvoryProcessorSystemStartup(Boolean bootingP);
 extern Boolean Runningp(void);
 extern void PushOneFakeFrame(void);
@@ -144,19 +144,19 @@ extern void PopOneFakeFrame(void);
 extern void HaltMachine(void);
 extern void StartMachine(void);
 extern void ResetMachine(void);
-Boolean ReadInternalRegister(int regno, LispObj* val);
-Boolean WriteInternalRegister(int regno, LispObj* val);
+Boolean ReadInternalRegister(int regno, LispObj *val);
+Boolean WriteInternalRegister(int regno, LispObj *val);
 extern void SendInterruptToEmulator(void);
 extern void SendInterruptToLifeSupport(void);
 
 extern void InstructionSequencer(void);
-extern void OutOfMemory(char* Where, int HowMuch);
+extern void OutOfMemory(char *Where, int HowMuch);
 extern void StackCacheScrollDown(void);
 extern void StackCacheScrollUp(void);
-extern int WriteVirtualMemoryBlock(Integer vma, LispObj* object, int count);
-extern int ReadVirtualMemoryBlock(Integer vma, LispObj* object, int count);
-extern int WriteVirtualMemory(Integer vma, LispObj* object);
-extern int ReadVirtualMemory(Integer vma, LispObj* object);
+extern int WriteVirtualMemoryBlock(Integer vma, LispObj *object, int count);
+extern int ReadVirtualMemoryBlock(Integer vma, LispObj *object, int count);
+extern int WriteVirtualMemory(Integer vma, LispObj *object);
+extern int ReadVirtualMemory(Integer vma, LispObj *object);
 
 typedef enum _MemoryCycleTypes {
     CycleDataRead,
@@ -182,8 +182,8 @@ typedef enum _MemoryCycleTypes {
 #define MemoryActionBinding 040
 
 extern Byte MemoryActionTable[12][64];
-extern Integer MemoryReadInternal(Integer vma, LispObj* object, Byte row[]);
-extern int StoreContentsInternal(Integer vma, LispObj* object, Byte row[]);
+extern Integer MemoryReadInternal(Integer vma, LispObj *object, Byte row[]);
+extern int StoreContentsInternal(Integer vma, LispObj *object, Byte row[]);
 
 #define MemoryRead(vma, object, cycle)                                       \
     MemoryReadInternal(vma, object, MemoryActionTable[cycle])

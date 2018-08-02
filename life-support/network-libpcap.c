@@ -16,11 +16,11 @@
 #include "utilities.h"
 #include "FEPComm.h"
 
-static EmbNetChannel* pInputChannel;
+static EmbNetChannel *pInputChannel;
 
 /* Create the network channels */
 
-void InitializeNetworkChannels(VLMConfig* config)
+void InitializeNetworkChannels(VLMConfig *config)
 {
     int ipSocket, savedLen, i;
     bool tryAgain;
@@ -48,12 +48,12 @@ void InitializeNetworkChannels(VLMConfig* config)
 
 /* Create a single network channel */
 
-static void InitializeNetChannel(NetworkInterface* interface, int unitNumber)
+static void InitializeNetChannel(NetworkInterface *interface, int unitNumber)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbNetChannel));
-    register EmbNetChannel* p = (EmbNetChannel*)HostPointer(cp);
+    register EmbNetChannel *p = (EmbNetChannel *)HostPointer(cp);
 
-    NetworkInterface* pInterface;
+    NetworkInterface *pInterface;
 
 #ifdef GENERA
     struct in_addr guestAddress;
@@ -107,21 +107,23 @@ static void InitializeNetChannel(NetworkInterface* interface, int unitNumber)
 
     p->guestToHostQueue
         = CreateQueue(NetworkTransmitterQueueSize, sizeof(EmbPtr));
-    p->guestToHostQ = (EmbQueue*)HostPointer(p->guestToHostQueue);
+    p->guestToHostQ = (EmbQueue *)HostPointer(p->guestToHostQueue);
     p->guestToHostQ->signal = InstallSignalHandler(
         (ProcPtrV)&NetworkChannelTransmitter, (PtrV)p, FALSE);
 
     p->guestToHostReturnQueue
         = CreateQueue(NetworkTransmitterQueueSize, sizeof(EmbPtr));
-    p->guestToHostReturnQ = (EmbQueue*)HostPointer(p->guestToHostReturnQueue);
+    p->guestToHostReturnQ
+        = (EmbQueue *)HostPointer(p->guestToHostReturnQueue);
 
     p->hostToGuestSupplyQueue
         = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
-    p->hostToGuestSupplyQ = (EmbQueue*)HostPointer(p->hostToGuestSupplyQueue);
+    p->hostToGuestSupplyQ
+        = (EmbQueue *)HostPointer(p->hostToGuestSupplyQueue);
 
     p->hostToGuestQueue
         = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
-    p->hostToGuestQ = (EmbQueue*)HostPointer(p->hostToGuestQueue);
+    p->hostToGuestQ = (EmbQueue *)HostPointer(p->hostToGuestQueue);
 
 #ifdef GENERA
     for (pInterface = interface, firstInterface = TRUE; pInterface != NULL;
@@ -167,9 +169,9 @@ static void InitializeNetChannel(NetworkInterface* interface, int unitNumber)
 
 /* Reset a network channel */
 
-void ResetNetworkChannel(EmbChannel* channel)
+void ResetNetworkChannel(EmbChannel *channel)
 {
-    register EmbNetChannel* netChannel = (EmbNetChannel*)channel;
+    register EmbNetChannel *netChannel = (EmbNetChannel *)channel;
 
 #ifdef OS_OSF
     ioctl(netChannel->fd, EIOCFLUSH, 0); /* Flush incoming packets */
@@ -184,7 +186,7 @@ void ResetNetworkChannel(EmbChannel* channel)
 
 static char last_packet[1560];
 
-static int new_packet(char* packet, int size)
+static int new_packet(char *packet, int size)
 {
     if (memcmp(last_packet, packet, size) == 0)
         return 0;
@@ -194,16 +196,16 @@ static int new_packet(char* packet, int size)
     return 1;
 }
 
-static void recv_packet(char* packet, int size)
+static void recv_packet(char *packet, int size)
 {
-    register EmbNetChannel* netChannel = pInputChannel;
-    register EmbQueue* supplyQueue = netChannel->hostToGuestSupplyQ;
-    register EmbQueue* receiveQueue = netChannel->hostToGuestQ;
+    register EmbNetChannel *netChannel = pInputChannel;
+    register EmbQueue *supplyQueue = netChannel->hostToGuestSupplyQ;
+    register EmbQueue *receiveQueue = netChannel->hostToGuestQ;
     EmbPtr netPacketPtr;
-    EmbNetPacket* netPacket;
+    EmbNetPacket *netPacket;
 
     netPacketPtr = EmbQueueTakeWord(supplyQueue);
-    netPacket = (EmbNetPacket*)HostPointer(netPacketPtr);
+    netPacket = (EmbNetPacket *)HostPointer(netPacketPtr);
     netPacket->nBytes = (EmbWord)size;
     memcpy(&netPacket->data[0], packet, size);
 #if BYTE_ORDER == BIG_ENDIAN
@@ -212,7 +214,7 @@ static void recv_packet(char* packet, int size)
     EmbQueuePutWord(receiveQueue, netPacketPtr);
 }
 
-void answer_arp(char* pkt, int size)
+void answer_arp(char *pkt, int size)
 {
     char tmp[10];
     int i;
@@ -231,7 +233,7 @@ void answer_arp(char* pkt, int size)
     recv_packet(pkt, size);
 }
 
-void dump_packet(char* who, unsigned char* pkt, int size)
+void dump_packet(char *who, unsigned char *pkt, int size)
 {
     int i, offset = 0;
     unsigned char *p, *pp;
@@ -297,7 +299,7 @@ void dump_packet(char* who, unsigned char* pkt, int size)
 
 /* Network Channel transmitter */
 
-static void NetworkChannelTransmitter(EmbNetChannel* pNetChannel)
+static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
 {
 #if 0
   register EmbNetChannel* netChannel = pNetChannel;
@@ -367,19 +369,19 @@ static void NetworkChannelTransmitter(EmbNetChannel* pNetChannel)
 static void NetworkChannelReceiver(pthread_addr_t argument)
 {
     pthread_t self = pthread_self();
-    register EmbNetChannel* netChannel = (EmbNetChannel*)argument;
-    register EmbQueue* supplyQueue = netChannel->hostToGuestSupplyQ;
-    register EmbQueue* receiveQueue = netChannel->hostToGuestQ;
+    register EmbNetChannel *netChannel = (EmbNetChannel *)argument;
+    register EmbQueue *supplyQueue = netChannel->hostToGuestSupplyQ;
+    register EmbQueue *receiveQueue = netChannel->hostToGuestQ;
     struct pollfd pollReceiver;
     struct timespec receiverPause;
     struct sockaddr sll;
     EmbPtr netPacketPtr;
-    EmbNetPacket* netPacket;
+    EmbNetPacket *netPacket;
     ssize_t actualBytes;
     socklen_t sllLen;
 
     pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void*)self);
+        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     WaitUntilInitializationComplete();
 
@@ -399,7 +401,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
         actualBytes = recvfrom(netChannel->fd, &netChannel->receiveBuffer,
             MaxEmbNetPacketSize, MSG_TRUNC, &sll, &sllLen);
         dump_packet(
-            "rx", (unsigned char*)&netChannel->receiveBuffer, actualBytes);
+            "rx", (unsigned char *)&netChannel->receiveBuffer, actualBytes);
 
         if (actualBytes < 0)
             netChannel->nReceiveFailures++;
@@ -422,7 +424,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
                 if (pthread_delay_np(&receiverPause))
                     vpunt(NULL, "Unable to sleep in thread %lx", self);
             }
-            netPacket = (EmbNetPacket*)HostPointer(netPacketPtr);
+            netPacket = (EmbNetPacket *)HostPointer(netPacketPtr);
             netPacket->nBytes = (EmbWord)actualBytes;
             memcpy(&netPacket->data[0], &netChannel->receiveBuffer[0],
                 actualBytes);
@@ -438,7 +440,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
 
 /* Cleanup a single network channel */
 
-static void TerminateNetChannel(EmbNetChannel* netChannel, int ipSocket)
+static void TerminateNetChannel(EmbNetChannel *netChannel, int ipSocket)
 {
 #if 0
   EmbNetARPReq *embARPReq;
@@ -466,7 +468,7 @@ static void TerminateNetChannel(EmbNetChannel* netChannel, int ipSocket)
 
 void TerminateNetworkChannels()
 {
-    EmbNetChannel* netChannel;
+    EmbNetChannel *netChannel;
     EmbPtr channel;
     int ipSocket;
 
@@ -474,7 +476,7 @@ void TerminateNetworkChannels()
 
     for (channel = EmbCommAreaPtr->channel_table; channel != NullEmbPtr;
          channel = netChannel->next) {
-        netChannel = (EmbNetChannel*)HostPointer(channel);
+        netChannel = (EmbNetChannel *)HostPointer(channel);
         if (EmbNetworkChannelType == netChannel->type)
             TerminateNetChannel(netChannel, ipSocket);
     }

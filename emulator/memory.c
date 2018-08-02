@@ -24,31 +24,31 @@ int mprotect_result;
 
 #if defined(OS_OSF)
 /* Superstition says threads go at 1<<32 */
-Tag* TagSpace = (Tag*)((int64_t)1 << 33); /* 1<<32 bytes of tages */
+Tag *TagSpace = (Tag *)((int64_t)1 << 33); /* 1<<32 bytes of tages */
 /* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer* DataSpace = (Integer*)((int64_t)1 << 35); /* 4<<32 bytes of data */
+Integer *DataSpace = (Integer *)((int64_t)1 << 35); /* 4<<32 bytes of data */
 
 #elif defined(OS_LINUX) && defined(ARCH_PPC64)
-Tag* TagSpace = (Tag*)((int64_t)1 << 36); /* 1<<32 bytes of tages */
+Tag *TagSpace = (Tag *)((int64_t)1 << 36); /* 1<<32 bytes of tages */
 /* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer* DataSpace = (Integer*)((int64_t)1 << 38); /* 4<<32 bytes of data */
+Integer *DataSpace = (Integer *)((int64_t)1 << 38); /* 4<<32 bytes of data */
 
 #elif defined(OS_LINUX) && defined(ARCH_X86_64)
-Tag* TagSpace = (Tag*)((int64_t)1 << 36); /* 1<<32 bytes of tages */
+Tag *TagSpace = (Tag *)((int64_t)1 << 36); /* 1<<32 bytes of tages */
 /* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer* DataSpace = (Integer*)((int64_t)1 << 38); /* 4<<32 bytes of data */
+Integer *DataSpace = (Integer *)((int64_t)1 << 38); /* 4<<32 bytes of data */
 
 #elif defined(__FreeBSD__)
-Tag* TagSpace = (Tag*)((int64_t)1 << 36); /* 1<<32 bytes of tages */
+Tag *TagSpace = (Tag *)((int64_t)1 << 36); /* 1<<32 bytes of tages */
 /* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer* DataSpace = (Integer*)((int64_t)1 << 38); /* 4<<32 bytes of data */
+Integer *DataSpace = (Integer *)((int64_t)1 << 38); /* 4<<32 bytes of data */
 
 #elif defined(OS_DARWIN)
-Tag* TagSpace
-    = (Tag*)((int64_t) /* TBD: 1<<33 */ 0); /* 1<<32 bytes of tages */
+Tag *TagSpace
+    = (Tag *)((int64_t) /* TBD: 1<<33 */ 0); /* 1<<32 bytes of tages */
 /* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer* DataSpace
-    = (Integer*)((int64_t) /* TBD: 1<<35 */ 0); /* 4<<32 bytes of data */
+Integer *DataSpace
+    = (Integer *)((int64_t) /* TBD: 1<<35 */ 0); /* 4<<32 bytes of data */
 #endif
 
 /* Initially, just a record of the pages that have faulted recently */
@@ -56,7 +56,7 @@ typedef Integer PHTEntry;
 #define ResidentPages_Size 16384
 
 static PHTEntry ResidentPages[16384]; /* --- size according to machine */
-static PHTEntry* ResidentPagesPointer = ResidentPages;
+static PHTEntry *ResidentPagesPointer = ResidentPages;
 static Boolean ResidentPagesWrap = FALSE;
 
 #define VMAinStackCacheP(vma)                                                \
@@ -102,7 +102,7 @@ void ClearCreated(Integer vma) { AdjustProtection(vma, 0); }
 #define WadExistsMask                                                        \
     0x4040404040404040 /* f-ing poor excuse for a macro language */
 #define WadCreated(vma)                                                      \
-    ((((int64_t*)VMAttributeTable)[MemoryWadNumber(vma)]) & WadExistsMask)
+    ((((int64_t *)VMAttributeTable)[MemoryWadNumber(vma)]) & WadExistsMask)
 
 #define EphemeralAddressP(vma) (!((vma) >> 27))
 #define EphemeralDemiLevel(vma) ((vma) >> 21)
@@ -144,7 +144,7 @@ Integer EnsureVirtualAddress(Integer vma, Boolean faultp)
         }
         /* Avoid spurious ephemeral traps by pointing null pointer into
          * boundary zone */
-        (void)memset((unsigned char*)data, (unsigned char)-1,
+        (void)memset((unsigned char *)data, (unsigned char)-1,
             sizeof(Integer[MemoryWad_Size]));
         if (tag
             != mmap(tag, sizeof(Tag[MemoryWad_Size]), prot,
@@ -280,7 +280,7 @@ Integer MapWorldLoad(
             /* Set the attributes for mapped in pages */
             for (words = 0; (words < limit) && !WadCreated(vma + words);) {
                 int wadlimit = words + MemoryWad_Size;
-                VMAttribute* pattr
+                VMAttribute *pattr
                     = &VMAttributeTable[MemoryPageNumber(vma + words)];
 
                 for (; words < wadlimit; words += MemoryPage_Size, pattr++)
@@ -316,9 +316,9 @@ Integer MapWorldLoad(
     return (vma);
 }
 
-Integer* MapVirtualAddressData(Integer vma) { return (&DataSpace[vma]); }
+Integer *MapVirtualAddressData(Integer vma) { return (&DataSpace[vma]); }
 
-Tag* MapVirtualAddressTag(Integer vma) { return (&TagSpace[vma]); }
+Tag *MapVirtualAddressTag(Integer vma) { return (&TagSpace[vma]); }
 
 LispObj VirtualMemoryReadUncached(Integer vma)
 {
@@ -351,7 +351,7 @@ LispObj VirtualMemoryRead(unsigned int address)
     if (VMAinStackCacheP(address))
         /* We have got a stack cache hit, read the bits form the stack cache.
          */
-        return (((LispObj*)processor->stackcachedata)[address
+        return (((LispObj *)processor->stackcachedata)[address
             - processor->stackcachebasevma]);
     else
         return (VirtualMemoryReadUncached(address));
@@ -385,7 +385,7 @@ void VirtualMemoryWrite(unsigned int address, LispObj object)
 {
     if (VMAinStackCacheP(address))
         /* We have a stack cache hit, put the bits in the stack cache */
-        ((LispObj*)processor
+        ((LispObj *)processor
                 ->stackcachedata)[address - processor->stackcachebasevma]
             = object;
     else
@@ -393,18 +393,18 @@ void VirtualMemoryWrite(unsigned int address, LispObj object)
         VirtualMemoryWriteUncached(address, object);
 }
 
-void VirtualMemoryReadBlockUncached(Integer vma, LispObj* object, int count)
+void VirtualMemoryReadBlockUncached(Integer vma, LispObj *object, int count)
 {
-    Integer* data = &DataSpace[vma];
-    Tag* tag = &TagSpace[vma];
-    Integer* edata = &DataSpace[vma + count];
+    Integer *data = &DataSpace[vma];
+    Tag *tag = &TagSpace[vma];
+    Integer *edata = &DataSpace[vma + count];
 
     /* check exists done by spy */
     for (; data < edata; object++, data++, tag++, memory_vma++)
         *object = MakeLispObj(*tag, *data);
 }
 
-void VirtualMemoryReadBlock(unsigned int address, LispObj* object, int count)
+void VirtualMemoryReadBlock(unsigned int address, LispObj *object, int count)
 {
     if ((uint64_t)address < processor->stackcachebasevma) {
         int pc
@@ -426,11 +426,11 @@ void VirtualMemoryReadBlock(unsigned int address, LispObj* object, int count)
         VirtualMemoryReadBlockUncached(address, object, count);
 }
 
-void VirtualMemoryWriteBlockUncached(Integer vma, LispObj* object, int count)
+void VirtualMemoryWriteBlockUncached(Integer vma, LispObj *object, int count)
 {
-    Integer* data = &DataSpace[vma];
-    Tag* tag = &TagSpace[vma];
-    Integer* edata = &DataSpace[vma + count];
+    Integer *data = &DataSpace[vma];
+    Tag *tag = &TagSpace[vma];
+    Integer *edata = &DataSpace[vma + count];
 
     /* check exists done by spy */
     for (; data < edata; object++, data++, tag++, memory_vma++) {
@@ -439,7 +439,7 @@ void VirtualMemoryWriteBlockUncached(Integer vma, LispObj* object, int count)
     }
 }
 
-void VirtualMemoryWriteBlock(unsigned int address, LispObj* object, int count)
+void VirtualMemoryWriteBlock(unsigned int address, LispObj *object, int count)
 {
     if ((uint64_t)address < processor->stackcachebasevma) {
         int pc
@@ -465,20 +465,20 @@ void VirtualMemoryWriteBlock(unsigned int address, LispObj* object, int count)
 void VirtualMemoryWriteBlockConstantUncached(
     Integer vma, LispObj object, int count, int increment)
 {
-    Integer* data = &DataSpace[vma];
-    Tag* tag = &TagSpace[vma];
+    Integer *data = &DataSpace[vma];
+    Tag *tag = &TagSpace[vma];
     Tag ctag = LispObjTag(object);
     Integer cdata = LispObjData(object);
-    Integer* edata = &DataSpace[vma + count];
+    Integer *edata = &DataSpace[vma + count];
 
     /* check exists doneby spy */
     (void)memset(
-        (unsigned char*)tag, (unsigned char)ctag, count * sizeof(Tag));
+        (unsigned char *)tag, (unsigned char)ctag, count * sizeof(Tag));
 
     switch (increment) {
     case 0:
         if (cdata == 0)
-            (void)memset((unsigned char*)data, (unsigned char)0,
+            (void)memset((unsigned char *)data, (unsigned char)0,
                 count * sizeof(Integer));
         else
             for (; data < edata; *data++ = cdata)
@@ -521,10 +521,10 @@ void VirtualMemoryWriteBlockConstant(
 }
 
 /* --- bleah, this probably has to use data-read cycles */
-Boolean VirtualMemorySearch(Integer* vma, LispObj object, int count)
+Boolean VirtualMemorySearch(Integer *vma, LispObj object, int count)
 {
-    Tag* tag = &TagSpace[*vma];
-    Tag* etag = &TagSpace[*vma + count];
+    Tag *tag = &TagSpace[*vma];
+    Tag *etag = &TagSpace[*vma + count];
     Tag ctag = LispObjTag(object);
     Integer cdata = LispObjData(object);
     Integer tvma;
@@ -547,14 +547,14 @@ Boolean VirtualMemorySearch(Integer* vma, LispObj object, int count)
 /* mode is currently ignored */
 Boolean VirtualMemoryCopy(Integer from, Integer to, int count, int mode)
 {
-    Integer* fromdata = &DataSpace[from];
-    register Tag* fromtag = &TagSpace[from];
-    Integer* todata = &DataSpace[to];
-    register Tag* totag = &TagSpace[to];
+    Integer *fromdata = &DataSpace[from];
+    register Tag *fromtag = &TagSpace[from];
+    Integer *todata = &DataSpace[to];
+    register Tag *totag = &TagSpace[to];
 
-    (void)memmove(
-        (unsigned char*)totag, (unsigned char*)fromtag, count * sizeof(Tag));
-    (void)memmove((unsigned char*)todata, (unsigned char*)fromdata,
+    (void)memmove((unsigned char *)totag, (unsigned char *)fromtag,
+        count * sizeof(Tag));
+    (void)memmove((unsigned char *)todata, (unsigned char *)fromdata,
         count * sizeof(Integer));
     return (TRUE);
 }
@@ -567,8 +567,8 @@ Boolean VirtualMemoryCopy(Integer from, Integer to, int count, int mode)
 /* scavenged. */
 void VirtualMemoryEnable(register Integer vma, int count, Boolean faultp)
 {
-    register VMAttribute* attr = &VMAttributeTable[MemoryPageNumber(vma)];
-    register VMAttribute* eattr = &VMAttributeTable[MemoryPageNumber(
+    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
+    register VMAttribute *eattr = &VMAttributeTable[MemoryPageNumber(
         vma + count + MemoryPage_Size - 1)];
     register VMAttribute oa, a;
 
@@ -628,7 +628,7 @@ void VirtualMemoryEnable(register Integer vma, int count, Boolean faultp)
 
 /* Has hard-wired cycle-type of raw, hence really only useful to GC */
 Boolean VirtualMemorySearchCDR(
-    Integer* vma, int count, register unsigned int cdr_mask)
+    Integer *vma, int count, register unsigned int cdr_mask)
 {
     /* (semi-) fast pointer scan 8 at a time CAUTION! little-endian
     /* dependent code */
@@ -638,7 +638,7 @@ Boolean VirtualMemorySearchCDR(
     register Integer thisvma = forwardp ? (startvma & ~07) : (startvma | 07);
     register Integer nextvma = thisvma + (forwardp ? 8 : -8);
     register Integer limitvma = startvma + count;
-    register int64_t* tags8 = &((int64_t*)TagSpace)[thisvma >> 3];
+    register int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
     register Integer word;
 
     if (forwardp) {
@@ -680,7 +680,7 @@ Boolean VirtualMemorySearchCDR(
 
 /* Has hard-wired cycle-type of raw, hence really only useful to GC */
 Boolean VirtualMemorySearchType(
-    Integer* vma, int count, register uint64_t type_mask)
+    Integer *vma, int count, register uint64_t type_mask)
 {
     /* (semi-) fast pointer scan 8 at a time CAUTION! little-endian
     /* dependent code */
@@ -690,7 +690,7 @@ Boolean VirtualMemorySearchType(
     register Integer thisvma = forwardp ? (startvma & ~07) : (startvma | 07);
     register Integer nextvma = thisvma + (forwardp ? 8 : -8);
     register Integer limitvma = startvma + count;
-    register int64_t* tags8 = &((int64_t*)TagSpace)[thisvma >> 3];
+    register int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
     register Integer word;
 
     if (forwardp) {
@@ -733,18 +733,18 @@ Boolean VirtualMemorySearchType(
 /* otherwise does the copy and forward */
 Boolean VirtualMemoryCopyandForward(Integer from, Integer to, int count)
 {
-    register Integer* fromdata = &DataSpace[from];
-    Tag* fromtag = &TagSpace[from];
-    register Integer* todata = &DataSpace[to];
-    Tag* totag = &TagSpace[to];
-    register Integer* edata = &DataSpace[from + count];
+    register Integer *fromdata = &DataSpace[from];
+    Tag *fromtag = &TagSpace[from];
+    register Integer *todata = &DataSpace[to];
+    Tag *totag = &TagSpace[to];
+    register Integer *edata = &DataSpace[from + count];
     register Integer forward = to;
 
-    if (memccpy((unsigned char*)totag, (unsigned char*)fromtag,
+    if (memccpy((unsigned char *)totag, (unsigned char *)fromtag,
             Type_GCForward, count * sizeof(Tag))
         != NULL)
         return (FALSE);
-    (void)memset((unsigned char*)fromtag, Type_GCForward | (Cdr_Nil << 6),
+    (void)memset((unsigned char *)fromtag, Type_GCForward | (Cdr_Nil << 6),
         count * sizeof(Tag));
 
     for (; fromdata < edata;) {
@@ -770,11 +770,11 @@ static Byte slowtag;
 static Integer previousslowvma, lastslowvma;
 
 /* for debugging */
-Boolean SlowScanPage(Integer scanvma, Integer* vma, int count, Boolean update)
+Boolean SlowScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
 {
-    register Byte* tag = &TagSpace[scanvma];
-    register Byte* etag = tag + count;
-    register Integer* data = &DataSpace[scanvma];
+    register Byte *tag = &TagSpace[scanvma];
+    register Byte *etag = tag + count;
+    register Integer *data = &DataSpace[scanvma];
     register uint64_t pointertypes = 0x0000FFF4FFFFF8F7L;
     register uint64_t ephemeraloldbits;
     register uint64_t zoneoldbits;
@@ -817,7 +817,7 @@ Boolean SlowScanPage(Integer scanvma, Integer* vma, int count, Boolean update)
 
 /* Scans a page, returning any oldspace VMA.  If no oldspace found,
 /* ensures entire page is scannned and updates ephemeral bit */
-Boolean ScanPage(Integer scanvma, Integer* vma, int count, Boolean update)
+Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
 {
     Integer startvma = scanvma - MemoryPageOffset(scanvma);
     Integer endvma = scanvma + count;
@@ -836,7 +836,7 @@ Boolean ScanPage(Integer scanvma, Integer* vma, int count, Boolean update)
             register Integer thisvma = (wrapped ? startvma : scanvma) & ~07;
             register Integer nextvma = thisvma + 8;
             register Integer limitvma = (wrapped ? scanvma : endvma);
-            register int64_t* tags8 = &((int64_t*)TagSpace)[thisvma >> 3];
+            register int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
             register Integer word;
             register uint64_t ephemeraloldbits;
             register uint64_t zoneoldbits;
@@ -921,10 +921,10 @@ Boolean ScanPage(Integer scanvma, Integer* vma, int count, Boolean update)
     }
 }
 
-Boolean VirtualMemoryScan(Integer* vma, register int count, Boolean slowp)
+Boolean VirtualMemoryScan(Integer *vma, register int count, Boolean slowp)
 {
     register Integer scanvma = *vma;
-    register VMAttribute* attr;
+    register VMAttribute *attr;
     register int whack = MemoryPage_Size - MemoryPageOffset(scanvma);
     register int mask;
     register Boolean (*scan)() = slowp ? SlowScanPage : ScanPage;
@@ -1020,23 +1020,23 @@ Boolean VirtualMemoryScan(Integer* vma, register int count, Boolean slowp)
 }
 
 /* --- Make this scan faster by operating on longs */
-Boolean VirtualMemoryPHTScan(Integer* vma, Integer count,
+Boolean VirtualMemoryPHTScan(Integer *vma, Integer count,
     register VMAttribute mask, register int sense)
 {
-    register VMAttribute* attr = &VMAttributeTable[MemoryPageNumber(*vma)];
+    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(*vma)];
     /* Caller is allowed to use a count of -1 to mean "scan 'til done" */
-    register VMAttribute* eattr = &VMAttributeTable[sizeof(VMAttributeTable)];
+    register VMAttribute *eattr = &VMAttributeTable[sizeof(VMAttributeTable)];
     register int64_t n = (int64_t)count + MemoryPageOffset(*vma);
-    register int64_t* wad
-        = &((int64_t*)VMAttributeTable)[MemoryWadNumber(*vma)];
+    register int64_t *wad
+        = &((int64_t *)VMAttributeTable)[MemoryWadNumber(*vma)];
 
     /* skip non-existent by wads */
-    for (; (wad < (int64_t*)eattr) && (n > 0); wad++, n -= MemoryWad_Size)
+    for (; (wad < (int64_t *)eattr) && (n > 0); wad++, n -= MemoryWad_Size)
         if (*wad & WadExistsMask)
             break;
 
-    if (attr < (VMAttribute*)wad)
-        attr = (VMAttribute*)wad;
+    if (attr < (VMAttribute *)wad)
+        attr = (VMAttribute *)wad;
 
     if (sense) {
         for (; (attr < eattr) && (n > 0); attr++, n -= MemoryPage_Size)
@@ -1055,16 +1055,16 @@ Boolean VirtualMemoryPHTScan(Integer* vma, Integer count,
     return (FALSE);
 }
 
-static PHTEntry* ResidentPagesScan = ResidentPages;
+static PHTEntry *ResidentPagesScan = ResidentPages;
 
-Boolean VirtualMemoryResidentScan(Integer* vma, Integer* count,
+Boolean VirtualMemoryResidentScan(Integer *vma, Integer *count,
     register VMAttribute mask, register int sense)
 {
-    register PHTEntry* scan = ResidentPagesScan;
-    register PHTEntry* escan = ResidentPagesWrap
+    register PHTEntry *scan = ResidentPagesScan;
+    register PHTEntry *escan = ResidentPagesWrap
         ? &ResidentPages[ResidentPages_Size]
         : ResidentPagesPointer;
-    register VMAttribute* attr = VMAttributeTable;
+    register VMAttribute *attr = VMAttributeTable;
 
     for (; scan <= escan; scan++) {
         if (sense) {
@@ -1093,7 +1093,7 @@ VMState VM;
 
 int VMCommand(int command)
 {
-    register VMState* vm = &VM;
+    register VMState *vm = &VM;
 
     switch
         VMCommandOpcode(command)
@@ -1264,7 +1264,7 @@ static int ComputeProtection(register VMAttribute attr)
 
 void AdjustProtection(Integer vma, VMAttribute new_attr)
 {
-    register VMAttribute* attr = &VMAttributeTable[MemoryPageNumber(vma)];
+    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
     register int old, new;
     VMAttribute oa = *attr;
 
@@ -1304,7 +1304,7 @@ static jmp_buf trap_environment;
 
 /* Catch SEGV's when poking at memory */
 static void simple_segv_handler(
-    int sigval, register siginfo_t* si, void* uc_p)
+    int sigval, register siginfo_t *si, void *uc_p)
 {
     _longjmp(trap_environment, -1);
 }
@@ -1359,16 +1359,16 @@ static caddr_t last_vma = NULL;
 static int times = 0;
 // hack - brad
 // extern void DECODEFAULT();
-extern void* DECODEFAULT;
+extern void *DECODEFAULT;
 
 /* Here on a seg-fault */
 
 #if defined(OS_OSF)
-void segv_handler(int sigval, int code, register struct sigcontext* scp)
+void segv_handler(int sigval, int code, register struct sigcontext *scp)
 {
     /* emperically derived knowledge:  traparg_a0 is the faulting address */
     register uint64_t maybevma
-        = (uint64_t)((Tag*)scp->sc_traparg_a0 - TagSpace);
+        = (uint64_t)((Tag *)scp->sc_traparg_a0 - TagSpace);
     register Integer vma = (Integer)maybevma;
     register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
 
@@ -1397,7 +1397,7 @@ void segv_handler(int sigval, int code, register struct sigcontext* scp)
     case VMAttribute_Exists | VMAttribute_TransportDisable
         | VMAttribute_TransportFault: {
         /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry* ptr = ResidentPagesPointer;
+        register PHTEntry *ptr = ResidentPagesPointer;
 
         *ptr = vma;
         if (++ptr >= &ResidentPages[ResidentPages_Size]) {
@@ -1413,7 +1413,7 @@ void segv_handler(int sigval, int code, register struct sigcontext* scp)
     default:
         /* verify that it is a Lisp fault */
         {
-            register int instn1 = (*((int*)(scp->sc_pc)) >> 26) & 0x3f;
+            register int instn1 = (*((int *)(scp->sc_pc)) >> 26) & 0x3f;
 
             if ((scp->sc_regs[14]
                     != (int64_t)TagSpace) /* ivory register not TagSpace */
@@ -1437,17 +1437,17 @@ void segv_handler(int sigval, int code, register struct sigcontext* scp)
 #define OPCODE_LBZ 0x88000000
 #define OPCODE_STB 0x98000000
 
-void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
+void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
 {
-    register struct ucontext* uc = (struct ucontext*)uc_p;
-    register uint64_t maybevma = (uint64_t)((Tag*)si->si_addr - TagSpace);
+    register struct ucontext *uc = (struct ucontext *)uc_p;
+    register uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
     register Integer vma = (Integer)maybevma;
     register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
 
     if (maybevma >> 32) {
         /* Not a fault in Lisp space */
         vpunt(NULL, "Unexpected SEGV at PC %p on VMA %p",
-            (void*)uc->uc_mcontext.regs->nip, si->si_addr);
+            (void *)uc->uc_mcontext.regs->nip, si->si_addr);
     }
 
     if (last_vma == (caddr_t)si->si_addr) {
@@ -1469,7 +1469,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     case VMAttribute_Exists | VMAttribute_TransportDisable
         | VMAttribute_TransportFault: {
         /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry* ptr = ResidentPagesPointer;
+        register PHTEntry *ptr = ResidentPagesPointer;
 
         *ptr = vma;
         if (++ptr >= &ResidentPages[ResidentPages_Size]) {
@@ -1485,7 +1485,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     default:
         /* verify that it is a Lisp fault */
         {
-            uint32_t instn = *(uint32_t*)uc->uc_mcontext.regs->nip;
+            uint32_t instn = *(uint32_t *)uc->uc_mcontext.regs->nip;
             register uint32_t instn1 = instn & OPCODE_MASK;
 
             if ((uc->uc_mcontext.regs->gpr[30]
@@ -1495,8 +1495,8 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
             {
                 /* Not a Lisp fault */
                 vpunt(NULL, "Unexpected SEGV at PC %p (instn=%p) on VMA %p",
-                    (void*)uc->uc_mcontext.regs->nip, (void*)(uint64_t)instn,
-                    si->si_addr);
+                    (void *)uc->uc_mcontext.regs->nip,
+                    (void *)(uint64_t)instn, si->si_addr);
             }
         }
 
@@ -1508,17 +1508,17 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
 
 #elif defined(OS_LINUX) && defined(ARCH_X86_64)
 
-void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
+void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
 {
-    register struct ucontext* uc = (struct ucontext*)uc_p;
-    register uint64_t maybevma = (uint64_t)((Tag*)si->si_addr - TagSpace);
+    register struct ucontext *uc = (struct ucontext *)uc_p;
+    register uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
     register Integer vma = (Integer)maybevma;
     register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
 
     if (maybevma >> 32) {
         /* Not a fault in Lisp space */
         vpunt(NULL, "Unexpected SEGV at PC %p on VMA %p",
-            (void*)uc->uc_mcontext.gregs[REG_RIP], si->si_addr);
+            (void *)uc->uc_mcontext.gregs[REG_RIP], si->si_addr);
     }
 
     if (last_vma == (caddr_t)si->si_addr) {
@@ -1540,7 +1540,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     case VMAttribute_Exists | VMAttribute_TransportDisable
         | VMAttribute_TransportFault: {
         /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry* ptr = ResidentPagesPointer;
+        register PHTEntry *ptr = ResidentPagesPointer;
 
         *ptr = vma;
         if (++ptr >= &ResidentPages[ResidentPages_Size]) {
@@ -1556,7 +1556,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     default:
         /* verify that it is a Lisp fault */
         {
-            uint32_t instn = *(uint32_t*)uc->uc_mcontext.gregs[REG_RIP];
+            uint32_t instn = *(uint32_t *)uc->uc_mcontext.gregs[REG_RIP];
             //	register uint32_t instn1 = instn & OPCODE_MASK;
             //
             // 	/* ivory register not TagSpace */
@@ -1585,18 +1585,19 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
 #define OPCODE_LBZ 0x88000000
 #define OPCODE_STB 0x98000000
 
-void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
+void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
 {
-    register struct ucontext* uc = (struct ucontext*)uc_p;
+    register struct ucontext *uc = (struct ucontext *)uc_p;
     register uint64_t maybevma
-        = (uint64_t)((Tag*)uc->uc_mcontext->es.dar - TagSpace);
+        = (uint64_t)((Tag *)uc->uc_mcontext->es.dar - TagSpace);
     register Integer vma = (Integer)maybevma;
     register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
 
     if (maybevma >> 32) {
         /* Not a fault in Lisp space */
         vpunt(NULL, "Unexpected SEGV at PC %p on VMA %p",
-            (void*)uc->uc_mcontext->ss.srr0, (void*)uc->uc_mcontext->es.dar);
+            (void *)uc->uc_mcontext->ss.srr0,
+            (void *)uc->uc_mcontext->es.dar);
     }
 
     if (last_vma == (caddr_t)uc->uc_mcontext->es.dar) {
@@ -1618,7 +1619,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     case VMAttribute_Exists | VMAttribute_TransportDisable
         | VMAttribute_TransportFault: {
         /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry* ptr = ResidentPagesPointer;
+        register PHTEntry *ptr = ResidentPagesPointer;
 
         *ptr = vma;
         if (++ptr >= &ResidentPages[ResidentPages_Size]) {
@@ -1634,7 +1635,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     default:
         /* verify that it is a Lisp fault */
         {
-            uint32_t instn = *(uint32_t*)uc->uc_mcontext->ss.srr0;
+            uint32_t instn = *(uint32_t *)uc->uc_mcontext->ss.srr0;
             register uint32_t instn1 = instn & OPCODE_MASK;
 
             if ((uc->uc_mcontext->ss.r30
@@ -1644,8 +1645,8 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
             {
                 /* Not a Lisp fault */
                 vpunt(NULL, "Unexpected SEGV at PC %p (instn=%p) on VMA %p",
-                    (void*)uc->uc_mcontext->ss.srr0, (void*)instn,
-                    (void*)uc->uc_mcontext->es.dar);
+                    (void *)uc->uc_mcontext->ss.srr0, (void *)instn,
+                    (void *)uc->uc_mcontext->es.dar);
             }
         }
 
@@ -1657,17 +1658,17 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
 
 #elif defined(__FreeBSD__)
 
-void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
+void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
 {
-    register struct __ucontext* uc = (struct __ucontext*)uc_p;
-    register uint64_t maybevma = (uint64_t)((Tag*)si->si_addr - TagSpace);
+    register struct __ucontext *uc = (struct __ucontext *)uc_p;
+    register uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
     register Integer vma = (Integer)maybevma;
     register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
 
     if (maybevma >> 32) {
         /* Not a fault in Lisp space */
         vpunt(NULL, "Unexpected SEGV at PC %p on VMA %p",
-            (void*)uc->uc_mcontext.mc_rip, si->si_addr);
+            (void *)uc->uc_mcontext.mc_rip, si->si_addr);
     }
 
     if (last_vma == (caddr_t)si->si_addr) {
@@ -1689,7 +1690,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     case VMAttribute_Exists | VMAttribute_TransportDisable
         | VMAttribute_TransportFault: {
         /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry* ptr = ResidentPagesPointer;
+        register PHTEntry *ptr = ResidentPagesPointer;
 
         *ptr = vma;
         if (++ptr >= &ResidentPages[ResidentPages_Size]) {
@@ -1705,7 +1706,7 @@ void segv_handler(int sigval, register siginfo_t* si, void* uc_p)
     default:
         /* verify that it is a Lisp fault */
         {
-            uint32_t instn = *(uint32_t*)uc->uc_mcontext.mc_rip;
+            uint32_t instn = *(uint32_t *)uc->uc_mcontext.mc_rip;
             //	register uint32_t instn1 = instn & OPCODE_MASK;
             //
             // 	/* ivory register not TagSpace */

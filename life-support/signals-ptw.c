@@ -249,7 +249,7 @@ void TerminateSignalHandlers()
 
 static void SignalHandlerTopLevel(pthread_addr_t argument)
 {
-    SignalHandler* signalHandler = (SignalHandler*)argument;
+    SignalHandler *signalHandler = (SignalHandler *)argument;
     pthread_t self = signalHandler->handlerThread;
 
     pthread_cleanup_push(pthread_detach, &self);

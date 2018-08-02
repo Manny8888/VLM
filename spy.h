@@ -7,11 +7,11 @@
 #include "life_types.h"
 #include "embed.h"
 
-extern EmbMBINChannel* activeMBINChannel;
+extern EmbMBINChannel *activeMBINChannel;
 
 void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress);
 void ReleaseSpyLock(void);
-void SendMBINBuffers(EmbMBINChannel* mbinChannel);
+void SendMBINBuffers(EmbMBINChannel *mbinChannel);
 void TerminateSpy(void);
 
 static void RemoteMemorySpyLoop(void);

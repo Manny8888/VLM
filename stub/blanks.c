@@ -5,14 +5,14 @@ void fake_decodefault()
     while (1)
         ;
 }
-void* DECODEFAULT = &fake_decodefault;
+void *DECODEFAULT = &fake_decodefault;
 void fake_icachemiss()
 {
     printf("ICACHEMISS\n");
     while (1)
         ;
 }
-void* ICACHEMISS = &fake_icachemiss;
+void *ICACHEMISS = &fake_icachemiss;
 
 void ARITHMETICEXCEPTION()
 {

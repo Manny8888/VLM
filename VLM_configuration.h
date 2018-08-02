@@ -15,16 +15,16 @@
 /* X window configuration parameters */
 
 typedef struct {
-    char* xpHostName; /* Name of host where screen will appear; NULL for local
+    char *xpHostName; /* Name of host where screen will appear; NULL for local
                        */
     long xpHostAddress; /* Protocol address of the above */
     int xpDisplay; /* Display number on the host; -1 for default */
     int xpScreen; /* Screen number on the host; -1 for default */
     int xpInitialState; /* Window's initial state (a WindowInitialState) */
-    char* xpGeometry; /* X geometry specification for window */
-    char* xpForegroundColor; /* Name of foreground color */
-    char* xpBackgroundColor; /* Name of background color */
-    char* xpBorderColor; /* Name of border color */
+    char *xpGeometry; /* X geometry specification for window */
+    char *xpForegroundColor; /* Name of foreground color */
+    char *xpBackgroundColor; /* Name of background color */
+    char *xpBorderColor; /* Name of border color */
     int xpBorderWidth; /* Width of border in pixels */
 } XParams;
 
@@ -38,8 +38,8 @@ typedef struct NetworkInterface {
     struct in_addr myAddress; /* Primary protocol address */
 #ifdef GENERA
     char myOptions[_POSIX_PATH_MAX + 1]; /* Primary network options */
-    struct NetworkInterface*
-        anotherAddress; /* Secondary address for this interface */
+    struct NetworkInterface
+        *anotherAddress; /* Secondary address for this interface */
 #endif
 } NetworkInterface;
 
@@ -92,7 +92,7 @@ typedef struct {
     int bufferSize; /* Size of circular trace buffer */
     unsigned int startPC; /* PC where tracing will start if non-zero */
     unsigned int stopPC; /* PC where tracing will stop if non-zero */
-    char* outputFile; /* Name of file to record full trace */
+    char *outputFile; /* Name of file to record full trace */
 } TraceConfig;
 
 /* Main configuration data structure */
@@ -108,7 +108,7 @@ typedef struct {
     char worldPath[_POSIX_PATH_MAX
         + 1]; /* Pathname of world load to be loaded */
 #ifdef GENERA
-    char* worldSearchPath; /* -> Directories to search for worlds */
+    char *worldSearchPath; /* -> Directories to search for worlds */
     boolean enableIDS; /* TRUE => allow incremental disk saves */
     size_t virtualMemory; /* Size of emulated virtual memory */
 #endif

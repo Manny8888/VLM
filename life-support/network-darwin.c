@@ -9,11 +9,11 @@
 
 /* Create the network channels */
 
-void InitializeNetworkChannels(VLMConfig* config) {}
+void InitializeNetworkChannels(VLMConfig *config) {}
 
 /* Reset a network channel */
 
-void ResetNetworkChannel(EmbChannel* channel) {}
+void ResetNetworkChannel(EmbChannel *channel) {}
 
 /* Cleanup the network channels */
 

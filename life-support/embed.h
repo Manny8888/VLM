@@ -261,7 +261,7 @@ typedef struct {
 } EmbCommArea;
 
 /*** Static variable containing the address of the communication area ***/
-extern EmbCommArea* EmbCommAreaPtr;
+extern EmbCommArea *EmbCommAreaPtr;
 
 /* Values for EmbCommArea.system_type */
 enum system_type {
@@ -330,11 +330,11 @@ enum FEPStatus {
 
 /* Convert a guest pointer (EmbPtr) to a host pointer */
 /* Assumes EmbCommAreaPtr is an accessible variable */
-#define HostPointer(p) (PtrV)(&((EmbWord*)EmbCommAreaPtr)[p])
+#define HostPointer(p) (PtrV)(&((EmbWord *)EmbCommAreaPtr)[p])
 
 /* Convert a host pointer to a guest pointer (EmbPtr) */
 /* Assumes EmbCommAreaPtr is an accessible variable */
-#define GuestPointer(p) (EmbPtr)((EmbWord*)p - (EmbWord*)EmbCommAreaPtr)
+#define GuestPointer(p) (EmbPtr)((EmbWord *)p - (EmbWord *)EmbCommAreaPtr)
 
 /*** Strings ***/
 
@@ -355,21 +355,21 @@ typedef struct {
     EmbWord first_element[1]; /* Array of elements starts here */
 } EmbQueue;
 
-void EmbQueuePut(EmbQueue* q, PtrV element); /* Put element into queue */
-bool EmbQueueTake(EmbQueue* q, PtrV element); /* Take element from queue */
-int EmbQueueSpace(EmbQueue* q); /* Number of free elements */
-int EmbQueueFilled(EmbQueue* q); /* Number of non-free elements */
+void EmbQueuePut(EmbQueue *q, PtrV element); /* Put element into queue */
+bool EmbQueueTake(EmbQueue *q, PtrV element); /* Take element from queue */
+int EmbQueueSpace(EmbQueue *q); /* Number of free elements */
+int EmbQueueFilled(EmbQueue *q); /* Number of non-free elements */
 void EmbQueuePutWord(
-    EmbQueue* q, EmbWord element); /* Put element into word queue */
-EmbWord EmbQueueTakeWord(EmbQueue* q); /* Take element from word queue */
+    EmbQueue *q, EmbWord element); /* Put element into word queue */
+EmbWord EmbQueueTakeWord(EmbQueue *q); /* Take element from word queue */
 void EmbQueuePutByte(
-    EmbQueue* q, byte element); /* Put element into byte queue */
-byte EmbQueueTakeByte(EmbQueue* q); /* Take element from byte queue */
+    EmbQueue *q, byte element); /* Put element into byte queue */
+byte EmbQueueTakeByte(EmbQueue *q); /* Take element from byte queue */
 int EmbQueuePutWords(
-    EmbQueue* q, EmbWord* elements, int count); /* Multi-word */
-int EmbQueueTakeWords(EmbQueue* q, EmbWord* elements, int count);
-int EmbQueuePutBytes(EmbQueue* q, byte* elements, int count); /* Multi-byte */
-int EmbQueueTakeBytes(EmbQueue* q, byte* elements, int count);
+    EmbQueue *q, EmbWord *elements, int count); /* Multi-word */
+int EmbQueueTakeWords(EmbQueue *q, EmbWord *elements, int count);
+int EmbQueuePutBytes(EmbQueue *q, byte *elements, int count); /* Multi-byte */
+int EmbQueueTakeBytes(EmbQueue *q, byte *elements, int count);
 
 /*** Channels ***/
 
@@ -427,8 +427,8 @@ typedef struct {
 /* Internal data describing the disk channel */
 
 typedef struct {
-    EmbQueue* command_queue_ptr; /* For faster access to the queues ... */
-    EmbQueue* status_queue_ptr; /* ... */
+    EmbQueue *command_queue_ptr; /* For faster access to the queues ... */
+    EmbQueue *status_queue_ptr; /* ... */
     bool
         error_pending; /* TRUE => channel is in error and needs to be reset */
     int fd; /* File descriptor of the partition or -1 if not open */
@@ -572,24 +572,24 @@ typedef struct {
     EmbWord
         inputAvailableP; /* Non-zero if input is available without blocking */
     /* The remaining fields are not visible to Ivory */
-    EmbQueue* outputRequestQ; /* For faster access to the queues ... */
-    EmbQueue* outputReplyQ; /* ... */
-    EmbQueue* inputRequestQ; /* ... */
-    EmbQueue* inputReplyQ; /* ... */
+    EmbQueue *outputRequestQ; /* For faster access to the queues ... */
+    EmbQueue *outputReplyQ; /* ... */
+    EmbQueue *inputRequestQ; /* ... */
+    EmbQueue *inputReplyQ; /* ... */
     pthread_t drawRunLights; /* Thread used to draw the run lights */
     bool drawRunLightsSetup; /* TRUE => The above thread exists */
-    char* hostName; /* Name of the host where the console will appear */
-    void* display; /* X display object of the console */
+    char *hostName; /* Name of the host where the console will appear */
+    void *display; /* X display object of the console */
     int fd; /* File descriptor from display object for I/O */
     int openingState; /* Open display substate (an OpeningState) */
     int nextPixmapFormat; /* Index of next pixmap format to return to Lisp */
     int nextRoot; /* Index of next root screen ... */
     int nextRootDepth; /* Index of said root's next depth ... */
     int nextRootDepthVisual; /* Index of said root's depth's next visual ...*/
-    void* rlDisplay; /* Display used to draw the run lights */
+    void *rlDisplay; /* Display used to draw the run lights */
     EmbConsoleRunLights
         runLights; /* Describes where and how the run lights are drawn */
-    void* rlGC; /* Graphic context for the run lights */
+    void *rlGC; /* Graphic context for the run lights */
     EmbWord lastRunLights; /* Value of run lights when we last drew them */
 } EmbConsoleChannel;
 
@@ -700,7 +700,7 @@ typedef struct {
    Added to the host's ARP by InitializeLifeSupport and removed by
    TerminateLifeSupport */
 typedef struct EmbNetARPReq {
-    struct EmbNetARPReq* next;
+    struct EmbNetARPReq *next;
     struct arpreq arp;
 } EmbNetARPReq;
 #endif
@@ -741,18 +741,18 @@ typedef struct {
     EmbPtr addressString; /* String describing this interface's network
                              address */
     /* The remaining fields are not visible to Ivory */
-    EmbQueue* guestToHostQ; /* For faster access to the queues ... */
-    EmbQueue* guestToHostReturnQ; /* ... */
-    EmbQueue* hostToGuestSupplyQ; /* ... */
-    EmbQueue* hostToGuestQ; /* ... */
+    EmbQueue *guestToHostQ; /* For faster access to the queues ... */
+    EmbQueue *guestToHostReturnQ; /* ... */
+    EmbQueue *hostToGuestSupplyQ; /* ... */
+    EmbQueue *hostToGuestQ; /* ... */
 #ifdef USE_LIBPCAP
-    pcap_t* pcap;
+    pcap_t *pcap;
 #else
     int fd; /* File descriptor of our filter or -1 if not open */
 #ifdef OS_LINUX
     struct sockaddr_ll sll; /* Contains information needed to write packets */
-    EmbNetARPReq*
-        arpReq; /* List of ARP entries associated with this channel */
+    EmbNetARPReq
+        *arpReq; /* List of ARP entries associated with this channel */
 #endif
 #endif
     EmbNetFilter filter; /* Our packet filter psuedo-code */
@@ -812,11 +812,11 @@ enum EmbMessageImpulse { EmbMessageImpulseNone = 0 };
 
 #define EmbMessageSubtypeDataHeader                                          \
     struct {                                                                 \
-        EmbMessageChannel*                                                   \
-            nextActiveChannel; /* Pointer to next active message channel */  \
-        EmbCommArea*                                                         \
-            commArea; /* Backpointers for use by the signal handler */       \
-        EmbMessageChannel* messageChannel; /* ... */                         \
+        EmbMessageChannel                                                    \
+            *nextActiveChannel; /* Pointer to next active message channel */ \
+        EmbCommArea                                                          \
+            *commArea; /* Backpointers for use by the signal handler */      \
+        EmbMessageChannel *messageChannel; /* ... */                         \
     } header
 
 typedef struct {
@@ -848,8 +848,8 @@ typedef struct {
 
 typedef struct {
     EmbMessageSubtypeDataHeader;
-    EmbQueue* guestToHostQueue; /* More convenient form of queue pointers */
-    EmbQueue* guestToHostReturnQueue; /* ... */
+    EmbQueue *guestToHostQueue; /* More convenient form of queue pointers */
+    EmbQueue *guestToHostReturnQueue; /* ... */
 } EmbCommandChannel;
 
 enum EmbCommandBufferOpcode {
@@ -879,10 +879,10 @@ typedef struct {
 
 typedef struct {
     EmbMessageSubtypeDataHeader;
-    EmbQueue* guestToHostQueue; /* More convenient form of queue pointers */
-    EmbQueue* guestToHostReturnQueue; /* ... */
-    EmbQueue* hostToGuestQueue; /* ... */
-    EmbQueue* hostToGuestSupplyQueue; /* ... */
+    EmbQueue *guestToHostQueue; /* More convenient form of queue pointers */
+    EmbQueue *guestToHostReturnQueue; /* ... */
+    EmbQueue *hostToGuestQueue; /* ... */
+    EmbQueue *hostToGuestSupplyQueue; /* ... */
 } EmbMBINChannel;
 
 enum EmbMBINImpulse { EmbMBINImpulseShutdown = 1 };

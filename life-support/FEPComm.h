@@ -155,6 +155,6 @@ typedef struct {
 
 #endif
 
-extern FEPCommArea* FEPCommAreaPtr;
+extern FEPCommArea *FEPCommAreaPtr;
 
 #endif

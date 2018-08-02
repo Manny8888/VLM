@@ -56,7 +56,7 @@ typedef struct {
     EmbWord bootPROMVersion;
 } BootCommArea;
 
-extern BootCommArea* BootCommAreaPtr;
+extern BootCommArea *BootCommAreaPtr;
 
 #define BootStackBase 0xF8000100L
 #define BootStackSize 0xF00L
@@ -122,6 +122,6 @@ typedef struct {
     EmbWord bootSelectedConsoleType;
 } BootDataArea;
 
-extern BootDataArea* BootDataAreaPtr;
+extern BootDataArea *BootDataAreaPtr;
 
 #endif

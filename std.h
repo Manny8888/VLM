@@ -43,15 +43,15 @@
 
 #include <pthread.h>
 
-typedef void* pthread_addr_t;
-typedef void (*pthread_cleanuproutine_t)(void*);
-typedef void* (*pthread_startroutine_t)(void*);
+typedef void *pthread_addr_t;
+typedef void (*pthread_cleanuproutine_t)(void *);
+typedef void *(*pthread_startroutine_t)(void *);
 
 #ifndef OS_OSF
 #define pthread_yield sched_yield
 int pthread_get_expiration_np(
-    const struct timespec* delta, struct timespec* abstime);
-int pthread_delay_np(const struct timespec* interval);
+    const struct timespec *delta, struct timespec *abstime);
+int pthread_delay_np(const struct timespec *interval);
 #endif
 
 #ifdef OS_OSF
@@ -110,7 +110,7 @@ typedef unsigned long int uintmax_t;
 #endif
 
 typedef void (*sa_handler_t)(int);
-typedef void (*sa_sigaction_t)(int, siginfo_t*, void*);
+typedef void (*sa_sigaction_t)(int, siginfo_t *, void *);
 
 #include <errno.h>
 #include <string.h>

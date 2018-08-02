@@ -68,7 +68,7 @@
  */
 
 #if !defined(lint) && defined(INCLUDE_FILE_HEADERS)
-static char* s_char_rcsid
+static char *s_char_rcsid
     = "@(#)$Header: /cvs/VLM/VLM/life-support/symbolics_characters.h,v 1.2 "
       "2003/12/03 17:19:23 palter Exp $";
 #endif

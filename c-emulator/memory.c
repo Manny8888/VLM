@@ -17,8 +17,8 @@ const LispObj ObjectCdrMask = { TagCdrMask, 0 };
 extern Integer memory_vma;
 
 /* Superstition says threads go at 1<<32 */
-Tag* TagSpace = (Tag*)((long)2 << 32); /* 1<<32 bytes of tages */
-Integer* DataSpace = (Integer*)((long)3 << 32); /* 4<<32 bytes of data */
+Tag *TagSpace = (Tag *)((long)2 << 32); /* 1<<32 bytes of tages */
+Integer *DataSpace = (Integer *)((long)3 << 32); /* 4<<32 bytes of data */
 
 /*
    --- We know underlying machine uses 8192-byte pages, we have to
@@ -137,11 +137,11 @@ Integer DestroyVirtualAddressRange(Integer vma, int count)
     return (vma);
 }
 
-Integer* MapVirtualAddressData(Integer vma) { return (&DataSpace[vma]); }
+Integer *MapVirtualAddressData(Integer vma) { return (&DataSpace[vma]); }
 
-Tag* MapVirtualAddressTag(Integer vma) { return (&TagSpace[vma]); }
+Tag *MapVirtualAddressTag(Integer vma) { return (&TagSpace[vma]); }
 
-int VirtualMemoryRead(Integer vma, LispObj* object)
+int VirtualMemoryRead(Integer vma, LispObj *object)
 {
     /* set memory_vma for SEGV handler */
     memory_vma = vma;
@@ -151,7 +151,7 @@ int VirtualMemoryRead(Integer vma, LispObj* object)
     return (0);
 }
 
-int VirtualMemoryWrite(Integer vma, LispObj* object)
+int VirtualMemoryWrite(Integer vma, LispObj *object)
 {
     /* set memory_vma for SEGV handler */
     memory_vma = vma;
@@ -161,11 +161,11 @@ int VirtualMemoryWrite(Integer vma, LispObj* object)
     return (0);
 }
 
-int VirtualMemoryReadBlock(Integer vma, LispObj* object, int count)
+int VirtualMemoryReadBlock(Integer vma, LispObj *object, int count)
 {
-    Integer* data = &DataSpace[vma];
-    Tag* tag = &TagSpace[vma];
-    Integer* edata = &DataSpace[vma + count];
+    Integer *data = &DataSpace[vma];
+    Tag *tag = &TagSpace[vma];
+    Integer *edata = &DataSpace[vma + count];
 
     /* set memory_vma for SEGV handler */
     memory_vma = vma;
@@ -177,11 +177,11 @@ int VirtualMemoryReadBlock(Integer vma, LispObj* object, int count)
     return (0);
 }
 
-int VirtualMemoryWriteBlock(Integer vma, LispObj* object, int count)
+int VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count)
 {
-    Integer* data = &DataSpace[vma];
-    Tag* tag = &TagSpace[vma];
-    Integer* edata = &DataSpace[vma + count];
+    Integer *data = &DataSpace[vma];
+    Tag *tag = &TagSpace[vma];
+    Integer *edata = &DataSpace[vma + count];
 
     /* set memory_vma for SEGV handler */
     memory_vma = vma;
@@ -194,24 +194,24 @@ int VirtualMemoryWriteBlock(Integer vma, LispObj* object, int count)
 }
 
 int VirtualMemoryWriteBlockConstant(
-    Integer vma, LispObj* object, int count, int increment)
+    Integer vma, LispObj *object, int count, int increment)
 {
-    Integer* data = &DataSpace[vma];
-    Tag* tag = &TagSpace[vma];
+    Integer *data = &DataSpace[vma];
+    Tag *tag = &TagSpace[vma];
     Tag ctag = object->TAG;
     Integer cdata = object->DATA.u;
-    Integer* edata = &DataSpace[vma + count];
+    Integer *edata = &DataSpace[vma + count];
 
     /* set memory_vma for SEGV handler */
     memory_vma = vma;
 
     (void)memset(
-        (unsigned char*)tag, (unsigned char)ctag, count * sizeof(Tag));
+        (unsigned char *)tag, (unsigned char)ctag, count * sizeof(Tag));
 
     switch (increment) {
     case 0:
         if (cdata == 0)
-            (void)memset((unsigned char*)data, (unsigned char)0,
+            (void)memset((unsigned char *)data, (unsigned char)0,
                 count * sizeof(Integer));
         else
             for (; data < edata; *data++ = cdata, memory_vma++)
@@ -230,15 +230,15 @@ int VirtualMemoryWriteBlockConstant(
 }
 
 /* --- bleah, this probably has to use data-read cycles */
-Boolean VirtualMemorySearch(Integer* vma, LispObj* object, int count)
+Boolean VirtualMemorySearch(Integer *vma, LispObj *object, int count)
 {
-    Tag* tag = &TagSpace[*vma];
-    Tag* etag = &TagSpace[*vma + count];
+    Tag *tag = &TagSpace[*vma];
+    Tag *etag = &TagSpace[*vma + count];
     Tag ctag = object->TAG;
     Integer cdata = object->DATA.u;
 
     for (; tag < etag;) {
-        tag = (Tag*)memchr((unsigned char*)tag, (unsigned char)ctag,
+        tag = (Tag *)memchr((unsigned char *)tag, (unsigned char)ctag,
             (etag - tag) * sizeof(Tag));
         if (tag == NULL)
             return (False);
@@ -256,11 +256,11 @@ Boolean VirtualMemorySearch(Integer* vma, LispObj* object, int count)
 
 int VirtualMemoryCopy(Integer from, Integer to, int count, Byte row[])
 {
-    Integer* fromdata = &DataSpace[from];
-    register Tag* fromtag = &TagSpace[from];
-    register Tag* etag = &TagSpace[from + count];
-    Integer* todata = &DataSpace[to];
-    register Tag* totag = &TagSpace[to];
+    Integer *fromdata = &DataSpace[from];
+    register Tag *fromtag = &TagSpace[from];
+    register Tag *etag = &TagSpace[from + count];
+    Integer *todata = &DataSpace[to];
+    register Tag *totag = &TagSpace[to];
     LispObj obj;
     Tag tag;
     int action;
@@ -269,9 +269,9 @@ int VirtualMemoryCopy(Integer from, Integer to, int count, Byte row[])
     memory_vma = from;
 
     if (row == MemoryActionTable[CycleRaw]) {
-        (void)memmove((unsigned char*)totag, (unsigned char*)fromtag,
+        (void)memmove((unsigned char *)totag, (unsigned char *)fromtag,
             count * sizeof(Tag));
-        (void)memmove((unsigned char*)todata, (unsigned char*)fromdata,
+        (void)memmove((unsigned char *)todata, (unsigned char *)fromdata,
             count * sizeof(Integer));
         return (0);
     }
@@ -302,15 +302,15 @@ int VirtualMemoryCopy(Integer from, Integer to, int count, Byte row[])
     return (0);
 }
 
-Boolean VirtualMemoryScan(Integer* vma, int count)
+Boolean VirtualMemoryScan(Integer *vma, int count)
 {
-    VMAttribute* attr = &VMAttributeTable[MemoryPageNumber(*vma)];
+    VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(*vma)];
 
     for (; count > 0; attr++, count -= MemoryPageSize) {
         if (VMTransportFault(*attr)) {
             Integer scanvma = PageNumberMemory(attr - VMAttributeTable);
-            register Tag* tag = &TagSpace[scanvma];
-            register Tag* etag = &TagSpace[scanvma
+            register Tag *tag = &TagSpace[scanvma];
+            register Tag *etag = &TagSpace[scanvma
                 + (MemoryPageSize < count ? MemoryPageSize : count)];
 
             for (; tag < etag; tag++) {
@@ -327,8 +327,8 @@ Boolean VirtualMemoryScan(Integer* vma, int count)
 
 void VirtualMemoryEnable(Integer vma, int count)
 {
-    register VMAttribute* attr = &VMAttributeTable[MemoryPageNumber(vma)];
-    register VMAttribute* eattr
+    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
+    register VMAttribute *eattr
         = &VMAttributeTable[MemoryPageNumber(vma + count)];
 
     for (; attr < eattr; attr++) {
@@ -342,7 +342,7 @@ VMState VM;
 
 int VMCommand(int command)
 {
-    register VMState* vm = &VM;
+    register VMState *vm = &VM;
 
     switch
         VMCommandOpcode(command)

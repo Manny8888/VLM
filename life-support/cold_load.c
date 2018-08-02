@@ -38,17 +38,17 @@ int run_lights_state;
 #define NETWORK_RUN_LIGHT 5
 #define NETBOOT_PROGRESS_BAR 7
 
-static EmbColdLoadChannel* cold_channel = NULL;
+static EmbColdLoadChannel *cold_channel = NULL;
 static EmbQueue *keyboard_queue = NULL, *display_queue = NULL;
 
-static Display* display = NULL;
-static Screen* screen;
-static Visual* visual;
+static Display *display = NULL;
+static Screen *screen;
+static Visual *visual;
 static Window window, icon_window, root;
 static Colormap colormap;
 static GC gc, icon_gc, icon_gc_s, icon_gc_c, icon_gc_t;
 static Pixmap icon_bitmap = 0, cptfont_bitmap = 0;
-static XModifierKeymap* originalModmap = NULL;
+static XModifierKeymap *originalModmap = NULL;
 static int icon_width = 32, icon_height = 36;
 static int char_width, char_height, width = 0, height = 0;
 static int loff, toff, roff, boff;
@@ -63,19 +63,19 @@ static int progress_bar_first_x, progress_bar_width, run_label_width,
 static int progress_bar_numerator_state = 0,
            progress_bar_denominator_state = 0;
 static int progress_bar_length_state = 0, progress_label_length;
-static char* progress_label = NULL;
+static char *progress_label = NULL;
 static int meta_mask = 0, super_mask = 0, hyper_mask = 0;
 static jmp_buf x_io_error;
 
 typedef struct {
     int length;
-    char* chars;
+    char *chars;
 } line;
 
-static line* screen_array = NULL;
+static line *screen_array = NULL;
 static enum KeyboardType keyboardType = Unknown;
-static coldmapentry* skMap = NULL;
-static short* fkMap = NULL;
+static coldmapentry *skMap = NULL;
+static short *fkMap = NULL;
 static int removeNumLockModifier = 0;
 
 /* Internal function prototypes -- Here to avoid including X headers
@@ -83,39 +83,39 @@ static int removeNumLockModifier = 0;
 
 static void alloc_screen_array(int new_width_pixels, int new_height_pixels);
 static void ColdLoadInput(pthread_addr_t argument);
-static void ColdLoadOutput(void* ignored);
-static int ColdXErrorHandler(Display* display, XErrorEvent* error);
+static void ColdLoadOutput(void *ignored);
+static int ColdXErrorHandler(Display *display, XErrorEvent *error);
 static void close_display(void);
 static void close_display_child_hook(void);
 static void close_run_lights_display(void);
-static int do_modifier(XModifierKeymap** modmapp, int* changedp,
+static int do_modifier(XModifierKeymap **modmapp, int *changedp,
     KeyCode code1, KeyCode code2, KeyCode code3);
-static int find_modifier(XModifierKeymap* modmap, KeyCode code);
-static int find_unused_modifier(XModifierKeymap** modmapp);
-static void get_keyboard_modifier_codes(KeyCode* control_l_code,
-    KeyCode* control_r_code, KeyCode* meta_l_code, KeyCode* meta_r_code,
-    KeyCode* alt_l_code, KeyCode* super_code, KeyCode* hyper_code);
+static int find_modifier(XModifierKeymap *modmap, KeyCode code);
+static int find_unused_modifier(XModifierKeymap **modmapp);
+static void get_keyboard_modifier_codes(KeyCode *control_l_code,
+    KeyCode *control_r_code, KeyCode *meta_l_code, KeyCode *meta_r_code,
+    KeyCode *alt_l_code, KeyCode *super_code, KeyCode *hyper_code);
 static void handle_input(void);
 static void handle_output(void);
 static void handle_output_command(uEmbWord command);
 static void hide_cursor(void);
-static int initialize_cold(XParams* cl_params, boolean noWaiting);
+static int initialize_cold(XParams *cl_params, boolean noWaiting);
 static void manage_cold_load_output(void);
-static int manage_x_input(XParams* params);
+static int manage_x_input(XParams *params);
 static int mask_to_modifier(int mask);
-static int open_cold_load_display(XParams* params, boolean noWaiting);
-static void open_run_lights_display(XParams* params, Window window_id,
+static int open_cold_load_display(XParams *params, boolean noWaiting);
+static void open_run_lights_display(XParams *params, Window window_id,
     int nlights, unsigned int width, unsigned int height, unsigned int x,
     unsigned int y, unsigned int dx, unsigned int dy, unsigned int foreground,
     unsigned int background, unsigned int plane_mask);
-static void open_display(XParams* params, boolean noWaiting);
+static void open_display(XParams *params, boolean noWaiting);
 static void redisplay_line(int y, int x, int xlim);
 static void redisplay_screen_array(int minx, int miny, int maxx, int maxy);
 static void replay_command_history(void);
 static void reset_light_state(int screen_cleared_p);
 static void SetColdLoadNames(void);
 static void SetColdXErrorHandler(void);
-static void SetupColdLoadNameStrings(VLMConfig* config);
+static void SetupColdLoadNameStrings(VLMConfig *config);
 static void setup_modifier_mapping(void);
 static int setup_x_io_error_handler(void);
 static void show_cursor_internal(int new_state);
@@ -126,7 +126,7 @@ static void update_cold_load_blinkers(void);
 
 #define show_cursor() show_cursor_internal(EmbCommAreaPtr->fep.cursor)
 
-static int open_cold_load_display(XParams* params, boolean noWaiting)
+static int open_cold_load_display(XParams *params, boolean noWaiting)
 {
     open_display(params, noWaiting);
     if (display != NULL) {
@@ -136,7 +136,7 @@ static int open_cold_load_display(XParams* params, boolean noWaiting)
         return (-1);
 }
 
-static int manage_x_input(XParams* params)
+static int manage_x_input(XParams *params)
 {
     while (display != NULL && XPending(display))
         handle_input();
@@ -172,14 +172,14 @@ static void stop_cold_x()
     end_MUTEX_LOCKED(XLock);
 }
 
-static void open_display(XParams* params, boolean noWaiting)
+static void open_display(XParams *params, boolean noWaiting)
 {
     XWMHints wmhints;
     XSizeHints sizehints;
     XColor color;
     XSetWindowAttributes attributes;
     XGCValues gcv;
-    XFontStruct* fontinfo;
+    XFontStruct *fontinfo;
     char display_name[BUFSIZ], *cp;
     int screen_no, border_width, w_x, w_y, w_w, w_h, g_flags;
     struct timespec openSleep;
@@ -369,7 +369,7 @@ static void handle_input()
     XEvent event;
     KeySym keysym;
     int key = -1, bits = 0;
-    coldmapentry* mapp;
+    coldmapentry *mapp;
     static int first_keypress = 1;
 
     XNextEvent(display, &event);
@@ -482,7 +482,7 @@ static void handle_input()
 
 static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
 {
-    line* old_screen_array = screen_array;
+    line *old_screen_array = screen_array;
     int old_width = width;
     int old_height = height;
     int y = 0;
@@ -497,10 +497,10 @@ static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
     if ((new_width == old_width) && (new_height == old_height))
         return;
 
-    screen_array = (line*)malloc(new_height * sizeof(line));
+    screen_array = (line *)malloc(new_height * sizeof(line));
     while (y < new_height) {
         screen_array[y].length = 0;
-        screen_array[y].chars = (char*)malloc(new_width);
+        screen_array[y].chars = (char *)malloc(new_width);
         memset(screen_array[y].chars, ' ', new_width);
         if (y < old_height) {
             screen_array[y].length = old_screen_array[y].length < new_width
@@ -627,7 +627,7 @@ static void show_lights(int force)
 {
     int i, bit;
     int changed = light_state ^ EmbCommAreaPtr->run_lights;
-    EmbColdLoadChannel* cls;
+    EmbColdLoadChannel *cls;
     int pb_length, pb_length_change;
 
     light_state = EmbCommAreaPtr->run_lights;
@@ -680,7 +680,7 @@ static void show_lights(int force)
                             + (NETWORK_RUN_LIGHT * RUN_LIGHT_SPACING),
                         run_label_y, "Net", 3);
                     /* Allocate memory for progress label cache */
-                    progress_label = (char*)calloc(
+                    progress_label = (char *)calloc(
                         cls->progress_note.string_total_size, sizeof(char));
                     progress_label_length = 0;
                 }
@@ -880,9 +880,9 @@ static void handle_output_command(uEmbWord command)
     }
 }
 
-static void get_keyboard_modifier_codes(KeyCode* control_l_code,
-    KeyCode* control_r_code, KeyCode* meta_l_code, KeyCode* meta_r_code,
-    KeyCode* alt_l_code, KeyCode* super_code, KeyCode* hyper_code)
+static void get_keyboard_modifier_codes(KeyCode *control_l_code,
+    KeyCode *control_r_code, KeyCode *meta_l_code, KeyCode *meta_r_code,
+    KeyCode *alt_l_code, KeyCode *super_code, KeyCode *hyper_code)
 {
     KeyCode keycode1, keycode2;
 
@@ -900,8 +900,8 @@ static void get_keyboard_modifier_codes(KeyCode* control_l_code,
 
     if (keycode1 != 0 || keycode2 != 0) {
         keyboardType = Apple_Pro;
-        skMap = (coldmapentry*)&coldmapApple;
-        fkMap = (short*)&fkmapApple;
+        skMap = (coldmapentry *)&coldmapApple;
+        fkMap = (short *)&fkmapApple;
         if (keycode1 != 0) {
             skMap->keysym = XK_Num_Lock; /* Linux X server */
             /* Linux assigns a modifier mapping to the Num_Lock keysym but, on
@@ -943,16 +943,16 @@ static void get_keyboard_modifier_codes(KeyCode* control_l_code,
 
         if (*hyper_code == 0) {
             keyboardType = DEC_PC;
-            skMap = (coldmapentry*)&coldmapDECPC;
-            fkMap = (short*)&fkmapDECPC;
+            skMap = (coldmapentry *)&coldmapDECPC;
+            fkMap = (short *)&fkmapDECPC;
             *super_code = XKeysymToKeycode(display, XK_Down);
             *hyper_code = XKeysymToKeycode(display, XK_Left);
         }
 
         else {
             keyboardType = DEC_LK401;
-            skMap = (coldmapentry*)&coldmapDECLK;
-            fkMap = (short*)&fkmapDECLK;
+            skMap = (coldmapentry *)&coldmapDECLK;
+            fkMap = (short *)&fkmapDECLK;
         }
     }
 
@@ -966,7 +966,7 @@ static void get_keyboard_modifier_codes(KeyCode* control_l_code,
     return;
 }
 
-static int find_modifier(XModifierKeymap* modmap, KeyCode code)
+static int find_modifier(XModifierKeymap *modmap, KeyCode code)
 {
     int modifier, i;
 
@@ -980,7 +980,7 @@ static int find_modifier(XModifierKeymap* modmap, KeyCode code)
     return -1;
 }
 
-static int find_unused_modifier(XModifierKeymap** modmapp)
+static int find_unused_modifier(XModifierKeymap **modmapp)
 {
     int modifier, i;
     KeyCode num_lock_code;
@@ -1014,7 +1014,7 @@ static int find_unused_modifier(XModifierKeymap** modmapp)
     return -1;
 }
 
-static int do_modifier(XModifierKeymap** modmapp, int* changedp,
+static int do_modifier(XModifierKeymap **modmapp, int *changedp,
     KeyCode code1, KeyCode code2, KeyCode code3)
 {
     int mod = -1;
@@ -1058,7 +1058,7 @@ static int mask_to_modifier(int mask)
 
 static void setup_modifier_mapping()
 {
-    XModifierKeymap* modmap;
+    XModifierKeymap *modmap;
     KeyCode control_l_code, control_r_code, meta_l_code, meta_r_code,
         alt_l_code, super_code, hyper_code;
     int changed = 0;
@@ -1112,13 +1112,13 @@ static void SetColdXErrorHandler()
             = XSetErrorHandler((XErrorHandler)&ColdXErrorHandler);
 }
 
-static int ColdXErrorHandler(Display* display, XErrorEvent* error)
+static int ColdXErrorHandler(Display *display, XErrorEvent *error)
 {
     if (error->request_code != X_KillClient)
         return ((*XErrorDefaultHandler)(display, error));
 }
 
-static int initialize_cold(XParams* cl_params, boolean noWaiting)
+static int initialize_cold(XParams *cl_params, boolean noWaiting)
 {
     int x_fd;
 
@@ -1133,7 +1133,7 @@ static int initialize_cold(XParams* cl_params, boolean noWaiting)
 
 /* The output driver for the Cold Load window */
 
-static void ColdLoadOutput(void* ignored)
+static void ColdLoadOutput(void *ignored)
 {
     begin_MUTEX_LOCKED(XLock);
 
@@ -1150,11 +1150,11 @@ static void ColdLoadOutput(void* ignored)
 static void ColdLoadInput(pthread_addr_t argument)
 {
     pthread_t self = pthread_self();
-    VLMConfig* config = (VLMConfig*)argument;
+    VLMConfig *config = (VLMConfig *)argument;
     struct pollfd xpoll;
 
     pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void*)self);
+        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     WaitUntilInitializationComplete();
 
@@ -1190,20 +1190,20 @@ static char *ColdLoadWindowName = NULL, *ColdLoadIconName = NULL,
 
 static enum GuestStatus lastGuestStatus = NonexistentGuestStatus;
 
-static char* concatenate_string(char* string1, char* string2)
+static char *concatenate_string(char *string1, char *string2)
 {
     int total_size = strlen(string1) + strlen(string2) + 1;
-    char* new_string = malloc(total_size);
+    char *new_string = malloc(total_size);
     if (0 == new_string)
         vpunt(NULL, "No room for concatenated string.");
     strcpy(new_string, string1);
     return (strcat(new_string, string2));
 }
 
-static void SetupColdLoadNameStrings(VLMConfig* config)
+static void SetupColdLoadNameStrings(VLMConfig *config)
 {
-    NetworkInterface* interface;
-    struct hostent* theHost;
+    NetworkInterface *interface;
+    struct hostent *theHost;
     struct in_addr theAddress;
     char *longHostName, *shortHostName, buffer[128], *pp, *aName;
 
@@ -1215,7 +1215,7 @@ static void SetupColdLoadNameStrings(VLMConfig* config)
     case ETHERTYPE_IP:
         theAddress.s_addr = htonl(interface->myAddress.s_addr);
         if (NULL
-            == (theHost = gethostbyaddr((char*)&theAddress.s_addr,
+            == (theHost = gethostbyaddr((char *)&theAddress.s_addr,
                     sizeof(struct in_addr), AF_INET))) {
             sprintf(buffer, "INTERNET|%s", inet_ntoa(theAddress));
             longHostName = shortHostName = strdup(buffer);
@@ -1279,10 +1279,10 @@ void UpdateColdLoadNames()
 
 /* Create the Cold Load Stream's channel */
 
-void InitializeColdLoadChannel(VLMConfig* config)
+void InitializeColdLoadChannel(VLMConfig *config)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbColdLoadChannel));
-    register EmbColdLoadChannel* p = (EmbColdLoadChannel*)HostPointer(cp);
+    register EmbColdLoadChannel *p = (EmbColdLoadChannel *)HostPointer(cp);
 
     p->type = EmbColdLoadChannelType;
     p->unit = 0;
@@ -1294,11 +1294,11 @@ void InitializeColdLoadChannel(VLMConfig* config)
 
     p->keyboard_input_queue
         = CreateQueue(ColdLoadInputQueueSize, sizeof(EmbPtr));
-    keyboard_queue = (EmbQueue*)HostPointer(p->keyboard_input_queue);
+    keyboard_queue = (EmbQueue *)HostPointer(p->keyboard_input_queue);
 
     p->display_output_queue
         = CreateQueue(ColdLoadOutputQueueSize, sizeof(EmbPtr));
-    display_queue = (EmbQueue*)HostPointer(p->display_output_queue);
+    display_queue = (EmbQueue *)HostPointer(p->display_output_queue);
     display_queue->signal
         = InstallSignalHandler((ProcPtrV)&ColdLoadOutput, NULL, FALSE);
 
@@ -1329,15 +1329,15 @@ void InitializeColdLoadChannel(VLMConfig* config)
 
 /* Reset the Cold Load Stream's channel */
 
-void ResetColdLoadChannel(EmbChannel* channel)
+void ResetColdLoadChannel(EmbChannel *channel)
 {
-    register EmbColdLoadChannel* coldLoadChannel
-        = (EmbColdLoadChannel*)channel;
+    register EmbColdLoadChannel *coldLoadChannel
+        = (EmbColdLoadChannel *)channel;
 
     ResetIncomingQueue(
-        (EmbQueue*)HostPointer(coldLoadChannel->display_output_queue));
+        (EmbQueue *)HostPointer(coldLoadChannel->display_output_queue));
     ResetOutgoingQueue(
-        (EmbQueue*)HostPointer(coldLoadChannel->keyboard_input_queue));
+        (EmbQueue *)HostPointer(coldLoadChannel->keyboard_input_queue));
     coldLoadChannel->progress_note.string_length
         = 0; /* Flush any progress note */
     coldLoadChannel->is_selected = FALSE;
@@ -1350,7 +1350,7 @@ void ResetColdLoadChannel(EmbChannel* channel)
 
 void TerminateColdLoadChannel()
 {
-    void* exit_value;
+    void *exit_value;
 
     stop_cold_x();
 

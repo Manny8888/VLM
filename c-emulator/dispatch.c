@@ -344,7 +344,7 @@ static const int PopInstructionDecoder[256] = {
 
 static const int IllegalInstructionDecoder = DispatchIllegalInstruction;
 
-static void DecodeNoneFunction(int i, InstructionCacheLine* cp)
+static void DecodeNoneFunction(int i, InstructionCacheLine *cp)
 {
     cp->operand = 0;
 }
@@ -353,39 +353,39 @@ static InstructionCacheLine InstructionCacheLookupCPRepresentation
     = { TypeOddPC, -1, TypeOddPC, -1, DispatchInstructionCacheLookup, 0, 0,
           NULL };
 
-static void Decode8BitUnsignedOperandFunction(int i, InstructionCacheLine* cp)
+static void Decode8BitUnsignedOperandFunction(int i, InstructionCacheLine *cp)
 {
     cp->operand = i & 0377;
 }
 
-static void Decode8BitSignedOperandFunction(int i, InstructionCacheLine* cp)
+static void Decode8BitSignedOperandFunction(int i, InstructionCacheLine *cp)
 {
     cp->operand = SignExtend8(i);
 }
 
 static void Decode10BitUnsignedOperandFunction(
-    int i, InstructionCacheLine* cp)
+    int i, InstructionCacheLine *cp)
 {
     cp->operand = i & 01777;
 }
 
 static void Decode12BitUnsignedOperandFunction(
-    int i, InstructionCacheLine* cp)
+    int i, InstructionCacheLine *cp)
 {
     cp->operand = i & 07777;
 }
 
-static void DecodeFPOperandFunction(int i, InstructionCacheLine* cp)
+static void DecodeFPOperandFunction(int i, InstructionCacheLine *cp)
 {
     cp->operand = (i & 0377);
 }
 
-static void DecodeLPOperandFunction(int i, InstructionCacheLine* cp)
+static void DecodeLPOperandFunction(int i, InstructionCacheLine *cp)
 {
     cp->operand = (i & 0377);
 }
 
-static void DecodeSPOperandFunction(int i, InstructionCacheLine* cp)
+static void DecodeSPOperandFunction(int i, InstructionCacheLine *cp)
 {
     int offset = i & 0377;
 
@@ -396,12 +396,12 @@ static void DecodeSPOperandFunction(int i, InstructionCacheLine* cp)
         cp->operand = (offset - 255);
 }
 
-static void DecodeBranchOperandFunction(int i, InstructionCacheLine* cp)
+static void DecodeBranchOperandFunction(int i, InstructionCacheLine *cp)
 {
     cp->operand = SignExtend10(i);
 }
 
-static void DecodeReturnOperandFunction(int i, InstructionCacheLine* cp)
+static void DecodeReturnOperandFunction(int i, InstructionCacheLine *cp)
 {
     switch (i & 01777) {
     case 01000:
@@ -419,7 +419,7 @@ static void DecodeReturnOperandFunction(int i, InstructionCacheLine* cp)
     }
 }
 
-static void DecodeEntryOperandFunction(int i, InstructionCacheLine* cp)
+static void DecodeEntryOperandFunction(int i, InstructionCacheLine *cp)
 {
     cp->operand = dpb(ldb(8, 18, i), 8, 8, i & 0377);
 }
@@ -1482,7 +1482,7 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchHack, Decode10BitUnsignedOperandFunction },
 };
 
-const char* ivory_dispatch_names[] = { "CarFP", "CarLP", "CarSP",
+const char *ivory_dispatch_names[] = { "CarFP", "CarLP", "CarSP",
     "CarImmediate", "CarPop", "CdrFP", "CdrLP", "CdrSP", "CdrImmediate",
     "CdrPop", "EndpFP", "EndpLP", "EndpSP", "EndpImmediate", "EndpPop",
     "Setup1dArrayFP", "Setup1dArrayLP", "Setup1dArraySP",
@@ -1689,8 +1689,8 @@ const char* ivory_dispatch_names[] = { "CarFP", "CarLP", "CarSP",
 int InstructionCacheMiss(void)
 {
     Integer block_vma;
-    InstructionCacheLine* block_cp;
-    LispObj* block_instruction;
+    InstructionCacheLine *block_cp;
+    LispObj *block_instruction;
 
     block_vma
         = (processor->pc.DATA.u & ~((InstructionCacheLineSize >> 1) - 1));
@@ -1702,7 +1702,7 @@ int InstructionCacheMiss(void)
         Integer vma;
         InstructionCacheLine *even_cp, *odd_cp;
         LispObj instruction_block[(InstructionCacheLineSize >> 1)];
-        LispObj* instruction = &instruction_block[0];
+        LispObj *instruction = &instruction_block[0];
         Tag tag;
         Integer data;
 
@@ -1764,7 +1764,7 @@ int InstructionCacheMiss(void)
             } else {
             DecodePackedWord : {
                 Integer instruction;
-                register const DecoderPair* p;
+                register const DecoderPair *p;
 
                 instruction = data & 0777777;
                 even_cp->instruction = instruction;

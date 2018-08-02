@@ -39,7 +39,7 @@
 
 /* Load the VLM debugger into the VLM's memory */
 
-void LoadVLMDebugger(VLMConfig* config)
+void LoadVLMDebugger(VLMConfig *config)
 {
     World world;
     int i;
@@ -61,7 +61,7 @@ void LoadVLMDebugger(VLMConfig* config)
 
 /* Load a world into the VLM's memory */
 
-Integer LoadWorld(VLMConfig* config)
+Integer LoadWorld(VLMConfig *config)
 {
     World world;
     Integer worldImageSize;
@@ -99,9 +99,9 @@ void SaveWorld(Integer saveWorldDataVMA)
 {
     World world;
     struct sigaction action, oldAction;
-    SaveWorldData* saveWorldData;
-    SaveWorldEntry* saveWorldEntry;
-    LoadMapEntry* loadMapEntry;
+    SaveWorldData *saveWorldData;
+    SaveWorldEntry *saveWorldEntry;
+    LoadMapEntry *loadMapEntry;
     LispObj pathnameHeader;
     size_t pathnameSize;
     int i;
@@ -117,12 +117,12 @@ void SaveWorld(Integer saveWorldDataVMA)
     fflush(stderr);
 #endif
 
-    saveWorldData = (SaveWorldData*)MapVirtualAddressData(saveWorldDataVMA);
+    saveWorldData = (SaveWorldData *)MapVirtualAddressData(saveWorldDataVMA);
 
     world.format = VLMWorldFormat;
 
     if (Type_String
-        != *MapVirtualAddressTag((Integer)((Integer*)&saveWorldData->pathname
+        != *MapVirtualAddressTag((Integer)((Integer *)&saveWorldData->pathname
                - MapVirtualAddressData(0))))
         vpunt(NULL,
             "Destination pathname for SaveWorld is not a simple string");
@@ -197,7 +197,7 @@ void SaveWorld(Integer saveWorldDataVMA)
 
 /* Open a world file, determine its format, and read its load maps */
 
-static boolean OpenWorldFile(World* world, boolean puntOnErrors)
+static boolean OpenWorldFile(World *world, boolean puntOnErrors)
 {
     LispObj q;
     unsigned int cookie, pageBases;
@@ -215,7 +215,7 @@ static boolean OpenWorldFile(World* world, boolean puntOnErrors)
         else
             return (FALSE);
 
-    if (read(world->fd, (char*)&cookie, sizeof(int)) != sizeof(int))
+    if (read(world->fd, (char *)&cookie, sizeof(int)) != sizeof(int))
         if (puntOnErrors) {
             PuntWorld(world, "Reading world file %s cookie", world->pathname);
         } else
@@ -316,8 +316,8 @@ static boolean OpenWorldFile(World* world, boolean puntOnErrors)
     if (VLMWorldFormat == world->format) {
         ReadIvoryWorldFileQ(world, pagesBaseQ, &q);
         pageBases = LispObjData(q);
-        world->vlmDataPageBase = ((VLMPageBases*)&pageBases)->dataPageBase;
-        world->vlmTagsPageBase = ((VLMPageBases*)&pageBases)->tagsPageBase;
+        world->vlmDataPageBase = ((VLMPageBases *)&pageBases)->dataPageBase;
+        world->vlmTagsPageBase = ((VLMPageBases *)&pageBases)->tagsPageBase;
     }
 
     if (firstSysoutQ) {
@@ -347,7 +347,7 @@ static boolean OpenWorldFile(World* world, boolean puntOnErrors)
 
 /* Create a world file and initialize its data structures */
 
-static void CreateWorldFile(World* world)
+static void CreateWorldFile(World *world)
 {
 #ifdef DEBUGDISKSAVE
     fprintf(stderr, "Creating world file ... ");
@@ -403,7 +403,7 @@ static void CreateWorldFile(World* world)
 
 /* Close a world file */
 
-static void CloseWorldFile(World* world, boolean closeParents)
+static void CloseWorldFile(World *world, boolean closeParents)
 {
     if (world->fd > 0) {
         close(world->fd);
@@ -458,7 +458,7 @@ static void CloseWorldFile(World* world, boolean closeParents)
 /* Read a load map from the world load file */
 
 static void ReadLoadMap(
-    World* world, int nMapEntries, LoadMapEntry* mapEntries)
+    World *world, int nMapEntries, LoadMapEntry *mapEntries)
 {
     LispObj q;
     int i;
@@ -467,7 +467,7 @@ static void ReadLoadMap(
         ReadIvoryWorldFileNextQ(world, &q);
         mapEntries->address = LispObjData(q);
         ReadIvoryWorldFileNextQ(world, &q);
-        *(Integer*)(&mapEntries->op) = LispObjData(q);
+        *(Integer *)(&mapEntries->op) = LispObjData(q);
         ReadIvoryWorldFileNextQ(world, &q);
         mapEntries->data = q;
         mapEntries->world = world;
@@ -477,7 +477,7 @@ static void ReadLoadMap(
 /* Load the data from a world load file corresponding to the given load map
  * entry */
 
-static Integer LoadMapData(World* world, LoadMapEntry* mapEntry)
+static Integer LoadMapData(World *world, LoadMapEntry *mapEntry)
 {
     switch (world->format) {
     case VLMWorldFormat:
@@ -492,17 +492,17 @@ static Integer LoadMapData(World* world, LoadMapEntry* mapEntry)
     }
 }
 
-static Integer VLMLoadMapData(World* world, LoadMapEntry* mapEntry)
+static Integer VLMLoadMapData(World *world, LoadMapEntry *mapEntry)
 {
     LispObj q;
-    World* mapWorld;
+    World *mapWorld;
     Integer pageNumber, theAddress, theSourceAddress;
     off_t dataOffset, tagOffset;
     int increment = 0, i;
 
     switch (mapEntry->op.opcode) {
     case LoadMapDataPages:
-        mapWorld = (World*)mapEntry->world;
+        mapWorld = (World *)mapEntry->world;
         pageNumber = LispObjData(mapEntry->data);
         if (mapWorld->byteSwapped) {
             EnsureVirtualAddressRange(
@@ -554,13 +554,13 @@ static Integer VLMLoadMapData(World* world, LoadMapEntry* mapEntry)
 
     default:
         PuntWorld2(world, "Unknown load map opcode %d in world file %s",
-            mapEntry->op.opcode, ((World*)mapEntry->world)->pathname);
+            mapEntry->op.opcode, ((World *)mapEntry->world)->pathname);
     }
 
     return ((Integer)mapEntry->op.count);
 }
 
-static Integer IvoryLoadMapData(World* world, LoadMapEntry* mapEntry)
+static Integer IvoryLoadMapData(World *world, LoadMapEntry *mapEntry)
 {
     LispObj q;
     Integer theAddress, theSourceAddress;
@@ -609,9 +609,9 @@ static Integer IvoryLoadMapData(World* world, LoadMapEntry* mapEntry)
 /* Produce merged wired and unwired load maps that describe all pages which
  * form the world */
 
-static World* originalWorld = NULL;
+static World *originalWorld = NULL;
 
-static void MergeLoadMaps(World* world, char* worldSearchPath)
+static void MergeLoadMaps(World *world, char *worldSearchPath)
 {
     if (world->sysoutGeneration > 0) {
         originalWorld = world;
@@ -632,15 +632,15 @@ static void MergeLoadMaps(World* world, char* worldSearchPath)
    successful, the world.parentWorld slot will form a chain from the user's
    world to the base world */
 
-static World** worlds = NULL;
+static World **worlds = NULL;
 static int totalWorlds = 0;
 static int nWorlds = 0;
 
-static char* scanningDir = NULL;
+static char *scanningDir = NULL;
 
-static void FindParentWorlds(World* world, char* worldSearchPath)
+static void FindParentWorlds(World *world, char *worldSearchPath)
 {
-    World* childWorld;
+    World *childWorld;
     char *failingWorldPathname, *slashPosition, *colonPosition;
     int i;
 
@@ -707,9 +707,9 @@ static void FindParentWorlds(World* world, char* worldSearchPath)
 /* Scan a directory looking for world files:  Adds all acceptable world files
    that are found to the worlds array defined above */
 
-static void ScanOneDirectory(World* world)
+static void ScanOneDirectory(World *world)
 {
-    struct dirent** entries;
+    struct dirent **entries;
     int nEntries, i;
 
     if ((nEntries = scandir(scanningDir, &entries, WorldP, alphasort)) < 0)
@@ -735,9 +735,9 @@ static void ScanOneDirectory(World* world)
    user's world */
 
 #ifdef OS_LINUX
-static int WorldP(const struct dirent* candidateWorld)
+static int WorldP(const struct dirent *candidateWorld)
 #else
-static int WorldP(struct dirent* candidateWorld)
+static int WorldP(struct dirent *candidateWorld)
 #endif
 {
     World aWorld, **newWorlds;
@@ -770,7 +770,7 @@ static int WorldP(struct dirent* candidateWorld)
         if (OpenWorldFile(&aWorld, FALSE)) {
             if (nWorlds == totalWorlds) {
                 newTotalWorlds = totalWorlds + 32;
-                newWorlds = malloc(sizeof(World*) * newTotalWorlds);
+                newWorlds = malloc(sizeof(World *) * newTotalWorlds);
                 if (NULL == newWorlds) {
                     CloseExtraWorlds();
                     CloseWorldFile(&aWorld, TRUE);
@@ -779,7 +779,7 @@ static int WorldP(struct dirent* candidateWorld)
                         "world file %s",
                         originalWorld->pathname);
                 }
-                memcpy(newWorlds, worlds, (totalWorlds * sizeof(World*)));
+                memcpy(newWorlds, worlds, (totalWorlds * sizeof(World *)));
                 free(worlds);
                 worlds = newWorlds;
                 totalWorlds = newTotalWorlds;
@@ -836,7 +836,7 @@ static void CloseExtraWorlds()
 /* Merge the wired and unwired load maps of a world with its parent's load
  * maps */
 
-static void MergeParentLoadMap(World* world)
+static void MergeParentLoadMap(World *world)
 {
     if (world->sysoutGeneration == 0) {
         /* If this is a base world, there's nothing to merge against ... */
@@ -863,7 +863,7 @@ static void MergeParentLoadMap(World* world)
 }
 
 #ifdef DEBUGMERGELOADMAPS
-static void DumpMap(LoadMapEntry* map, int count, char* type)
+static void DumpMap(LoadMapEntry *map, int count, char *type)
 {
     int i;
     printf("%s Map: %d entries\n", type, count);
@@ -879,11 +879,11 @@ static void DumpMap(LoadMapEntry* map, int count, char* type)
 /* Merges a foreground load map and a background load map together into a
  * single load map */
 
-static void MergeAMap(int nForeground, LoadMapEntry* foreground,
-    int nBackground, LoadMapEntry* background, int* nMerged,
-    LoadMapEntry** merged)
+static void MergeAMap(int nForeground, LoadMapEntry *foreground,
+    int nBackground, LoadMapEntry *background, int *nMerged,
+    LoadMapEntry **merged)
 {
-    LoadMapEntry* new;
+    LoadMapEntry *new;
     Integer pageSizeQs = (VLMWorldFormat == originalWorld->format)
         ? VLMPageSizeQs
         : IvoryPageSizeQs,
@@ -1053,7 +1053,7 @@ static void MergeAMap(int nForeground, LoadMapEntry* foreground,
    file into memory.  (Eventually, we may also merge adjacent load map
    entries.) */
 
-static void CanonicalizeVLMLoadMapEntries(World* world)
+static void CanonicalizeVLMLoadMapEntries(World *world)
 {
     LoadMapEntry *mapEntry, *newWiredMapEntries, *newMapEntry;
     Integer pageNumber, pageCount, blockCount, nQs;
@@ -1132,9 +1132,9 @@ static void CanonicalizeVLMLoadMapEntries(World* world)
 
 /* Write the world file header and load maps for a VLM world file */
 
-static void WriteVLMWorldFileHeader(World* world)
+static void WriteVLMWorldFileHeader(World *world)
 {
-    LoadMapEntry* mapEntry;
+    LoadMapEntry *mapEntry;
     LispObj generationQ;
     Integer pageBases;
     off_t nBlocks;
@@ -1168,8 +1168,8 @@ static void WriteVLMWorldFileHeader(World* world)
        of wired load map entries, and the third is the data/tags pages base
        block numbers. */
 
-    ((VLMPageBases*)&pageBases)->dataPageBase = world->vlmDataPageBase;
-    ((VLMPageBases*)&pageBases)->tagsPageBase = world->vlmTagsPageBase;
+    ((VLMPageBases *)&pageBases)->dataPageBase = world->vlmDataPageBase;
+    ((VLMPageBases *)&pageBases)->tagsPageBase = world->vlmTagsPageBase;
 
     WriteIvoryWorldFileNextQ(world,
         MakeLispObj(
@@ -1216,7 +1216,7 @@ static void WriteVLMWorldFileHeader(World* world)
         WriteIvoryWorldFileNextQ(
             world, MakeLispObj(Type_Locative, mapEntry->address));
         WriteIvoryWorldFileNextQ(
-            world, MakeLispObj(Type_Fixnum, *(Integer*)&mapEntry->op));
+            world, MakeLispObj(Type_Fixnum, *(Integer *)&mapEntry->op));
         WriteIvoryWorldFileNextQ(world, mapEntry->data);
     }
 
@@ -1232,9 +1232,9 @@ static void WriteVLMWorldFileHeader(World* world)
 
 /* Write the data/tags pages for a VLM world file */
 
-static void WriteVLMWorldFilePages(World* world)
+static void WriteVLMWorldFilePages(World *world)
 {
-    LoadMapEntry* mapEntry;
+    LoadMapEntry *mapEntry;
     Integer pageNumber;
 #ifdef DEBUGDISKSAVE
     Integer vma, finalVMA;
@@ -1315,7 +1315,7 @@ static void WriteVLMWorldFilePages(World* world)
 /* Read the specified page from the world file using Ivory file format
  * settings */
 
-static void ReadIvoryWorldFilePage(World* world, int pageNumber)
+static void ReadIvoryWorldFilePage(World *world, int pageNumber)
 {
     off_t offset;
 
@@ -1339,7 +1339,7 @@ static void ReadIvoryWorldFilePage(World* world, int pageNumber)
 /* Return a specific Q (pointer and tag) from within the current page,
    using Ivory file format settings*/
 
-static void ReadIvoryWorldFileQ(World* world, int qNumber, LispObj* q)
+static void ReadIvoryWorldFileQ(World *world, int qNumber, LispObj *q)
 {
     int pointerOffset, tagOffset;
     Integer datum;
@@ -1364,9 +1364,9 @@ static void ReadIvoryWorldFileQ(World* world, int qNumber, LispObj* q)
 
 #if BYTE_ORDER == LITTLE_ENDIAN
     *q = MakeLispObj(world->ivoryDataPage[tagOffset],
-        *((Integer*)(world->ivoryDataPage) + pointerOffset));
+        *((Integer *)(world->ivoryDataPage) + pointerOffset));
 #else
-    datum = bswap_32(*((Integer*)(world->ivoryDataPage) + pointerOffset));
+    datum = bswap_32(*((Integer *)(world->ivoryDataPage) + pointerOffset));
     *q = MakeLispObj(world->ivoryDataPage[tagOffset], datum);
 #endif
 }
@@ -1374,7 +1374,7 @@ static void ReadIvoryWorldFileQ(World* world, int qNumber, LispObj* q)
 /* Read the next Q from within the world file, advancing to the next page if
    needed, using Ivory file format settings */
 
-static void ReadIvoryWorldFileNextQ(World* world, LispObj* q)
+static void ReadIvoryWorldFileNextQ(World *world, LispObj *q)
 {
     while (world->currentQNumber >= IvoryPageSizeQs) {
         ReadIvoryWorldFilePage(world, world->currentPageNumber + 1);
@@ -1389,7 +1389,7 @@ static void ReadIvoryWorldFileNextQ(World* world, LispObj* q)
 /* Prepare to write a specific page into the world file, using Ivory file
  * format settings */
 
-static void PrepareToWriteIvoryWorldFilePage(World* world, int pageNumber)
+static void PrepareToWriteIvoryWorldFilePage(World *world, int pageNumber)
 {
     world->currentPageNumber = pageNumber;
     world->currentQNumber = 0;
@@ -1399,7 +1399,7 @@ static void PrepareToWriteIvoryWorldFilePage(World* world, int pageNumber)
 /* Write the current page into the world file, using Ivory file format
  * settings */
 
-static void WriteIvoryWorldFilePage(World* world)
+static void WriteIvoryWorldFilePage(World *world)
 {
     off_t offset;
 
@@ -1424,7 +1424,7 @@ static void WriteIvoryWorldFilePage(World* world)
 /* Write the next Q into the world file, writing the current page and
    advancing to the next if needed, using Ivory file format settings */
 
-static void WriteIvoryWorldFileNextQ(World* world, LispObj q)
+static void WriteIvoryWorldFileNextQ(World *world, LispObj q)
 {
     int pointerOffset, tagOffset;
     Integer datum;
@@ -1452,11 +1452,11 @@ static void WriteIvoryWorldFileNextQ(World* world, LispObj q)
 
 #if BYTE_ORDER == LITTLE_ENDIAN
     world->ivoryDataPage[tagOffset] = LispObjTag(q);
-    *((Integer*)(world->ivoryDataPage) + pointerOffset) = LispObjData(q);
+    *((Integer *)(world->ivoryDataPage) + pointerOffset) = LispObjData(q);
 #else
     world->ivoryDataPage[tagOffset] = LispObjTag(q);
     datum = bswap_32(LispObjData(q));
-    *((Integer*)(world->ivoryDataPage) + pointerOffset) = datum;
+    *((Integer *)(world->ivoryDataPage) + pointerOffset) = datum;
 #endif
 
     world->currentQNumber++;
@@ -1465,7 +1465,7 @@ static void WriteIvoryWorldFileNextQ(World* world, LispObj q)
 /* Read the specified page from a byte swapped world file using VLM file
  * format settings */
 
-static void ReadSwappedVLMWorldFilePage(World* world, int pageNumber)
+static void ReadSwappedVLMWorldFilePage(World *world, int pageNumber)
 {
     off_t dataOffset, tagsOffset;
 
@@ -1515,7 +1515,7 @@ static void ReadSwappedVLMWorldFilePage(World* world, int pageNumber)
 /* Return a specific Q (pointer and tag) from within the current page,
    using VLM file format settings*/
 
-static void ReadSwappedVLMWorldFileQ(World* world, int qNumber, LispObj* q)
+static void ReadSwappedVLMWorldFileQ(World *world, int qNumber, LispObj *q)
 {
     Integer datum;
 
@@ -1523,7 +1523,7 @@ static void ReadSwappedVLMWorldFileQ(World* world, int qNumber, LispObj* q)
         PuntWorld2(world, "Invalid word number %d for world file %s", qNumber,
             world->pathname);
 
-    datum = bswap_32(*((Integer*)(world->vlmDataPage) + qNumber));
+    datum = bswap_32(*((Integer *)(world->vlmDataPage) + qNumber));
     *q = MakeLispObj(world->vlmTagsPage[qNumber], datum);
 
     /* ---*** NOTE: The following code that byte reverses the tags isn't
@@ -1538,7 +1538,7 @@ static void ReadSwappedVLMWorldFileQ(World* world, int qNumber, LispObj* q)
 /* Read the next Q from within the world file, advancing to the next page if
    needed, using VLM file format settings */
 
-static void ReadSwappedVLMWorldFileNextQ(World* world, LispObj* q)
+static void ReadSwappedVLMWorldFileNextQ(World *world, LispObj *q)
 {
     while (world->currentQNumber >= VLMPageSizeQs) {
         ReadSwappedVLMWorldFilePage(world, world->currentPageNumber + 1);
@@ -1552,7 +1552,7 @@ static void ReadSwappedVLMWorldFileNextQ(World* world, LispObj* q)
 
 /* Swap bytes in the specified world and its parents as necessary */
 
-void ByteSwapWorld(char* worldPathname, char* searchPath)
+void ByteSwapWorld(char *worldPathname, char *searchPath)
 {
     World world, *aWorld;
 
@@ -1570,12 +1570,12 @@ void ByteSwapWorld(char* worldPathname, char* searchPath)
     errno = 0; /* Flush any bogus error code set during parent search */
 }
 
-static void ByteSwapOneWorld(World* world)
+static void ByteSwapOneWorld(World *world)
 {
     char *newPathname, *bakPathname, block[VLMBlockSize];
     struct stat worldStat;
     size_t dataStart, dataEnd, offset;
-    uint32_t* wordBlockStart;
+    uint32_t *wordBlockStart;
     int newFD;
 
 #if defined(OS_OSF) || defined(__FreeBSD__)
@@ -1620,7 +1620,7 @@ swap
     dataEnd = worldStat.st_size;
 #endif
 
-    wordBlockStart = (uint32_t*)&block;
+    wordBlockStart = (uint32_t *)&block;
 
     if (0 != lseek(world->fd, 0, SEEK_SET))
         PuntWorld(world, "Unable to seek to start of world file %s",

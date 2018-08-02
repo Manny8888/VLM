@@ -24,7 +24,7 @@
  * HISTORY
  */
 #ifndef lint
-static char* rcsid = "@(#)$RCSfile: pfopen.c,v $ $Revision: 1.1.1.1 $ (DEC) "
+static char *rcsid = "@(#)$RCSfile: pfopen.c,v $ $Revision: 1.1.1.1 $ (DEC) "
                      "$Date: 2003/12/03 16:57:16 $";
 #endif
 
@@ -53,7 +53,7 @@ extern int errno;
  *	-1 on failure with errno set to indicate the error
  *
  */
-pfopen(ifname, flags) char* ifname; /* "ln0", "pf0", etc. or NULL */
+pfopen(ifname, flags) char *ifname; /* "ln0", "pf0", etc. or NULL */
 int flags;
 {
     int i; /* loop counter */
@@ -85,7 +85,7 @@ int flags;
 }
 
 static int setif(fd, ifname) int fd;
-char* ifname;
+char *ifname;
 {
     if (ifname == NULL) /* use default */
         return (fd);

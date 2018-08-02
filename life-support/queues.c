@@ -12,7 +12,7 @@ EmbPtr CreateQueue(int nElements, int elementSize)
 {
     EmbPtr cp
         = EmbCommAreaAlloc(sizeof(EmbQueue) + (nElements * elementSize));
-    register EmbQueue* q = (EmbQueue*)HostPointer(cp);
+    register EmbQueue *q = (EmbQueue *)HostPointer(cp);
 
     q->element_size = elementSize;
     q->queue_size = nElements;
@@ -25,7 +25,7 @@ EmbPtr CreateQueue(int nElements, int elementSize)
 
 /* Number of free elements */
 
-int EmbQueueSpace(EmbQueue* qp)
+int EmbQueueSpace(EmbQueue *qp)
 {
     register EmbWord put = qp->put_index;
     register EmbWord take = qp->take_index;
@@ -38,7 +38,7 @@ int EmbQueueSpace(EmbQueue* qp)
 
 /* Number of non-free elements */
 
-int EmbQueueFilled(EmbQueue* qp)
+int EmbQueueFilled(EmbQueue *qp)
 {
     register EmbWord put = qp->put_index;
     register EmbWord take = qp->take_index;
@@ -51,12 +51,12 @@ int EmbQueueFilled(EmbQueue* qp)
 
 /* Put element into queue */
 
-void EmbQueuePut(EmbQueue* qp_arg, PtrV ep)
+void EmbQueuePut(EmbQueue *qp_arg, PtrV ep)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     EmbWord original_put = put;
-    byte* element_array = (byte*)(&qp->first_element);
+    byte *element_array = (byte *)(&qp->first_element);
 
     /* Fill in the element at the put index */
     memcpy(
@@ -82,12 +82,12 @@ void EmbQueuePut(EmbQueue* qp_arg, PtrV ep)
 
 /* Put element into word queue */
 
-void EmbQueuePutWord(EmbQueue* qp_arg, EmbWord elt)
+void EmbQueuePutWord(EmbQueue *qp_arg, EmbWord elt)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     EmbWord original_put = put;
-    register EmbWord* element_array = (EmbWord*)(&qp->first_element);
+    register EmbWord *element_array = (EmbWord *)(&qp->first_element);
 
     /* Fill in the element at the put index */
     element_array[put] = elt;
@@ -112,12 +112,12 @@ void EmbQueuePutWord(EmbQueue* qp_arg, EmbWord elt)
 
 /* Put element into byte queue */
 
-void EmbQueuePutByte(EmbQueue* qp_arg, byte elt)
+void EmbQueuePutByte(EmbQueue *qp_arg, byte elt)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     EmbWord original_put = put;
-    register byte* element_array = (byte*)(&qp->first_element);
+    register byte *element_array = (byte *)(&qp->first_element);
 
     /* Fill in the element at the put index */
     element_array[put] = elt;
@@ -142,12 +142,12 @@ void EmbQueuePutByte(EmbQueue* qp_arg, byte elt)
 
 /* Take element from queue */
 
-bool EmbQueueTake(EmbQueue* qp_arg, PtrV ep)
+bool EmbQueueTake(EmbQueue *qp_arg, PtrV ep)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     register EmbWord take = qp->take_index;
-    register byte* element_array = (byte*)(&qp->first_element);
+    register byte *element_array = (byte *)(&qp->first_element);
 
     /* Check for empty queue */
     if (put == take)
@@ -168,12 +168,12 @@ bool EmbQueueTake(EmbQueue* qp_arg, PtrV ep)
 
 /* Take element from word queue */
 
-EmbWord EmbQueueTakeWord(EmbQueue* qp_arg)
+EmbWord EmbQueueTakeWord(EmbQueue *qp_arg)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     register EmbWord take = qp->take_index;
-    register EmbWord* element_array = (EmbWord*)(&qp->first_element);
+    register EmbWord *element_array = (EmbWord *)(&qp->first_element);
     register EmbWord elt;
 
     /* Check for empty queue--should not happen */
@@ -194,12 +194,12 @@ EmbWord EmbQueueTakeWord(EmbQueue* qp_arg)
 
 /* Take element from byte queue */
 
-byte EmbQueueTakeByte(EmbQueue* qp_arg)
+byte EmbQueueTakeByte(EmbQueue *qp_arg)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     register EmbWord take = qp->take_index;
-    register byte* element_array = (byte*)(&qp->first_element);
+    register byte *element_array = (byte *)(&qp->first_element);
     register byte elt;
 
     /* Check for empty queue--should not happen */
@@ -226,13 +226,13 @@ byte EmbQueueTakeByte(EmbQueue* qp_arg)
 
 /* Put multiple bytes */
 
-int EmbQueuePutBytes(EmbQueue* qp_arg, byte* buffer, int length)
+int EmbQueuePutBytes(EmbQueue *qp_arg, byte *buffer, int length)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     EmbWord original_put = put;
     register EmbWord take;
-    register byte* element_array = (byte*)(&qp->first_element);
+    register byte *element_array = (byte *)(&qp->first_element);
     int actual_length = 0;
     register EmbWord count;
 
@@ -267,13 +267,13 @@ int EmbQueuePutBytes(EmbQueue* qp_arg, byte* buffer, int length)
 
 /* Put multiple words */
 
-int EmbQueuePutWords(EmbQueue* qp_arg, EmbWord* buffer, int length)
+int EmbQueuePutWords(EmbQueue *qp_arg, EmbWord *buffer, int length)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord put = qp->put_index;
     EmbWord original_put = put;
     register EmbWord take;
-    register EmbWord* element_array = (EmbWord*)(&qp->first_element);
+    register EmbWord *element_array = (EmbWord *)(&qp->first_element);
     int actual_length = 0;
     register EmbWord count;
 
@@ -308,12 +308,12 @@ int EmbQueuePutWords(EmbQueue* qp_arg, EmbWord* buffer, int length)
 
 /* Take multiple bytes */
 
-int EmbQueueTakeBytes(EmbQueue* qp_arg, byte* buffer, int length)
+int EmbQueueTakeBytes(EmbQueue *qp_arg, byte *buffer, int length)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord take = qp->take_index;
     register EmbWord put;
-    register byte* element_array = (byte*)(&qp->first_element);
+    register byte *element_array = (byte *)(&qp->first_element);
     int actual_length = 0;
     register EmbWord count;
 
@@ -342,12 +342,12 @@ int EmbQueueTakeBytes(EmbQueue* qp_arg, byte* buffer, int length)
 
 /* Take multiple words */
 
-int EmbQueueTakeWords(EmbQueue* qp_arg, EmbWord* buffer, int length)
+int EmbQueueTakeWords(EmbQueue *qp_arg, EmbWord *buffer, int length)
 {
-    register EmbQueue* qp = qp_arg;
+    register EmbQueue *qp = qp_arg;
     register EmbWord take = qp->take_index;
     register EmbWord put;
-    register EmbWord* element_array = (EmbWord*)(&qp->first_element);
+    register EmbWord *element_array = (EmbWord *)(&qp->first_element);
     int actual_length = 0;
     register EmbWord count;
 
@@ -378,7 +378,7 @@ int EmbQueueTakeWords(EmbQueue* qp_arg, EmbWord* buffer, int length)
       If the queue was created by the FEP or the guest, remove its signal
    handler */
 
-void ResetIncomingQueue(EmbQueue* q)
+void ResetIncomingQueue(EmbQueue *q)
 {
     q->put_index = 0;
     q->take_index = 0;
@@ -393,7 +393,7 @@ void ResetIncomingQueue(EmbQueue* q)
       Note that the guest is no longer listening for signals from this queue
  */
 
-void ResetOutgoingQueue(EmbQueue* q)
+void ResetOutgoingQueue(EmbQueue *q)
 {
     q->put_index = 0;
     q->take_index = 0;

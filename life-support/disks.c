@@ -31,30 +31,30 @@
     }
 
 #define HostState(dc)                                                        \
-    (DiskChannelState*)(((uint64_t)dc->hostState0 << 32) | dc->hostState1)
+    (DiskChannelState *)(((uint64_t)dc->hostState0 << 32) | dc->hostState1)
 
 /* Attach a disk partition (nee, file) to the disk channel supplied by Lisp
    and add said channel to the list of active embedded channels.  Lisp will
    have already setup the
    disk channel's unit number, read-only flag, and FIFO queues */
 
-void AttachDiskChannel(AttachDiskChannelRequest* pRequest)
+void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
 {
-    register AttachDiskChannelRequest* request = pRequest;
-    register EmbDiskChannel* diskChannel
-        = (EmbDiskChannel*)HostPointer(request->diskChannel);
-    register DiskChannelState* diskState;
+    register AttachDiskChannelRequest *request = pRequest;
+    register EmbDiskChannel *diskChannel
+        = (EmbDiskChannel *)HostPointer(request->diskChannel);
+    register DiskChannelState *diskState;
     struct stat fileStatus;
     LispObj filenameHeader;
     size_t filenameSize;
-    char* filename;
+    char *filename;
     int openFlags;
 
     request->result = ESUCCESS; /* Presume success */
     request->errorMsg = NullEmbPtr; /* Can't return error messages (yet) */
     printf("AttachDiskChannel\n");
 
-    diskState = (DiskChannelState*)malloc(sizeof(DiskChannelState));
+    diskState = (DiskChannelState *)malloc(sizeof(DiskChannelState));
     if (NULL == diskState) {
         verror("AttachDiskChannel",
             "Couldn't allocate disk channel status structure");
@@ -65,14 +65,14 @@ void AttachDiskChannel(AttachDiskChannelRequest* pRequest)
 
     diskState->fd = -1; /* Needed before linking into channel list */
     diskState->command_queue_ptr
-        = (EmbQueue*)HostPointer(diskChannel->command_queue);
+        = (EmbQueue *)HostPointer(diskChannel->command_queue);
     diskState->status_queue_ptr
-        = (EmbQueue*)HostPointer(diskChannel->status_queue);
+        = (EmbQueue *)HostPointer(diskChannel->status_queue);
     diskState->error_pending = FALSE;
 
     if (Type_String
         != *MapVirtualAddressTag((Integer)(
-               (Integer*)&request->filename - MapVirtualAddressData(0)))) {
+               (Integer *)&request->filename - MapVirtualAddressData(0)))) {
         verror("AttachDiskChannel",
             "Disk partition filename is not a simple string");
         request->result = EINVAL;
@@ -95,7 +95,7 @@ void AttachDiskChannel(AttachDiskChannelRequest* pRequest)
     }
 
     filenameSize = LispObjData(filenameHeader) & Array_LengthMask;
-    filename = (char*)malloc(filenameSize + 1);
+    filename = (char *)malloc(filenameSize + 1);
     if (NULL == filename) {
         verror("AttachDiskChannel",
             "Couldn't allocate space for local copy of disk partition "
@@ -161,12 +161,12 @@ void AttachDiskChannel(AttachDiskChannelRequest* pRequest)
 /* Grow the file (nee, disk partition) attached to the given disk channel so
    that it's, at least the requested number of bytes in length */
 
-void GrowDiskPartition(GrowDiskPartitionRequest* pRequest)
+void GrowDiskPartition(GrowDiskPartitionRequest *pRequest)
 {
-    register GrowDiskPartitionRequest* request = pRequest;
-    register EmbDiskChannel* diskChannel
-        = (EmbDiskChannel*)HostPointer(request->diskChannel);
-    register DiskChannelState* diskState = HostState(diskChannel);
+    register GrowDiskPartitionRequest *request = pRequest;
+    register EmbDiskChannel *diskChannel
+        = (EmbDiskChannel *)HostPointer(request->diskChannel);
+    register DiskChannelState *diskState = HostState(diskChannel);
     struct stat fileStatus;
 
     request->result = ESUCCESS; /* Presume success */
@@ -210,9 +210,9 @@ void GrowDiskPartition(GrowDiskPartitionRequest* pRequest)
 
 void DetachDiskChannel(EmbPtr diskChannelPtr)
 {
-    register EmbDiskChannel* diskChannel
-        = (EmbDiskChannel*)HostPointer(diskChannelPtr);
-    register DiskChannelState* diskState = HostState(diskChannel);
+    register EmbDiskChannel *diskChannel
+        = (EmbDiskChannel *)HostPointer(diskChannelPtr);
+    register DiskChannelState *diskState = HostState(diskChannel);
     register EmbPtr channelPtr;
     register EmbPtr prevChannelPtr;
 
@@ -232,24 +232,24 @@ void DetachDiskChannel(EmbPtr diskChannelPtr)
             if (NullEmbPtr == prevChannelPtr)
                 EmbCommAreaPtr->channel_table = diskChannel->next;
             else
-                ((EmbChannel*)HostPointer(prevChannelPtr))->next
+                ((EmbChannel *)HostPointer(prevChannelPtr))->next
                     = diskChannel->next;
             break;
         }
         prevChannelPtr = channelPtr;
-        channelPtr = ((EmbChannel*)HostPointer(channelPtr))->next;
+        channelPtr = ((EmbChannel *)HostPointer(channelPtr))->next;
     }
 }
 
 /* The actual guts of disk life support -- Process the individual read/write
  * requests */
 
-static void DiskLife(EmbDiskChannel* diskChannel)
+static void DiskLife(EmbDiskChannel *diskChannel)
 {
-    DiskChannelState* diskState = HostState(diskChannel);
-    register EmbQueue* commandQueue = diskState->command_queue_ptr;
-    register EmbQueue* statusQueue = diskState->status_queue_ptr;
-    EmbDiskQueueElement* command;
+    DiskChannelState *diskState = HostState(diskChannel);
+    register EmbQueue *commandQueue = diskState->command_queue_ptr;
+    register EmbQueue *statusQueue = diskState->status_queue_ptr;
+    EmbDiskQueueElement *command;
     EmbWord commandPtr;
 
     while (EmbQueueFilled(commandQueue)) {
@@ -263,7 +263,7 @@ static void DiskLife(EmbDiskChannel* diskChannel)
 
         commandPtr = EmbQueueTakeWord(commandQueue);
         if (commandPtr) {
-            command = (EmbDiskQueueElement*)HostPointer(commandPtr);
+            command = (EmbDiskQueueElement *)HostPointer(commandPtr);
 
             switch (command->op.cmd) {
             case WriteCmd:
@@ -320,10 +320,10 @@ static void DiskLife(EmbDiskChannel* diskChannel)
 
 /* Perform a single I/O operation -- Splits the command into ... */
 
-static int DoDiskIO(EmbDiskChannel* diskChannel, DiskChannelState* diskState,
-    EmbDiskQueueElement* command)
+static int DoDiskIO(EmbDiskChannel *diskChannel, DiskChannelState *diskState,
+    EmbDiskQueueElement *command)
 {
-    EmbAddressPair* addressPair;
+    EmbAddressPair *addressPair;
     ssize_t nBytes, actualBytes;
     off_t startingOffset;
     int nAddresses, nVectors, i;
@@ -376,10 +376,10 @@ static int DoDiskIO(EmbDiskChannel* diskChannel, DiskChannelState* diskState,
 
 /* Reset a disk channel */
 
-void ResetDiskChannel(EmbChannel* channel)
+void ResetDiskChannel(EmbChannel *channel)
 {
-    register EmbDiskChannel* diskChannel = (EmbDiskChannel*)channel;
-    register DiskChannelState* diskState = HostState(diskChannel);
+    register EmbDiskChannel *diskChannel = (EmbDiskChannel *)channel;
+    register DiskChannelState *diskState = HostState(diskChannel);
 
     ResetIncomingQueue(diskState->command_queue_ptr);
     ResetOutgoingQueue(diskState->status_queue_ptr);
@@ -401,9 +401,9 @@ void ResetDiskChannel(EmbChannel* channel)
       The thread which runs this channel has already been killed by
    RemoveAllSignalHandlers */
 
-static void TerminateDiskChannel(EmbDiskChannel* diskChannel)
+static void TerminateDiskChannel(EmbDiskChannel *diskChannel)
 {
-    register DiskChannelState* diskState = HostState(diskChannel);
+    register DiskChannelState *diskState = HostState(diskChannel);
 
     if (diskState->fd != -1) {
         close(diskState->fd);
@@ -415,12 +415,12 @@ static void TerminateDiskChannel(EmbDiskChannel* diskChannel)
 
 void TerminateDiskChannels()
 {
-    EmbDiskChannel* diskChannel;
+    EmbDiskChannel *diskChannel;
     EmbPtr channel;
 
     for (channel = EmbCommAreaPtr->channel_table; channel != NullEmbPtr;
          channel = diskChannel->next) {
-        diskChannel = (EmbDiskChannel*)HostPointer(channel);
+        diskChannel = (EmbDiskChannel *)HostPointer(channel);
         if (EmbDiskChannelType == diskChannel->type)
             TerminateDiskChannel(diskChannel);
     }

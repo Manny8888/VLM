@@ -31,7 +31,7 @@ static pthread_key_t mainThread;
 static void MaybeTerminateVLM(int signal)
 {
 #ifdef OS_LINUX
-    char* answer = NULL;
+    char *answer = NULL;
     size_t answerSize = 0, *answerSize_p = &answerSize;
     ssize_t nRead;
 #else
@@ -88,12 +88,12 @@ static void MaybeTerminateVLM(int signal)
     _exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     VLMConfig config;
     struct sigaction sigAction;
     Integer worldImageSize, worldImageMB;
-    char* message;
+    char *message;
     int reason;
 
     BuildConfiguration(&config, argc, argv);
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
     if (pthread_key_create(&mainThread, NULL))
         vpunt(NULL, "Unable to establish per-thread data.");
 
-    pthread_setspecific(mainThread, (void*)TRUE);
+    pthread_setspecific(mainThread, (void *)TRUE);
 
     sigAction.sa_handler = (sa_handler_t)MaybeTerminateVLM;
     sigemptyset(&sigAction.sa_mask);

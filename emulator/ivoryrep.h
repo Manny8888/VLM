@@ -31,13 +31,13 @@ typedef int Boolean;
 typedef unsigned char Byte;
 typedef unsigned char Tag;
 typedef unsigned int Integer;
-char* TagSpaceLoc();
-char* DataSpaceLoc();
+char *TagSpaceLoc();
+char *DataSpaceLoc();
 
 /* Prototypes for the ivory interpreter state access functions */
 
 void InitializeIvoryInterpreterState(void);
-void InitializeIvoryProcessor(Integer* basedata, Tag* basetag);
+void InitializeIvoryProcessor(Integer *basedata, Tag *basetag);
 void InitializeInstructionCache(void);
 void InitializeStackCache(void);
 void InitializeStatistics(void);
@@ -55,7 +55,7 @@ LispObj CoprocessorRead(unsigned int operand);
 int CoprocessorWrite(unsigned int operand, LispObj value);
 void FlushCaches(void);
 void InitializeTracing(int bufferSize, unsigned int startPC,
-    unsigned int stopPC, char* outputFile);
+    unsigned int stopPC, char *outputFile);
 void EnterTrace(void);
 void PrintTrace(void);
 void MaybePrintTrace(void);
@@ -80,7 +80,7 @@ void callouttr(void);
 void nativecallout(void);
 
 /* External declarations for state statics */
-typedef void* Pointer;
+typedef void *Pointer;
 
 #define DISPATCHTABLE(name, size) void (*name[size])(void)
 

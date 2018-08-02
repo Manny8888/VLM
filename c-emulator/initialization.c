@@ -18,7 +18,7 @@ static void quit_handler(int number)
 
 static ProcessorState ps;
 
-ProcessorState* processor = &ps;
+ProcessorState *processor = &ps;
 
 Boolean Runningp(void) { return run; }
 
@@ -69,7 +69,7 @@ Boolean IvoryProcessorSystemStartup(Boolean bootingP)
 
 void PushOneFakeFrame()
 {
-    LispObj* fp;
+    LispObj *fp;
     fp = processor->sp + 1;
     fp[0] = processor->continuation;
     fp[0].TAG |= 0xc0;
@@ -85,7 +85,7 @@ void PushOneFakeFrame()
 
 void PopOneFakeFrame()
 {
-    LispObj* fp;
+    LispObj *fp;
     fp = processor->fp;
     processor->sp = fp - 1;
     processor->fp = fp - ReadControlCallerFrameSize(processor->control);
@@ -96,19 +96,19 @@ void PopOneFakeFrame()
         = processor->fp + ReadControlArgumentSize(processor->control);
 }
 
-void InitializeIvoryProcessor(Integer* dataBase, Tag* tagsBase)
+void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase)
 {
     LispObj *p, **q;
     int i, j;
 
     if (!allocatedCaches) {
-        processor->InstructionCache = (InstructionCacheLine*)malloc(
+        processor->InstructionCache = (InstructionCacheLine *)malloc(
             sizeof(InstructionCacheLine) * InstructionCacheSize);
         if (!processor->InstructionCache)
             OutOfMemory("Initialize InstructionCache",
                 sizeof(InstructionCacheLine) * InstructionCacheSize);
         processor->StackCache
-            = (LispObj*)malloc(sizeof(LispObj) * PageSize * StackCacheSize);
+            = (LispObj *)malloc(sizeof(LispObj) * PageSize * StackCacheSize);
         if (!processor->StackCache)
             OutOfMemory("Initialize StackCache",
                 sizeof(LispObj) * PageSize * StackCacheSize);
@@ -160,13 +160,13 @@ void InitializeIvoryProcessor(Integer* dataBase, Tag* tagsBase)
         0xf8062000, 0x9e000); /* 0xf8062000 - 0xf8100000 */
 }
 
-void OutOfMemory(char* Where, int HowMuch)
+void OutOfMemory(char *Where, int HowMuch)
 {
     fprintf(stderr, "%s was unable to allocate %ld bytes.\n", Where, HowMuch);
     exit(-1);
 }
 
-Boolean ReadInternalRegister(int regno, LispObj* val)
+Boolean ReadInternalRegister(int regno, LispObj *val)
 {
     switch (regno) {
     case InternalRegisterFP:
@@ -210,7 +210,7 @@ Boolean ReadInternalRegister(int regno, LispObj* val)
     return (TRUE);
 }
 
-Boolean WriteInternalRegister(int regno, LispObj* val)
+Boolean WriteInternalRegister(int regno, LispObj *val)
 {
     switch (regno) {
     case InternalRegisterFP:

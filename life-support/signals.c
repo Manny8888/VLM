@@ -132,7 +132,7 @@ void WaitForLifeSupport()
 
     else {
         pthread_cleanup_push((pthread_cleanuproutine_t)pthread_mutex_unlock,
-            (void*)&EmbCommAreaPtr->wakeupLock);
+            (void *)&EmbCommAreaPtr->wakeupLock);
         if (pthread_mutex_lock(&EmbCommAreaPtr->wakeupLock))
             vpunt(NULL, "Unable to lock the VLM wakeup lock in thread %lx",
                 pthread_self());
@@ -258,7 +258,7 @@ void RemoveSignalHandler(SignalNumber signal)
 void TerminateSignalHandlers()
 {
     int i;
-    void* exit_value;
+    void *exit_value;
 
     for (i = 0; i < NSignals; i++)
         if (EmbCommAreaPtr->signalHandler[i].handlerThreadSetup) {
@@ -274,11 +274,11 @@ void TerminateSignalHandlers()
 
 static void SignalHandlerTopLevel(pthread_addr_t argument)
 {
-    SignalHandler* signalHandler = (SignalHandler*)argument;
+    SignalHandler *signalHandler = (SignalHandler *)argument;
     pthread_t self = signalHandler->handlerThread;
 
     pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void*)self);
+        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     begin_MUTEX_LOCKED(signalLock);
 

@@ -39,7 +39,7 @@ void TakeMemoryTrap(int vector, Integer vma)
     longjmp(trap_environment, vector);
 }
 
-void TakeIllegalOperandTrap(int microstate, LispObj* operand)
+void TakeIllegalOperandTrap(int microstate, LispObj *operand)
 {
     trap_microstate.DATA.s = microstate;
     trap_vma.DATA.u
@@ -83,7 +83,7 @@ static void ProcessSuspend()
 
 /* Memory interface */
 
-int ReadVirtualMemory(Integer vma, LispObj* object)
+int ReadVirtualMemory(Integer vma, LispObj *object)
 {
     Integer stack_cache_index = vma - processor->StackCacheBase;
 
@@ -95,7 +95,7 @@ int ReadVirtualMemory(Integer vma, LispObj* object)
     return (0);
 }
 
-int WriteVirtualMemory(Integer vma, LispObj* object)
+int WriteVirtualMemory(Integer vma, LispObj *object)
 {
     Integer stack_cache_index = vma - processor->StackCacheBase;
 
@@ -105,7 +105,7 @@ int WriteVirtualMemory(Integer vma, LispObj* object)
     return (0);
 }
 
-int ReadVirtualMemoryBlock(Integer vma, LispObj* object, int count)
+int ReadVirtualMemoryBlock(Integer vma, LispObj *object, int count)
 {
     Integer stack_cache_index = vma - processor->StackCacheBase;
 
@@ -118,7 +118,7 @@ int ReadVirtualMemoryBlock(Integer vma, LispObj* object, int count)
     return (0);
 }
 
-int WriteVirtualMemoryBlock(Integer vma, LispObj* object, int count)
+int WriteVirtualMemoryBlock(Integer vma, LispObj *object, int count)
 {
     Integer stack_cache_index = vma - processor->StackCacheBase;
 
@@ -142,8 +142,8 @@ void StackCacheScrollUp(void)
         processor->StackCacheBase, processor->StackCache, PageSize);
 
     for (i = (StackCacheSize - 1); i--;) {
-        memcpy((char*)&processor->StackCache[i * PageSize],
-            (char*)&processor->StackCache[(1 + i) * PageSize],
+        memcpy((char *)&processor->StackCache[i * PageSize],
+            (char *)&processor->StackCache[(1 + i) * PageSize],
             sizeof(LispObj[PageSize]));
     }
     processor->fp -= PageSize;
@@ -160,8 +160,8 @@ void StackCacheScrollDown(void)
         fprintf(stderr, "StackCacheScrollDown\n");
     /* --- PageSize s/b StackCacheScrollAmount */
     for (i = (StackCacheSize - 1); i--;) {
-        memcpy((char*)&processor->StackCache[(1 + i) * PageSize],
-            (char*)&processor->StackCache[i * PageSize],
+        memcpy((char *)&processor->StackCache[(1 + i) * PageSize],
+            (char *)&processor->StackCache[i * PageSize],
             sizeof(LispObj[PageSize]));
     }
     processor->fp += PageSize;
@@ -172,7 +172,7 @@ void StackCacheScrollDown(void)
         processor->StackCacheBase, processor->StackCache, PageSize);
 }
 
-Boolean EphemeralP(LispObj* obj)
+Boolean EphemeralP(LispObj *obj)
 {
     return (
         PointerTypeP(TagType(obj->TAG)) && EphemeralAddressP(obj->DATA.u));
@@ -180,7 +180,7 @@ Boolean EphemeralP(LispObj* obj)
 
 Boolean OldspaceAddressP(vma)
 {
-    register ProcessorState* ps = processor;
+    register ProcessorState *ps = processor;
     register int zone = ReadVMAZoneNum(vma);
 
     if (zone == 0)
@@ -192,7 +192,7 @@ Boolean OldspaceAddressP(vma)
         return (ps->ZoneOldspaceRegister & (1 << zone));
 }
 
-Boolean OldspaceP(LispObj* obj)
+Boolean OldspaceP(LispObj *obj)
 {
     return (PointerTypeP(TagType(obj->TAG)) && OldspaceAddressP(obj->DATA.u));
 }
@@ -242,7 +242,7 @@ Byte MemoryActionTable[12][64] = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-Integer MemoryReadInternal(Integer vma, LispObj* object, Byte row[])
+Integer MemoryReadInternal(Integer vma, LispObj *object, Byte row[])
 {
     register int action;
 
@@ -281,7 +281,7 @@ loop:
     }
 }
 
-int StoreContentsInternal(Integer vma, LispObj* object, Byte row[])
+int StoreContentsInternal(Integer vma, LispObj *object, Byte row[])
 {
     LispObj dest;
 
@@ -297,7 +297,7 @@ int StoreContentsInternal(Integer vma, LispObj* object, Byte row[])
 #ifdef __GNUC__
 /*++inline++*/
 #endif
-static int CarInternal(LispObj* l, LispObj* result)
+static int CarInternal(LispObj *l, LispObj *result)
 {
     switch (TagType(l->TAG)) {
     case TypeList:
@@ -319,7 +319,7 @@ static int CarInternal(LispObj* l, LispObj* result)
 #ifdef __GNUC__
 /*++inline++*/
 #endif
-static int CdrInternal(LispObj* l, LispObj* result)
+static int CdrInternal(LispObj *l, LispObj *result)
 {
     LispObj cdr;
     Integer vma;
@@ -357,7 +357,7 @@ static int CdrInternal(LispObj* l, LispObj* result)
 #ifdef __GNUC__
 /*++inline++*/
 #endif
-static int CarCdrInternal(LispObj* l, LispObj* car, LispObj* cdr)
+static int CarCdrInternal(LispObj *l, LispObj *car, LispObj *cdr)
 {
     /* l may be eq to car, so must save it for cdring*/
     LispObj templ = *l;
@@ -376,7 +376,7 @@ static int CarCdrInternal(LispObj* l, LispObj* car, LispObj* cdr)
 /*++inline++*/
 #endif
 static void Aref1Internal(Integer vma, int packing, int offset,
-    ArrayElementType type, int index, LispObj* result)
+    ArrayElementType type, int index, LispObj *result)
 {
     LispObj q;
 
@@ -417,7 +417,7 @@ static void Aref1Internal(Integer vma, int packing, int offset,
 /*++inline++*/
 #endif
 static void Aset1Internal(Integer vma, int packing, int offset,
-    ArrayElementType type, int index, LispObj* value)
+    ArrayElementType type, int index, LispObj *value)
 {
     if (type == ArrayElementTypeObject && packing == 0) {
         StoreContents(vma + index, value, CycleDataWrite);
@@ -460,7 +460,7 @@ static void Aset1Internal(Integer vma, int packing, int offset,
     }
 }
 
-static void RecomputeArrayRegister(LispObj* areg, int count)
+static void RecomputeArrayRegister(LispObj *areg, int count)
 {
     switch (TagType(areg[-1].TAG)) {
     case TypeArray:
@@ -490,7 +490,7 @@ static void RecomputeArrayRegister(LispObj* areg, int count)
 /**** Instances ****/
 
 static Integer LocateInstanceVariableMapped(
-    LispObj* map, LispObj* self, Integer n)
+    LispObj *map, LispObj *self, Integer n)
 {
     LispObj header, offset;
     Integer vma;
@@ -514,7 +514,7 @@ static Integer LocateInstanceVariableMapped(
 }
 
 static Integer LocateArbitraryInstanceVariable(
-    LispObj* instance, LispObj* offset)
+    LispObj *instance, LispObj *offset)
 {
     LispObj flavor, size;
     Integer vma;
@@ -535,9 +535,9 @@ static Integer LocateArbitraryInstanceVariable(
 
 int PullApplyArgsQuickly(int count)
 {
-    register ProcessorState* ps = processor;
-    register LispObj* sp = ps->sp;
-    LispObj* rest = &ps->StackCache[(*sp--).DATA.u - ps->StackCacheBase];
+    register ProcessorState *ps = processor;
+    register LispObj *sp = ps->sp;
+    LispObj *rest = &ps->StackCache[(*sp--).DATA.u - ps->StackCacheBase];
     int supplied = ReadControlArgumentSize(ps->control);
     register int i;
 
@@ -728,7 +728,7 @@ Integer (*ALUFunctionClass[4])() = { ALUFunctionBoolean, ALUFunctionByte,
     ALUFunctionAdder, ALUFunctionMultiplyDivide };
 
 Boolean ALUComputeCondition(
-    Integer ALU, LispObj* op1, LispObj* op2, int result)
+    Integer ALU, LispObj *op1, LispObj *op2, int result)
 {
     Boolean overflow = processor->ALUOverflow;
     Boolean borrow = processor->ALUBorrow;
@@ -913,7 +913,7 @@ Boolean ALUComputeCondition(
         pc = ps->pc;                                                         \
     }
 
-void IncrementPC(LispObj* pc, int offset)
+void IncrementPC(LispObj *pc, int offset)
 {
     pc->DATA.u += (offset >> 1);
     if (pc->TAG & 1)
@@ -931,19 +931,19 @@ void IncrementPC(LispObj* pc, int offset)
 void InstructionSequencer(void)
 {
     /* Do not use register decls without considering setjmp/longjmp effects */
-    /* register */ InstructionCacheLine* cp;
-    /* register */ ProcessorState* ps = processor;
-    /* register */ LispObj* sp = ps->sp;
-    LispObj* restartsp = ps->sp;
-    /* register */ LispObj* fp = ps->fp;
-    /* register */ LispObj* lp = ps->lp;
+    /* register */ InstructionCacheLine *cp;
+    /* register */ ProcessorState *ps = processor;
+    /* register */ LispObj *sp = ps->sp;
+    LispObj *restartsp = ps->sp;
+    /* register */ LispObj *fp = ps->fp;
+    /* register */ LispObj *lp = ps->lp;
     PC pc = ps->pc;
-    LispObj* op1;
-    /* register */ LispObj* op2;
+    LispObj *op1;
+    /* register */ LispObj *op2;
     LispObj scratch_representation;
-    LispObj* scratch = &scratch_representation;
+    LispObj *scratch = &scratch_representation;
     LispObj immediate = { TypeFixnum, 0 };
-    struct _bar* bar;
+    struct _bar *bar;
     int i;
     void (*old_io_handler)() = signal(SIGIO, io_handler);
     void (*old_segv_handler)() = signal(SIGSEGV, segv_handler);
@@ -1370,7 +1370,7 @@ Dispatch:
                 break;
             case TypeList: {
                 LispObj keyrep;
-                LispObj* key = &keyrep;
+                LispObj *key = &keyrep;
 
                 if (CarInternal(car, key))
                     InstructionException;
@@ -2535,8 +2535,8 @@ Dispatch:
             long value = (long)op2->DATA.u * (long)sp->DATA.u;
             unsigned int low = value & 0xFFFFFFFFL,
                          high = (value >> 32) & 0xFFFFFFFFL;
-            SetFixnum(*(int*)&low);
-            PushFixnum(*(int*)&high);
+            SetFixnum(*(int *)&low);
+            PushFixnum(*(int *)&high);
             NextInstruction;
         }
         IllegalOperand;
@@ -2797,7 +2797,7 @@ Dispatch:
             short pp = (32 - cp->operand) & 0x1F;
             short ss = ((cp->operand >> 5) & 0x1F);
             LispObj word_rep;
-            LispObj* word = &word_rep;
+            LispObj *word = &word_rep;
 
             /* don't care what type the word is */
             ReadVirtualMemory(sp->DATA.s, word);
@@ -2814,7 +2814,7 @@ Dispatch:
             short pp = (32 - cp->operand) & 0x1F;
             short ss = ((cp->operand >> 5) & 0x1F);
             LispObj word_rep;
-            LispObj* word = &word_rep;
+            LispObj *word = &word_rep;
 
             /* don't care what type the word is */
             ReadVirtualMemory(sp->DATA.u, word);
@@ -3876,7 +3876,7 @@ Dispatch:
             for (; ReadControlCleanupCatch(ps->control);) {
                 /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] == previous
                  */
-                LispObj* cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u
+                LispObj *cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u
                     - ps->StackCacheBase];
                 Integer control = ps->control;
 
@@ -3951,7 +3951,7 @@ Dispatch:
             IvoryValueDisposition disp;
             int framesize;
             Integer control;
-            LispObj* valueblock;
+            LispObj *valueblock;
 
         retryReturnMultiple:
 
@@ -3972,7 +3972,7 @@ Dispatch:
                 for (; ReadControlCleanupCatch(ps->control);) {
                     /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] ==
                      * previous */
-                    LispObj* cbp
+                    LispObj *cbp
                         = &ps->StackCache[ps->CatchBlockPointer.DATA.u
                             - ps->StackCacheBase];
                     Integer control = ps->control;
@@ -4047,7 +4047,7 @@ Dispatch:
             int count = op2->DATA.s;
             int framesize = ReadControlCallerFrameSize(ps->control);
             Integer control = fp[1].DATA.u;
-            LispObj* valueblock = &sp[-(count - 1)];
+            LispObj *valueblock = &sp[-(count - 1)];
 
             if (framesize + count + 1 > 112)
                 IllegalOperand;
@@ -4055,7 +4055,7 @@ Dispatch:
                 for (; ReadControlCleanupCatch(ps->control);) {
                     /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] ==
                      * previous */
-                    LispObj* cbp
+                    LispObj *cbp
                         = &ps->StackCache[ps->CatchBlockPointer.DATA.u
                             - ps->StackCacheBase];
                     Integer control = ps->control;
@@ -4241,7 +4241,7 @@ Dispatch:
 
     case DispatchCatchClose: {
         /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] == previous */
-        LispObj* cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u
+        LispObj *cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u
             - ps->StackCacheBase];
         register Integer control = ps->control;
 
@@ -5561,7 +5561,7 @@ ScratchSpareExceptions:
 
 HandleUnwindProtect : {
     /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] == previous */
-    LispObj* cbp
+    LispObj *cbp
         = &ps->StackCache[ps->CatchBlockPointer.DATA.u - ps->StackCacheBase];
     register Integer control = ps->control;
     sp = restartsp;

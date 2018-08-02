@@ -46,18 +46,18 @@ enum LoadMapEntryOpcode {
 /* Description of an open world file */
 
 typedef struct World {
-    char* pathname; /* -> Pathname of the world file */
+    char *pathname; /* -> Pathname of the world file */
     int fd; /* Unix filedes # if the world file is open */
     int format; /* A LoadFileFormat indicating the type of file */
     int byteSwapped; /* World is byte swapped on this machine (VLM only) */
     int vlmDataPageBase; /* Block number of first page of data (VLM only) */
     int vlmTagsPageBase; /* Block number of first page of tags (VLM only) */
-    byte* vlmDataPage; /* -> The data of the current VLM format page */
-    byte* vlmTagsPage; /* -> The tags of the current VLM format page */
-    byte* ivoryDataPage; /* -> The data of the current Ivory format page */
+    byte *vlmDataPage; /* -> The data of the current VLM format page */
+    byte *vlmTagsPage; /* -> The tags of the current VLM format page */
+    byte *ivoryDataPage; /* -> The data of the current Ivory format page */
     int currentPageNumber; /* Page number of the page in the buffer, if any */
     int currentQNumber; /* Q number within the page to be read */
-    struct World* parentWorld; /* -> Parent of this world if it's an IDS */
+    struct World *parentWorld; /* -> Parent of this world if it's an IDS */
     Integer
         sysoutGeneration; /* Generation number of this world (> 0 if IDS) */
     Integer sysoutTimestamp1; /* Unique ID of this world, part 1 ... */
@@ -66,17 +66,17 @@ typedef struct World {
                                        1 ... */
     Integer sysoutParentTimestamp2; /* ... part 2 */
     int nWiredMapEntries; /* Number of wired load map entries */
-    LoadMapEntry* wiredMapEntries; /* -> The wired load map entries */
+    LoadMapEntry *wiredMapEntries; /* -> The wired load map entries */
     int nMergedWiredMapEntries; /* As above but after merging with parent
                                    worlds */
-    LoadMapEntry* mergedWiredMapEntries; /* .. */
+    LoadMapEntry *mergedWiredMapEntries; /* .. */
     int nUnwiredMapEntries; /* Number of unwired load map entries (Ivory only)
                              */
-    LoadMapEntry*
-        unwiredMapEntries; /* -> The unwired load map entries (Ivory only) */
+    LoadMapEntry
+        *unwiredMapEntries; /* -> The unwired load map entries (Ivory only) */
     int nMergedUnwiredMapEntries; /* As above but after merging with parent
                                      worlds */
-    LoadMapEntry* mergedUnwiredMapEntries; /* .. */
+    LoadMapEntry *mergedUnwiredMapEntries; /* .. */
 } World;
 
 /* Possible world file formats */
@@ -162,44 +162,44 @@ typedef struct {
 
 /* Prototypes of all functions in worlds_tools.c */
 
-void LoadVLMDebugger(VLMConfig* config);
-Integer LoadWorld(VLMConfig* config);
+void LoadVLMDebugger(VLMConfig *config);
+Integer LoadWorld(VLMConfig *config);
 void SaveWorld(Integer saveWorldDataVMA);
-void ByteSwapWorld(char* worldPathname, char* searchPath);
+void ByteSwapWorld(char *worldPathname, char *searchPath);
 
-static void ByteSwapOneWorld(World* world);
-static void CanonicalizeVLMLoadMapEntries(World* world);
+static void ByteSwapOneWorld(World *world);
+static void CanonicalizeVLMLoadMapEntries(World *world);
 static void CloseExtraWorlds();
-static void CloseWorldFile(World* world, boolean closeParents);
-static void CreateWorldFile(World* world);
-static void FindParentWorlds(World* world, char* worldSearchPath);
-static Integer IvoryLoadMapData(World* world, LoadMapEntry* mapEntry);
-static Integer LoadMapData(World* world, LoadMapEntry* mapEntry);
-static void MergeAMap(int nForeground, LoadMapEntry* foreground,
-    int nBackground, LoadMapEntry* background, int* nMerged,
-    LoadMapEntry** merged);
-static void MergeLoadMaps(World* world, char* worldSearchPath);
-static void MergeParentLoadMap(World* world);
-static boolean OpenWorldFile(World* world, boolean puntOnErrors);
-static void PrepareToWriteIvoryWorldFilePage(World* world, int pageNumber);
-static void ReadIvoryWorldFileNextQ(World* world, LispObj* q);
-static void ReadIvoryWorldFilePage(World* world, int pageNumber);
-static void ReadIvoryWorldFileQ(World* world, int qNumber, LispObj* q);
+static void CloseWorldFile(World *world, boolean closeParents);
+static void CreateWorldFile(World *world);
+static void FindParentWorlds(World *world, char *worldSearchPath);
+static Integer IvoryLoadMapData(World *world, LoadMapEntry *mapEntry);
+static Integer LoadMapData(World *world, LoadMapEntry *mapEntry);
+static void MergeAMap(int nForeground, LoadMapEntry *foreground,
+    int nBackground, LoadMapEntry *background, int *nMerged,
+    LoadMapEntry **merged);
+static void MergeLoadMaps(World *world, char *worldSearchPath);
+static void MergeParentLoadMap(World *world);
+static boolean OpenWorldFile(World *world, boolean puntOnErrors);
+static void PrepareToWriteIvoryWorldFilePage(World *world, int pageNumber);
+static void ReadIvoryWorldFileNextQ(World *world, LispObj *q);
+static void ReadIvoryWorldFilePage(World *world, int pageNumber);
+static void ReadIvoryWorldFileQ(World *world, int qNumber, LispObj *q);
 static void ReadLoadMap(
-    World* world, int nMapEntries, LoadMapEntry* mapEntries);
-static void ReadSwappedVLMWorldFileNextQ(World* world, LispObj* q);
-static void ReadSwappedVLMWorldFilePage(World* world, int pageNumber);
-static void ReadSwappedVLMWorldFileQ(World* world, int qNumber, LispObj* q);
-static void ScanOneDirectory(World* world);
-static Integer VLMLoadMapData(World* world, LoadMapEntry* mapEntry);
+    World *world, int nMapEntries, LoadMapEntry *mapEntries);
+static void ReadSwappedVLMWorldFileNextQ(World *world, LispObj *q);
+static void ReadSwappedVLMWorldFilePage(World *world, int pageNumber);
+static void ReadSwappedVLMWorldFileQ(World *world, int qNumber, LispObj *q);
+static void ScanOneDirectory(World *world);
+static Integer VLMLoadMapData(World *world, LoadMapEntry *mapEntry);
 #ifdef OS_LINUX
-static int WorldP(const struct dirent* candidateWorld);
+static int WorldP(const struct dirent *candidateWorld);
 #else
-static int WorldP(struct dirent* candidateWorld);
+static int WorldP(struct dirent *candidateWorld);
 #endif
-static void WriteIvoryWorldFileNextQ(World* world, LispObj q);
-static void WriteIvoryWorldFilePage(World* world);
-static void WriteVLMWorldFileHeader(World* world);
-static void WriteVLMWorldFilePages(World* world);
+static void WriteIvoryWorldFileNextQ(World *world, LispObj q);
+static void WriteIvoryWorldFilePage(World *world);
+static void WriteVLMWorldFileHeader(World *world);
+static void WriteVLMWorldFilePages(World *world);
 
 #endif

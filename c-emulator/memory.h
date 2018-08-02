@@ -7,13 +7,13 @@
 #define _MEMORY_H
 
 extern int VirtualMemoryWriteBlockConstant(
-    Integer vma, LispObj* object, int count, int increment);
-extern int VirtualMemoryWriteBlock(Integer vma, LispObj* object, int count);
-extern int VirtualMemoryReadBlock(Integer vma, LispObj* object, int count);
-extern int VirtualMemoryWrite(Integer vma, LispObj* object);
-extern int VirtualMemoryRead(Integer vma, LispObj* object);
-extern Tag* MapVirtualAddressTag(Integer vma);
-extern Integer* MapVirtualAddressData(Integer vma);
+    Integer vma, LispObj *object, int count, int increment);
+extern int VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count);
+extern int VirtualMemoryReadBlock(Integer vma, LispObj *object, int count);
+extern int VirtualMemoryWrite(Integer vma, LispObj *object);
+extern int VirtualMemoryRead(Integer vma, LispObj *object);
+extern Tag *MapVirtualAddressTag(Integer vma);
+extern Integer *MapVirtualAddressData(Integer vma);
 extern Integer EnsureVirtualAddressRange(
     Integer vma, int count, Boolean faultp);
 extern Integer EnsureVirtualAddress(Integer vma, Boolean faultp);

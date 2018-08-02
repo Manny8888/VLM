@@ -14,7 +14,7 @@
 long addrarr[NMAP];
 long maddrarr[NMAP];
 
-void segv_handler(int sigval, int code, register struct sigcontext* scp)
+void segv_handler(int sigval, int code, register struct sigcontext *scp)
 {
     int ret;
     caddr_t aligned_vma = (caddr_t)(scp->sc_traparg_a0 & ~(PAGESIZE - 1));
@@ -31,7 +31,7 @@ void segv_handler(int sigval, int code, register struct sigcontext* scp)
             errno);
 }
 
-main(int argc, char* argv[])
+main(int argc, char *argv[])
 {
     int i, ret;
     long startaddr;
@@ -65,7 +65,7 @@ main(int argc, char* argv[])
             printf("maddrarr[%d]=0x%lx\n", i, maddrarr[i]);
     }
 
-    action.sa_handler = (void*)&segv_handler;
+    action.sa_handler = (void *)&segv_handler;
     action.sa_mask = 0;
     action.sa_flags = 0;
     if (-1 == sigaction(SIGSEGV, &action, NULL))

@@ -52,11 +52,11 @@
 
 /*** Global Data ***/
 
-BootCommArea* BootCommAreaPtr = NULL;
-BootDataArea* BootDataAreaPtr = NULL;
-FEPCommArea* FEPCommAreaPtr = NULL;
-SystemCommArea* SystemCommAreaPtr = NULL;
-EmbCommArea* EmbCommAreaPtr = NULL;
+BootCommArea *BootCommAreaPtr = NULL;
+BootDataArea *BootDataAreaPtr = NULL;
+FEPCommArea *FEPCommAreaPtr = NULL;
+SystemCommArea *SystemCommAreaPtr = NULL;
+EmbCommArea *EmbCommAreaPtr = NULL;
 
 EmbPtr EmbCommAreaAllocPtr = NullEmbPtr;
 size_t EmbCommAreaAllocSize = 0;
@@ -92,10 +92,10 @@ EmbPtr EmbCommAreaAlloc(size_t nBytes)
 
 /* Store a string in the embedded communications area */
 
-EmbPtr MakeEmbString(char* aString)
+EmbPtr MakeEmbString(char *aString)
 {
     EmbPtr theStringPtr;
-    register EmbString* theString;
+    register EmbString *theString;
     register size_t nBytes = (NULL == aString) ? 0 : strlen(aString);
     uint32_t datum;
 
@@ -103,9 +103,9 @@ EmbPtr MakeEmbString(char* aString)
         return (NullEmbPtr);
 
     theStringPtr = EmbCommAreaAlloc(sizeof(EmbString) + nBytes);
-    theString = (EmbString*)HostPointer(theStringPtr);
+    theString = (EmbString *)HostPointer(theStringPtr);
     theString->length = nBytes;
-    memcpy((char*)&theString->string, aString, nBytes);
+    memcpy((char *)&theString->string, aString, nBytes);
 
 #if BYTE_ORDER == BIG_ENDIAN
     bswap32_block(&theString->string, nBytes);
@@ -117,7 +117,7 @@ EmbPtr MakeEmbString(char* aString)
 /* Parses a version number into major and minor version numbers */
 
 static void ParseVersionNumber(
-    char* versionString, int* majorVersion, int* minorVersion)
+    char *versionString, int *majorVersion, int *minorVersion)
 {
     char *start, *end;
     int major, minor = -1;
@@ -144,7 +144,7 @@ static void ParseVersionNumber(
 
 /* Guts of Life Support initialization */
 
-void InitializeLifeSupport(VLMConfig* config)
+void InitializeLifeSupport(VLMConfig *config)
 {
     struct utsname osfName;
     char worldPathname[_POSIX_PATH_MAX + 5 + 1], *loginName, *identifier;
@@ -155,10 +155,10 @@ void InitializeLifeSupport(VLMConfig* config)
     EnsureVirtualAddressRange(BootCommAreaAddress,
         (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
     BootCommAreaPtr
-        = (BootCommArea*)MapVirtualAddressData(BootCommAreaAddress);
+        = (BootCommArea *)MapVirtualAddressData(BootCommAreaAddress);
     BootDataAreaPtr
-        = (BootDataArea*)MapVirtualAddressData(BootDataAreaAddress);
-    EmbCommAreaPtr = (EmbCommArea*)MapVirtualAddressData(EmbCommAreaAddress);
+        = (BootDataArea *)MapVirtualAddressData(BootDataAreaAddress);
+    EmbCommAreaPtr = (EmbCommArea *)MapVirtualAddressData(EmbCommAreaAddress);
 
     /* Initialize the BootComm and BootData */
 
@@ -182,7 +182,7 @@ void InitializeLifeSupport(VLMConfig* config)
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
     VirtualMemoryWriteBlockConstant(FEPCommAreaAddress,
         MakeLispObj(Type_Null, FEPCommAreaAddress), FEPCommAreaSize, 1);
-    FEPCommAreaPtr = (FEPCommArea*)MapVirtualAddressData(FEPCommAreaAddress);
+    FEPCommAreaPtr = (FEPCommArea *)MapVirtualAddressData(FEPCommAreaAddress);
 
     /* Ask the emulator to establish the SystemComm area mapping and
      * initialize the area */
@@ -192,7 +192,7 @@ void InitializeLifeSupport(VLMConfig* config)
     VirtualMemoryWriteBlockConstant(SystemCommAreaAddress,
         MakeLispObj(Type_Null, SystemCommAreaAddress), SystemCommAreaSize, 1);
     SystemCommAreaPtr
-        = (SystemCommArea*)MapVirtualAddressData(SystemCommAreaAddress);
+        = (SystemCommArea *)MapVirtualAddressData(SystemCommAreaAddress);
 
     /* Initialize the communications area */
 
@@ -204,7 +204,7 @@ void InitializeLifeSupport(VLMConfig* config)
 #else
     identifier = "DBME";
 #endif
-    EmbCommAreaPtr->identifier = *(EmbWord*)identifier;
+    EmbCommAreaPtr->identifier = *(EmbWord *)identifier;
 
     EmbCommAreaPtr->version = 1;
     EmbCommAreaPtr->system_type = SystemTypeVLM;
@@ -252,7 +252,7 @@ void InitializeLifeSupport(VLMConfig* config)
     if (pthread_key_create(&mainThread, NULL))
         vpunt(NULL, "Unable to establish per-thread data.");
 
-    pthread_setspecific(mainThread, (void*)TRUE);
+    pthread_setspecific(mainThread, (void *)TRUE);
 
     if (atexit(&TerminateLifeSupport))
         vpunt(NULL, "Unable to establish cleanup handler for Life Support");
@@ -391,7 +391,7 @@ void InitializeLifeSupport(VLMConfig* config)
 void TerminateLifeSupport()
 {
     struct timespec killSleep;
-    void* exit_code;
+    void *exit_code;
 
     if (NULL == pthread_getspecific(mainThread))
         return;
@@ -479,8 +479,8 @@ void TerminateLifeSupport()
 
 /* Setup the attributes for a class of threads */
 
-static void SetupThreadAttrs(char* class, int priorityBoost,
-    pthread_attr_t* threadAttrs, bool* threadAttrsSetup)
+static void SetupThreadAttrs(char *class, int priorityBoost,
+    pthread_attr_t *threadAttrs, bool *threadAttrsSetup)
 {
     size_t stackSize;
     int priority;

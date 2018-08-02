@@ -696,7 +696,7 @@ DISPATCHTABLE(internalregisterwrite2, 34) = {
 };
 
 #ifdef STATISTICS
-char* halfwordnames[256 * 4] = {
+char *halfwordnames[256 * 4] = {
     "DoCarFP", "DoCarLP", "DoCarSP", "DoCarIM", /* #o00 */
     "DoCdrFP", "DoCdrLP", "DoCdrSP", "DoCdrIM", /* #o01 */
     "DoEndpFP", "DoEndpLP", "DoEndpSP", "DoEndpIM", /* #o02 */
@@ -1132,7 +1132,7 @@ char* halfwordnames[256 * 4] = {
     "DoSpareOpFP", "DoSpareOpLP", "DoSpareOpSP", "DoSpareOpIM", /*#o0377 */
 };
 
-char* fullwordnames[48] = {
+char *fullwordnames[48] = {
     "nullfw", /* #o00 = DTP-NULL */
     "monitorforwardfw", /* #o01 = DTP-MONITOR-FORWARD */
     "headerpfw", /* #o02 = DTP-HEADER-P */
@@ -1185,7 +1185,7 @@ char* fullwordnames[48] = {
 
 #define MUNGEDADDR(addr) ((((int64_t)addr) >> 4) & 0x1FFF)
 
-char* GetNameOfInterpreterEntryPoint(int index)
+char *GetNameOfInterpreterEntryPoint(int index)
 {
     int i;
     /* First search the halfword instructions */
@@ -1204,14 +1204,14 @@ void DumpInstructionUsageData(void)
 {
     int i;
     int64_t total = 0L;
-    int* usagedata = (int*)processor->statistics;
-    FILE* ud = fopen("usagedata.lisp", "w");
+    int *usagedata = (int *)processor->statistics;
+    FILE *ud = fopen("usagedata.lisp", "w");
     fprintf(ud,
         "(setq *iusedata* '(; Instruction usage data dump from a VLM\n\n");
     for (i = 0; i < 0x2000; i++)
         if (usagedata[i] > 0) {
             int amt = usagedata[i];
-            char* name = GetNameOfInterpreterEntryPoint(i);
+            char *name = GetNameOfInterpreterEntryPoint(i);
             total += amt;
             fprintf(ud, "  (\"%s\" %d)", name, amt);
         };
@@ -1228,7 +1228,7 @@ void ResetIcacheMissHistory(void)
     processor->meterpos = 0;
     processor->metermax = 0;
     for (i = 0; i <= processor->metermask; i++)
-        ((int*)(processor->meterdatabuff))[i] = -1;
+        ((int *)(processor->meterdatabuff))[i] = -1;
     for (i = 0; i <= CacheLine_Mask; i++)
         cp[i].annotation = 0;
 }
@@ -1236,12 +1236,12 @@ void ResetIcacheMissHistory(void)
 void DumpIcacheMissHistory(void)
 {
     int i;
-    int* cachedata = (int*)processor->meterdatabuff;
+    int *cachedata = (int *)processor->meterdatabuff;
     int mask = processor->metermask;
     int pos = processor->meterpos;
     CACHELINEP cp = (CACHELINEP)processor->icachebase;
 
-    FILE* ud = fopen("cachedata.lisp", "w");
+    FILE *ud = fopen("cachedata.lisp", "w");
     fprintf(ud, ";; Cache miss history data dump from a VLM\n\n");
     fprintf(ud, "((%d %d %d)	; size max freq\n", mask + 1,
         processor->metermax, processor->meterfreq);
@@ -1272,7 +1272,7 @@ void DumpIcacheMissHistory(void)
 #endif
 
 #ifdef TRAPMETERING
-char* trapnames[TrapMeter_NEntries] = { "StackOverflow",
+char *trapnames[TrapMeter_NEntries] = { "StackOverflow",
     "InstructionException", "ArithmeticInstructionException", "Error",
     "Reset", "PullApplyArgs", "Trace", "PreemptRequest",
     "LowPrioritySequenceBreak", "HighPrioritySequenceBreak", "DBUnwindFrame",
@@ -1283,8 +1283,8 @@ char* trapnames[TrapMeter_NEntries] = { "StackOverflow",
 void DumpTrapData(void)
 {
     int i;
-    int64_t* trapdata = (int64_t*)processor->trapmeterdata;
-    FILE* ud = fopen("trapdata.lisp", "w");
+    int64_t *trapdata = (int64_t *)processor->trapmeterdata;
+    FILE *ud = fopen("trapdata.lisp", "w");
 
     fprintf(ud, "(setq *trapdata* '(; Trap data dump from a VLM\n\n");
     for (i = 0; i < TrapMeter_NEntries; i++) {
@@ -1298,21 +1298,21 @@ void ResetTrapData(void)
 {
     int i;
     for (i = 0; i <= TrapMeter_NEntries; i++)
-        ((int64_t*)processor->trapmeterdata)[i] = 0;
+        ((int64_t *)processor->trapmeterdata)[i] = 0;
 }
 #endif
 
 // hack
 // extern void ICACHEMISS(void);
-extern void* ICACHEMISS;
+extern void *ICACHEMISS;
 
 #define FLUSHICACHE                                                          \
     {                                                                        \
         CACHELINEP cp = &instructioncache[-1];                               \
         int i;                                                               \
         for (i = 0; i < icachesize + 4; i++, cp++) {                         \
-            cp->code = (char*)/*&*/ ICACHEMISS;                              \
-            cp->nextcp = (char*)cp;                                          \
+            cp->code = (char *)/*&*/ ICACHEMISS;                             \
+            cp->nextcp = (char *)cp;                                         \
         }                                                                    \
     }
 #define FLUSHSTACKCACHE                                                      \

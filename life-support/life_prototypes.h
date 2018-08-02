@@ -15,7 +15,7 @@
 
 #define begin_MUTEX_LOCKED(lock)                                             \
     pthread_cleanup_push((pthread_cleanuproutine_t)pthread_mutex_unlock,     \
-        (void*)&EmbCommAreaPtr->lock);                                       \
+        (void *)&EmbCommAreaPtr->lock);                                      \
     if (pthread_mutex_lock(&EmbCommAreaPtr->lock))                           \
         vpunt(NULL,                                                          \
             "Unable to lock the Life Support " #lock " in thread %lx",       \
@@ -46,19 +46,19 @@
 /*** initialization.c ***/
 
 EmbPtr EmbCommAreaAlloc(size_t nBytes);
-void InitializeLifeSupport(VLMConfig* config);
-EmbPtr MakeEmbString(char* aString);
+void InitializeLifeSupport(VLMConfig *config);
+EmbPtr MakeEmbString(char *aString);
 void TerminateLifeSupport(void);
 
 static void ParseVersionNumber(
-    char* versionString, int* majorVersion, int* minorVersion);
-static void SetupThreadAttrs(char* class, int priorityBoost,
-    pthread_attr_t* threadAttrs, bool* threadAttrsSetup);
+    char *versionString, int *majorVersion, int *minorVersion);
+static void SetupThreadAttrs(char *class, int priorityBoost,
+    pthread_attr_t *threadAttrs, bool *threadAttrsSetup);
 
 /*** cold_load.c ***/
 
-void InitializeColdLoadChannel(VLMConfig* config);
-void ResetColdLoadChannel(EmbChannel* channel);
+void InitializeColdLoadChannel(VLMConfig *config);
+void ResetColdLoadChannel(EmbChannel *channel);
 void TerminateColdLoadChannel(void);
 void UpdateColdLoadNames(void);
 
@@ -68,79 +68,79 @@ void UpdateColdLoadNames(void);
 
 boolean ConsoleInputAvailableP(void);
 void DoConsoleIO(
-    EmbConsoleChannel* consoleChannel, EmbConsoleBuffer* command);
-void InitializeConsoleChannel(VLMConfig* config);
-void ResetConsoleChannel(EmbChannel* channel);
+    EmbConsoleChannel *consoleChannel, EmbConsoleBuffer *command);
+void InitializeConsoleChannel(VLMConfig *config);
+void ResetConsoleChannel(EmbChannel *channel);
 void TerminateConsoleChannel(void);
 
-static void AdvanceOpeningState(EmbConsoleChannel* pConsoleChannel);
-static void CloseDisplay(EmbConsoleChannel* chanel);
-static void ConsoleDriver(EmbConsoleChannel* consoleChannel,
-    EmbQueue* pRequestQueue, EmbQueue* pReplyQueue);
-static void ConsoleInput(EmbConsoleChannel* consoleChannel);
+static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel);
+static void CloseDisplay(EmbConsoleChannel *chanel);
+static void ConsoleDriver(EmbConsoleChannel *consoleChannel,
+    EmbQueue *pRequestQueue, EmbQueue *pReplyQueue);
+static void ConsoleInput(EmbConsoleChannel *consoleChannel);
 static int ConsoleInputWait(
-    EmbConsoleChannel* pConsoleChannel, EmbConsoleBuffer* pCommand);
-static void ConsoleOutput(EmbConsoleChannel* consoleChannel);
+    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand);
+static void ConsoleOutput(EmbConsoleChannel *consoleChannel);
 static int ConsoleRead(
-    EmbConsoleChannel* pConsoleChannel, EmbConsoleBuffer* pCommand);
+    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand);
 static int ConsoleWrite(
-    EmbConsoleChannel* pConsoleChannel, EmbConsoleBuffer* pCommand);
-static void DisableRunLights(EmbConsoleChannel* consoleChannel);
+    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand);
+static void DisableRunLights(EmbConsoleChannel *consoleChannel);
 static void DrawRunLights(pthread_addr_t argument);
 static void EnableRunLights(
-    EmbConsoleChannel* pConsoleChannel, EmbConsoleBuffer* pCommand);
+    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand);
 static int OpenDisplay(
-    EmbConsoleChannel* pConsoleChannel, EmbConsoleBuffer* pCommand);
+    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand);
 static int ProcessConnectionRequest(
-    EmbConsoleChannel* pConsoleChannel, EmbConsoleBuffer* pCommand);
+    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand);
 
 /*** disks.c ***/
 
-void AttachDiskChannel(AttachDiskChannelRequest* pRequest);
-void GrowDiskPartition(GrowDiskPartitionRequest* pRequest);
+void AttachDiskChannel(AttachDiskChannelRequest *pRequest);
+void GrowDiskPartition(GrowDiskPartitionRequest *pRequest);
 void DetachDiskChannel(EmbPtr diskChannelPtr);
-void ResetDiskChannel(EmbChannel* channel);
+void ResetDiskChannel(EmbChannel *channel);
 void TerminateDiskChannels(void);
 
-static int DoDiskIO(EmbDiskChannel* diskChannel, DiskChannelState* diskState,
-    EmbDiskQueueElement* command);
-static void DiskLife(EmbDiskChannel* diskChannel);
-static void TerminateDiskChannel(EmbDiskChannel* diskChannel);
+static int DoDiskIO(EmbDiskChannel *diskChannel, DiskChannelState *diskState,
+    EmbDiskQueueElement *command);
+static void DiskLife(EmbDiskChannel *diskChannel);
+static void TerminateDiskChannel(EmbDiskChannel *diskChannel);
 
 /*** message_channels.c ***/
 
-void InitializeMessageChannels(VLMConfig* config);
+void InitializeMessageChannels(VLMConfig *config);
 void PollMessageChannels(void);
-void ResetMessageChannel(EmbChannel* channel);
+void ResetMessageChannel(EmbChannel *channel);
 void TerminateMessageChannels(void);
-void UnthreadMessageChannel(EmbMessageChannel* theChannel);
+void UnthreadMessageChannel(EmbMessageChannel *theChannel);
 
-static void ExecuteGuestCommands(EmbCommandChannel* commandChannel);
-static void ThreadActiveMessageChannel(EmbMessageChannel* theChannel);
+static void ExecuteGuestCommands(EmbCommandChannel *commandChannel);
+static void ThreadActiveMessageChannel(EmbMessageChannel *theChannel);
 
 /*** network.c ***/
 
-void InitializeNetworkChannels(VLMConfig* config);
-void ResetNetworkChannel(EmbChannel* channel);
+void InitializeNetworkChannels(VLMConfig *config);
+void ResetNetworkChannel(EmbChannel *channel);
 void TerminateNetworkChannels(void);
 
-static void InitializeNetChannel(NetworkInterface* interface, int netUnit
+static void InitializeNetChannel(NetworkInterface *interface, int netUnit
 #ifdef OS_OSF
     ,
-    struct in_addr* localHostAddress
+    struct in_addr *localHostAddress
 #else
 #ifndef USE_LIBPCAP
     ,
-    int ipSocket, struct ifconf* ifc
+    int ipSocket, struct ifconf *ifc
 #endif
 #endif
 );
 static void NetworkChannelReceiver(pthread_addr_t argument);
-static void NetworkChannelTransmitter(EmbNetChannel* pNetChannel);
+static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel);
 #ifdef OS_OSF
-static void TerminateNetChannel(EmbNetChannel* netChannel);
+static void TerminateNetChannel(EmbNetChannel *netChannel);
 #else
-static void TerminateNetChannel(EmbNetChannel* netChannel, int ipSocket);
+static void TerminateNetChannel(EmbNetChannel *netChannel, int ipSocket);
 #endif
 
 /*** polling.c ***/
@@ -151,16 +151,16 @@ void SetIntervalTimer(Integer relativeTimeout);
 
 static void ProcessResetRequest(void);
 static void UpdateVLMStatus(void);
-static boolean VLMIsRunning(EmbCommArea* ep);
-static boolean VLMIsRunningLisp(EmbCommArea* ep);
+static boolean VLMIsRunning(EmbCommArea *ep);
+static boolean VLMIsRunningLisp(EmbCommArea *ep);
 
 /*** queues.c ***/
 
 /* All other entrypoints are defined in embed.h */
 
 EmbPtr CreateQueue(int nElements, int elementSize);
-void ResetIncomingQueue(EmbQueue* q);
-void ResetOutgoingQueue(EmbQueue* q);
+void ResetIncomingQueue(EmbQueue *q);
+void ResetOutgoingQueue(EmbQueue *q);
 
 /*** signals.c ***/
 

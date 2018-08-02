@@ -27,7 +27,7 @@ struct nlist nl[] = {
     { NULL },
 };
 
-main(int argc, char* argv[])
+main(int argc, char *argv[])
 {
     vm_size_t vm_swap_space, vm_total_swap_space;
     double to_mb = (double)getpagesize() / (1024.0 * 1024.0);

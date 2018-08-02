@@ -12,13 +12,13 @@
 #define OneSixteenthSecond 7500000L
 
 /* Returns TRUE if the VLM is running either in the IFEP or Lisp */
-static boolean VLMIsRunning(EmbCommArea* ep)
+static boolean VLMIsRunning(EmbCommArea *ep)
 {
     return ((ep->spy_status == 0) && (ep->fep.status != HaltedFEPStatus));
 }
 
 /* Returns TRUE if the VLM is running Lisp */
-static boolean VLMIsRunningLisp(EmbCommArea* ep)
+static boolean VLMIsRunningLisp(EmbCommArea *ep)
 {
     return (VLMIsRunning(ep) && (ep->fep.status == IdleFEPStatus));
 }
@@ -26,7 +26,7 @@ static boolean VLMIsRunningLisp(EmbCommArea* ep)
 /* Updates the VLM guest status to reflect its current true status */
 static void UpdateVLMStatus()
 {
-    register EmbCommArea* ep = EmbCommAreaPtr;
+    register EmbCommArea *ep = EmbCommAreaPtr;
 
     switch (ep->guestStatus) {
     case NonexistentGuestStatus:
@@ -65,7 +65,7 @@ static void UpdateVLMStatus()
 
 static void ResetCommArea(boolean fullReset)
 {
-    register EmbChannel* channel;
+    register EmbChannel *channel;
     register EmbPtr channelP;
 
     for (channelP = EmbCommAreaPtr->channel_table; channelP != NullEmbPtr;
@@ -172,7 +172,7 @@ void IvoryLifePolling(pthread_addr_t argument)
     pollingSleep.tv_nsec = 0;
 
     pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void*)self);
+        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     while (TRUE) {
         begin_MUTEX_LOCKED(signalLock);
@@ -253,7 +253,7 @@ void IntervalTimerDriver(pthread_addr_t argument)
     int result;
 
     pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void*)self);
+        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     WaitUntilInitializationComplete();
 
