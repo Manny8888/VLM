@@ -66,7 +66,7 @@ OPT = -O -mtune=nocona \
 -funit-at-a-time \
 -falign-functions  -falign-jumps -falign-loops -falign-labels \
 -fcrossjumping \
--finline-functions -fweb, -frename-registers -funswitch-loops \
+-finline-functions -fweb -frename-registers -funswitch-loops \
 -fregmove \
 -fcse-follow-jumps \
 -fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse \
@@ -86,7 +86,7 @@ OPT = -O -mtune=nocona \
 #-funit-at-a-time -falign-functions  -falign-jumps -falign-loops
 #-falign-labels -fcrossjumping
 
-#-finline-functions, -fweb, -frename-registers and -funswitch-loops
+#-finline-functions -fweb -frename-registers and -funswitch-loops
 
 CFLAGS = $(OPT) -std=gnu99 -g2 -I/usr/X11R6/include -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
 AFLAGS = -g2 -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
