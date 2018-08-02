@@ -1,7 +1,10 @@
 /*
  * OG "C" instruction stubs
  */
+
+#define _GNU_SOURCE
 #include <fenv.h>
+
 #include "std.h"
 
 #include "aihead.h"
