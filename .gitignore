@@ -1,1 +1,4 @@
 *.o
+/byteswap_world
+/genera
+/glob
