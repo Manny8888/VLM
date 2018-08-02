@@ -1,4 +1,5 @@
-/* Kludge because these standard header files don't use #ifndef FILE/#define FILE convention */
+/* Kludge because these standard header files don't use #ifndef FILE/#define
+ * FILE convention */
 
 #ifndef _PFILT_WRAPPER_
 #define _PFILT_WRAPPER_
@@ -20,11 +21,10 @@
 #include <linux/filter.h>
 #include <net/if_arp.h>
 #define N_FILTERS 6
-typedef struct
-  {
-	struct sock_fprog	fprog;
-	struct sock_filter  filters[N_FILTERS];
-  }		 EmbNetFilter;
+typedef struct {
+    struct sock_fprog fprog;
+    struct sock_filter filters[N_FILTERS];
+} EmbNetFilter;
 
 #elif defined(__FreeBSD__)
 #include <pcap.h>

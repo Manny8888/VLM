@@ -1,10 +1,9 @@
 /*  WARNING!!  DO NOT MODIFY THIS FILE! */
-/*  It was automatically generated from vlm:emulator;traps.sid  Any changes made to it will be lost. */
+/*  It was automatically generated from vlm:emulator;traps.sid  Any changes
+ * made to it will be lost. */
 
 #ifndef _TRAPS_
 #define _TRAPS_
-
-
 
 #define TrapVector_StackOverflow 2627
 
@@ -88,8 +87,7 @@
 
 #define TrapMeter_NEntries 20
 /*  WARNING!!  DO NOT MODIFY THIS FILE! */
-/*  It was automatically generated from vlm:emulator;traps.sid  Any changes made to it will be lost. */
+/*  It was automatically generated from vlm:emulator;traps.sid  Any changes
+ * made to it will be lost. */
 
 #endif
-
-

@@ -44,52 +44,53 @@
 #include <pthread.h>
 
 typedef void* pthread_addr_t;
-typedef void (*pthread_cleanuproutine_t) (void*);
-typedef void* (*pthread_startroutine_t) (void*);
+typedef void (*pthread_cleanuproutine_t)(void*);
+typedef void* (*pthread_startroutine_t)(void*);
 
 #ifndef OS_OSF
 #define pthread_yield sched_yield
-int pthread_get_expiration_np (const struct timespec *delta, struct timespec *abstime);
-int pthread_delay_np (const struct timespec *interval);
+int pthread_get_expiration_np(
+    const struct timespec* delta, struct timespec* abstime);
+int pthread_delay_np(const struct timespec* interval);
 #endif
 
 #ifdef OS_OSF
 /* These are the types defined in <stdint.h> which is newer than OSF */
-typedef signed char         int8_t;
-typedef short int		    int16_t;
-typedef int			        int32_t;
-typedef long int		    int64_t;
-typedef unsigned char		uint8_t;
-typedef unsigned short int	uint16_t;
-typedef unsigned int		uint32_t;
-typedef unsigned long int	uint64_t;
-typedef signed char		    int_least8_t;
-typedef short int		    int_least16_t;
-typedef int			        int_least32_t;
-typedef long int		    int_least64_t;
-typedef unsigned char		uint_least8_t;
-typedef unsigned short int	uint_least16_t;
-typedef unsigned int		uint_least32_t;
-typedef unsigned long int	uint_least64_t;
-typedef signed char		    int_fast8_t;
-typedef long int		    int_fast16_t;
-typedef long int		    int_fast32_t;
-typedef long int		    int_fast64_t;
-typedef unsigned char		uint_fast8_t;
-typedef unsigned long int	uint_fast16_t;
-typedef unsigned long int	uint_fast32_t;
-typedef unsigned long int	uint_fast64_t;
-typedef long int		    intptr_t;
-typedef unsigned long int	uintptr_t;
-typedef long int		    intmax_t;
-typedef unsigned long int	uintmax_t;
+typedef signed char int8_t;
+typedef short int int16_t;
+typedef int int32_t;
+typedef long int int64_t;
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
+typedef unsigned int uint32_t;
+typedef unsigned long int uint64_t;
+typedef signed char int_least8_t;
+typedef short int int_least16_t;
+typedef int int_least32_t;
+typedef long int int_least64_t;
+typedef unsigned char uint_least8_t;
+typedef unsigned short int uint_least16_t;
+typedef unsigned int uint_least32_t;
+typedef unsigned long int uint_least64_t;
+typedef signed char int_fast8_t;
+typedef long int int_fast16_t;
+typedef long int int_fast32_t;
+typedef long int int_fast64_t;
+typedef unsigned char uint_fast8_t;
+typedef unsigned long int uint_fast16_t;
+typedef unsigned long int uint_fast32_t;
+typedef unsigned long int uint_fast64_t;
+typedef long int intptr_t;
+typedef unsigned long int uintptr_t;
+typedef long int intmax_t;
+typedef unsigned long int uintmax_t;
 
 #else
 #include <stdint.h>
 #ifdef OS_LINUX
 #include <asm/types.h>
 #endif
-#define TRUE  1
+#define TRUE 1
 #define FALSE 0
 #define ESUCCESS 0
 #endif
@@ -108,8 +109,8 @@ typedef unsigned long int	uintmax_t;
 #include <ucontext.h>
 #endif
 
-typedef void (*sa_handler_t) (int);
-typedef void (*sa_sigaction_t) (int, siginfo_t*, void*);
+typedef void (*sa_handler_t)(int);
+typedef void (*sa_sigaction_t)(int, siginfo_t*, void*);
 
 #include <errno.h>
 #include <string.h>

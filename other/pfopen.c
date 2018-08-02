@@ -24,19 +24,20 @@
  * HISTORY
  */
 #ifndef lint
-static char *rcsid = "@(#)$RCSfile: pfopen.c,v $ $Revision: 1.1.1.1 $ (DEC) $Date: 2003/12/03 16:57:16 $";
+static char* rcsid = "@(#)$RCSfile: pfopen.c,v $ $Revision: 1.1.1.1 $ (DEC) "
+                     "$Date: 2003/12/03 16:57:16 $";
 #endif
 
 #include <sys/socket.h>
-#include <sys/time.h>	/* for timeval struct in pfilt.h */
+#include <sys/time.h> /* for timeval struct in pfilt.h */
 #include <sys/file.h>
 #include <sys/errno.h>
 #include <net/if.h>
 #include <net/pfilt.h>
 #include <stdio.h>
 
-#define	PFPREFIX	"/dev/pf/pfilt"		/* prefix for device names */
-#define	PFMAXMINORS	256			/* 8-bit minor device field */
+#define PFPREFIX "/dev/pf/pfilt" /* prefix for device names */
+#define PFMAXMINORS 256 /* 8-bit minor device field */
 extern int errno;
 
 /*
@@ -52,49 +53,47 @@ extern int errno;
  *	-1 on failure with errno set to indicate the error
  *
  */
-pfopen(ifname, flags)
-char *ifname;			/* "ln0", "pf0", etc. or NULL */
+pfopen(ifname, flags) char* ifname; /* "ln0", "pf0", etc. or NULL */
 int flags;
 {
-	int i;			/* loop counter */
-	int fd;			/* file descriptor */
-	char tryname[128];	/* device name: "/dev/pf/pfiltnn" */
-	static int setif();
+    int i; /* loop counter */
+    int fd; /* file descriptor */
+    char tryname[128]; /* device name: "/dev/pf/pfiltnn" */
+    static int setif();
 
-	if (ifname && (ifname[0] == 0))
-	    ifname = NULL;	/* change empty string to NULL string */
+    if (ifname && (ifname[0] == 0))
+        ifname = NULL; /* change empty string to NULL string */
 
-	/* find next available device under the /dev/pf directory */
-	for (i = 0; i < PFMAXMINORS; i++) {
-		sprintf(tryname, "%s%d", PFPREFIX, i);
-		fd = open(tryname, flags, 0);
-		if (fd < 0) {
-			switch (errno) {
-			case EBUSY:	/* device in use */
-				continue;	/* try the next entry */
-			case ENOENT:	/* ran out of filenames */
-			case ENXIO:	/* no more configured in kernel */
-			default:	/* something else went wrong */
-				return(-1);
-			}
-		}
-		/* open succeeded, set the interface name */
-		return(setif(fd, ifname));
-	}
-	return(-1);	/* didn't find an openable device */
+    /* find next available device under the /dev/pf directory */
+    for (i = 0; i < PFMAXMINORS; i++) {
+        sprintf(tryname, "%s%d", PFPREFIX, i);
+        fd = open(tryname, flags, 0);
+        if (fd < 0) {
+            switch (errno) {
+            case EBUSY: /* device in use */
+                continue; /* try the next entry */
+            case ENOENT: /* ran out of filenames */
+            case ENXIO: /* no more configured in kernel */
+            default: /* something else went wrong */
+                return (-1);
+            }
+        }
+        /* open succeeded, set the interface name */
+        return (setif(fd, ifname));
+    }
+    return (-1); /* didn't find an openable device */
 }
 
-static int setif(fd, ifname)
-int fd;
-char *ifname;
+static int setif(fd, ifname) int fd;
+char* ifname;
 {
-	if (ifname == NULL)	/* use default */
-	    return(fd);
+    if (ifname == NULL) /* use default */
+        return (fd);
 
-	if (ioctl(fd, EIOCSETIF, ifname) < 0) {
-		close(fd);
-		return(-1);
-	}
-	/* return the file descriptor */
-	return(fd);
+    if (ioctl(fd, EIOCSETIF, ifname) < 0) {
+        close(fd);
+        return (-1);
+    }
+    /* return the file descriptor */
+    return (fd);
 }

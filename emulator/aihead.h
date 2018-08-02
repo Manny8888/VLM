@@ -1,10 +1,9 @@
 /*  WARNING!!  DO NOT MODIFY THIS FILE! */
-/*  It was automatically generated from vlm:emulator;aihead.sid  Any changes made to it will be lost. */
+/*  It was automatically generated from vlm:emulator;aihead.sid  Any changes
+ * made to it will be lost. */
 
 #ifndef _AIHEAD_
 #define _AIHEAD_
-
-
 
 #define Type_Null 0
 
@@ -1074,8 +1073,7 @@
 
 #define DoubleFloatOp_Divide 3
 /*  WARNING!!  DO NOT MODIFY THIS FILE! */
-/*  It was automatically generated from vlm:emulator;aihead.sid  Any changes made to it will be lost. */
+/*  It was automatically generated from vlm:emulator;aihead.sid  Any changes
+ * made to it will be lost. */
 
 #endif
-
-

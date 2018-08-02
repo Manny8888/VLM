@@ -5,13 +5,14 @@
 
 #include "VLM_configuration.h"
 
-void	verror (char* section, char* format, ...);
-void	vpunt (char* section, char* format, ...);
-void	vwarn (char* section, char* format, ...);
+void verror(char* section, char* format, ...);
+void vpunt(char* section, char* format, ...);
+void vwarn(char* section, char* format, ...);
 
-void	BuildConfiguration (VLMConfig* config, int argc, char** argv);
-void	SetCommandName (char* newCommandName);
-void    BuildXDisplayName (char* displayName, char* hostName, int display, int screen);
+void BuildConfiguration(VLMConfig* config, int argc, char** argv);
+void SetCommandName(char* newCommandName);
+void BuildXDisplayName(
+    char* displayName, char* hostName, int display, int screen);
 
 /* Internal function prototypes are in utilities.c itself */
 
