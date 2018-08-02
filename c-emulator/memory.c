@@ -1,5 +1,3 @@
-/* -*- Mode:C -*- */
-
 #include "emulator.h"
 #include "ivory.h"
 #include "memory.h"

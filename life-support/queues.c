@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Queue manipulation routines */
 
 #include "std.h"

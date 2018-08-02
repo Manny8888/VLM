@@ -1,5 +1,3 @@
-/* -*- Mode:C -*- */
-
 /**** Language supplements ****/
 
 #ifndef _EMULATOR_H

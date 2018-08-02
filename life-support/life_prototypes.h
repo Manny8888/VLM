@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Function prototypes for all entrypoints in VLM Life Support */
 
 #include <pthread.h>

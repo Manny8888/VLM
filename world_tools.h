@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Ivory and VLM World File Format */
 
 #ifndef _WORLD_TOOLS_

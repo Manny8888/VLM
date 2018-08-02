@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Life Support periodic activities */ 
 
 #include "std.h"

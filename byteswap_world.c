@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* VLM World File Tools */
 
 #include "std.h"

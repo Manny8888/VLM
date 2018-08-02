@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Functions which handle signals between the VLM and host system */
 
 #include <stdlib.h>

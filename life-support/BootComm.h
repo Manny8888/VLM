@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* The BootROM Communications and Data areas -- See SYS:I-SYS;SYSDF1 for details */
 
 #ifndef _BOOTCOM_

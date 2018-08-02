@@ -1,5 +1,3 @@
-/* -*- Mode:C -*- */
-
 /**** Instruction decoding ****/
 
 #include <stddef.h>

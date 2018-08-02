@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* VLM Console Life Support -- EXPLANATION */
 
 #include "std.h"

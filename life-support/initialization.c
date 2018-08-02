@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* VLM Life Support initialization */
 
 #include "std.h"

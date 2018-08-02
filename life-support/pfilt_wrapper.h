@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Kludge because these standard header files don't use #ifndef FILE/#define FILE convention */
 
 #ifndef _PFILT_WRAPPER_

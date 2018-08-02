@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* VLM Network Life Support for Linux */
 
 #ifndef USE_TUN

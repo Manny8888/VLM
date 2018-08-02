@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Include the standard system header files */
 
 #ifndef _STD_H_

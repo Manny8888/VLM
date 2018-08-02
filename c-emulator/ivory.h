@@ -1,5 +1,3 @@
-/* -*- Mode:C -*- */
-
 /**** Ivory architectural definitions ****/
 
 #include "emulator.h"

@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 #include "std.h"
 
 #include "VLM_configuration.h"

@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Miscellaneous utility routines */
 
 #include "std.h"

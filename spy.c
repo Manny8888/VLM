@@ -1,5 +1,3 @@
-/* -*- Mode:C -*- */
-
 #include "std.h"
 #include <sys/param.h>
 #include <sys/mman.h>

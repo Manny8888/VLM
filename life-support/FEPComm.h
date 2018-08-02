@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* The FEP Communications area -- See SYS:I-SYS;SYSDF1 for details */
 
 #ifndef _FEPCOM_

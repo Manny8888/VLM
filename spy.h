@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Function prototypes for the external interface to the Remote Debugger spy */
 
 #ifndef _SPY_

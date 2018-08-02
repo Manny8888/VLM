@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Prototypes of all functions in utilities.c */
 
 #ifndef _UTILITIES_

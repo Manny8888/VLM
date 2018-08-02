@@ -1,5 +1,3 @@
-/* -*- Mode:C -*- */
-
 /*
    For historical reasons, the VM accessors return -1 on failure and 0 on success
  */

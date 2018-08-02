@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* VLM Network Life Support for Mac OS X (Darwin) */
 
 #include "life_types.h"

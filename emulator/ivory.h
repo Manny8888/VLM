@@ -1,5 +1,3 @@
-/* -*- Mode:C -*- */
-
 /**** Ivory architectural definitions ****/
 
 #ifndef _IVORY_H

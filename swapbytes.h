@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 #ifndef _SWAPBYTES_
 #define _SWAPBYTES_
 

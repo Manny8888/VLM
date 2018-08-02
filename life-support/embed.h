@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* This file defines the various common data structures, including the
    communication area, the channels, and the configuration file.
    For convenience, the private parts of these structures are in this

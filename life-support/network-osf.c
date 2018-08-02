@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* VLM Network Life Support for OSF (Tru64 UNIX) */
 
 #include <sys/param.h>

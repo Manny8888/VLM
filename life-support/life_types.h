@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Common types used throughout Life Support */
 
 #ifndef _LIFE_TYPES_

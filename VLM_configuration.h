@@ -1,5 +1,3 @@
-/* -*- Mode: C; Tab-Width: 4 -*- */
-
 /* Configuration parameters for the VLM:
       Defaults can be overridden by either the user's .VLM file or command line arguments */
 

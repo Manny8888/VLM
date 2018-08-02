@@ -1,4 +1,3 @@
-/* -*- Mode:C; Lowercase: Yes -*- */
 /* #define DEBUGICACHE 42 */
 
 #include "std.h"

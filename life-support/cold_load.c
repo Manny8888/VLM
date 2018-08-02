@@ -1,5 +1,3 @@
-/* -*- Mode: C; -*- */
-
 /* VLM's Cold Load Window implementation */
 
 #include "std.h"

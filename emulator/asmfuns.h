@@ -1,5 +1,3 @@
-/* -*- Mode:C; Lowercase: Yes -*- */
-
 #ifndef _ASMFUNS_
 #define _ASMFUNS_
 

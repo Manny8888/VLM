@@ -1,5 +1,3 @@
-/* -*- Mode:C; Lowercase: Yes -*- */
-
 /* Functions called by the emulator */
 
 #include "std.h"
