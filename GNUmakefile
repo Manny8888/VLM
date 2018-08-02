@@ -59,7 +59,7 @@ minima: MAINOPTIONS = -DMINIMA
 iverify: MAINOPTIONS = -DIVERIFY
 
 OPT = -O -mtune=nocona \
--fforce-mem -foptimize-sibling-calls -fstrength-reduce \
+-foptimize-sibling-calls -fstrength-reduce \
 -fexpensive-optimizations \
 -fsched-interblock -fsched-spec -fpeephole2 \
 -freorder-blocks  -freorder-functions \
