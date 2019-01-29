@@ -1,5 +1,7 @@
 *.o
-GR*
+GRTAGS
+GTAGS
+GPATH
 .vscode
 /byteswap_world
 /genera
