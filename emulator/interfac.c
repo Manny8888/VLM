@@ -94,7 +94,7 @@ void ill_handler(int sigval, siginfo_t *si, void *uc)
 #elif defined(OS_LINUX) && defined(ARCH_X86_64)
 void ill_handler(int sigval, siginfo_t *si, void *uc)
 {
-    ((struct ucontext *)uc)->uc_mcontext.gregs[REG_RIP]
+    ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP]
         = (uint64_t)DoIStageError;
 }
 #elif defined(OS_DARWIN)
@@ -126,7 +126,7 @@ void fpe_handler(int sigval, siginfo_t *si, void *uc)
 #elif defined(OS_LINUX) && defined(ARCH_X86_64)
 void fpe_handler(int sigval, siginfo_t *si, void *uc)
 {
-    ((struct ucontext *)uc)->uc_mcontext.gregs[REG_RIP]
+    ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP]
         = (uint64_t)ARITHMETICEXCEPTION;
 }
 #elif defined(OS_DARWIN)

@@ -15,8 +15,7 @@ typedef EmbWord bool; /* Boolean value for use in embedded data structure */
 typedef unsigned char boolean; /* Boolean value for day-to-day use */
 typedef unsigned char byte; /* byte = unsigned 8-bit byte */
 typedef void *PtrV; /* PtrV is like Ptr but with better error checking */
-typedef void (*ProcPtrV)(
-    PtrV); /* ProcPtrV is like ProcPtr but returns nothing */
+typedef void (*ProcPtrV)(PtrV); /* ProcPtrV is like ProcPtr but returns nothing */
 
 /* Possible initial states of an X window */
 enum WindowInitialState { Iconic = -1, Unspecified, Normal };

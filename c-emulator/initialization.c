@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include "../std.h"
 #include "emulator.h"
 #include "ivory.h"
 #include "memory.h"
@@ -17,7 +18,6 @@ static void quit_handler(int number)
 }
 
 static ProcessorState ps;
-
 ProcessorState *processor = &ps;
 
 Boolean Runningp(void) { return run; }
@@ -162,7 +162,7 @@ void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase)
 
 void OutOfMemory(char *Where, int HowMuch)
 {
-    fprintf(stderr, "%s was unable to allocate %ld bytes.\n", Where, HowMuch);
+    fprintf(stderr, "%s was unable to allocate %d bytes.\n", Where, HowMuch);
     exit(-1);
 }
 

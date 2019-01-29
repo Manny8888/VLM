@@ -47,6 +47,7 @@ typedef union {
     unsigned long whole;
 #endif
 } LispObj, PC;
+
 #define DATA parts.data
 #define TAG parts.tag
 

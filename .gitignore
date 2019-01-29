@@ -1,4 +1,6 @@
 *.o
+GR*
+.vscode
 /byteswap_world
 /genera
 /glob

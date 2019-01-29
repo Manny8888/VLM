@@ -6,6 +6,8 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
+#include "ivory.h"
+
 extern int VirtualMemoryWriteBlockConstant(
     Integer vma, LispObj *object, int count, int increment);
 extern int VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count);
@@ -14,9 +16,11 @@ extern int VirtualMemoryWrite(Integer vma, LispObj *object);
 extern int VirtualMemoryRead(Integer vma, LispObj *object);
 extern Tag *MapVirtualAddressTag(Integer vma);
 extern Integer *MapVirtualAddressData(Integer vma);
-extern Integer EnsureVirtualAddressRange(
-    Integer vma, int count, Boolean faultp);
-extern Integer EnsureVirtualAddress(Integer vma, Boolean faultp);
+
+// FIXME - deleted ", Boolean faultp" to match source code
+extern Integer EnsureVirtualAddressRange(Integer vma, int count);
+// FIXME - deleted ", Boolean faultp" to match source code
+extern Integer EnsureVirtualAddress(Integer vma);
 
 /* VLM virtual-memory "coprocessor" interface */
 typedef unsigned char VMAttribute;

@@ -1510,7 +1510,7 @@ void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
 
 void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
 {
-    register struct ucontext *uc = (struct ucontext *)uc_p;
+    register struct ucontext_t *uc = (struct ucontext *)uc_p;
     register uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
     register Integer vma = (Integer)maybevma;
     register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];

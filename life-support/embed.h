@@ -674,8 +674,7 @@ typedef struct {
     struct { /* FEP/Lisp progress note ... */
         EmbWord numerator; /* ... same meaning as for a real note */
         EmbWord denominator; /* ... " */
-        EmbWord
-            string_total_size; /* ... maximum size allowed for note's text */
+        EmbWord string_total_size; /* ... maximum size allowed for note's text */
         EmbWord string_length; /* ... non-zero => there's a note to display */
         char string[ColdLoadProgressStringSize]; /* ... the actual text is put
                                                     here */

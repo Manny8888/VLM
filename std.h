@@ -3,7 +3,24 @@
 #ifndef _STD_H_
 #define _STD_H_
 
+/****************************************************************************/
+/* Additional definitions to inform the build */
+#ifndef linux
+#define linux
+#endif
+
+#undef __OSF__
+#undef __osf__
+
+// caddr_t definition is not picked up
+#define __USE_MISC
+#define LONG_BIT 64
+
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+/****************************************************************************/
+
 #define _THREAD_SAFE
 
 #if defined(__OSF__) || defined(__osf__)
