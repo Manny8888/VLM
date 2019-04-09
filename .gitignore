@@ -3,6 +3,9 @@ GRTAGS
 GTAGS
 GPATH
 .vscode
+*.fasl
+*.uuid
+*.old
 /byteswap_world
 /genera
 /glob
