@@ -2,7 +2,7 @@
 
 (comment "This file implements the main instruction dispatch loop.")
 
-(include-header "kludges.s")    ;+++ this will be unnecessary at some time 
+(include-header "kludges.s")    ;+++ this will be unnecessary at some time
 
 (define-procedure |DummyDoNothingSubroutine| ()
     (BR zero continuecurrentinstruction))
@@ -155,7 +155,7 @@
     (TagType arg4 arg4    "arg4=tag-cdr code")
     (STQ t10 CACHELINE_NEXTCP (ocp))
     (BR zero MaybeUnpack)
-	
+
     ;; The feature FILL-PAST-CALL controls whether icache filling keeps
     ;; going when it sees a FINISH-CALL instruction.
   (label DecodePackedWord)
@@ -175,7 +175,7 @@
     (passthru "#endif")
     (AND t10 hwopmask t10           "even opcode")
     (SRA t11 #.(- 64 10 16) t11     "Second phase of even operand sign extension.")
-    #-fill-past-call (SUBQ t10 #.I-LISP-COMPILER:*FINISH-CALL-N-OPCODE* arg2)
+    #-fill-past-call (SUBQ t10 #.*FINISH-CALL-N-OPCODE* arg2)
     (S8ADDQ t10 hwdispatch t10)
     (BIS t11 t12 t12                "Merge signed/unsigned even operand")
     #-fill-past-call (BIC arg2 3 arg2)
@@ -188,7 +188,7 @@
     (AND arg2 hwopmask arg2          "odd opcode")
     (SRA t11 #.(- 64 10 16) t11      "Second phase of odd operand sign extension.")
     (STQ t10 CACHELINE_CODE (ecp))
-    #-fill-past-call (SUBQ arg2 #.I-LISP-COMPILER:*FINISH-CALL-N-OPCODE* t12)
+    #-fill-past-call (SUBQ arg2 #.*FINISH-CALL-N-OPCODE* t12)
     (S8ADDQ arg2 hwdispatch arg2)
     (BIS t11 arg1 arg1               "Merge signed/unsigned odd operand")
     (STL arg1 CACHELINE_OPERAND (ocp))
@@ -218,12 +218,12 @@
     (S8ADDQ arg4 fwdispatch t11       "t11 is the fwdispatch index")
     (LDQ t12 PROCESSORSTATE_I_STAGE_ERROR_HOOK (ivory))
     #-fill-past-native (SUBQ arg4 #.|type$K-nativeinstruction| arg1)
-    (LDQ t11 0 (t11)                  "Extract the opcode handler") 
+    (LDQ t11 0 (t11)                  "Extract the opcode handler")
     (STQ t12 CACHELINE_CODE (ocp)     "Store I-STATE-ERROR at odd pc")
     #-fill-past-native (CMOVEQ arg1 arg1 count       "clear count if native instn seen")
     (STQ t11 CACHELINE_CODE (ecp))
     ;(BR zero EndDecode)
-	
+
   (label EndDecode)
     (comment "Here we decide if to stop filling the cache and return to the")
     (comment "instruction interpretation stream, or whether to fill further")
@@ -240,7 +240,7 @@
     (BR zero cacheValid)
 
   (label PCendCF)
-    (LDQ t11 PROCESSORSTATE_I_STAGE_ERROR_HOOK (ivory)) 
+    (LDQ t11 PROCESSORSTATE_I_STAGE_ERROR_HOOK (ivory))
     (clr count                      "We reached the end of the fcn.")
     (STQ t11 CACHELINE_CODE (ecp)   "Store I-STATE-ERROR dispatch at even and odd pc")
     (STQ t11 CACHELINE_CODE (ocp))
@@ -261,7 +261,7 @@
     (BIS arg1 zero ivory "Setup our processor object handle")
     (comment "Upon entry, load cached state.")
     (cache-ivory-state)
-	
+
     (BNE iCP interpretinstruction "First time in iCP will be zero.")
     (BR zero ICacheMiss "If this is the first time in cache is empty!")
 
@@ -269,7 +269,7 @@
     #+jump-prediction (LDQ arg2 CACHELINE_ANNOTATION (iCP))
     #+jump-prediction (BEQ arg2 interpretInstructionForBranch)
     ;; Fall through to interpretInstructionPredicted...
-    
+
     ;; This duplicates most of interpretInstruction, because it needs to
     ;; verify the prediction and do things the hard way if the prediction
     ;; is wrong, before smashing iCP (so the prediction can be fixed up)
@@ -284,7 +284,7 @@
     (SUBQ iPC t2 t1)
     ;; On no match, recompute iCP before resorting to refilling cache
     ;; (the assumption is that you have a mis-prediction in this case
-    (BNE t1 interpretInstructionForBranch) 
+    (BNE t1 interpretInstructionForBranch)
     (BIS arg2 zero iCP)
     ;; Nota Bene: traporsuspendmachine must not smash any of the
     ;; registers set up above: arg1, arg3, arg4, or t2, if it comes back
@@ -323,7 +323,7 @@
     ;; See above (label interpretInstructionPredicted)
     (FETCH 0 (arg2))
     (BIS arg2 zero iCP)
-  
+
   (label interpretInstruction)
     ;; If we come here from a restart, we flush any in-progress
     ;; subroutine calls (pop the stack back)
@@ -345,4 +345,3 @@
 ;;; most popular instruction
 
 ;;; End of idispat
- 

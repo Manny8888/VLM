@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;;; This file is intended to provide a clean interface to the stack.
 ;;; this way, it is hoped that we can experiment with the stack implementation.
@@ -30,7 +30,7 @@
 ;;; 1 cycle, good dual opportunities, but 2 cycle data ready delay.
 (defmacro stack-read-disp (vma disp dest &rest options)
   (with-stack-options (comment &key tos-valid) options
-    (if (lisp:and (eq vma 'iSP) (eql disp 0) (member tos-valid `(:arg6 t)))
+    (if (common-lisp:and (eq vma 'iSP) (eql disp 0) (member tos-valid `(:arg6 t)))
 	`(,@(unless (eq dest 'arg6)
 	      `((BIS arg6 zero ,dest ,@(if comment `(,comment))))))
 	`((LDQ ,dest ,disp (,vma)  ,@(if comment `(,comment)))))))
@@ -40,7 +40,7 @@
 
 (defmacro stack-read-data-disp (vma disp dest &rest options)
   (with-stack-options (comment &key tos-valid signed floating) options
-    (if (lisp:and (eq vma 'iSP) (eql disp 0) tos-valid (not floating))
+    (if (common-lisp:and (eq vma 'iSP) (eql disp 0) tos-valid (not floating))
 	(if signed
 	    `(,@(ecase tos-valid
 		  (:arg5arg6
@@ -62,7 +62,7 @@
 
 (defmacro stack-read-tag-disp (vma disp dest &rest options)
   (with-stack-options (comment &key tos-valid) options
-    (if (lisp:and (eq vma 'iSP) (eql disp 0) tos-valid)
+    (if (common-lisp:and (eq vma 'iSP) (eql disp 0) tos-valid)
 	`(,@(ecase tos-valid
 	     (:arg5arg6
 	       (unless (eq dest 'arg5)
@@ -77,7 +77,7 @@
 (defmacro stack-read2-disp (vma disp tag data &rest options)
   (check-temporaries (vma) (tag data))
   (with-stack-options (comment &key tos-valid signed floating) options
-    (if (lisp:and (eq vma 'iSP) (eql disp 0) tos-valid (not floating))
+    (if (common-lisp:and (eq vma 'iSP) (eql disp 0) tos-valid (not floating))
 	`(,@(ecase tos-valid
 	     (:arg5arg6
 	       (unless (eq tag 'arg5)
@@ -138,7 +138,7 @@
 
 (defmacro stack-pop-data (dest &rest options)
   (with-stack-options (comment &key tos-valid signed floating) options
-    (if (lisp:and tos-valid (not floating))
+    (if (common-lisp:and tos-valid (not floating))
 	`(,@(if signed
 		(ecase tos-valid
 		  (:arg5arg6
@@ -165,7 +165,7 @@
 
 (defmacro stack-pop2 (tag data &rest options)
   (with-stack-options (comment &key tos-valid signed floating) options
-    (if (lisp:and tos-valid (not floating))
+    (if (common-lisp:and tos-valid (not floating))
 	`(,@(ecase tos-valid
 	      (:arg5arg6
 		(unless (eq tag 'arg5)
@@ -250,7 +250,7 @@
 ;;; This generates the combined word in 'word' as well as writing the stack.
 ;;; the BIS is duel issued with the STQ, three cycles are taken (one stall
 ;;; between the SLL and BIS.
-								  
+
 (defmacro stack-write2c (vma tag data word &optional comment)
   (check-temporaries (vma tag data) (word))
   `((combine-tag-data-word ,tag ,data ,word ,comment)
@@ -316,7 +316,7 @@
 
 (defmacro stack-push-with-cdr (word &rest options)
   (with-stack-options (comment &rest options) options
-    `(stack-push ,word nil ,comment :set-cdr-next nil ,@options))) 
+    `(stack-push ,word nil ,comment :set-cdr-next nil ,@options)))
 
 ;;; Stores an immediate TAG and register data in two cycles.
 (defmacro stack-push-ir  (imtag data temp &rest options)
@@ -349,8 +349,9 @@
 
 ;;; Pushed NIL in 2 cycles.
 (defmacro stack-push-nil (temp temp2 &optional comment)
+  (declare (ignore comment))
   (check-temporaries () (temp temp2))
-  `((LDQ ,temp PROCESSORSTATE_NILADDRESS (ivory))                 
+  `((LDQ ,temp PROCESSORSTATE_NILADDRESS (ivory))
     (STQ ,temp 8 (iSP) "push the data")
     (ADDQ iSP 8 iSP)))
 
@@ -361,7 +362,7 @@
 
 (defmacro stack-push-t (temp temp2 &optional comment)
   (check-temporaries () (temp temp2))
-  `((LDQ ,temp PROCESSORSTATE_TADDRESS (ivory))                 
+  `((LDQ ,temp PROCESSORSTATE_TADDRESS (ivory))
     (STQ ,temp 8 (iSP) "push the data")
     (ADDQ iSP 8 iSP)))
 
@@ -386,21 +387,21 @@
 
 (defmacro get-nil (dest &optional comment)
   `((LDQ ,dest PROCESSORSTATE_NILADDRESS (ivory) ,@(if comment `(,comment)))))
-    
+
 (defmacro get-nil2 (tag data &optional comment)
   `((LDL ,data PROCESSORSTATE_NILADDRESS (ivory))
     (LDL ,tag |PROCESSORSTATE_NILADDRESS+4| (ivory) ,@(if comment `(,comment)))
     (EXTLL ,data 0 ,data)))
-    
+
 (defmacro get-t (dest &optional comment)
   `((LDQ ,dest PROCESSORSTATE_TADDRESS (ivory) ,@(if comment `(,comment)))))
-    
+
 (defmacro get-t2 (tag data &optional comment)
   `(
     (LDL ,data PROCESSORSTATE_TADDRESS (ivory))
     (LDL ,tag |PROCESSORSTATE_TADDRESS+4| (ivory) ,@(if comment `(,comment)))
     (EXTLL ,data 0 ,data)))
-    
+
 ;;; One of our callers (TAKE-POST-TRAP) needs to check for recursive stack overflows.
 ;;;   Destroys the value in CR ...
 (defmacro stack-overflow-p (cr no-overflow temp temp2 &optional overflow)
@@ -416,7 +417,7 @@
       ,@(if no-overflow
 	    `((branch-true ,temp2 ,no-overflow "Jump if no overflow"))
 	    `((branch-false ,temp2 ,overflow "Jump if overflow"))))))
-  
+
 (defmacro stack-overflow-check (cr done-label temp temp2)
   `((comment "Check for stack overflow")
     (stack-overflow-p ,cr ,done-label ,temp ,temp2 STACKOVERFLOW)
@@ -439,7 +440,7 @@
       (BGT ,count ,l2))))
 
 ;; ARG indicates which stack pointer to look at -- generally iFP
-(defmacro stack-cache-underflow-check (arg done-label underflow-routine 
+(defmacro stack-cache-underflow-check (arg done-label underflow-routine
 				       from to count stack-pointer
 				       &rest regs-to-adjust)
   (declare (ignore to regs-to-adjust))
@@ -558,7 +559,7 @@
     `(,@(unless *memoized-limit*
 	  `((LDL ,temp4 PROCESSORSTATE_SCOVLIMIT (ivory) "Current stack cache limit (words)")))
       (load-constant ,newSCA ,(eval |stack$K-cachemargin|) "Must always have this much room")
-      (LDQ ,oldSCA PROCESSORSTATE_STACKCACHEDATA (ivory) "Alpha base of stack cache") 
+      (LDQ ,oldSCA PROCESSORSTATE_STACKCACHEDATA (ivory) "Alpha base of stack cache")
       ,@(unless (eql nwords 0)
 	  `((ADDQ ,newSCA ,nwords ,newSCA "Account for what we're about to push")))
       (S8ADDQ ,newSCA ,sp ,newSCA "SCA of desired end of cache")
@@ -567,7 +568,7 @@
       ,@(if (eq nwords handler-arg)
 	    `((branch-false ,temp4 ,handler "We're done if new SCA is within bounds"))
 	    `((branch-false ,temp4 ,not-done "We're done if new SCA is within bounds")))
-      ))) 
+      )))
 
 (defmacro stack-cache-overflow-handler (temp temp2 temp3 temp4 temp5
 					&aux (sp 'iSP) (nwords 'arg2))
@@ -659,4 +660,3 @@
       (BGT ,count ,l2))))
 
 ;;; Fin.
-

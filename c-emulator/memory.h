@@ -8,8 +8,7 @@
 
 #include "ivory.h"
 
-extern int VirtualMemoryWriteBlockConstant(
-    Integer vma, LispObj *object, int count, int increment);
+extern int VirtualMemoryWriteBlockConstant(Integer vma, LispObj *object, int count, int increment);
 extern int VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count);
 extern int VirtualMemoryReadBlock(Integer vma, LispObj *object, int count);
 extern int VirtualMemoryWrite(Integer vma, LispObj *object);
@@ -33,8 +32,7 @@ typedef unsigned char VMAttribute;
 #define VMAttributeModified 040
 #define VMAttributeExists 0100
 
-#define VMCreatedDefault                                                     \
-    (VMAttributeAccessFault | VMAttributeTransportFault | VMAttributeExists)
+#define VMCreatedDefault (VMAttributeAccessFault | VMAttributeTransportFault | VMAttributeExists)
 
 #define VMAccessFault(a) ((a)&01)
 #define VMWriteFault(a) ((a)&02)
@@ -90,8 +88,7 @@ typedef enum _VMResultCode { VMResultSuccess, VMResultFailure } VMResultCode;
 #define VMCommandOpcode(command) ((VMOpcode)ldb(13, 19, command))
 #define VMCommandOperand(command) ((int)ldb(19, 0, command))
 
-#define SetVMReplyResult(reply, result)                                      \
-    (dpb((int)(result ? VMResultSuccess : VMResultFailure), 13, 19, reply))
+#define SetVMReplyResult(reply, result) (dpb((int)(result ? VMResultSuccess : VMResultFailure), 13, 19, reply))
 
 typedef struct _VMState {
     Integer CommandRegister;

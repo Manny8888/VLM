@@ -80,9 +80,7 @@ EmbPtr EmbCommAreaAlloc(size_t nBytes)
 #endif
 
     if ((nWords > EmbCommAreaAllocSize) || (nBytes <= 0))
-        vpunt(NULL,
-            "Couldn't allocate %d words in the embedded communications area",
-            nWords);
+        vpunt(NULL, "Couldn't allocate %d words in the embedded communications area", nWords);
 
     EmbCommAreaAllocSize -= nWords;
     EmbCommAreaAllocPtr += nWords;
@@ -116,8 +114,7 @@ EmbPtr MakeEmbString(char *aString)
 
 /* Parses a version number into major and minor version numbers */
 
-static void ParseVersionNumber(
-    char *versionString, int *majorVersion, int *minorVersion)
+static void ParseVersionNumber(char *versionString, int *majorVersion, int *minorVersion)
 {
     char *start, *end;
     int major, minor = -1;
@@ -152,52 +149,42 @@ void InitializeLifeSupport(VLMConfig *config)
 
     /* Ask the emulator to establish the BootComm/BootData/CommArea mapping */
 
-    EnsureVirtualAddressRange(BootCommAreaAddress,
-        (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
-    BootCommAreaPtr
-        = (BootCommArea *)MapVirtualAddressData(BootCommAreaAddress);
-    BootDataAreaPtr
-        = (BootDataArea *)MapVirtualAddressData(BootDataAreaAddress);
+    EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
+    BootCommAreaPtr = (BootCommArea *)MapVirtualAddressData(BootCommAreaAddress);
+    BootDataAreaPtr = (BootDataArea *)MapVirtualAddressData(BootDataAreaAddress);
     EmbCommAreaPtr = (EmbCommArea *)MapVirtualAddressData(EmbCommAreaAddress);
 
     /* Initialize the BootComm and BootData */
 
-    VirtualMemoryWriteBlockConstant(BootCommAreaAddress,
-        MakeLispObj(Type_Null, BootCommAreaAddress),
-        (BootCommAreaSize + BootDataAreaSize), 1);
+    VirtualMemoryWriteBlockConstant(
+        BootCommAreaAddress, MakeLispObj(Type_Null, BootCommAreaAddress), (BootCommAreaSize + BootDataAreaSize), 1);
 
     WriteBootCommSlot(embCommArea, EmbCommAreaAddress, Type_Locative);
     WriteBootCommSlot(systemType, SystemTypeVLM, Type_Fixnum);
     WriteBootCommSlot(stackBase, BootStackBase, Type_Locative);
     WriteBootCommSlot(stackSize, BootStackSize, Type_Fixnum);
     WriteBootCommSlot(spyBlockAddress, BootDataAreaAddress, Type_Locative);
-    WriteBootCommSlot(spyCommandAddress, BootDataSlotAddress(bootSpyCommand),
-        Type_Locative);
-    WriteBootCommSlot(
-        spyStatusAddress, BootDataSlotAddress(bootSpyStatus), Type_Locative);
+    WriteBootCommSlot(spyCommandAddress, BootDataSlotAddress(bootSpyCommand), Type_Locative);
+    WriteBootCommSlot(spyStatusAddress, BootDataSlotAddress(bootSpyStatus), Type_Locative);
 
     /* Ask the emulator to establish the FEPComm area mapping and initialize
      * the area */
 
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
-    VirtualMemoryWriteBlockConstant(FEPCommAreaAddress,
-        MakeLispObj(Type_Null, FEPCommAreaAddress), FEPCommAreaSize, 1);
+    VirtualMemoryWriteBlockConstant(FEPCommAreaAddress, MakeLispObj(Type_Null, FEPCommAreaAddress), FEPCommAreaSize, 1);
     FEPCommAreaPtr = (FEPCommArea *)MapVirtualAddressData(FEPCommAreaAddress);
 
     /* Ask the emulator to establish the SystemComm area mapping and
      * initialize the area */
 
-    EnsureVirtualAddressRange(
-        SystemCommAreaAddress, SystemCommAreaSize, FALSE);
-    VirtualMemoryWriteBlockConstant(SystemCommAreaAddress,
-        MakeLispObj(Type_Null, SystemCommAreaAddress), SystemCommAreaSize, 1);
-    SystemCommAreaPtr
-        = (SystemCommArea *)MapVirtualAddressData(SystemCommAreaAddress);
+    EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize, FALSE);
+    VirtualMemoryWriteBlockConstant(
+        SystemCommAreaAddress, MakeLispObj(Type_Null, SystemCommAreaAddress), SystemCommAreaSize, 1);
+    SystemCommAreaPtr = (SystemCommArea *)MapVirtualAddressData(SystemCommAreaAddress);
 
     /* Initialize the communications area */
 
-    VirtualMemoryWriteBlockConstant(EmbCommAreaAddress,
-        MakeLispObj(Type_Fixnum, 0), config->commAreaSize, 0);
+    VirtualMemoryWriteBlockConstant(EmbCommAreaAddress, MakeLispObj(Type_Fixnum, 0), config->commAreaSize, 0);
 
 #if BYTE_ORDER == LITTLE_ENDIAN
     identifier = "EMBD";
@@ -209,24 +196,20 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaPtr->version = 1;
     EmbCommAreaPtr->system_type = SystemTypeVLM;
 
-    EmbCommAreaPtr->number_of_slots
-        = ((ptrdiff_t)&EmbCommAreaPtr->pad0 - (ptrdiff_t)EmbCommAreaPtr)
-        / sizeof(EmbWord);
+    EmbCommAreaPtr->number_of_slots = ((ptrdiff_t)&EmbCommAreaPtr->pad0 - (ptrdiff_t)EmbCommAreaPtr) / sizeof(EmbWord);
     EmbCommAreaPtr->comm_memory_size = config->commAreaSize;
 
     EmbCommAreaPtr->generaVersion.major = GeneraMajorVersion;
     EmbCommAreaPtr->generaVersion.minor = GeneraMinorVersion;
 
     if (uname(&osfName) < 0)
-        EmbCommAreaPtr->osfVersion.majorRelease
-            = 0; /* Couldn't determine the version */
+        EmbCommAreaPtr->osfVersion.majorRelease = 0; /* Couldn't determine the version */
     else {
         EmbCommAreaPtr->osfVersion.testReleaseP = 0;
         if (isdigit(osfName.release[0]))
             ParseVersionNumber(osfName.release, &major, &minor);
         else {
-            EmbCommAreaPtr->osfVersion.testReleaseP
-                = (osfName.release[0] != 'V');
+            EmbCommAreaPtr->osfVersion.testReleaseP = (osfName.release[0] != 'V');
             ParseVersionNumber(&osfName.release[1], &major, &minor);
         }
         EmbCommAreaPtr->osfVersion.majorRelease = major;
@@ -241,11 +224,9 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaPtr->cold_load_channel = NullEmbPtr;
     EmbCommAreaPtr->command_channel = NullEmbPtr;
 
-    EmbCommAreaPtr->clock_signal
-        = -1; /* No signal allocated until guest needs it */
+    EmbCommAreaPtr->clock_signal = -1; /* No signal allocated until guest needs it */
 
-    EmbCommAreaPtr->slaveTrigger
-        = NULL; /* Will be the address of a global ... */
+    EmbCommAreaPtr->slaveTrigger = NULL; /* Will be the address of a global ... */
 
     InitializeSignalHandlers();
 
@@ -267,14 +248,11 @@ void InitializeLifeSupport(VLMConfig *config)
        (The mutex is locked until initialization is completed to prevent the
        threads from running prematurely.) */
 
-    SetupThreadAttrs("polling", 0, &EmbCommAreaPtr->pollThreadAttrs,
-        &EmbCommAreaPtr->pollThreadAttrsSetup);
+    SetupThreadAttrs("polling", 0, &EmbCommAreaPtr->pollThreadAttrs, &EmbCommAreaPtr->pollThreadAttrsSetup);
 
-    SetupThreadAttrs("output", 2, &EmbCommAreaPtr->outputThreadAttrs,
-        &EmbCommAreaPtr->outputThreadAttrsSetup);
+    SetupThreadAttrs("output", 2, &EmbCommAreaPtr->outputThreadAttrs, &EmbCommAreaPtr->outputThreadAttrsSetup);
 
-    SetupThreadAttrs("input", 3, &EmbCommAreaPtr->inputThreadAttrs,
-        &EmbCommAreaPtr->inputThreadAttrsSetup);
+    SetupThreadAttrs("input", 3, &EmbCommAreaPtr->inputThreadAttrs, &EmbCommAreaPtr->inputThreadAttrsSetup);
 
     if (pthread_mutex_init(&EmbCommAreaPtr->signalLock, NULL))
         vpunt(NULL, "Unable to create the Life Support signal lock");
@@ -285,12 +263,9 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaPtr->signalSignalSetup = TRUE;
 
     if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock))
-        vpunt(NULL,
-            "Unable to lock the Life Support signal lock in thread %lx",
-            pthread_self());
+        vpunt(NULL, "Unable to lock the Life Support signal lock in thread %lx", pthread_self());
 
-    if (pthread_create(&EmbCommAreaPtr->pollingThread,
-            &EmbCommAreaPtr->pollThreadAttrs,
+    if (pthread_create(&EmbCommAreaPtr->pollingThread, &EmbCommAreaPtr->pollThreadAttrs,
             (pthread_startroutine_t)&IvoryLifePolling, NULL))
         vpunt(NULL, "Unable to create the Life Support polling thread");
     EmbCommAreaPtr->pollingThreadSetup = TRUE;
@@ -303,11 +278,9 @@ void InitializeLifeSupport(VLMConfig *config)
         vpunt(NULL, "Unable to create the Life Support clock signal");
     EmbCommAreaPtr->clockSignalSetup = TRUE;
 
-    if (pthread_create(&EmbCommAreaPtr->clockThread,
-            &EmbCommAreaPtr->pollThreadAttrs,
+    if (pthread_create(&EmbCommAreaPtr->clockThread, &EmbCommAreaPtr->pollThreadAttrs,
             (pthread_startroutine_t)&IntervalTimerDriver, NULL))
-        vpunt(
-            NULL, "Unable to create the Life Support interval timer thread");
+        vpunt(NULL, "Unable to create the Life Support interval timer thread");
     EmbCommAreaPtr->clockThreadSetup = TRUE;
 
     if (pthread_mutex_init(&EmbCommAreaPtr->XLock, NULL))
@@ -325,8 +298,7 @@ void InitializeLifeSupport(VLMConfig *config)
     /* Create the channels, their data structures, and threads */
 
     EmbCommAreaAllocPtr = sizeof(EmbCommArea) / sizeof(EmbWord);
-    EmbCommAreaAllocSize
-        = EmbCommAreaPtr->comm_memory_size - EmbCommAreaAllocPtr;
+    EmbCommAreaAllocSize = EmbCommAreaPtr->comm_memory_size - EmbCommAreaAllocPtr;
 
     if (config->worldPath[0])
         sprintf(worldPathname, "HOST:%s", config->worldPath);
@@ -360,15 +332,13 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaPtr->host_buffer_size = config->hostBufferSpace;
     /* Initialize the host buffers -- HOW? */
 
-    EmbCommAreaPtr->fep_buffer_start
-        = EmbCommAreaAllocPtr + EmbCommAreaPtr->host_buffer_size;
-    EmbCommAreaPtr->fep_buffer_size
-        = 512; /* Enough for a single buffer plus overhead */
+    EmbCommAreaPtr->fep_buffer_start = EmbCommAreaAllocPtr + EmbCommAreaPtr->host_buffer_size;
+    EmbCommAreaPtr->fep_buffer_size = 512; /* Enough for a single buffer plus overhead */
 
-    EmbCommAreaPtr->guest_buffer_start = EmbCommAreaAllocPtr
-        + EmbCommAreaPtr->host_buffer_size + EmbCommAreaPtr->fep_buffer_size;
-    EmbCommAreaPtr->guest_buffer_size = EmbCommAreaAllocSize
-        - EmbCommAreaPtr->host_buffer_size - EmbCommAreaPtr->fep_buffer_size;
+    EmbCommAreaPtr->guest_buffer_start
+        = EmbCommAreaAllocPtr + EmbCommAreaPtr->host_buffer_size + EmbCommAreaPtr->fep_buffer_size;
+    EmbCommAreaPtr->guest_buffer_size
+        = EmbCommAreaAllocSize - EmbCommAreaPtr->host_buffer_size - EmbCommAreaPtr->fep_buffer_size;
     if (EmbCommAreaPtr->guest_buffer_size < config->guestBufferSpace)
         vpunt(NULL,
             "Couldn't allocate %d words for guest buffers in the "
@@ -380,9 +350,7 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaPtr->useSignalLocks = TRUE;
 
     if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock))
-        vpunt(NULL,
-            "Unable to unlock the Life Support signal lock in thread %lx",
-            pthread_self());
+        vpunt(NULL, "Unable to unlock the Life Support signal lock in thread %lx", pthread_self());
 }
 
 /* Cleanup Life Support on exit -- Kill existing threads, close disk channels,
@@ -479,15 +447,13 @@ void TerminateLifeSupport()
 
 /* Setup the attributes for a class of threads */
 
-static void SetupThreadAttrs(char *class, int priorityBoost,
-    pthread_attr_t *threadAttrs, bool *threadAttrsSetup)
+static void SetupThreadAttrs(char *class, int priorityBoost, pthread_attr_t *threadAttrs, bool *threadAttrsSetup)
 {
     size_t stackSize;
     int priority;
 
     if (pthread_attr_init(threadAttrs))
-        vpunt(NULL, "Unable to create attributes for Life Support %s threads",
-            class);
+        vpunt(NULL, "Unable to create attributes for Life Support %s threads", class);
     *threadAttrsSetup = TRUE;
 
     pthread_attr_getstacksize(threadAttrs, &stackSize);

@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;;; This file contains macros supporting instance instructions.  These are
 ;;; mostly in ifuninst.as
@@ -11,24 +11,24 @@
 ;;; mostly in ifuninst.as
 
 (defmacro locate-instance-variable-mapped (n vma mapiop selfiop indexiop iex
-					   tag data temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8)
+					                                 tag data temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8)
   (check-temporaries (n vma) (tag data temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8))
   (let ((done (gensym))
-	(doit (gensym))
-	(update (gensym)))
+	      (doit (gensym))
+	      (update (gensym)))
     (push `((label ,update)
-	    (BIS ,vma zero ,temp3)
-	    ;; We know the m-m-r is active when we are called
-	    (using-multiple-memory-reads
-	      (,*memoized-vmdata* ,*memoized-vmtags* ,*memoized-base* ,*memoized-limit*)
-	      (memory-read ,vma ,tag ,data PROCESSORSTATE_HEADER ,temp5 ,temp6 ,temp7 ,temp8))
-	    (SUBQ ,temp3 ,vma ,temp3)
-	    (BNE ,temp3 ,doit)
-	    (TagType ,temp4 ,temp4)
-	    (BIS ,temp4 #x40 ,temp4 "Set CDR code to 1")
-	    (stack-write2-disp iFP ,(* 3 8)  ,temp4 ,vma "Update self")
-	    (BR zero ,doit))
-	  *function-epilogue*)
+	          (BIS ,vma zero ,temp3)
+	          ;; We know the m-m-r is active when we are called
+	          (using-multiple-memory-reads
+	              (,*memoized-vmdata* ,*memoized-vmtags* ,*memoized-base* ,*memoized-limit*)
+	            (memory-read ,vma ,tag ,data PROCESSORSTATE_HEADER ,temp5 ,temp6 ,temp7 ,temp8))
+	          (SUBQ ,temp3 ,vma ,temp3)
+	          (BNE ,temp3 ,doit)
+	          (TagType ,temp4 ,temp4)
+	          (BIS ,temp4 #x40 ,temp4 "Set CDR code to 1")
+	          (stack-write2-disp iFP ,(* 3 8)  ,temp4 ,vma "Update self")
+	          (BR zero ,doit))
+	        *function-epilogue*)
 
     `((comment "Locate Instance Variable Mapped")
       (stack-read2-disp iFP ,(* 2 8) ,tag ,vma "Map")
@@ -61,10 +61,10 @@
       (ADDQ ,temp2 ,n ,addr))))
 
 (defmacro locate-arbitrary-instance-variable (itag idata otag odata addr instanceiop offsetiop
-					      temp temp2 temp3 temp4 temp5
-					      temp6 temp7 temp8)
+					                                    temp temp2 temp3 temp4 temp5
+					                                    temp6 temp7 temp8)
   (check-temporaries (itag idata otag odata addr)
-		     (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8))
+		                 (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8))
   (let ()	
     `((comment "Locate Arbitrary Instance Variable")
       ;;+++ Needs to check for spare dtp before signalling illegal operand!

@@ -273,10 +273,8 @@ static int FetchTrapVectorEntry(Integer index, LispObj *entry)
     int previous = ReadControlTrapMode(ps->control);
 
     WriteControlTrapMode(ps->control, 3);
-    MemoryReadData(
-        TrapVectorBase + ((previous < 3) ? index : FepModeTrapVector), entry);
-    if (!(TypeEqualP(entry->TAG, TypeOddPC)
-            || TypeEqualP(entry->TAG, TypeEvenPC)))
+    MemoryReadData(TrapVectorBase + ((previous < 3) ? index : FepModeTrapVector), entry);
+    if (!(TypeEqualP(entry->TAG, TypeOddPC) || TypeEqualP(entry->TAG, TypeEvenPC)))
         if (previous == 3 || !FetchTrapVectorEntry(index, entry))
             return (0); /* Real hardware would RESET */
 
@@ -328,10 +326,8 @@ int TakePreTrap(Integer index, LispObj *extra1, LispObj *extra2)
     ps->control =
         /* First clear a bunch of fields */
         (ps->control
-            & ~(ControlApply | ControlTraceBits | ControlCleanupBits
-                  | ControlExtraArgument | ControlCallStarted
-                  | ControlArgumentSize | ControlValueDisposition
-                  | ControlCallerFrameSize))
+            & ~(ControlApply | ControlTraceBits | ControlCleanupBits | ControlExtraArgument | ControlCallStarted
+                | ControlArgumentSize | ControlValueDisposition | ControlCallerFrameSize))
         /* Set CR.ArgumentSize */
         | (ps->lp - ps->fp)
         /* Call for effect */
@@ -387,10 +383,8 @@ int TakePostTrap(int index, int arity, LispObj *nextpc)
     ps->control =
         /* First clear a bunch of fields */
         (ps->control
-            & ~(ControlApply | ControlTraceBits | ControlCleanupBits
-                  | ControlExtraArgument | ControlCallStarted
-                  | ControlArgumentSize | ControlValueDisposition
-                  | ControlCallerFrameSize))
+            & ~(ControlApply | ControlTraceBits | ControlCleanupBits | ControlExtraArgument | ControlCallStarted
+                | ControlArgumentSize | ControlValueDisposition | ControlCallerFrameSize))
         /* Set CR.ArgumentSize */
         | (ps->lp - ps->fp)
         /* Call for effect */
@@ -437,11 +431,9 @@ int TakeInstructionException(int instruction, LispObj *op2, LispObj *nextpc)
     if (!ei->arithp)
         vector = InstructionExceptionVector + opcode;
     else if (ei->arity > 1)
-        vector = ArithmeticInstructionExceptionVector
-            + dpb(opcode, 5, 6, dpb(ps->sp[-1].TAG, 3, 3, ps->sp[0].TAG));
+        vector = ArithmeticInstructionExceptionVector + dpb(opcode, 5, 6, dpb(ps->sp[-1].TAG, 3, 3, ps->sp[0].TAG));
     else
-        vector = ArithmeticInstructionExceptionVector
-            + dpb(opcode, 5, 6, dpb(ps->sp[0].TAG, 3, 3, 0));
+        vector = ArithmeticInstructionExceptionVector + dpb(opcode, 5, 6, dpb(ps->sp[0].TAG, 3, 3, 0));
 
     return (TakePostTrap(vector, ei->arity, nextpc));
 }

@@ -1,7 +1,5 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: SYSTEM; Base: 10; Lowercase: Yes -*-
-
 ;;; 
-
 ;;;
 
 (in-package "SYSTEM")
@@ -14,8 +12,8 @@
 
 (export '(%logldb %logdpb %32-bit-difference))
 
-;(ccl::defsubst %logldb (bytespec integer)
-;  (ldb bytespec integer))
+;; (ccl::defsubst %logldb (bytespec integer)
+;; (ldb bytespec integer))
 
 ;; (ccl::defsubst %logdpb (value bytespec integer)
 ;;   (let ((result (dpb value bytespec integer)))
@@ -26,7 +24,6 @@
 ;;(ccl::defsubst %32-bit-difference (x y)
 ;;  (- x y))
 
-;;;
 
 (defmacro defsysconstant (name value)
   `(progn

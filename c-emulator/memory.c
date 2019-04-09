@@ -37,8 +37,7 @@ Integer *DataSpace = (Integer *)((long)3 << 32); /* 4<<32 bytes of data */
 VMAttribute VMAttributeTable[1 << (32 - MemoryAddressPageShift)];
 
 #define Created(vma) VMExists(VMAttributeTable[MemoryPageNumber(vma)])
-#define SetCreated(vma)                                                      \
-    (VMAttributeTable[MemoryPageNumber(vma)] = VMCreatedDefault)
+#define SetCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = VMCreatedDefault)
 #define ClearCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = 0)
 
 /**** Virtual memory system ****/
@@ -54,12 +53,12 @@ Integer EnsureVirtualAddress(Integer vma)
     data = (caddr_t)&DataSpace[aligned_vma];
     tag = (caddr_t)&TagSpace[aligned_vma];
     if (data
-        != mmap(data, sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE,
-               MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+        != mmap(data, sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED,
+            -1, 0))
         punt("Couldn't map data page at %x for VMA %x", data, vma);
     if (tag
-        != mmap(tag, sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE,
-               MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+        != mmap(
+            tag, sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
         punt("Couldn't map tag page at %x for VMA %x", tag, vma);
 
     SetCreated(vma);
@@ -84,27 +83,25 @@ Integer EnsureVirtualAddressRange(Integer vma, int count)
         if (n) {
             data = (caddr_t)&DataSpace[aligned_vma];
             tag = (caddr_t)&TagSpace[aligned_vma];
+
             if (data
-                != mmap(data, n * sizeof(Integer[MemoryPageSize]),
-                       PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
-                punt("Couldn't map %d data pages at %x for VMA %x", n, data,
-                    aligned_vma);
+                != mmap(data, n * sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE,
+                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+                punt("Couldn't map %d data pages at %x for VMA %x", n, data, aligned_vma);
+
             if (tag
-                != mmap(tag, n * sizeof(Tag[MemoryPageSize]),
-                       PROT_READ | PROT_WRITE,
-                       MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
-                punt("Couldn't map %d tag pages at %x for VMA %x", n, tag,
-                    aligned_vma);
+                != mmap(tag, n * sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE,
+                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+                punt("Couldn't map %d tag pages at %x for VMA %x", n, tag, aligned_vma);
             aligned_vma += n * MemoryPageSize;
         }
+
         while (Created(vma) && pages) {
             pages--;
             vma += MemoryPageSize;
             aligned_vma += MemoryPageSize;
         }
     }
-
     return (vma);
 }
 
@@ -193,8 +190,7 @@ int VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count)
     return (0);
 }
 
-int VirtualMemoryWriteBlockConstant(
-    Integer vma, LispObj *object, int count, int increment)
+int VirtualMemoryWriteBlockConstant(Integer vma, LispObj *object, int count, int increment)
 {
     Integer *data = &DataSpace[vma];
     Tag *tag = &TagSpace[vma];
@@ -205,14 +201,12 @@ int VirtualMemoryWriteBlockConstant(
     /* set memory_vma for SEGV handler */
     memory_vma = vma;
 
-    (void)memset(
-        (unsigned char *)tag, (unsigned char)ctag, count * sizeof(Tag));
+    (void)memset((unsigned char *)tag, (unsigned char)ctag, count * sizeof(Tag));
 
     switch (increment) {
     case 0:
         if (cdata == 0)
-            (void)memset((unsigned char *)data, (unsigned char)0,
-                count * sizeof(Integer));
+            (void)memset((unsigned char *)data, (unsigned char)0, count * sizeof(Integer));
         else
             for (; data < edata; *data++ = cdata, memory_vma++)
                 ;
@@ -222,8 +216,7 @@ int VirtualMemoryWriteBlockConstant(
             ;
         break;
     default:
-        for (; data < edata;
-             *data++ = cdata, cdata += increment, memory_vma++)
+        for (; data < edata; *data++ = cdata, cdata += increment, memory_vma++)
             ;
     }
     return (0);
@@ -238,8 +231,7 @@ Boolean VirtualMemorySearch(Integer *vma, LispObj *object, int count)
     Integer cdata = object->DATA.u;
 
     for (; tag < etag;) {
-        tag = (Tag *)memchr((unsigned char *)tag, (unsigned char)ctag,
-            (etag - tag) * sizeof(Tag));
+        tag = (Tag *)memchr((unsigned char *)tag, (unsigned char)ctag, (etag - tag) * sizeof(Tag));
         if (tag == NULL)
             return (False);
 
@@ -269,18 +261,14 @@ int VirtualMemoryCopy(Integer from, Integer to, int count, Byte row[])
     memory_vma = from;
 
     if (row == MemoryActionTable[CycleRaw]) {
-        (void)memmove((unsigned char *)totag, (unsigned char *)fromtag,
-            count * sizeof(Tag));
-        (void)memmove((unsigned char *)todata, (unsigned char *)fromdata,
-            count * sizeof(Integer));
+        (void)memmove((unsigned char *)totag, (unsigned char *)fromtag, count * sizeof(Tag));
+        (void)memmove((unsigned char *)todata, (unsigned char *)fromdata, count * sizeof(Integer));
         return (0);
     }
 
     for (; fromtag < etag;) {
         /* Transport takes precedence over anything but trap */
-        if ((action = row[tag = *fromtag])
-            & (MemoryActionTransport | MemoryActionTrap)
-                == MemoryActionTransport) {
+        if ((action = row[tag = *fromtag]) & (MemoryActionTransport | MemoryActionTrap) == MemoryActionTransport) {
             if (OldspaceAddressP(*fromdata))
                 TakeMemoryTrap(TransportTrapVector, *fromdata);
         }
@@ -310,12 +298,10 @@ Boolean VirtualMemoryScan(Integer *vma, int count)
         if (VMTransportFault(*attr)) {
             Integer scanvma = PageNumberMemory(attr - VMAttributeTable);
             register Tag *tag = &TagSpace[scanvma];
-            register Tag *etag = &TagSpace[scanvma
-                + (MemoryPageSize < count ? MemoryPageSize : count)];
+            register Tag *etag = &TagSpace[scanvma + (MemoryPageSize < count ? MemoryPageSize : count)];
 
             for (; tag < etag; tag++) {
-                if (PointerTypeP(*tag)
-                    && (OldspaceAddressP(DataSpace[tag - TagSpace]))) {
+                if (PointerTypeP(*tag) && (OldspaceAddressP(DataSpace[tag - TagSpace]))) {
                     *vma = tag - TagSpace;
                     return (True);
                 }
@@ -328,8 +314,7 @@ Boolean VirtualMemoryScan(Integer *vma, int count)
 void VirtualMemoryEnable(Integer vma, int count)
 {
     register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
-    register VMAttribute *eattr
-        = &VMAttributeTable[MemoryPageNumber(vma + count)];
+    register VMAttribute *eattr = &VMAttributeTable[MemoryPageNumber(vma + count)];
 
     for (; attr < eattr; attr++) {
         register VMAttribute a = *attr;
@@ -354,13 +339,11 @@ int VMCommand(int command)
         }
 
         case VMOpcodeCreate:
-            EnsureVirtualAddressRange(
-                vm->AddressRegister, vm->ExtentRegister);
+            EnsureVirtualAddressRange(vm->AddressRegister, vm->ExtentRegister);
             return (SetVMReplyResult(0, True));
 
         case VMOpcodeDestroy:
-            DestroyVirtualAddressRange(
-                vm->AddressRegister, vm->ExtentRegister);
+            DestroyVirtualAddressRange(vm->AddressRegister, vm->ExtentRegister);
             return (SetVMReplyResult(0, True));
 
         case VMOpcodeReadAttributes: {
@@ -369,8 +352,7 @@ int VMCommand(int command)
             if
                 VMExists(attr)
                 {
-                    vm->AttributesRegister
-                        = VMAttributeTable[VMCommandOperand(command)];
+                    vm->AttributesRegister = VMAttributeTable[VMCommandOperand(command)];
                     return (SetVMReplyResult(command, True));
                 }
             else
@@ -384,8 +366,7 @@ int VMCommand(int command)
                 VMExists(attr)
                 {
                     /* ensure Lisp doesn't clear exists bit */
-                    VMAttributeTable[VMCommandOperand(command)]
-                        = SetVMExists(vm->AttributesRegister);
+                    VMAttributeTable[VMCommandOperand(command)] = SetVMExists(vm->AttributesRegister);
                     return (SetVMReplyResult(command, True));
                 }
             else
@@ -393,26 +374,22 @@ int VMCommand(int command)
         }
 
         case VMOpcodeFill:
-            VirtualMemoryWriteBlockConstant(vm->AddressRegister,
-                &vm->DataRegister, vm->ExtentRegister,
-                VMCommandOperand(command));
+            VirtualMemoryWriteBlockConstant(
+                vm->AddressRegister, &vm->DataRegister, vm->ExtentRegister, VMCommandOperand(command));
             return (SetVMReplyResult(0, True));
 
         case VMOpcodeSearch: {
-            Boolean result = VirtualMemorySearch(
-                &vm->AddressRegister, &vm->DataRegister, vm->ExtentRegister);
+            Boolean result = VirtualMemorySearch(&vm->AddressRegister, &vm->DataRegister, vm->ExtentRegister);
             return (SetVMReplyResult(0, result));
         }
 
         case VMOpcodeCopy: {
-            Boolean result = VirtualMemoryCopy(vm->AddressRegister,
-                vm->DestinationRegister, vm->ExtentRegister,
+            Boolean result = VirtualMemoryCopy(vm->AddressRegister, vm->DestinationRegister, vm->ExtentRegister,
                 MemoryActionTable[VMCommandOperand(command)]);
             return (SetVMReplyResult(0, result));
         }
         case VMOpcodeScan: {
-            Boolean result
-                = VirtualMemoryScan(&vm->AddressRegister, vm->ExtentRegister);
+            Boolean result = VirtualMemoryScan(&vm->AddressRegister, vm->ExtentRegister);
             return (SetVMReplyResult(0, result));
         }
 

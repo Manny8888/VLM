@@ -51,6 +51,7 @@ EMULATOR = ./emulator
 G5EMULATOR = ./g5-emulator
 X86EMULATOR = ./x86_64-emulator
 OTHER = ./other
+COMPILER = /usr/bin/clang 
 
 CPU = $(X86EMULATOR)
 
@@ -58,25 +59,27 @@ genera: MAINOPTIONS = -DGENERA -DAUTOSTART -DUSE_TUN
 minima: MAINOPTIONS = -DMINIMA
 iverify: MAINOPTIONS = -DIVERIFY
 
-OPT = -O -mtune=nocona \
--foptimize-sibling-calls -fstrength-reduce \
--fexpensive-optimizations \
--fsched-interblock -fsched-spec -fpeephole2 \
--freorder-blocks  -freorder-functions \
--funit-at-a-time \
--falign-functions  -falign-jumps -falign-loops -falign-labels \
--fcrossjumping \
--finline-functions -fweb -frename-registers -funswitch-loops \
--fregmove \
--fcse-follow-jumps \
--fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse \
--fgcse-lm  -fgcse-sm  -fgcse-las -fdelete-null-pointer-checks \
--foptimize-sibling-calls -fcaller-saves
+# gcc option:
+# OPT = -O -mtune=nocona \
+# -foptimize-sibling-calls -fstrength-reduce \
+# -fexpensive-optimizations \
+# -fsched-interblock -fsched-spec -fpeephole2 \
+# -freorder-blocks  -freorder-functions \
+# -funit-at-a-time \
+# -falign-functions  -falign-jumps -falign-loops -falign-labels \
+# -fcrossjumping \
+# -finline-functions -fweb -frename-registers -funswitch-loops \
+# -fregmove \
+# -fcse-follow-jumps \
+# -fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse \
+# -fgcse-lm  -fgcse-sm  -fgcse-las -fdelete-null-pointer-checks \
+# -foptimize-sibling-calls -fcaller-saves
+
+OPT = 
 
 # broken
 #-fstrict-aliasing
 #-fschedule-insns  -fschedule-insns2
-
 #-fforce-mem -foptimize-sibling-calls -fstrength-reduce -fcse-follow-jumps
 #-fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse
 #-fgcse-lm  -fgcse-sm  -fgcse-las -fdelete-null-pointer-checks
@@ -88,17 +91,19 @@ OPT = -O -mtune=nocona \
 
 #-finline-functions -fweb -frename-registers and -funswitch-loops
 
-CFLAGS = $(OPT) -std=gnu99 -g2 -I/usr/X11R6/include -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
+# gcc flags:
+# CFLAGS = $(OPT) -std=gnu99 -g2 -I/usr/X11R6/include -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
+CFLAGS = $(OPT) -g2 -I/usr/X11R6/include -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
 AFLAGS = -g2 -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
 
 .SUFFIXES:
 .SUFFIXES: .o .c .S
 
 .c.o:
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(COMPILER) $(CFLAGS) -o $@ -c $<
 
 .S.o:
-	$(CC) $(AFLAGS) -o $@ -c $<
+	$(COMPILER) $(AFLAGS) -o $@ -c $<
 
 SRCS = main.c spy.c world_tools.c utilities.c \
        $(LIFE)/cold_load.c $(LIFE)/console.c $(LIFE)/disks.c $(LIFE)/initialization.c \
@@ -173,14 +178,14 @@ $(EMUALTOR)/interfac.o: $(EMULATOR)/interfac.c $(EMULATORINCLUDES)
 spy.o: spy.c $(EMULATORINCLUDES)
 
 genera: main.o byteswap_world.o $(OBJS) $(OTHEROBJS)
-	cc $(PROFILE) -o genera $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
-	cc $(PROFILE) -o byteswap_world $(EARLYLIBS) $(OTHEROBJS) byteswap_world.o $(OBJS) $(LIBRARIES)
+	$(COMPILER) $(PROFILE) -o genera $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
+	$(COMPILER) $(PROFILE) -o byteswap_world $(EARLYLIBS) $(OTHEROBJS) byteswap_world.o $(OBJS) $(LIBRARIES)
 
 minima: main.o $(OBJS) $(OTHEROBJS)
-	cc $(PROFILE) -o minima $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
+	$(COMPILER) $(PROFILE) -o minima $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
 
 iverify: main.o $(OBJS) $(OTHEROBJS)
-	cc $(PROFILE) -o iverify $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
+	$(COMPILER) $(PROFILE) -o iverify $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
 
 clean:
 	rm -f main.o byteswap_world.o $(OBJS)

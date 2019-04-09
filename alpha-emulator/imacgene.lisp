@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;; This ensures there are two arguments
 (defmacro verify-generic-arity (cr nargs temp4)
@@ -26,7 +26,7 @@
 	(comment "not an instance, flavor description comes from magic vector")
 	  (LDQ ,vma PROCESSORSTATE_TRAPVECBASE (ivory))
 	  (TagType ,itag ,temp)
-	  (LDA ,vma #.sys:%generic-dispatch-vector (,vma))
+	  (LDA ,vma #.%generic-dispatch-vector (,vma))
 	  (ADDQ ,temp ,vma ,vma)
 	  ;; We know the m-m-r is active when we are called
 	  (using-multiple-memory-reads
@@ -58,7 +58,7 @@
   `((comment "not an instance, flavor description comes from magic vector")
     (LDQ ,temp5 PROCESSORSTATE_TRAPVECBASE (ivory))
     (TagType ,itag ,mask-data)
-    (load-constant ,temp6 #.sys:%generic-dispatch-vector "Damned 8-bit literals!")
+    (load-constant ,temp6 #.%generic-dispatch-vector "Damned 8-bit literals!")
     (ADDQ ,mask-data ,temp5 ,mask-data)
     (ADDQ ,mask-data ,temp6 ,mask-data)
     (memory-read ,mask-data ,temp5 ,temp6 PROCESSORSTATE_DATAREAD ,temp ,temp2 ,temp3 ,temp4

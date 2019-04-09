@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;;; Macros in support of the alu instructions.  These are mostly 
 ;;; in ifunsubp.as
@@ -192,6 +192,7 @@
       (STQ ,temp PROCESSORSTATE_ALULESSTHAN (ivory)))))
  
 (defmacro alu-function-multiply-divide (alu op1 op2 res temp temp2)
+  (declare (ignore alu op1 op2 res temp temp2))
   `((UnimplementedInstruction)))
 
 (defmacro alu-compute-condition (alu op1tag op2tag result condition temp temp2 temp3 temp4)

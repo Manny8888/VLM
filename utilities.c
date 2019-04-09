@@ -31,23 +31,19 @@ static char *CommandName = "iverify";
 
 /* Internal function prototypes */
 
-static boolean GetOption(
-    XrmDatabase options, char *name, char *class, char *value);
-static boolean GetXOption(XrmDatabase options, char *windowName,
-    char *windowClass, char *name, char *class, char *value);
+static boolean GetOption(XrmDatabase options, char *name, char *class, char *value);
+static boolean GetXOption(
+    XrmDatabase options, char *windowName, char *windowClass, char *name, char *class, char *value);
 static void GetDefaultConfiguration(VLMConfig *config, XrmDatabase *options);
 static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options);
 static void InterpretOptions(VLMConfig *config, XrmDatabase options);
-static void InterpretXOptions(XrmDatabase options, XParams *xParams,
-    char *windowEnglishName, char *windowName, char *windowClass);
-static void MaybeReadConfigurationFile(
-    VLMConfig *config, XrmDatabase *options, char *pathname);
+static void InterpretXOptions(
+    XrmDatabase options, XParams *xParams, char *windowEnglishName, char *windowName, char *windowClass);
+static void MaybeReadConfigurationFile(VLMConfig *config, XrmDatabase *options, char *pathname);
 static char *MergeSearchPaths(char *newSearchPath, char *oldSearchPath);
 static int PrintMessage(char *section, char *format, va_list arguments);
-static void ProcessCommandArguments(
-    VLMConfig *config, XrmDatabase *options, int argc, char **argv);
-static boolean VerifyHostName(char *name, char **hostName,
-    unsigned long *hostAddress, boolean rejectLocalHost);
+static void ProcessCommandArguments(VLMConfig *config, XrmDatabase *options, int argc, char **argv);
+static boolean VerifyHostName(char *name, char **hostName, unsigned long *hostAddress, boolean rejectLocalHost);
 
 /* Guts of the following message printing functions */
 
@@ -149,8 +145,7 @@ void SetCommandName(char *newCommandName)
 
 /* Creates an X display name string in the supplied buffer */
 
-void BuildXDisplayName(
-    char *displayName, char *hostName, int display, int screen)
+void BuildXDisplayName(char *displayName, char *hostName, int display, int screen)
 {
     sprintf(displayName, "%s", hostName == NULL ? "" : hostName);
 
@@ -168,15 +163,13 @@ void BuildXDisplayName(
 void BuildConfiguration(VLMConfig *config, int argc, char **argv)
 {
     XrmDatabase options = NULL;
-    char *homeDir, workingDir[_POSIX_PATH_MAX + 1],
-        configFile[_POSIX_PATH_MAX + 1];
+    char *homeDir, workingDir[_POSIX_PATH_MAX + 1], configFile[_POSIX_PATH_MAX + 1];
 
     XrmInitialize();
 
     GetDefaultConfiguration(config, &options);
 
-    MaybeReadConfigurationFile(
-        config, &options, DefaultVLMConfigFilePathname);
+    MaybeReadConfigurationFile(config, &options, DefaultVLMConfigFilePathname);
 
     if ((homeDir = getenv("HOME")) != NULL) {
         sprintf(configFile, "%s/.VLM", homeDir);
@@ -221,15 +214,13 @@ static void GetDefaultConfiguration(VLMConfig *config, XrmDatabase *options)
     XrmPutStringResource(options, "minima.world", DefaultMinimaWorldPathname);
 
     if ((worldSearchPath = getenv("WORLDPATH")) != NULL)
-        XrmPutStringResource(options, "genera.worldSearchPath",
-            MergeSearchPaths(worldSearchPath, DefaultWorldSearchPath));
-    else
         XrmPutStringResource(
-            options, "genera.worldSearchPath", DefaultWorldSearchPath);
+            options, "genera.worldSearchPath", MergeSearchPaths(worldSearchPath, DefaultWorldSearchPath));
+    else
+        XrmPutStringResource(options, "genera.worldSearchPath", DefaultWorldSearchPath);
 
     XrmPutStringResource(options, "genera.enableIDS", "no");
-    XrmPutStringResource(
-        options, "genera.virtualMemory", DefaultVirtualMemory);
+    XrmPutStringResource(options, "genera.virtualMemory", DefaultVirtualMemory);
 
     if ((display = getenv("DISPLAY")) != NULL)
         XrmPutStringResource(options, "*display", display);
@@ -241,12 +232,10 @@ static void GetDefaultConfiguration(VLMConfig *config, XrmDatabase *options)
 
 /* Read a .VLM file in the specified directory if it exists */
 
-static void MaybeReadConfigurationFile(
-    VLMConfig *config, XrmDatabase *options, char *pathname)
+static void MaybeReadConfigurationFile(VLMConfig *config, XrmDatabase *options, char *pathname)
 {
     XrmDatabase fileOptions;
-    char newSearchPath[_POSIX_ARG_MAX], oldSearchPath[_POSIX_ARG_MAX],
-        *mergedSearchPath, searchPathOption[128];
+    char newSearchPath[_POSIX_ARG_MAX], oldSearchPath[_POSIX_ARG_MAX], *mergedSearchPath, searchPathOption[128];
     int fd;
 
     fd = open(pathname, O_RDONLY);
@@ -255,8 +244,7 @@ static void MaybeReadConfigurationFile(
             errno = ESUCCESS;
             return;
         } else
-            vpunt(NULL, "Unable to verify existence of configuration file %s",
-                pathname);
+            vpunt(NULL, "Unable to verify existence of configuration file %s", pathname);
     close(fd);
 
     fileOptions = XrmGetFileDatabase(pathname);
@@ -264,14 +252,11 @@ static void MaybeReadConfigurationFile(
         vpunt(NULL, "Unable to parse configuration file %s", pathname);
 
 #ifdef GENERA
-    if (GetOption(fileOptions, "worldSearchPath", "WorldSearchPath",
-            newSearchPath)) {
-        GetOption(
-            *options, "worldSearchPath", "WorldSearchPath", oldSearchPath);
+    if (GetOption(fileOptions, "worldSearchPath", "WorldSearchPath", newSearchPath)) {
+        GetOption(*options, "worldSearchPath", "WorldSearchPath", oldSearchPath);
         mergedSearchPath = MergeSearchPaths(newSearchPath, oldSearchPath);
         sprintf(searchPathOption, "%s.worldSearchPath", CommandName);
-        XrmPutStringResource(
-            &fileOptions, searchPathOption, mergedSearchPath);
+        XrmPutStringResource(&fileOptions, searchPathOption, mergedSearchPath);
     }
 #endif
 
@@ -331,11 +316,9 @@ static XrmOptionDescRec OptionsTable[OptionsTableSize] = {
     { "-clfg", ".coldLoad.foreground", XrmoptionSepArg, NULL },
     { "-coldloadbackground", ".coldLoad.background", XrmoptionSepArg, NULL },
     { "-clbg", ".coldLoad.background", XrmoptionSepArg, NULL },
-    { "-coldloadbordercolor", ".coldLoad.borderColor", XrmoptionSepArg,
-        NULL },
+    { "-coldloadbordercolor", ".coldLoad.borderColor", XrmoptionSepArg, NULL },
     { "-clbd", ".coldLoad.borderColor", XrmoptionSepArg, NULL },
-    { "-coldloadborderwidth", ".coldLoad.borderWidth", XrmoptionSepArg,
-        NULL },
+    { "-coldloadborderwidth", ".coldLoad.borderWidth", XrmoptionSepArg, NULL },
     { "-clbw", ".coldLoad.borderWidth", XrmoptionSepArg, NULL },
 #endif
 #ifdef TRACING
@@ -346,15 +329,12 @@ static XrmOptionDescRec OptionsTable[OptionsTableSize] = {
 
 /* Parse the command line arguments */
 
-static void ProcessCommandArguments(
-    VLMConfig *config, XrmDatabase *options, int argc, char **argv)
+static void ProcessCommandArguments(VLMConfig *config, XrmDatabase *options, int argc, char **argv)
 {
-    char oldSearchPath[_POSIX_ARG_MAX], *mergedSearchPath,
-        searchPathOption[128];
+    char oldSearchPath[_POSIX_ARG_MAX], *mergedSearchPath, searchPathOption[128];
     int argLength;
 
-    XrmParseCommand(
-        options, OptionsTable, OptionsTableSize, CommandName, &argc, argv);
+    XrmParseCommand(options, OptionsTable, OptionsTableSize, CommandName, &argc, argv);
 
     /* Any leftover arguments must be "-searchpath PATH" */
 
@@ -364,21 +344,16 @@ static void ProcessCommandArguments(
 
 #ifdef GENERA
         argLength = strlen(*argv);
-        if (0
-            == strncmp(
-                   *argv, "-searchpath", (argLength < 7) ? 7 : argLength)) {
+        if (0 == strncmp(*argv, "-searchpath", (argLength < 7) ? 7 : argLength)) {
             if (argc > 1) {
                 argv++;
                 argc--;
-                GetOption(*options, "worldSearchPath", "WorldSearchPath",
-                    oldSearchPath);
+                GetOption(*options, "worldSearchPath", "WorldSearchPath", oldSearchPath);
                 mergedSearchPath = MergeSearchPaths(*argv, oldSearchPath);
                 sprintf(searchPathOption, "%s.worldSearchPath", CommandName);
-                XrmPutStringResource(
-                    options, searchPathOption, mergedSearchPath);
+                XrmPutStringResource(options, searchPathOption, mergedSearchPath);
             } else
-                vpunt(NULL,
-                    "A list of directory pathnames must follow -searchpath");
+                vpunt(NULL, "A list of directory pathnames must follow -searchpath");
         }
 
         else
@@ -446,14 +421,12 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
 #if defined(OS_OSF) || defined(__FreeBSD__)
                     config->tracing.outputFile = strdup(start + 1);
 #else
-                    config->tracing.outputFile
-                        = strndup(start + 1, _POSIX_PATH_MAX + 1);
+                    config->tracing.outputFile = strndup(start + 1, _POSIX_PATH_MAX + 1);
 #endif
                     *end2 = ']';
                     end = end2 + 1;
                 } else
-                    vpunt(NULL, "Value of trace parameter, %s, is invalid",
-                        value);
+                    vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
             }
         }
         if (*end) {
@@ -469,17 +442,12 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
                         if (start != end)
                             config->tracing.stopPC = datum;
                         if (*end)
-                            vpunt(NULL,
-                                "Value of trace parameter, %s, is invalid",
-                                value);
+                            vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
                     } else
-                        vpunt(NULL,
-                            "Value of trace parameter, %s, is invalid",
-                            value);
+                        vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
                 }
             } else
-                vpunt(
-                    NULL, "Value of trace parameter, %s, is invalid", value);
+                vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
         }
     }
 
@@ -516,20 +484,16 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
     GetOption(options, "virtualMemory", "VirtualMemory", value);
     datum = strtoul(value, &end, 10);
     if (*end)
-        vpunt(NULL, "Value of virtual memory size parameter, %s, is invalid",
-            value);
+        vpunt(NULL, "Value of virtual memory size parameter, %s, is invalid", value);
     if (datum < MinimumVirtualMemory)
-        vpunt(NULL, "Minimum virtual memory size is %d megabytes",
-            MinimumVirtualMemory);
+        vpunt(NULL, "Minimum virtual memory size is %d megabytes", MinimumVirtualMemory);
     config->virtualMemory = datum;
 
     GetOption(options, "worldSearchPath", "WorldSearchPath", value);
     config->worldSearchPath = strdup(value);
 
-    InterpretXOptions(
-        options, &config->generaXParams, "main X console", "main", "Main");
-    InterpretXOptions(options, &config->coldLoadXParams, "cold load",
-        "coldLoad", "ColdLoad");
+    InterpretXOptions(options, &config->generaXParams, "main X console", "main", "Main");
+    InterpretXOptions(options, &config->coldLoadXParams, "cold load", "coldLoad", "ColdLoad");
 #endif
 #endif
 
@@ -539,8 +503,7 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
     {
         if (GetOption(options, "diagnosticHost", "DiagnosticHost", value)) {
             if (VerifyHostName(value, &hostName, &hostAddress, FALSE))
-                memcpy((char *)&config->diagnosticIPAddress.s_addr,
-                    (char *)&hostAddress,
+                memcpy((char *)&config->diagnosticIPAddress.s_addr, (char *)&hostAddress,
                     sizeof(config->diagnosticIPAddress.s_addr));
             else
                 vpunt(NULL, "Unknown diagnostic host %s", value);
@@ -550,14 +513,11 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
 #else
         {
             config->diagnosticIPAddress.s_addr = 0;
-            for (i = 0; (i < MaxNetworkInterfaces)
-                 && (0 == config->diagnosticIPAddress.s_addr);
-                 i++) {
+            for (i = 0; (i < MaxNetworkInterfaces) && (0 == config->diagnosticIPAddress.s_addr); i++) {
                 interface = &config->interfaces[i];
                 while ((interface != NULL) && interface->present) {
                     if (ETHERTYPE_IP == interface->myProtocol) {
-                        config->diagnosticIPAddress.s_addr
-                            = htonl(interface->myAddress.s_addr);
+                        config->diagnosticIPAddress.s_addr = htonl(interface->myAddress.s_addr);
                         break;
                     }
 #ifdef GENERA
@@ -569,8 +529,7 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
             }
 
             if (0 == config->diagnosticIPAddress.s_addr)
-                vpunt(NULL,
-                    "You must specify a diagnostic host to use the spy.");
+                vpunt(NULL, "You must specify a diagnostic host to use the spy.");
         }
 #endif
     }
@@ -582,8 +541,8 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
 static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
 {
     NetworkInterface *mainInterface, *interface;
-    char buffer[_POSIX_ARG_MAX], *value, *deviceName, *hostName,
-        *commaPosition, *colonPosition, *semicolonPosition, *end;
+    char buffer[_POSIX_ARG_MAX], *value, *deviceName, *hostName, *commaPosition, *colonPosition, *semicolonPosition,
+        *end;
     unsigned long hostAddress;
     int i;
 
@@ -600,11 +559,8 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
         colonPosition = strchr(value, ':');
         semicolonPosition = strchr(value, ';');
 
-        if ((colonPosition != NULL) && (semicolonPosition != NULL)
-            && (semicolonPosition < colonPosition))
-            vpunt(NULL,
-                "Invalid syntax in specification of network interface: %s",
-                value);
+        if ((colonPosition != NULL) && (semicolonPosition != NULL) && (semicolonPosition < colonPosition))
+            vpunt(NULL, "Invalid syntax in specification of network interface: %s", value);
 
         if (colonPosition != NULL) {
             *colonPosition = 0;
@@ -626,8 +582,7 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
 #else
                     while (interface->anotherAddress != NULL)
                         interface = interface->anotherAddress;
-                    interface->anotherAddress
-                        = malloc(sizeof(NetworkInterface));
+                    interface->anotherAddress = malloc(sizeof(NetworkInterface));
                     if (NULL == interface->anotherAddress)
                         vpunt(NULL,
                             "Unable to allocate space for an additional "
@@ -657,8 +612,7 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
         if (semicolonPosition != NULL)
             *semicolonPosition = 0;
 
-        if ((0 == strncmp(value, "CHAOS|", strlen("CHAOS|")))
-            || (0 == strncmp(value, "chaos|", strlen("chaos|")))) {
+        if ((0 == strncmp(value, "CHAOS|", strlen("CHAOS|"))) || (0 == strncmp(value, "chaos|", strlen("chaos|")))) {
             value += strlen("CHAOS|");
             interface->myProtocol = ETHERTYPE_CHAOS;
             hostAddress = strtoul(value, &end, 8);
@@ -696,19 +650,14 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
         else {
             interface->myProtocol = ETHERTYPE_IP;
             if (VerifyHostName(value, &hostName, &hostAddress, TRUE)) {
-                memcpy((char *)&interface->myAddress.s_addr,
-                    (char *)&hostAddress,
-                    sizeof(interface->myAddress.s_addr));
-                interface->myAddress.s_addr
-                    = ntohl(interface->myAddress.s_addr);
+                memcpy((char *)&interface->myAddress.s_addr, (char *)&hostAddress, sizeof(interface->myAddress.s_addr));
+                interface->myAddress.s_addr = ntohl(interface->myAddress.s_addr);
             } else {
                 if (colonPosition != NULL)
                     *colonPosition = ':';
                 if (semicolonPosition != NULL)
                     *semicolonPosition = ';';
-                vpunt(NULL,
-                    "Unknown host in specification of network interface: %s",
-                    value);
+                vpunt(NULL, "Unknown host in specification of network interface: %s", value);
             }
         }
 
@@ -728,8 +677,8 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
 
 /* Convert the options for an X window into our internal representation */
 
-static void InterpretXOptions(XrmDatabase options, XParams *xParams,
-    char *windowEnglishName, char *windowName, char *windowClass)
+static void InterpretXOptions(
+    XrmDatabase options, XParams *xParams, char *windowEnglishName, char *windowName, char *windowClass)
 {
     char value[_POSIX_ARG_MAX], *hostName, *colonPosition, *start, *end;
     unsigned long hostAddress, datum;
@@ -744,8 +693,7 @@ static void InterpretXOptions(XrmDatabase options, XParams *xParams,
             xParams->xpHostName = hostName;
             xParams->xpHostAddress = hostAddress;
         } else
-            vpunt(NULL, "Unknown host %s specified for display of %s", value,
-                windowEnglishName);
+            vpunt(NULL, "Unknown host %s specified for display of %s", value, windowEnglishName);
         *colonPosition = ':';
         start = colonPosition + 1;
         datum = strtoul(start, &end, 10);
@@ -758,11 +706,9 @@ static void InterpretXOptions(XrmDatabase options, XParams *xParams,
                 if (start != end)
                     xParams->xpScreen = datum;
                 if (*end)
-                    vpunt(NULL, "Invalid display specification %s for %s",
-                        value, windowEnglishName);
+                    vpunt(NULL, "Invalid display specification %s for %s", value, windowEnglishName);
             } else
-                vpunt(NULL, "Invalid display specification %s for %s", value,
-                    windowEnglishName);
+                vpunt(NULL, "Invalid display specification %s for %s", value, windowEnglishName);
         } else
             xParams->xpScreen = -1;
     }
@@ -772,54 +718,45 @@ static void InterpretXOptions(XrmDatabase options, XParams *xParams,
             xParams->xpHostName = hostName;
             xParams->xpHostAddress = hostAddress;
         } else
-            vpunt(NULL, "Unknown host %s specified for display of %s", value,
-                windowEnglishName);
+            vpunt(NULL, "Unknown host %s specified for display of %s", value, windowEnglishName);
         xParams->xpDisplay = -1;
         xParams->xpScreen = -1;
     }
 
-    if (GetXOption(
-            options, windowName, windowClass, "iconic", "Iconic", value)) {
+    if (GetXOption(options, windowName, windowClass, "iconic", "Iconic", value)) {
         if (0 == strcmp(value, "yes"))
             xParams->xpInitialState = Iconic;
         else if (0 == strcmp(value, "no"))
             xParams->xpInitialState = Normal;
         else
-            vpunt(NULL, "Invalid value, %s, for iconic state of %s", value,
-                windowEnglishName);
+            vpunt(NULL, "Invalid value, %s, for iconic state of %s", value, windowEnglishName);
     } else
         xParams->xpInitialState = Unspecified;
 
-    if (GetXOption(
-            options, windowName, windowClass, "geometry", "Geometry", value))
+    if (GetXOption(options, windowName, windowClass, "geometry", "Geometry", value))
         xParams->xpGeometry = strdup(value);
     else
         xParams->xpGeometry = NULL;
 
-    if (GetXOption(options, windowName, windowClass, "foreground",
-            "Foreground", value))
+    if (GetXOption(options, windowName, windowClass, "foreground", "Foreground", value))
         xParams->xpForegroundColor = strdup(value);
     else
         xParams->xpForegroundColor = NULL;
 
-    if (GetXOption(options, windowName, windowClass, "background",
-            "Background", value))
+    if (GetXOption(options, windowName, windowClass, "background", "Background", value))
         xParams->xpBackgroundColor = strdup(value);
     else
         xParams->xpBackgroundColor = "white";
 
-    if (GetXOption(options, windowName, windowClass, "borderColor",
-            "BorderColor", value))
+    if (GetXOption(options, windowName, windowClass, "borderColor", "BorderColor", value))
         xParams->xpBorderColor = strdup(value);
     else
         xParams->xpBorderColor = NULL;
 
-    if (GetXOption(options, windowName, windowClass, "borderWidth",
-            "BorderWidth", value)) {
+    if (GetXOption(options, windowName, windowClass, "borderWidth", "BorderWidth", value)) {
         datum = strtoul(value, &end, 10);
         if (*end)
-            vpunt(NULL, "Invalid value, %s, for border width of %s", value,
-                windowEnglishName);
+            vpunt(NULL, "Invalid value, %s, for border width of %s", value, windowEnglishName);
         else
             xParams->xpBorderWidth = datum;
     } else
@@ -845,8 +782,7 @@ static char *MergeSearchPaths(char *newSearchPath, char *oldSearchPath)
 
 /* Get the value of an option from the database */
 
-static boolean GetOption(
-    XrmDatabase options, char *name, char *class, char *value)
+static boolean GetOption(XrmDatabase options, char *name, char *class, char *value)
 {
     char optionName[128], optionClass[128], *valueClass;
     XrmValue dbValue;
@@ -854,8 +790,7 @@ static boolean GetOption(
     sprintf(optionName, "%s.%s", CommandName, name);
     sprintf(optionClass, "%s.%s", CommandClass, class);
 
-    if (XrmGetResource(
-            options, optionName, optionClass, &valueClass, &dbValue)) {
+    if (XrmGetResource(options, optionName, optionClass, &valueClass, &dbValue)) {
         strncpy(value, dbValue.addr, dbValue.size);
         return (TRUE);
     }
@@ -866,8 +801,8 @@ static boolean GetOption(
 
 /* Get the value of an option for an X window from the database */
 
-static boolean GetXOption(XrmDatabase options, char *windowName,
-    char *windowClass, char *name, char *class, char *value)
+static boolean GetXOption(
+    XrmDatabase options, char *windowName, char *windowClass, char *name, char *class, char *value)
 {
     char optionName[128], optionClass[128];
 
@@ -879,13 +814,11 @@ static boolean GetXOption(XrmDatabase options, char *windowName,
 
 /* Convert a putative host name into an official name and address */
 
-static boolean VerifyHostName(char *name, char **hostName,
-    unsigned long *hostAddress, boolean rejectLocalHost)
+static boolean VerifyHostName(char *name, char **hostName, unsigned long *hostAddress, boolean rejectLocalHost)
 {
     struct hostent *hp;
 
-    if (*name == '\0' || !strcmp(name, "unix")
-        || !strcmp(name, "localhost")) {
+    if (*name == '\0' || !strcmp(name, "unix") || !strcmp(name, "localhost")) {
         if (rejectLocalHost)
             return (FALSE);
         if (NULL == (hp = gethostbyname("localhost")))
@@ -922,8 +855,7 @@ static boolean VerifyHostName(char *name, char **hostName,
 #define NSECS_IN_USEC 1000
 #define NSECS_IN_SEC (1000 * 1000 * 1000)
 
-int pthread_get_expiration_np(
-    const struct timespec *delta, struct timespec *abstime)
+int pthread_get_expiration_np(const struct timespec *delta, struct timespec *abstime)
 {
     int status;
     struct timeval now;

@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;;; This file contains macros supporting array instructions.  These are
 ;;; mostly in ifunarra.as
@@ -29,7 +29,7 @@
   (check-temporaries (data bound) (temp))
   `((CMPULT ,data ,bound ,temp)
     (branch-false ,temp ,ioplab)))
-    
+
 (defmacro byte-packing-size (bp size)
   (check-temporaries (bp) (size))
   `((BIS zero 32 ,size)
@@ -70,7 +70,7 @@
     (BIC ,index ,modulus ,modulus "Compute subword index")
     (ADDQ ,rotation 5 ,rotation)
     (SLL ,modulus ,rotation ,rotation "Compute shift to get byte")))
-  
+
 
 (defmacro simple-case ((test-var temp temp2 &optional done-label) &body clauses)
   "Only deals with singleton, constant keys.  Optimizes dispatch
@@ -79,11 +79,11 @@
     (let* ((clauses (copy-list clauses))
 	   (keys (map 'list #'(lambda (c) (eval (first c))) clauses))
 	   (sorted-keys (sort (copy-list keys) #'<))
-	   (labels (map 'list #'make-label keys)) 
+	   (labels (map 'list #'make-label keys))
 	   (others (make-label 'others))
 	   (done (or done-label (make-label 'done)))
 	   )
-      (if (lisp:and (<= (length clauses) 4)
+      (if (common-lisp:and (<= (length clauses) 4)
 		    (loop for (a b) on sorted-keys always (or (null b) (= (1+ a) b))))
 	  ;; short, contiguous case:  search for a combination of bias
 	  ;; and tests that let you dispatch without comparing
@@ -104,27 +104,27 @@
 						      (,#'(lambda (k) (evenp k))
 						       (BLBC ,test-var) (BLBS ,test-var))
 						      (,#'(lambda (k)
-							    (lisp:and bias (< (- k bias) 0)))
+							    (common-lisp:and bias (< (- k bias) 0)))
 						       (BLT ,temp) (BGE ,temp))
 						      (,#'(lambda (k)
-							    (lisp:and bias (= (- k bias) 0)))
+							    (common-lisp:and bias (= (- k bias) 0)))
 						       (BEQ ,temp) (BNE ,temp))
 						      (,#'(lambda (k)
-							    (lisp:and bias (> (- k bias) 0)))
+							    (common-lisp:and bias (> (- k bias) 0)))
 						       (BGT ,temp) (BLE ,temp))
 						      (,#'(lambda (k)
-							    (lisp:and bias (oddp (- k bias))))
+							    (common-lisp:and bias (oddp (- k bias))))
 						       (BLBS ,temp) (BLBC ,temp))
 						      (,#'(lambda (k)
-							    (lisp:and bias (evenp (- k bias))))
+							    (common-lisp:and bias (evenp (- k bias))))
 						       (BLBC ,temp) (BLBS ,temp))
 						      )
 				  collect
-				    (rest 
+				    (rest
 				      (find-if
 					#'(lambda (cand)
 					    (let ((verifier (first cand)))
-					      (lisp:and (funcall verifier key)
+					      (common-lisp:and (funcall verifier key)
 							(notany verifier rest))))
 					candidates)))
 			 ;; do (format t "~&Bias ~D, Try: ~S" bias try)
@@ -195,7 +195,7 @@
     `((comment ,(format nil "AREF1-~AB" (lsh 1 (- 5 bp))))
       ,@(case bp
 	  (0 ;; Hack alert!  we don't need to move data at all!
-	    (progn (setq value data) nil))				
+	    (progn (setq value data) nil))
 	  (1 `((AND ,index ,index-mask ,temp)
 	       (ADDQ ,temp ,temp ,temp "Bletch, it's a byte ref")
 	       (EXTWL ,data ,temp ,value)))
@@ -216,7 +216,7 @@
   `((byte-packing-modulus-and-rotation ,bp ,index ,temp ,element)
     (byte-packing-mask ,bp ,temp ,temp2)
     (SRL ,word ,element ,element "Shift the byte into place")
-    (AND ,temp ,element ,element "Mask out unwanted bits."))) 
+    (AND ,temp ,element ,element "Mask out unwanted bits.")))
 
 ;; (array-element-ldb t1 t2 t3 t4 t5 t6)
 #||
@@ -243,7 +243,7 @@
 ;;; shove 'element' into 'word' at position indicated by 'bp' and 'index'
 ;;; this is fairly expensive, around 27 cycles! unpacked case (bp=0)
 ;;; should avoid this path!
-(defmacro array-element-dpb (element bp index word 
+(defmacro array-element-dpb (element bp index word
                              temp temp2 temp3 temp4 temp5)
   (check-temporaries (element bp index word) (temp temp2 temp3 temp4 temp5))
   (let ((simple (gensym))
@@ -320,8 +320,8 @@
       ;; TEMP cleverly used to remember boolean type case and
       ;; distinguish all non-object cases
       (NOP)
-      (SUBQ ,etyp ,sys:array-element-type-boolean ,temp)
-      (BLE ,temp ,not-object)			;sys:array-element-type-object = 3
+      (SUBQ ,etyp ,array-element-type-boolean ,temp)
+      (BLE ,temp ,not-object)			;array-element-type-object = 3
       (TagType ,tag ,tag)
     (label ,continue3)
       (stack-write-tag iSP ,tag)
@@ -339,7 +339,7 @@
 	(2					;string/8-b
 	  (generate-array-element-ldb 2 ,temp5 ,data ,index ,temp4)
 	  (BEQ ,temp ,store-boolean)
-	  (stack-write-data iSP ,temp5) 
+	  (stack-write-data iSP ,temp5)
 	  )
 	(3					;4b
 	  (generate-array-element-ldb 3 ,temp5 ,data ,index ,temp4)
@@ -371,10 +371,10 @@
     (label ,not-object)
       ;; At this point we know etyp is 0 1 or 2
       (BIS zero |TypeCharacter| ,tag)
-      (BLBS ,etyp ,continue3)			;sys:array-element-type-character = 1
+      (BLBS ,etyp ,continue3)			;array-element-type-character = 1
       (BIS zero |TypeFixnum| ,tag)
-      (BEQ ,etyp ,continue3)			;sys:array-element-type-fixnum = 0
-      (get-nil ,temp2)				;sys:array-element-type-boolean = 2
+      (BEQ ,etyp ,continue3)			;array-element-type-fixnum = 0
+      (get-nil ,temp2)				;array-element-type-boolean = 2
       (get-t ,temp3)
       (BR zero ,continue3)
     (label ,store-boolean)
@@ -386,7 +386,7 @@
   )))
 
 
-;;; Doesn't come back!    
+;;; Doesn't come back!
 (defmacro aref-1-internal (tag data bp boffset etyp index
                            temp temp2 temp3 temp4 temp5)
   (check-temporaries (tag data bp boffset etyp index)
@@ -432,9 +432,9 @@
     (label ,ioplab)
       (illegal-operand byte-array-word-type-check ,temp)
   )))
- 
 
-;;; Doesn't come back!    
+
+;;; Doesn't come back!
 ;;+++ Gack, assumes (rightly) value is second-from-saved-iSP
 (defmacro aset-1-internal (tag data bp boffset etyp index vtag vdata
                            temp temp2 temp3 temp4 temp5 temp6 &optional temp7)
@@ -501,7 +501,7 @@
       (ContinueToNextInstruction)
       (label ,ioplab)
       (illegal-operand byte-array-word-type-check ,temp "packed array data not in fixnum"))))
-  
+
 
 ;;; Array Register support.
 
@@ -675,7 +675,7 @@
 	  (stack-push-ir |TypeLocative| ,indirect ,temp8)	; pushes with CDR-NEXT
 	  (stack-push2 ,temp7 ,length ,temp8)
 	  (BR zero ,done))
-		  
+
 	;; Fixnum case is the same as the Locative case -- go do it.
 	(|TypeFixnum|
 	  (BR zero ,dodisp))
@@ -691,7 +691,7 @@
 	  (CMPEQ ,temp 1 ,temp)
 	  (BIS ,temp ,force1d ,temp "Force true if FORCE")
 	  (branch-false ,temp ,iex)		; take exception if not matched.
-		    
+
 	  ;; Skip down the indirection chain until we reach the end.
 	  ,@(let ((bpd adata)
 		  (bp temp12)
@@ -715,13 +715,13 @@
 		(load-constant ,temp8 #.|array$K-lengthmask|)
 		(AND ,temp4 ,temp8 ,temp8)	; temp8=(ldb array-short-length-field hdr)
 		(logical-shift ,temp8 ,bpd ,temp8 ,temp10)
-	       
+
 		;; compute length
 		(ADDQ ,length ,offset ,temp10)	;t10=l+o
 		(SUBQ ,temp10 ,temp8 ,temp7)	;t2=l+o - sl
 		(CMOVLE ,temp7 ,temp10 ,temp8)	;if sl>l+o sl=l+o
 		(BIS ,temp8 zero ,length)
-			  
+
 		(label ,leafarray)		; here when leaf array located.
 		(SUBQ ,length ,totaloffset ,length)
 		(stack-push2 ,atag ,temp9 ,temp10)	; push the array -- unforwarded.
@@ -759,7 +759,7 @@
 		(CMOVLE ,temp10 ,temp8 ,temp10)	; if sl<0 sl=l+o
 		(SUBQ ,temp10 ,temp8 ,temp7)	; t7=sl-l+0
 		(CMOVLE ,temp7 ,temp10 ,temp8)	; if l+o>sl l+0=sl
-		(BIS ,temp8 zero ,length)			  
+		(BIS ,temp8 zero ,length)
 
 		(type-dispatch ,temp4 ,temp8 ,temp10
 		  (|TypeLocative|
@@ -775,12 +775,12 @@
 		  (|TypeString|
 		    (BR zero ,arrayind))
 		  (:else (BR zero ,iex))))))
-		
+
 	;; The string case is the same as the array case -- so go do it.
 	(|TypeString|
 	  (BR zero ,doarray))
 	(:else (BR zero ,iex)))			; take the exception on error case.
-      
+
       (label ,iex)
       (BIS zero |ReturnValueException| ,temp2)
       (RET zero R0 1)

@@ -12,16 +12,10 @@
 #define OneSixteenthSecond 7500000L
 
 /* Returns TRUE if the VLM is running either in the IFEP or Lisp */
-static boolean VLMIsRunning(EmbCommArea *ep)
-{
-    return ((ep->spy_status == 0) && (ep->fep.status != HaltedFEPStatus));
-}
+static boolean VLMIsRunning(EmbCommArea *ep) { return ((ep->spy_status == 0) && (ep->fep.status != HaltedFEPStatus)); }
 
 /* Returns TRUE if the VLM is running Lisp */
-static boolean VLMIsRunningLisp(EmbCommArea *ep)
-{
-    return (VLMIsRunning(ep) && (ep->fep.status == IdleFEPStatus));
-}
+static boolean VLMIsRunningLisp(EmbCommArea *ep) { return (VLMIsRunning(ep) && (ep->fep.status == IdleFEPStatus)); }
 
 /* Updates the VLM guest status to reflect its current true status */
 static void UpdateVLMStatus()
@@ -36,25 +30,22 @@ static void UpdateVLMStatus()
 
     case UninitializedGuestStatus:
     case InitializingGuestStatus:
-        ep->guestStatus = VLMIsRunningLisp(ep)
-            ? RunningGuestStatus
-            : VLMIsRunning(ep) ? InitializedGuestStatus : ep->guestStatus;
+        ep->guestStatus
+            = VLMIsRunningLisp(ep) ? RunningGuestStatus : VLMIsRunning(ep) ? InitializedGuestStatus : ep->guestStatus;
         break;
 
     case InitializedGuestStatus:
     case StartedGuestStatus:
         /* If VLM's no longer running the IFEP, assume it's in the BootROM or
          * DevicePROM */
-        ep->guestStatus = VLMIsRunningLisp(ep)
-            ? RunningGuestStatus
-            : VLMIsRunning(ep) ? ep->guestStatus : InitializingGuestStatus;
+        ep->guestStatus
+            = VLMIsRunningLisp(ep) ? RunningGuestStatus : VLMIsRunning(ep) ? ep->guestStatus : InitializingGuestStatus;
         break;
 
     case CrashedGuestStatus:
     case RunningGuestStatus:
-        ep->guestStatus = VLMIsRunningLisp(ep)
-            ? RunningGuestStatus
-            : VLMIsRunning(ep) ? CrashedGuestStatus : InitializingGuestStatus;
+        ep->guestStatus = VLMIsRunningLisp(ep) ? RunningGuestStatus
+                                               : VLMIsRunning(ep) ? CrashedGuestStatus : InitializingGuestStatus;
         break;
     }
 
@@ -68,8 +59,7 @@ static void ResetCommArea(boolean fullReset)
     register EmbChannel *channel;
     register EmbPtr channelP;
 
-    for (channelP = EmbCommAreaPtr->channel_table; channelP != NullEmbPtr;
-         channelP = channel->next) {
+    for (channelP = EmbCommAreaPtr->channel_table; channelP != NullEmbPtr; channelP = channel->next) {
         channel = HostPointer(channelP);
         switch (channel->type) {
         case EmbDiskChannelType:
@@ -145,8 +135,7 @@ void ProcessResetRequest()
          * communications area */
         ResetCommArea(TRUE);
         EmbCommAreaPtr->resetRequestCount++; /* A true reset */
-        EmbCommAreaPtr->restart_applications
-            = 1; /* Restart applications on full reset */
+        EmbCommAreaPtr->restart_applications = 1; /* Restart applications on full reset */
         break;
 
     default:
@@ -171,8 +160,7 @@ void IvoryLifePolling(pthread_addr_t argument)
     pollingSleep.tv_sec = 0;
     pollingSleep.tv_nsec = 0;
 
-    pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
+    pthread_cleanup_push((pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     while (TRUE) {
         begin_MUTEX_LOCKED(signalLock);
@@ -186,21 +174,16 @@ void IvoryLifePolling(pthread_addr_t argument)
 
         else if (EmbCommAreaPtr->pollTime > OneQuarterSecond) {
             EmbCommAreaPtr->pollTime = 0;
-            EmbCommAreaPtr->guest_to_host_signals
-                |= EmbCommAreaPtr->live_guest_to_host_signals;
+            EmbCommAreaPtr->guest_to_host_signals |= EmbCommAreaPtr->live_guest_to_host_signals;
             if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal))
-                vpunt(NULL,
-                    "Unable to send Life Support signal signal in thread %lx",
-                    self);
+                vpunt(NULL, "Unable to send Life Support signal signal in thread %lx", self);
         }
 
         else if (EmbCommAreaPtr->reawaken) {
             EmbCommAreaPtr->guest_to_host_signals |= EmbCommAreaPtr->reawaken;
             EmbCommAreaPtr->reawaken = 0;
             if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal))
-                vpunt(NULL,
-                    "Unable to send Life Support signal signal in thread %lx",
-                    self);
+                vpunt(NULL, "Unable to send Life Support signal signal in thread %lx", self);
         }
 
         end_MUTEX_LOCKED(signalLock);
@@ -209,8 +192,7 @@ void IvoryLifePolling(pthread_addr_t argument)
             EmbCommAreaPtr->pollClockTime -= pollingSleep.tv_nsec;
             if (EmbCommAreaPtr->pollClockTime <= 0) {
                 EmbSendSignal(EmbCommAreaPtr->clock_signal);
-                EmbCommAreaPtr->pollClockTime
-                    = 1000 * EmbCommAreaPtr->clock_interval;
+                EmbCommAreaPtr->pollClockTime = 1000 * EmbCommAreaPtr->clock_interval;
             }
             if (EmbCommAreaPtr->pollClockTime > OneQuarterSecond)
                 pollingSleep.tv_nsec = OneQuarterSecond;
@@ -224,8 +206,7 @@ void IvoryLifePolling(pthread_addr_t argument)
         UpdateVLMStatus();
 
         if (0) {
-            printf("sleep; interval %d, time %d, %d\n",
-                EmbCommAreaPtr->clock_interval, pollingSleep.tv_sec,
+            printf("sleep; interval %d, time %d, %d\n", EmbCommAreaPtr->clock_interval, pollingSleep.tv_sec,
                 pollingSleep.tv_nsec);
         }
 
@@ -252,8 +233,7 @@ void IntervalTimerDriver(pthread_addr_t argument)
     struct timespec expirationTime, expirationInterval;
     int result;
 
-    pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
+    pthread_cleanup_push((pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     WaitUntilInitializationComplete();
 
@@ -269,19 +249,14 @@ void IntervalTimerDriver(pthread_addr_t argument)
                 expirationInterval.tv_sec++;
                 expirationInterval.tv_nsec -= OneSecond;
             }
-            if (pthread_get_expiration_np(
-                    &expirationInterval, &expirationTime)
-                < 0)
-                vpunt(
-                    NULL, "Unable to compute interval timer expiration time");
-            result = pthread_cond_timedwait(&EmbCommAreaPtr->clockSignal,
-                &EmbCommAreaPtr->clockLock, &expirationTime);
+            if (pthread_get_expiration_np(&expirationInterval, &expirationTime) < 0)
+                vpunt(NULL, "Unable to compute interval timer expiration time");
+            result = pthread_cond_timedwait(&EmbCommAreaPtr->clockSignal, &EmbCommAreaPtr->clockLock, &expirationTime);
         }
 
         else
             /* Wait indefinitely for someone to program the interval timer */
-            result = pthread_cond_wait(
-                &EmbCommAreaPtr->clockSignal, &EmbCommAreaPtr->clockLock);
+            result = pthread_cond_wait(&EmbCommAreaPtr->clockSignal, &EmbCommAreaPtr->clockLock);
 
         if (result == ETIMEDOUT) {
             EmbSendSignal(EmbCommAreaPtr->clock_signal);
@@ -307,8 +282,7 @@ void SetIntervalTimer(Integer relativeTimeout)
     EmbCommAreaPtr->clockTime = relativeTimeout;
 
     if (pthread_cond_broadcast(&EmbCommAreaPtr->clockSignal) < 0)
-        vpunt(NULL, "Unable to send Life Support clock signal in thread %lx",
-            pthread_self());
+        vpunt(NULL, "Unable to send Life Support clock signal in thread %lx", pthread_self());
 
     end_MUTEX_LOCKED(clockLock);
 

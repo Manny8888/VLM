@@ -1,8 +1,8 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
-;;; Macros in support of arithmetic instructions.  These are mostly in 
+;;; Macros in support of arithmetic instructions.  These are mostly in
 ;;; ifunmath.as
 
 ;; Branches iff op1 = 1<<31 and op2 = -1
@@ -14,13 +14,13 @@
     (BEQ ,temp2 ,exc "J. if op1=1<<31 and op2= -1")))
 
 ;;; Prepares to check for an exception before execution of some floating point instructions
-(defmacro floating-exception-checking-prelude () 
+(defmacro floating-exception-checking-prelude ()
   `((comment))
   #+do-we-need-this
   `((TRAPB "Force unwanted traps to occur here")
     (STQ zero PROCESSORSTATE_FLOATING_EXCEPTION (ivory) "Allow exceptions")))
 
-;;; Checks for an exception after execution of some floating point instructions 
+;;; Checks for an exception after execution of some floating point instructions
 (defmacro floating-exception-checking-postlude (exc temp)
   `(#+do-we-need-this
     (BIS zero 1 ,temp)
@@ -52,7 +52,7 @@
     (BEQ ,temp2 ,exc)))
 
 ;;; Branches if NAN.
-(defmacro CheckNotNan (val exc temp)	
+(defmacro CheckNotNan (val exc temp)
   `((SRL ,val 22 ,temp)
     (LDA ,temp -511 (,temp))
     (BEQ ,temp ,exc)))
@@ -164,7 +164,7 @@
 
 ;;; This macro must be used with care because it assumes the arg OK before
 ;;; checking in order get dual issue on the non fail case.
-(defmacro with-simple-binary-fixnum-operation ((a1 a2 ar t1 t2 temp1 temp2 &optional inst a1-signed a2-signed) 
+(defmacro with-simple-binary-fixnum-operation ((a1 a2 ar t1 t2 temp1 temp2 &optional inst a1-signed a2-signed)
                                                &body body)
   (check-temporaries (a1 a2 ar t1 t2) (temp1 temp2))
   (let ((iolab (gensym))
@@ -174,7 +174,7 @@
       (PrefetchNextPC ,temp1)
       (stack-read-data iSP ,a1 "Arg1 on the stack" :tos-valid t :signed ,a1-signed)
       (stack-read-tag arg1 ,t2 "Arg2 from operand")
-      (AND ,t1 #x3F ,t1 "Strip CDR code if any.") 
+      (AND ,t1 #x3F ,t1 "Strip CDR code if any.")
       (stack-read-data arg1 ,a2 "Arg2 from operand" :signed t)
       (SUBQ ,t1 |TypeFixnum| ,t1)
       (PrefetchNextCP ,temp2)
@@ -368,7 +368,7 @@
 	  (BIS zero zero arg2)
 	  (BR zero ,(format nil "begin~a" name)))))))
 
-	
+
 (defmacro binary-arithmetic-division-prelude (inst)
   "Loads any mixture of float, single, double into F1 and F2 as T
   floats, in preparation for a division operation"
@@ -492,17 +492,17 @@
 	(|TypeFixnum|
 	  (CVTTQ f31 ,remainder-float-data ,remainder-float-data)
 	  (CVTQL f31 ,remainder-float-data ,remainder-float-data)
-      (floating-exception-checking-postlude nil ,temp1)	;Ensure traps complete	 
+      (floating-exception-checking-postlude nil ,temp1)	;Ensure traps complete
       (stack-write-ir |TypeFixnum| ,result-float-data ,temp1 :floating t)
 	  (stack-push-ir |TypeFixnum| ,remainder-float-data ,temp1 :floating t)
 	  )
 	(|TypeSingleFloat|
 	  (CVTTS f31 ,remainder-float-data ,remainder-float-data)
-      (floating-exception-checking-postlude nil ,temp1)	;Ensure traps complete	 
+      (floating-exception-checking-postlude nil ,temp1)	;Ensure traps complete
       (stack-write-ir |TypeFixnum| ,result-float-data ,temp1 :floating t)
 	  (stack-push-ir |TypeSingleFloat| ,remainder-float-data ,temp1 :floating t))
 	(|TypeDoubleFloat|
-      (floating-exception-checking-postlude nil ,temp1)	;Ensure traps complete	 
+      (floating-exception-checking-postlude nil ,temp1)	;Ensure traps complete
 	  (stt ,remainder-float-data processorstate_fp0 (Ivory))
 	  ;; Uses arg2 arg5 arg6 t5 t6 t7 t8 t9 t10 (result-data .. temp4)
 	  (bsr r0 |ConsDoubleFloat|)
@@ -648,4 +648,3 @@
 
 
 ;;; Fin.
-

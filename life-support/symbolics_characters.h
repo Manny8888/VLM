@@ -68,9 +68,8 @@
  */
 
 #if !defined(lint) && defined(INCLUDE_FILE_HEADERS)
-static char *s_char_rcsid
-    = "@(#)$Header: /cvs/VLM/VLM/life-support/symbolics_characters.h,v 1.2 "
-      "2003/12/03 17:19:23 palter Exp $";
+static char *s_char_rcsid = "@(#)$Header: /cvs/VLM/VLM/life-support/symbolics_characters.h,v 1.2 "
+                            "2003/12/03 17:19:23 palter Exp $";
 #endif
 
 /* Control Characters */
@@ -117,14 +116,11 @@ static char *s_char_rcsid
 #define clOpCode(op) ((op) >> 24 & 0xff)
 #define clOpBits(op) ((op) >> 12 & 0xfff)
 #define clOpChar(op) ((op)&0xff)
-#define clMakeOp(code, bits, char)                                           \
-    (((code) << 24) | ((unsigned long)bits << 12)                            \
-        | (unsigned long)char & 0xff)
+#define clMakeOp(code, bits, char) (((code) << 24) | ((unsigned long)bits << 12) | (unsigned long)char & 0xff)
 
 /* Unix ASCII to LispM character set translations */
 
-#define ASCIItoLispMTranslations                                             \
-    {                                                                        \
-        0010, 0210, 0011, 0211, 0012, 0215, 0014, 0214, 0015, 0212, 0177,    \
-            0207                                                             \
+#define ASCIItoLispMTranslations                                                                                       \
+    {                                                                                                                  \
+        0010, 0210, 0011, 0211, 0012, 0215, 0014, 0214, 0015, 0212, 0177, 0207                                         \
     }

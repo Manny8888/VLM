@@ -20,7 +20,7 @@
 #include <fenv.h>
 #endif
 
-#define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5
+#define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
 
 Boolean Trace = FALSE;
@@ -47,14 +47,9 @@ static void MaybeTerminateVLM(int signal)
         else
             fprintf(stderr, "\nLisp was running!\n\n");
 
-        fprintf(
-            stderr, "If you exit, the current state of Lisp will be lost.\n");
-        fprintf(stderr,
-            "All information in its memory image (e.g., any modified "
-            "editor\n");
-        fprintf(stderr,
-            "buffers) will be irretrievably lost.  Further, Lisp will "
-            "abandon\n");
+        fprintf(stderr, "If you exit, the current state of Lisp will be lost.\n");
+        fprintf(stderr, "All information in its memory image (e.g., any modified editor\n");
+        fprintf(stderr, "buffers) will be irretrievably lost.  Further, Lisp will abandon\n");
         fprintf(stderr, "any tasks it is performing for its clients.\n\n");
 
         fprintf(stderr, "Do you still wish to exit?  (yes or no) ");
@@ -103,26 +98,24 @@ int main(int argc, char **argv)
 
     TestFunction = config.testFunction;
     Trace = config.tracing.tracePOST;
-    InitializeIvoryProcessor(
-        MapVirtualAddressData(0), MapVirtualAddressTag(0));
+    InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
 
     Trace = config.tracing.traceP;
     if (Trace)
-        InitializeTracing(config.tracing.bufferSize, config.tracing.startPC,
-            config.tracing.stopPC, config.tracing.outputFile);
+        InitializeTracing(
+            config.tracing.bufferSize, config.tracing.startPC, config.tracing.stopPC, config.tracing.outputFile);
 
     InitializeLifeSupport(&config);
 
 #if defined(OS_OSF)
-    ieee_set_fp_control(IEEE_TRAP_ENABLE_INV + IEEE_TRAP_ENABLE_DZE
-        + IEEE_TRAP_ENABLE_OVF + IEEE_TRAP_ENABLE_UNF + IEEE_TRAP_ENABLE_INE);
+    ieee_set_fp_control(IEEE_TRAP_ENABLE_INV + IEEE_TRAP_ENABLE_DZE + IEEE_TRAP_ENABLE_OVF + IEEE_TRAP_ENABLE_UNF
+        + IEEE_TRAP_ENABLE_INE);
 
 #elif defined(OS_LINUX)
 #ifdef FE_NOMASK_ENV
     fesetenv(FE_NOMASK_ENV);
 #else
-    feenableexcept(
-        FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID);
+    feenableexcept(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID);
 #endif
 
 #elif defined(OS_DARWIN)
@@ -166,8 +159,8 @@ int main(int argc, char **argv)
             "%s\n",
             (config.virtualMemory - worldImageMB), config.worldPath);
 
-    VirtualMemoryWrite(SystemCommSlotAddress(enableSysoutAtColdBoot),
-        EnableIDS ? processor->taddress : processor->niladdress);
+    VirtualMemoryWrite(
+        SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? processor->taddress : processor->niladdress);
 
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
@@ -213,9 +206,7 @@ int main(int argc, char **argv)
                 message = "Halted for unknown reason";
             }
             if (message != NULL)
-                vwarn(NULL, "%s at PC %08x (%s)", message,
-                    processor->epc >> 1,
-                    (processor->epc & 1) ? "Odd" : "Even");
+                vwarn(NULL, "%s at PC %08x (%s)", message, processor->epc >> 1, (processor->epc & 1) ? "Odd" : "Even");
         }
 #ifndef IVERIFY
         if (HaltReason_Halted == reason)

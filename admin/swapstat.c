@@ -42,14 +42,12 @@ main(int argc, char *argv[])
         exit(1);
     }
     lseek(kmem, (off_t)nl[N_VM_SWAP_SPACE].n_value, SEEK_SET);
-    if (read(kmem, &vm_swap_space, sizeof(vm_swap_space))
-        != sizeof(vm_swap_space)) {
+    if (read(kmem, &vm_swap_space, sizeof(vm_swap_space)) != sizeof(vm_swap_space)) {
         perror("vm_swap_space");
         exit(1);
     }
     lseek(kmem, (off_t)nl[N_VM_TOTAL_SWAP_SPACE].n_value, SEEK_SET);
-    if (read(kmem, &vm_total_swap_space, sizeof(vm_total_swap_space))
-        != sizeof(vm_swap_space)) {
+    if (read(kmem, &vm_total_swap_space, sizeof(vm_total_swap_space)) != sizeof(vm_swap_space)) {
         perror("vm_total_swap_space");
         exit(1);
     }
@@ -59,13 +57,9 @@ main(int argc, char *argv[])
         exit(1);
     }
 
-    printf("Swap space free = %.2lf%%",
-        (double)(vm_swap_space * 100.0 / vm_total_swap_space));
-    printf(" (%.1lfMB out of %.1lfMB)\n", (double)vm_swap_space * to_mb,
-        (double)vm_total_swap_space * to_mb);
-    printf("Total swap space to physical memory = %.2lf%%",
-        (double)(vm_total_swap_space * 100.0 / physmem));
-    printf(" (%.1lfMB to %.1lfMB)\n", (double)vm_total_swap_space * to_mb,
-        (double)physmem * to_mb);
+    printf("Swap space free = %.2lf%%", (double)(vm_swap_space * 100.0 / vm_total_swap_space));
+    printf(" (%.1lfMB out of %.1lfMB)\n", (double)vm_swap_space * to_mb, (double)vm_total_swap_space * to_mb);
+    printf("Total swap space to physical memory = %.2lf%%", (double)(vm_total_swap_space * 100.0 / physmem));
+    printf(" (%.1lfMB to %.1lfMB)\n", (double)vm_total_swap_space * to_mb, (double)physmem * to_mb);
     return 0;
 }

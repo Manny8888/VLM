@@ -23,8 +23,7 @@ typedef int64_t LispObj;
 
 #define LispObjTag(lo) (((LispObjRecordp) & (lo))->tag)
 #define LispObjData(lo) (((LispObjRecordp) & (lo))->data)
-#define MakeLispObj(tag, data)                                               \
-    (((((uint64_t)tag)) << 32) | (0xFFFFFFFF & ((uint64_t)data)))
+#define MakeLispObj(tag, data) (((((uint64_t)tag)) << 32) | (0xFFFFFFFF & ((uint64_t)data)))
 
 /* From C-emulator for compatibility */
 typedef int Boolean;
@@ -48,14 +47,12 @@ LispObj ReadInternalRegister(int regno);
 LispObj WriteInternalRegister(int regno, LispObj val);
 void PushOneFakeFrame(void);
 void PopOneFakeFrame(void);
-extern int iInterpret(
-    PROCESSORSTATEP ivory); /* This is the ivory interpreter */
+extern int iInterpret(PROCESSORSTATEP ivory); /* This is the ivory interpreter */
 int InstructionSequencer(void);
 LispObj CoprocessorRead(unsigned int operand);
 int CoprocessorWrite(unsigned int operand, LispObj value);
 void FlushCaches(void);
-void InitializeTracing(int bufferSize, unsigned int startPC,
-    unsigned int stopPC, char *outputFile);
+void InitializeTracing(int bufferSize, unsigned int startPC, unsigned int stopPC, char *outputFile);
 void EnterTrace(void);
 void PrintTrace(void);
 void MaybePrintTrace(void);
@@ -101,5 +98,4 @@ extern Boolean Trace;
 extern Boolean TestFunction;
 
 /* Fin */
-
 #endif

@@ -89,14 +89,14 @@
   (immediate-handler |DoPush|)
     (GetNextPCandCP)
     (stack-push-ir |TypeFixnum| arg2 t4 "Push it with CDR-NEXT onto the stack")
-    (ContinueToNextInstruction-NoStall)) 
+    (ContinueToNextInstruction-NoStall))
 
 
 ;;; From IFUNLOOP.AS
 
 (define-instruction |DoBranchTrue| :10-bit-signed-immediate (:own-immediate t :needs-tos t)
     (ibranchcond nil t t nil |BranchException|))	;and-pop else-pop
- 
+
 (define-instruction |DoBranchFalse| :10-bit-signed-immediate (:own-immediate t :needs-tos t)
     (ibranchcond t t t nil |BranchException|))		;invert and-pop else-pop
 
@@ -159,7 +159,7 @@
     (stack-push-fixnumb 1 t8 "Multiple-value group")
     (BR zero returnsingledone)
   (label returnsinglereturn)
-    ;; repush arg only if TOS arg, 
+    ;; repush arg only if TOS arg,
     (BNE arg2 returnsingledone)
     (stack-push-with-cdr arg3)
     (BR zero returnsingledone)
@@ -173,7 +173,7 @@
 
 (passthru ".globl callindirectprefetch")
 #||
-(define-instruction |callindirect| :full-word-instruction () 
+(define-instruction |callindirect| :full-word-instruction ()
   (label |callindirectprefetch|)		;the same as |callindirect|
     (EXTLL arg3 0 arg2 "Get operand")
     (BIS zero zero arg3 "No extra arg")
@@ -181,8 +181,8 @@
       (BR zero startcallindirect)
       ))
 ||#
-(passthru ".globl startcallagain") 
-(define-instruction |callindirect| :full-word-instruction () 
+(passthru ".globl startcallagain")
+(define-instruction |callindirect| :full-word-instruction ()
   (label |callindirectprefetch|)		;the same as |callindirect|
     (EXTLL arg3 0 arg2 "Get operand")
     (with-multiple-memory-reads (t9 t10 t11 t12)
@@ -254,7 +254,7 @@
 
 ;;; From IFUNFULL.AS
 
-(define-instruction |valuecell| :full-word-instruction () 
+(define-instruction |valuecell| :full-word-instruction ()
     (EXTLL arg3 0 arg2 "Get address")
     (with-multiple-memory-reads (t9 t10 t11 t12)
       (memory-read arg2 arg5 arg6 PROCESSORSTATE_DATAREAD t5 t6 t7 t8 nil t))
@@ -262,7 +262,7 @@
     (stack-push2 arg5 arg6 t3 "Push the result")
     (ContinueToNextInstruction-NoStall))
 
-(define-instruction |pushconstantvalue| :full-word-instruction () 
+(define-instruction |pushconstantvalue| :full-word-instruction ()
     (GetNextPCandCP)
     (stack-push-with-cdr arg3)
     (ContinueToNextInstruction-NoStall))
@@ -284,10 +284,10 @@
     (stack-write iSP t1 "yes Virginia, we dual issue with above yahoo")
     (ContinueToNextInstruction-NoStall))
 
-(define-instruction |DoSetSpToAddress| :operand-from-stack ()	
+(define-instruction |DoSetSpToAddress| :operand-from-stack ()
     (GetNextPCandCP)
     (BIS zero arg1 iSP "Set iSP=address of operand")
-    (ContinueToNextInstruction-NoStall)) 
+    (ContinueToNextInstruction-NoStall))
 
 ;;; From IFUNPRED.AS
 
@@ -371,7 +371,7 @@
     (stack-read-data arg1 t2 "Get the data of op2" :signed t :tos-valid t)
     ;; inline (stack-read-data iSP t1 "Get the data of op1" :signed t :tos-valid t)
     (ADDL arg6 t2 t3 "(%32-bit-plus (data arg1) (data arg2))")
-    (stack-write-data iSP t3 "Put result back on the stack")		
+    (stack-write-data iSP t3 "Put result back on the stack")
     (ContinueToNextInstruction-NoStall)
   (immediate-handler |DoPointerPlus|)
     (SLL arg2 #.(- 64 8) t2)
@@ -380,7 +380,7 @@
     (force-alignment)
     ;; inline (stack-read-data iSP t1 "Get the data of op1" :signed t :tos-valid t)
     (ADDL arg6 t2 t3 "(%32-bit-plus (data arg1) (data arg2))")
-    (stack-write-data iSP t3 "Put result back on the stack")		
+    (stack-write-data iSP t3 "Put result back on the stack")
     (ContinueToNextInstruction-NoStall))
 
 
@@ -412,7 +412,7 @@
 
 #+experiment
 ;; Also handles DoSetSpToAddressSaveTos
-(define-instruction |DoSetSpToAddress| :operand-from-stack ()	
+(define-instruction |DoSetSpToAddress| :operand-from-stack ()
     (GetNextPC)
     (SRL arg3 10 arg3 "LBC iff save tos")
     (GetNextCP)
@@ -441,7 +441,7 @@
     (GetNextPCandCP)
     ;; inline (stack-read iSP t3 "Get TOS" :tos-valid t)
     (stack-write arg1 arg6 "Store all 40 bits of TOS on stack")
-    (ContinueToNextInstruction-NoStall)) 
+    (ContinueToNextInstruction-NoStall))
 
 #+experiment
 ;; Also handles DoPop
@@ -543,7 +543,7 @@
     (stack-write-tag iSP arg2 "Set TAG of op1")
     (ContinueToNextInstruction-NoStall)
   (label settagexc)
-    (illegal-operand one-operand-fixnum-type-error)) 
+    (illegal-operand one-operand-fixnum-type-error))
 
 ;;; From IFUNLIST.AS
 
@@ -562,7 +562,7 @@
 		   (arg5 arg6 arg2 t5 t6 t7 t8 t9 t10 t11 t12)
 		   (r0)
   (using-multiple-memory-reads (t9 t10 t11 t12)
-    (car-internal arg5 arg6 car arg2 t5 t6 t7 t8))) 
+    (car-internal arg5 arg6 car arg2 t5 t6 t7 t8)))
 
 (define-instruction |DoCdr| :operand-from-stack ()
     (with-multiple-memory-reads (t9 t10 t11 t12)
@@ -617,7 +617,7 @@
     (LDA arg4 PROCESSORSTATE_BAR1 (ivory))
   (label |BlockRead|)
     (with-multiple-memory-reads (t9 t10 t11 t12)
-      (i%block-n-read arg4 arg1 arg2 arg5 arg6 arg3 t1 t2 t3 t4 t5 t6 t7 t8))) 
+      (i%block-n-read arg4 arg1 arg2 arg5 arg6 arg3 t1 t2 t3 t4 t5 t6 t7 t8)))
 
 (define-instruction |DoBlock2Write| :operand-from-stack-signed-immediate ()
     (LDL arg3 PROCESSORSTATE_BAR2 (ivory))
@@ -651,18 +651,18 @@
 ;; The next two are here, not because they are frequent, but they are
 ;; miniscule and drop right into the start-call code
 (passthru ".globl callgenericprefetch")
-(define-instruction |callgeneric| :full-word-instruction () 
+(define-instruction |callgeneric| :full-word-instruction ()
   (label |callgenericprefetch|)			;the same as |callgeneric|
     (LDQ t3 PROCESSORSTATE_TRAPVECBASE (ivory))
     (BIS arg3 zero arg4 "Get operand")
     (BIS zero |TypeGenericFunction| arg3)
     ;; Build the constant PC for generic dispatch
     (BIS zero |TypeEvenPC| arg5)
-    (LDA arg6 #.sys:%generic-dispatch-trap-vector t3)
+    (LDA arg6 #.%generic-dispatch-trap-vector t3)
     (BR zero startcallcompiledmerge))
 
 (passthru ".globl callcompiledevenprefetch")
-(define-instruction |callcompiledeven| :full-word-instruction () 
+(define-instruction |callcompiledeven| :full-word-instruction ()
   (label |callcompiledevenprefetch|)		;the same as |callcompiledeven|
     (BIS arg3 zero arg6 "Get operand")
     (BIS zero |TypeEvenPC| arg5)
@@ -676,6 +676,6 @@
       (stack-read2 arg1 arg5 arg6 :signed t)
       (label startcallagain)
       (start-call-dispatch arg5 arg6 arg3 arg4  arg2 t1 t2 t3 t5 t6 t7 t8
-			   startcallcompiledmerge startcallindirect))) 
+			   startcallcompiledmerge startcallindirect)))
 
 (comment "Fin.")

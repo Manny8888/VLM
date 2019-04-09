@@ -1105,8 +1105,13 @@
 	 (let ((lname (if (is-global-label arg1) arg1 (gotolabel arg1))))
 	   (format destination "~%~A:~%" lname)
 	   (format destination "  if (_trace) printf(\"~A:\\n\");~%" lname)
-	   (if (equal lname "continuecurrentinstruction")
-	       (format destination "  if (_show) show_loc();~%" lname))))
+	   ;; NOTE:
+       ;; This is removed because:
+       ;; - The definition of show_loc() is currently a problem stub.c @ 561 (nest function are not allowed in C).
+       ;; - It is only used once in the generated c files (output3.c @ 84) 
+       ;; (if (equal lname "continuecurrentinstruction")
+	   ;;     (format destination "  if (_show) show_loc();~%" lname))
+        ))
 
 	(func-label
 	 (format destination "~%~A:~%" arg1))
@@ -2048,18 +2053,15 @@
  		  "ifunjosh" "ifuntran"))
     (progn
       (setq count (+ 1 count))
-      (setq outputfilename (format nil "xoutput~D" count))
+      (setq outputfilename (format nil "xoutput~D.c" count))
       (setq inputfilename (format nil "../alpha-emulator/~A.as" file))
       (format t "INPUT: ~A~%" inputfilename)
       (format t "OUTPUT: ~A~%" outputfilename)
-      (process-asm-source
-       inputfilename
-       outputfilename)))
+      (process-asm-source inputfilename outputfilename)))
 
   (format t "DONE:~%"))
 
 (defun load-macros ()
-
   (load "clisp-support.lisp")
   (load "../emulator/aihead.lisp")
   (load "../emulator/errortbl.lisp")
@@ -2080,32 +2082,32 @@
       (setq filename (format nil "../alpha-emulator/~A.lisp" file))
       (load filename))))
 
-(defun load-macros-old ()
-  (load "clisp-support.lisp")
-  (load "../emulator/aihead.lisp")
-  (load "../emulator/errortbl.lisp")
-  (load "intrpmac.lisp")
-  (load "../alpha-emulator/aistat.lisp")
-  (load "../alpha-emulator/alphamac.lisp")
-  (load "../alpha-emulator/stacklis.lisp")
-  (load "../alpha-emulator/imacloop.lisp")
-  (load "../alpha-emulator/fcallmac.lisp")
-  (load "../alpha-emulator/memoryem.lisp")
-  (load "../alpha-emulator/imactrap.lisp")
-  (load "../alpha-emulator/imacmath.lisp")
-  (load "../alpha-emulator/imacsubp.lisp")
-  (load "../alpha-emulator/imacblok.lisp")
-  (load "../alpha-emulator/imacialu.lisp")
-  (load "../alpha-emulator/imacbits.lisp")
-  (load "../alpha-emulator/imacpred.lisp")
-  (load "../alpha-emulator/imacarra.lisp")
-  (load "../alpha-emulator/imacgene.lisp")
-  (load "../alpha-emulator/imaclist.lisp")
-  (load "../alpha-emulator/imacinst.lisp")
-  (load "../alpha-emulator/imacbind.lisp"))
+;; Unused
+;; (defun load-macros-old ()
+;;   (load "clisp-support.lisp")
+;;   (load "../emulator/aihead.lisp")
+;;   (load "../emulator/errortbl.lisp")
+;;   (load "intrpmac.lisp")
+;;   (load "../alpha-emulator/aistat.lisp")
+;;   (load "../alpha-emulator/alphamac.lisp")
+;;   (load "../alpha-emulator/stacklis.lisp")
+;;   (load "../alpha-emulator/imacloop.lisp")
+;;   (load "../alpha-emulator/fcallmac.lisp")
+;;   (load "../alpha-emulator/memoryem.lisp")
+;;   (load "../alpha-emulator/imactrap.lisp")
+;;   (load "../alpha-emulator/imacmath.lisp")
+;;   (load "../alpha-emulator/imacsubp.lisp")
+;;   (load "../alpha-emulator/imacblok.lisp")
+;;   (load "../alpha-emulator/imacialu.lisp")
+;;   (load "../alpha-emulator/imacbits.lisp")
+;;   (load "../alpha-emulator/imacpred.lisp")
+;;   (load "../alpha-emulator/imacarra.lisp")
+;;   (load "../alpha-emulator/imacgene.lisp")
+;;   (load "../alpha-emulator/imaclist.lisp")
+;;   (load "../alpha-emulator/imacinst.lisp")
+;;   (load "../alpha-emulator/imacbind.lisp"))
 
 (defun add-missing-global-symbols ()
-
   (dolist (sym
 	   '(
 	     |ReadRegisterError|
@@ -2267,15 +2269,14 @@
 
 
 (defun build ()
-;  (load-macros-old)
   (load-macros)
   (fix-passthrus)
   (add-missing-global-symbols)
   (create-output-files)
 )
 
-(build)
+;; (build)
 
-;(process-asm-source "input1" "output")
-;(process-asm-source "../alpha-emulator/ifunhead.as" "output1")
-;(process-asm-source "../alpha-emulator/idispat.as" "output2")
+;; (process-asm-source "input1" "output")
+;; (process-asm-source "../alpha-emulator/ifunhead.as" "output1")
+;; (process-asm-source "../alpha-emulator/idispat.as" "output2")

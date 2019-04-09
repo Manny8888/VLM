@@ -10,8 +10,7 @@
 
 EmbPtr CreateQueue(int nElements, int elementSize)
 {
-    EmbPtr cp
-        = EmbCommAreaAlloc(sizeof(EmbQueue) + (nElements * elementSize));
+    EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbQueue) + (nElements * elementSize));
     register EmbQueue *q = (EmbQueue *)HostPointer(cp);
 
     q->element_size = elementSize;
@@ -59,8 +58,7 @@ void EmbQueuePut(EmbQueue *qp_arg, PtrV ep)
     byte *element_array = (byte *)(&qp->first_element);
 
     /* Fill in the element at the put index */
-    memcpy(
-        &element_array[put * qp->element_size], ep, (size_t)qp->element_size);
+    memcpy(&element_array[put * qp->element_size], ep, (size_t)qp->element_size);
 
     /* Compute the incremented put index */
     put++;
@@ -154,8 +152,7 @@ bool EmbQueueTake(EmbQueue *qp_arg, PtrV ep)
         return (FALSE);
 
     /* Copy the element at the take index */
-    memcpy(ep, &element_array[take * qp->element_size],
-        (size_t)qp->element_size);
+    memcpy(ep, &element_array[take * qp->element_size], (size_t)qp->element_size);
 
     /* Increment the take index and store it back */
     take++;
@@ -382,8 +379,7 @@ void ResetIncomingQueue(EmbQueue *q)
 {
     q->put_index = 0;
     q->take_index = 0;
-    if (GuestPointer(q) > EmbCommAreaPtr->host_buffer_start
-            + EmbCommAreaPtr->host_buffer_size) {
+    if (GuestPointer(q) > EmbCommAreaPtr->host_buffer_start + EmbCommAreaPtr->host_buffer_size) {
         RemoveSignalHandler(q->signal);
         q->signal = -1;
     }

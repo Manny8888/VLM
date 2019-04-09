@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;;; Macros in support of list instructions.  These are mostly in ifunlist.as
 
@@ -13,7 +13,7 @@
     `(;; Allows arg-fetch to be signed
       (EXTLL ,data zero ,vma)
       (type-dispatch ,tag ,temp3 ,temp4
-	(|TypeList| 
+	(|TypeList|
 	  (unlikely-label ,loccase)
 	  (memory-read ,vma ,tag ,data PROCESSORSTATE_DATAREAD ,temp3 ,temp4 ,temp5 ,temp6
 		       nil ,signedp)
@@ -43,14 +43,14 @@
 	  (memory-read ,vma ,tag ,data PROCESSORSTATE_CDR ,temp3 ,temp4 ,temp5 ,temp6 nil t)
 	  (cdr-code-dispatch ,tag ,temp3 ,temp4
 	    (|CdrNext|
-	      (ADDQ ,vma 1 ,data "Address of next position is CDR") 
+	      (ADDQ ,vma 1 ,data "Address of next position is CDR")
 	      (BIS zero |TypeList| ,tag)
 	      ;; First clauses fall through
 	      ;; (BR zero ,endcdr)
 	      )
 	    (|CdrNormal|
 	      (ADDQ ,vma 1 ,vma)
-	      (label ,readcdr) 
+	      (label ,readcdr)
 	      (memory-read ,vma ,tag ,data PROCESSORSTATE_DATAREAD ,temp3 ,temp4 ,temp5 ,temp6
 			   ,endcdr ,signedp)
 	      )
@@ -71,7 +71,7 @@
       (label ,endcdr))))
 
 ;;; Destructively reads car(tag/data) into tag/data, and puts cdr(tag/data) into dtag/ddata.
-(defmacro carcdr-internal (tag data dtag ddata opcode vma temp3 temp4 temp5 temp6 
+(defmacro carcdr-internal (tag data dtag ddata opcode vma temp3 temp4 temp5 temp6
 			   &optional signedp)
   "DTAG and DDATA should be the canonical tag/data registers"
   (assert (member signedp '(t nil)) () "Barf")
@@ -101,7 +101,7 @@
 	      )
 	    (|CdrNormal|
 	      (ADDQ ,vma 1 ,vma)
-	      (memory-read ,vma ,dtag ,ddata PROCESSORSTATE_DATAREAD ,temp3 ,temp4 ,temp5 ,temp6 
+	      (memory-read ,vma ,dtag ,ddata PROCESSORSTATE_DATAREAD ,temp3 ,temp4 ,temp5 ,temp6
 			   ,end-carcdr ,signedp)
 	      )
 	    (|CdrNil|
@@ -201,7 +201,7 @@
       (ContinueToNextInstruction))))
 
 
-(defmacro carcdrloop ((instruction  obj-tag obj-data car-tag car-data cdr-tag cdr-data 
+(defmacro carcdrloop ((instruction  obj-tag obj-data car-tag car-data cdr-tag cdr-data
 				    vma nextlabel exceptionlabel
 				    temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
 		      (&body looptop) (&body loopbody) (&optional loopstep) (&body loopend))

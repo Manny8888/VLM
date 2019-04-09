@@ -16,18 +16,15 @@ typedef void *Pointer;
 #define True 1
 
 #define ldb(ss, pp, source) ((int)(((source) >> (pp)) & ((1 << (ss)) - 1)))
-#define dpb(field, ss, pp, background)                                       \
-    ((((field) & ((1 << (ss)) - 1)) << (pp))                                 \
-        | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
+#define dpb(field, ss, pp, background)                                                                                 \
+    ((((field) & ((1 << (ss)) - 1)) << (pp)) | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
 #define ceiling(n, d) (((n) + ((d)-1)) / (d))
 #if (WORD_BIT == 32)
 #define SignExtend8(i) (((int)((unsigned int)i << 24)) / 16777216)
 #define SignExtend10(i) (((int)((unsigned int)i << 22)) / 4194304)
 #else
-#define SignExtend8(i)                                                       \
-    (((int)((unsigned int)i << (WORD_BIT - 8))) / (1 << (WORD_BIT - 8)))
-#define SignExtend10(i)                                                      \
-    (((int)((unsigned int)i << (WORD_BIT - 10))) / (1 << (WORD_BIT - 10)))
+#define SignExtend8(i) (((int)((unsigned int)i << (WORD_BIT - 8))) / (1 << (WORD_BIT - 8)))
+#define SignExtend10(i) (((int)((unsigned int)i << (WORD_BIT - 10))) / (1 << (WORD_BIT - 10)))
 #endif
 
 typedef union {
@@ -77,8 +74,7 @@ typedef struct _InstructionCacheLine {
 #define AddressQuantumShift 20
 
 #define AddressQuantumNumber(vma) ((vma) >> AddressQuantumShift)
-#define AddressQuantumOffset(vma)                                            \
-    (((vma) & (QuantumSize - 1)) >> AddressPageShift)
+#define AddressQuantumOffset(vma) (((vma) & (QuantumSize - 1)) >> AddressPageShift)
 #define AddressPageNumber(vma) ((vma) >> AddressPageShift)
 #define AddressPageOffset(vma) ((vma) & (PageSize - 1))
 
@@ -186,15 +182,10 @@ extern Byte MemoryActionTable[12][64];
 extern Integer MemoryReadInternal(Integer vma, LispObj *object, Byte row[]);
 extern int StoreContentsInternal(Integer vma, LispObj *object, Byte row[]);
 
-#define MemoryRead(vma, object, cycle)                                       \
-    MemoryReadInternal(vma, object, MemoryActionTable[cycle])
-#define MemoryReadData(vma, object)                                          \
-    MemoryReadInternal(vma, object, MemoryActionTable[CycleDataRead])
-#define MemoryReadHeader(vma, object)                                        \
-    MemoryReadInternal(vma, object, MemoryActionTable[CycleHeader])
-#define MemoryReadCdr(vma, object)                                           \
-    MemoryReadInternal(vma, object, MemoryActionTable[CycleCdr])
-#define StoreContents(vma, object, cycle)                                    \
-    StoreContentsInternal(vma, object, MemoryActionTable[cycle])
+#define MemoryRead(vma, object, cycle) MemoryReadInternal(vma, object, MemoryActionTable[cycle])
+#define MemoryReadData(vma, object) MemoryReadInternal(vma, object, MemoryActionTable[CycleDataRead])
+#define MemoryReadHeader(vma, object) MemoryReadInternal(vma, object, MemoryActionTable[CycleHeader])
+#define MemoryReadCdr(vma, object) MemoryReadInternal(vma, object, MemoryActionTable[CycleCdr])
+#define StoreContents(vma, object, cycle) StoreContentsInternal(vma, object, MemoryActionTable[cycle])
 
 #endif

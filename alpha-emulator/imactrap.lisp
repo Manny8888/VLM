@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;;; Macros in support of traps and exceptions.
 
@@ -30,7 +30,7 @@
     `((get-control-register ,cr)
       (LDQ ,temp6 PROCESSORSTATE_FEPMODETRAPVECADDRESS (ivory))
       (LDQ ,temp5 PROCESSORSTATE_TRAPVECBASE (ivory))
-      (load-constant ,temp2 #.(sys:%logdpb 3 (byte 2 30) 0))
+      (load-constant ,temp2 #.(%logdpb 3 (byte 2 30) 0))
       (SRL ,cr 30 ,temp3)
       (BIS ,cr ,temp2 ,temp2 "Set trap mode to 3")
       (AND ,temp3 3 ,temp3)
@@ -138,7 +138,7 @@
       (label ,overflow)
       (BEQ ,temp6 STACKOVERFLOW "Take the overflow if in emulator mode")
       (halt-machine HaltReasonFatalStackOverflow)
-      ))) 
+      )))
 
 (defmacro stack-overflow-handler ()
   `(
@@ -158,7 +158,7 @@
   `((BIS iFP zero ,temp "save old frame pointer")
     (BIS zero ,tvi ,temp10 "save the trap vector index")
     (BSR R0 |StartPreTrap|)))
-    
+
 ;; TVI has been set into TEMP10, old iFP in TEMP
 (defmacro start-pre-trap (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10)
   (check-temporaries () (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10))
@@ -187,6 +187,7 @@
     (stack-push2 ,temp6 ,temp8 ,temp9)))
 
 (defmacro take-pre-trap-2 (tvi temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10)
+  (declare (ignore tvi))
   (check-temporaries () (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10))
   `((BR zero |FinishPreTrap|)))
 
@@ -379,7 +380,7 @@ shouldn't happen for that instruction, or a fixnum with the following fields:
              the instruction takes, see ldb for example.
 (byte 1 2)   format.  0 means the last argument can be retrieved by looking
              at bits in the instruction.  For reference:
-(byte 2 15.) is 00 or 01 for signed, 10 for unsigned, 11 for 
+(byte 2 15.) is 00 or 01 for signed, 10 for unsigned, 11 for
              address-operand.
              1 means the last argument is on the stack.  This is used for
              ldb, dpb, and a few other strange ones.

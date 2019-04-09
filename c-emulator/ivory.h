@@ -18,6 +18,7 @@ typedef enum _IvoryType {
     TypeOneQForward, /* 05 Invisible pointer (forwards one cell) */
     TypeHeaderForward, /* 06 Invisible pointer (forwards whole structure) */
     TypeElementForward, /* 07 Invisible pointer in element of structure */
+
     /* Numeric data types. */
     TypeFixnum, /* 10 Small integer */
     TypeSmallRatio, /* 11 Ratio with small numerator and denominator */
@@ -27,11 +28,13 @@ typedef enum _IvoryType {
     TypeBigRatio, /* 15 Ratio with big numerator or denominator */
     TypeComplex, /* 16 Complex number */
     TypeSpareNumber, /* 17 A number to the hardware trap mechanism */
+
     /* Instance data types. */
     TypeInstance, /* 20 Ordinary instance */
     TypeListInstance, /* 21 Instance that masquerades as a cons */
     TypeArrayInstance, /* 22 Instance that masquerades as an array */
     TypeStringInstance, /* 23 Instance that masquerades as a string */
+
     /* Primitive data types. */
     TypeNIL, /* 24 The symbol NIL */
     TypeList, /* 25 A cons */
@@ -53,21 +56,18 @@ typedef enum _IvoryType {
     TypeGCForward, /* 45 ObjectMoved flag for garbage collector */
     TypeEvenPC, /* 46 PC at first instruction in word */
     TypeOddPC, /* 47 PC at second instruction in word */
+
     /* FullWord instructions. */
     TypeCallCompiledEven, /* 50 Start call, address is compiled function */
     TypeCallCompiledOdd, /* 51 Start call, address is compiled function */
     TypeCallIndirect, /* 52 Start call, address is function cell */
     TypeCallGeneric, /* 53 Start call, address is generic function */
-    TypeCallCompiledEvenPrefetch, /* 54 Like above, but prefetching is
-                                     desireable */
-    TypeCallCompiledOddPrefetch, /* 55 Like above, but prefetching is
-                                    desireable */
-    TypeCallIndirectPrefetch, /* 56 Like above, but prefetching is desireable
-                               */
-    TypeCallGenericPrefetch, /* 57 Like above, but prefetching is desireable
-                              */
-    /* HalfWord (packed) instructions consume 4 bits of data type field
-       (opcodes 60..77). */
+    TypeCallCompiledEvenPrefetch, /* 54 Like above, but prefetching is desireable */
+    TypeCallCompiledOddPrefetch, /* 55 Like above, but prefetching is desireable */
+    TypeCallIndirectPrefetch, /* 56 Like above, but prefetching is desireable */
+    TypeCallGenericPrefetch, /* 57 Like above, but prefetching is desireable */
+
+    /* HalfWord (packed) instructions consume 4 bits of data type field (opcodes 60..77). */
     TypePackedInstruction60,
     TypePackedInstruction61,
     TypePackedInstruction62,
@@ -98,30 +98,24 @@ typedef enum _IvoryCdr { CdrNext, CdrNil, CdrNormal } IvoryCdr;
 #define TypeFixnumP(tag) TypeEqualP(tag, TypeFixnum)
 #define TypeNumericP(tag) (((tag)&070) == 010)
 #define TypeArrayP(tag) (((tag)&076) == (TypeArray & 076))
-#define TypeSpareP(tag)                                                      \
-    (((tag)&076) == (TypeSparePointer1 & 076)                                \
-        || ((tag)&TagTypeMask) == TypeSpareImmediate1                        \
+#define TypeSpareP(tag)                                                                                                \
+    (((tag)&076) == (TypeSparePointer1 & 076) || ((tag)&TagTypeMask) == TypeSpareImmediate1                            \
         || ((tag)&TagTypeMask) == TypeSpareNumber)
 #define PackedInstructionP(tag) (((tag)&060) == 060)
-#define BinaryTypeFixnumP(tag1, tag2)                                        \
-    (((((tag1) ^ TypeFixnum) | ((tag2) ^ TypeFixnum)) & TagTypeMask) == 0)
-#define BinaryTypeNumericP(tag1, tag2)                                       \
-    (((tag1)&070) == 010 && ((tag2)&070) == 010)
+#define BinaryTypeFixnumP(tag1, tag2) (((((tag1) ^ TypeFixnum) | ((tag2) ^ TypeFixnum)) & TagTypeMask) == 0)
+#define BinaryTypeNumericP(tag1, tag2) (((tag1)&070) == 010 && ((tag2)&070) == 010)
 
 #if (LONG_BIT == 64)
 extern const LispObj ObjectCdrMask;
-#define StoreCdrNext(dest, source)                                           \
-    ((dest).whole = (source).whole & (~ObjectCdrMask.whole))
-#define ObjectEqP(a, b)                                                      \
-    ((((a).whole ^ (b).whole) & (~ObjectCdrMask.whole)) == 0)
+#define StoreCdrNext(dest, source) ((dest).whole = (source).whole & (~ObjectCdrMask.whole))
+#define ObjectEqP(a, b) ((((a).whole ^ (b).whole) & (~ObjectCdrMask.whole)) == 0)
 #else
-#define StoreCdrNext(dest, source)                                           \
-    {                                                                        \
-        (dest).TAG = (source).TAG & TagTypeMask;                             \
-        (dest).DATA = (source).DATA;                                         \
+#define StoreCdrNext(dest, source)                                                                                     \
+    {                                                                                                                  \
+        (dest).TAG = (source).TAG & TagTypeMask;                                                                       \
+        (dest).DATA = (source).DATA;                                                                                   \
     }
-#define ObjectEqP(a, b)                                                      \
-    (((a).DATA == (b).DATA) && TypeEqualP((a).TAG, (b).TAG))
+#define ObjectEqP(a, b) (((a).DATA == (b).DATA) && TypeEqualP((a).TAG, (b).TAG))
 #endif
 
 extern const LispObj ObjectT;
@@ -149,10 +143,8 @@ typedef enum _ArrayElementType {
 
 #define BytePackingSize(b) (32 >> (b))
 #define BytePackingRotation(b, i) (((~(-1 << (b))) & (i)) << (5 - (b)))
-#define ArrayElementLdb(b, i, w)                                             \
-    (ldb(BytePackingSize(b), BytePackingRotation(b, i), w))
-#define ArrayElementDpb(e, b, i, w)                                          \
-    (dpb(e, BytePackingSize(b), BytePackingRotation(b, i), w))
+#define ArrayElementLdb(b, i, w) (ldb(BytePackingSize(b), BytePackingRotation(b, i), w))
+#define ArrayElementDpb(e, b, i, w) (dpb(e, BytePackingSize(b), BytePackingRotation(b, i), w))
 
 /* --- bad idea?
 typedef union _IvoryArrayHeader
@@ -398,12 +390,7 @@ typedef enum _IvoryOpcode {
     OpcodeHalt = 057
 } IvoryOpcode;
 
-typedef enum _IvoryTrapMode {
-    TrapModeEmulator,
-    TrapModeExtraStack,
-    TrapModeIO,
-    TrapModeFEP
-} IvoryTrapMode;
+typedef enum _IvoryTrapMode { TrapModeEmulator, TrapModeExtraStack, TrapModeIO, TrapModeFEP } IvoryTrapMode;
 
 #define ReadControlArgumentSize(c) ldb(8, 0, c)
 #define ReadControlExtraArgument(c) ldb(1, 8, c)
@@ -530,9 +517,7 @@ typedef enum _InternalRegisters {
     InternalRegisterConstantT = 01041
 } InternalRegisters;
 
-typedef enum _CoprocessorRegisters {
-    CoprocessorRegisterMicrosecondClock = 01002
-} CoprocessorRegisters;
+typedef enum _CoprocessorRegisters { CoprocessorRegisterMicrosecondClock = 01002 } CoprocessorRegisters;
 
 #define TrapVectorBase 0xf8040000
 
@@ -615,17 +600,9 @@ typedef enum _ALUByteBackground {
     ALUByteBackgroundZero
 } ALUByteBackground;
 
-typedef enum _ALUByteFunction {
-    ALUByteFunctionDpb,
-    ALUByteFunctionLdb
-} ALUByteFunction;
+typedef enum _ALUByteFunction { ALUByteFunctionDpb, ALUByteFunctionLdb } ALUByteFunction;
 
-typedef enum _ALUAdderOp2 {
-    ALUAdderOp2Op2,
-    ALUAdderOp2Zero,
-    ALUAdderOp2Invert,
-    ALUAdderOp2MinusOne
-} ALUAdderOp2;
+typedef enum _ALUAdderOp2 { ALUAdderOp2Op2, ALUAdderOp2Zero, ALUAdderOp2Invert, ALUAdderOp2MinusOne } ALUAdderOp2;
 
 typedef enum _ALUCondition {
     ConditionSignedLessThanOrEqual,

@@ -32,14 +32,12 @@ typedef struct {
 
 typedef struct NetworkInterface {
     boolean present; /* TRUE => this interface is available */
-    char device[_POSIX_PATH_MAX
-        + 1]; /* Optional interface or packet filter name */
+    char device[_POSIX_PATH_MAX + 1]; /* Optional interface or packet filter name */
     unsigned short myProtocol; /* Primary Ethernet protocol */
     struct in_addr myAddress; /* Primary protocol address */
 #ifdef GENERA
     char myOptions[_POSIX_PATH_MAX + 1]; /* Primary network options */
-    struct NetworkInterface
-        *anotherAddress; /* Secondary address for this interface */
+    struct NetworkInterface *anotherAddress; /* Secondary address for this interface */
 #endif
 } NetworkInterface;
 
@@ -72,8 +70,7 @@ typedef struct NetworkInterface {
 #define DiskQueueSize 32
 #define ConsoleInputQueueSize 50
 #define ConsoleOutputQueueSize 50
-#define NetworkReceiverQueueSize                                             \
-    100 /* was 20, prevents losing so many packets */
+#define NetworkReceiverQueueSize 100 /* was 20, prevents losing so many packets */
 #define NetworkTransmitterQueueSize 20
 #define RPCHostToGuestQueueSize 15
 #define RPCGuestToHostQueueSize 30
@@ -103,10 +100,8 @@ typedef struct {
     size_t commAreaSize; /* Size of communications area in words */
     size_t hostBufferSpace; /* Words reserved for host buffers */
     size_t guestBufferSpace; /* Words reserved for guest buffers */
-    char vlmDebuggerPath[_POSIX_PATH_MAX
-        + 1]; /* Pathname of VLM debugger to be loaded */
-    char worldPath[_POSIX_PATH_MAX
-        + 1]; /* Pathname of world load to be loaded */
+    char vlmDebuggerPath[_POSIX_PATH_MAX + 1]; /* Pathname of VLM debugger to be loaded */
+    char worldPath[_POSIX_PATH_MAX + 1]; /* Pathname of world load to be loaded */
 #ifdef GENERA
     char *worldSearchPath; /* -> Directories to search for worlds */
     boolean enableIDS; /* TRUE => allow incremental disk saves */
@@ -114,10 +109,8 @@ typedef struct {
 #endif
     XParams coldLoadXParams; /* X parameters for cold load window */
     XParams generaXParams; /* X Parameters for the main screen */
-    struct in_addr
-        diagnosticIPAddress; /* IP address of our diagnostic server */
-    NetworkInterface
-        interfaces[MaxNetworkInterfaces]; /* Network interfaces [8] */
+    struct in_addr diagnosticIPAddress; /* IP address of our diagnostic server */
+    NetworkInterface interfaces[MaxNetworkInterfaces]; /* Network interfaces [8] */
     boolean testFunction; /* TRUE => run TESTFCN instead of FIB for POST */
     /* Other parameters? */
 } VLMConfig;

@@ -65,26 +65,21 @@ int CoprocessorWrite(unsigned int operand, LispObj value)
         break;
 
     case CoprocessorRegister_StackSwitch:
-        VirtualMemoryWriteBlockUncached(
-            (unsigned int)processor->stackcachebasevma,
+        VirtualMemoryWriteBlockUncached((unsigned int)processor->stackcachebasevma,
             (LispObj *)processor->stackcachedata,
-            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata)
-                + 1);
+            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata) + 1);
         processor->fp = (uint64_t)processor->stackcachedata;
         processor->sp = processor->fp + 8;
         processor->lp = processor->sp + 8;
         processor->stackcachebasevma = LispObjData(value);
-        processor->stackcachetopvma
-            = processor->stackcachebasevma + processor->stackcachesize;
+        processor->stackcachetopvma = processor->stackcachebasevma + processor->stackcachesize;
         processor->scovlimit = Stack_MaxFrameSize;
         break;
 
     case CoprocessorRegister_FlushStackCache:
-        VirtualMemoryWriteBlockUncached(
-            (unsigned int)processor->stackcachebasevma,
+        VirtualMemoryWriteBlockUncached((unsigned int)processor->stackcachebasevma,
             (LispObj *)processor->stackcachedata,
-            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata)
-                + 1);
+            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata) + 1);
         break;
 
     case CoprocessorRegister_FlushIDCaches:
@@ -103,14 +98,11 @@ int CoprocessorWrite(unsigned int operand, LispObj value)
 
     case CoprocessorRegister_FlipToStack:
         /* Used by the VLM Debugger to implement INVOKE-ON-FEP-STACK ... */
-        VirtualMemoryWriteBlockUncached(
-            (unsigned int)processor->stackcachebasevma,
+        VirtualMemoryWriteBlockUncached((unsigned int)processor->stackcachebasevma,
             (LispObj *)processor->stackcachedata,
-            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata)
-                + 1);
+            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata) + 1);
         processor->stackcachebasevma = LispObjData(value);
-        processor->stackcachetopvma
-            = processor->stackcachebasevma + processor->stackcachesize;
+        processor->stackcachetopvma = processor->stackcachebasevma + processor->stackcachesize;
         break;
 
     case CoprocessorRegister_UnwindStackForRestartOrApply:
@@ -121,11 +113,9 @@ int CoprocessorWrite(unsigned int operand, LispObj value)
     case CoprocessorRegister_SaveWorld:
         if (Type_Locative != (LispObjTag(value) & 0x3F))
             return (FALSE);
-        VirtualMemoryWriteBlockUncached(
-            (unsigned int)processor->stackcachebasevma,
+        VirtualMemoryWriteBlockUncached((unsigned int)processor->stackcachebasevma,
             (LispObj *)processor->stackcachedata,
-            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata)
-                + 1);
+            ((LispObj *)processor->sp - (LispObj *)processor->stackcachedata) + 1);
         SaveWorld(LispObjData(value));
         break;
 
@@ -138,19 +128,16 @@ int CoprocessorWrite(unsigned int operand, LispObj value)
         break;
 
     case CoprocessorRegister_ConsoleIO:
-        DoConsoleIO(
-            (EmbConsoleChannel *)HostPointer(EmbCommAreaPtr->consoleChannel),
+        DoConsoleIO((EmbConsoleChannel *)HostPointer(EmbCommAreaPtr->consoleChannel),
             (EmbConsoleBuffer *)HostPointer(LispObjData(value)));
         break;
 
     case CoprocessorRegister_AttachDiskChannel:
-        AttachDiskChannel((AttachDiskChannelRequest *)MapVirtualAddressData(
-            LispObjData(value)));
+        AttachDiskChannel((AttachDiskChannelRequest *)MapVirtualAddressData(LispObjData(value)));
         break;
 
     case CoprocessorRegister_GrowDiskPartition:
-        GrowDiskPartition((GrowDiskPartitionRequest *)MapVirtualAddressData(
-            LispObjData(value)));
+        GrowDiskPartition((GrowDiskPartitionRequest *)MapVirtualAddressData(LispObjData(value)));
         break;
 
     case CoprocessorRegister_DetachDiskChannel:
@@ -197,8 +184,7 @@ LispObj CoprocessorRead(unsigned int operand)
         mstimenumber =
 //#define USE_CPU_FOR_MICROSECOND_CLOCK
 #ifdef USE_CPU_FOR_MICROSECOND_CLOCK
-            (((int64_t)tms.tms_utime + (int64_t)tms.tms_stime) * 1000000L
-                / tps);
+            (((int64_t)tms.tms_utime + (int64_t)tms.tms_stime) * 1000000L / tps);
 #else
             ((int64_t)mstime * 1000000L / tps);
 #endif
@@ -253,14 +239,10 @@ LispObj CoprocessorRead(unsigned int operand)
         tod = time(NULL);
         ut = gmtime(&tod);
         if (ut) {
-            encodedUT = (int64_t)(ut->tm_sec & 0x3F)
-                | ((int64_t)(ut->tm_min & 0x3F) << 6)
-                | ((int64_t)(ut->tm_hour & 0x1F) << 12)
-                | ((int64_t)(ut->tm_mday & 0x1F) << 17)
-                | ((int64_t)((ut->tm_mon + 1) & 0xF) << 22)
-                | ((int64_t)((ut->tm_year + 1900 - 1990) & 0x3F) << 26);
-            return (MakeLispObj(
-                Type_Fixnum, (unsigned int)(encodedUT & 0xFFFFFFFFL)));
+            encodedUT = (int64_t)(ut->tm_sec & 0x3F) | ((int64_t)(ut->tm_min & 0x3F) << 6)
+                | ((int64_t)(ut->tm_hour & 0x1F) << 12) | ((int64_t)(ut->tm_mday & 0x1F) << 17)
+                | ((int64_t)((ut->tm_mon + 1) & 0xF) << 22) | ((int64_t)((ut->tm_year + 1900 - 1990) & 0x3F) << 26);
+            return (MakeLispObj(Type_Fixnum, (unsigned int)(encodedUT & 0xFFFFFFFFL)));
         } else
             return (INVALID); /* Couldn't decode the clock reading */
 
@@ -318,21 +300,18 @@ static TRACEDATA traceData;
 static FILE *traceS = NULL;
 static uint64_t lastCR = 0;
 
-void InitializeTracing(int bufferSize, unsigned int startPC,
-    unsigned int stopPC, char *outputFile)
+void InitializeTracing(int bufferSize, unsigned int startPC, unsigned int stopPC, char *outputFile)
 {
     traceData.n_entries = bufferSize;
     traceData.wrap_p = FALSE;
     traceData.start_pc = (uint64_t)startPC << 1;
     traceData.stop_pc = (uint64_t)stopPC << 1;
     traceData.recording_p = (0 == startPC);
-    traceData.records_start
-        = (char *)malloc(bufferSize * sizeof(TRACERECORD));
+    traceData.records_start = (char *)malloc(bufferSize * sizeof(TRACERECORD));
     if (NULL == traceData.records_start)
         vpunt(NULL, "Unable to allocate trace buffer");
     traceData.current_entry = traceData.records_start;
-    traceData.records_end
-        = (char *)((TRACERECORD *)traceData.records_start + bufferSize);
+    traceData.records_end = (char *)((TRACERECORD *)traceData.records_start + bufferSize);
 
     if (outputFile != NULL) {
         traceS = fopen(outputFile, "w");
@@ -362,17 +341,13 @@ void EnterTrace()
         traceRecord->counter = 0 - processor->instruction_count;
         traceRecord->epc = processor->epc;
         traceRecord->TOS = *(LispObjRecord *)processor->sp;
-        traceRecord->SP = processor->stackcachebasevma
-            + ((processor->sp - (uint64_t)processor->stackcachedata) >> 3);
-        traceRecord->instruction
-            = (char *)((struct cacheline *)processor->cp)->code;
+        traceRecord->SP = processor->stackcachebasevma + ((processor->sp - (uint64_t)processor->stackcachedata) >> 3);
+        traceRecord->instruction = (char *)((struct cacheline *)processor->cp)->code;
         traceRecord->operand = ((struct cacheline *)processor->cp)->operand;
-        traceRecord->instructionData
-            = ((struct cacheline *)processor->cp)->instruction;
+        traceRecord->instructionData = ((struct cacheline *)processor->cp)->instruction;
         traceRecord->trapP = (processor->tvi != 0);
         if (traceRecord->trapP) {
-            for (i = 0, args = ((LispObjRecord *)processor->fp) + 2; i < 4;
-                 i++, args++)
+            for (i = 0, args = ((LispObjRecord *)processor->fp) + 2; i < 4; i++, args++)
                 traceRecord->trapData[i] = *args;
             processor->tvi = 0;
         }
@@ -389,9 +364,8 @@ void EnterTrace()
 }
 #endif
 
-#define DecodeObject(object)                                                 \
-    (((LispObjRecord *)&object)->tag & 0xC0) >> 6,                           \
-        ((LispObjRecord *)&object)->tag & 0x3F,                              \
+#define DecodeObject(object)                                                                                           \
+    (((LispObjRecord *)&object)->tag & 0xC0) >> 6, ((LispObjRecord *)&object)->tag & 0x3F,                             \
         ((LispObjRecord *)&object)->data
 
 static void PrintTraceRecord(TRACERECORD *traceRecord)
@@ -403,35 +377,29 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
         fprintf(traceS,
             "*** Trap %04o @ %x.%02x.%08x, microstate %x.%02x.%08x, VMA "
             "%x.%02x.%08x\n",
-            LispObjData(traceRecord->trap_data_0),
-            DecodeObject(traceRecord->trap_data_1),
-            DecodeObject(traceRecord->trap_data_2),
-            DecodeObject(traceRecord->trap_data_3));
+            LispObjData(traceRecord->trap_data_0), DecodeObject(traceRecord->trap_data_1),
+            DecodeObject(traceRecord->trap_data_2), DecodeObject(traceRecord->trap_data_3));
     }
 
     if (traceRecord->catch_block_p) {
     }
 
     if (lastCR != traceRecord->catch_block_0) {
-        fprintf(traceS,
-            "*** Control Register %x.%02x.%08x (was %x.%02x.%08x)\n",
+        fprintf(traceS, "*** Control Register %x.%02x.%08x (was %x.%02x.%08x)\n",
             DecodeObject(traceRecord->catch_block_0), DecodeObject(lastCR));
         lastCR = traceRecord->catch_block_0;
     }
 
     traceRecord->instruction--;
-    while ((((uint8_t)*traceRecord->instruction & 0x80) == 0)
-        || ((uint8_t)*traceRecord->instruction == 0xFF)
+    while ((((uint8_t)*traceRecord->instruction & 0x80) == 0) || ((uint8_t)*traceRecord->instruction == 0xFF)
         || ((uint8_t)*traceRecord->instruction == 0xFE))
         traceRecord->instruction--;
     format = *traceRecord->instruction;
     traceRecord->instruction++;
 
-    fprintf(traceS, "%ld: PC %08x(%s),%s SP: %08x, TOS: %x.%02x.%08x, %s",
-        (0 - traceRecord->counter), traceRecord->epc >> 1,
-        (traceRecord->epc & 1) ? "Odd" : "Even",
-        (traceRecord->epc & 1) ? " " : "", traceRecord->sp,
-        DecodeObject(traceRecord->tos), traceRecord->instruction);
+    fprintf(traceS, "%ld: PC %08x(%s),%s SP: %08x, TOS: %x.%02x.%08x, %s", (0 - traceRecord->counter),
+        traceRecord->epc >> 1, (traceRecord->epc & 1) ? "Odd" : "Even", (traceRecord->epc & 1) ? " " : "",
+        traceRecord->sp, DecodeObject(traceRecord->tos), traceRecord->instruction);
 
     immediate10BitOperand = traceRecord->operand & 0x3FF;
     immediateFromStackOperand = traceRecord->operand & 0xFF;
@@ -479,13 +447,12 @@ void PrintTrace()
     TRACERECORD *traceRecord;
 
     if (traceData.wrap_p)
-        for (traceRecord = (TRACERECORD *)traceData.current_entry;
-             traceRecord < (TRACERECORD *)traceData.records_end;
+        for (traceRecord = (TRACERECORD *)traceData.current_entry; traceRecord < (TRACERECORD *)traceData.records_end;
              traceRecord++)
             PrintTraceRecord(traceRecord);
 
-    for (traceRecord = (TRACERECORD *)traceData.records_start;
-         traceRecord < (TRACERECORD *)traceData.current_entry; traceRecord++)
+    for (traceRecord = (TRACERECORD *)traceData.records_start; traceRecord < (TRACERECORD *)traceData.current_entry;
+         traceRecord++)
         PrintTraceRecord(traceRecord);
 
     fflush(traceS);

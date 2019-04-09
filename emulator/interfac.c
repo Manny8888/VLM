@@ -25,8 +25,7 @@
 #include "FEPComm.h"
 #include "SystemComm.h"
 
-#define SetIvoryWord(l, t, d)                                                \
-    (*((int64_t *)(l)) = ((((int64_t)(t)) << 32) | (d)))
+#define SetIvoryWord(l, t, d) (*((int64_t *)(l)) = ((((int64_t)(t)) << 32) | (d)))
 
 /* The machine state is kept in 'processor' the structure PROCESSORSTATE is
  * defined in 'aistat.sid' which compiles into aistat.h for this C stub, and
@@ -77,10 +76,7 @@ extern void segv_handler(int sigval, siginfo_t *si, void *uc);
 extern void DoIStageError();
 /* Just jam the PC to DoIStageError, which will "do the right thing"!!! */
 #if defined(OS_OSF)
-void ill_handler(int sigval, int code, register struct sigcontext *scp)
-{
-    scp->sc_pc = (int64_t)DoIStageError;
-}
+void ill_handler(int sigval, int code, register struct sigcontext *scp) { scp->sc_pc = (int64_t)DoIStageError; }
 #elif defined(OS_LINUX) && defined(ARCH_PPC64)
 void ill_handler(int sigval, siginfo_t *si, void *uc)
 {
@@ -94,8 +90,7 @@ void ill_handler(int sigval, siginfo_t *si, void *uc)
 #elif defined(OS_LINUX) && defined(ARCH_X86_64)
 void ill_handler(int sigval, siginfo_t *si, void *uc)
 {
-    ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP]
-        = (uint64_t)DoIStageError;
+    ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP] = (uint64_t)DoIStageError;
 }
 #elif defined(OS_DARWIN)
 void ill_handler(int sigval, siginfo_t *si, void *uc)
@@ -113,33 +108,26 @@ extern void ARITHMETICEXCEPTION();
 /* Just jam the PC to ArithmeticException, which will "do the right thing"!!!
  */
 #if defined(OS_OSF)
-void fpe_handler(int sigval, int code, register struct sigcontext *scp)
-{
-    scp->sc_pc = (int64_t)ARITHMETICEXCEPTION;
-}
+void fpe_handler(int sigval, int code, register struct sigcontext *scp) { scp->sc_pc = (int64_t)ARITHMETICEXCEPTION; }
 #elif defined(OS_LINUX) && defined(ARCH_PPC64)
 void fpe_handler(int sigval, siginfo_t *si, void *uc)
 {
-    ((struct ucontext *)uc)->uc_mcontext.regs->nip
-        = (uint64_t)ARITHMETICEXCEPTION;
+    ((struct ucontext *)uc)->uc_mcontext.regs->nip = (uint64_t)ARITHMETICEXCEPTION;
 }
 #elif defined(OS_LINUX) && defined(ARCH_X86_64)
 void fpe_handler(int sigval, siginfo_t *si, void *uc)
 {
-    ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP]
-        = (uint64_t)ARITHMETICEXCEPTION;
+    ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP] = (uint64_t)ARITHMETICEXCEPTION;
 }
 #elif defined(OS_DARWIN)
 void fpe_handler(int sigval, siginfo_t *si, void *uc)
 {
-    ((struct ucontext *)uc)->uc_mcontext->ss.srr0
-        = (uint64_t)ARITHMETICEXCEPTION;
+    ((struct ucontext *)uc)->uc_mcontext->ss.srr0 = (uint64_t)ARITHMETICEXCEPTION;
 }
 #elif defined(__FreeBSD__)
 void fpe_handler(int sigval, siginfo_t *si, void *uc)
 {
-    ((struct __ucontext *)uc)->uc_mcontext.mc_rip
-        = (uint64_t)ARITHMETICEXCEPTION;
+    ((struct __ucontext *)uc)->uc_mcontext.mc_rip = (uint64_t)ARITHMETICEXCEPTION;
 }
 #endif
 
@@ -172,8 +160,7 @@ int InstructionSequencer(void)
 #endif
         sigemptyset(&action.sa_mask);
         if (-1 == sigaction(SIGFPE, &action, NULL))
-            vpunt(
-                NULL, "Unable to establish floating point exception handler");
+            vpunt(NULL, "Unable to establish floating point exception handler");
 
 #ifdef OS_OSF
         action.sa_handler = (sa_handler_t)ill_handler;
@@ -184,16 +171,14 @@ int InstructionSequencer(void)
 #endif
         sigemptyset(&action.sa_mask);
         if (-1 == sigaction(SIGILL, &action, NULL))
-            vpunt(
-                NULL, "Unable to establish floating point exception handler");
+            vpunt(NULL, "Unable to establish floating point exception handler");
 
         reason = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0));
         processor->please_stop = 0;
         processor->please_trap = 0; /* ????? */
         if (reason != HaltReason_SpyCalled) {
 #ifdef TRACING
-            vwarn(NULL, "%s at instruction #%ld\n", haltreason(reason),
-                0 - processor->instruction_count);
+            vwarn(NULL, "%s at instruction #%ld\n", haltreason(reason), 0 - processor->instruction_count);
             if (Trace)
                 PrintTrace();
 #endif
@@ -209,23 +194,18 @@ int InstructionSequencer(void)
  */
 
 int FIBTestCode[51][3] = {
-    { 03, 060, 03376003 }, { 00, 067, 030005200002 },
-    { 03, 056, 0xF8000000L + 06 },
+    { 03, 060, 03376003 }, { 00, 067, 030005200002 }, { 03, 056, 0xF8000000L + 06 },
     { 00, 065, 030002201424 }, /* 030002201424 */
     { 00, 061, 032003311377 },
     /* { 00, 064, 033040161772 }, */
-    { 00, 062, 037000161772 },
-    { 00, Type_CompiledFunction, 0xF8000000L + 07 }, { 03, 060, 03376003 },
-    { 00, 073, 013402703377 }, { 00, 064, 033000160002 },
-    { 03, 056, 0xF8000000L + 06 }, { 00, 074, 03401200002 },
-    { 03, 064, 02270402 }, { 02, 056, 0xF8000000L + 06 },
-    { 00, 065, 030402603402 }, { 00, 064, 033000601000 },
+    { 00, 062, 037000161772 }, { 00, Type_CompiledFunction, 0xF8000000L + 07 }, { 03, 060, 03376003 },
+    { 00, 073, 013402703377 }, { 00, 064, 033000160002 }, { 03, 056, 0xF8000000L + 06 }, { 00, 074, 03401200002 },
+    { 03, 064, 02270402 }, { 02, 056, 0xF8000000L + 06 }, { 00, 065, 030402603402 }, { 00, 064, 033000601000 },
     { 01, 000, 0 } /* End of compiled code */
 };
 
 #define WriteControlArgumentSize(c, argsize) (c = ((c & (~0xFF)) | argsize))
-#define WriteControlCallerFrameSize(c, cfs)                                  \
-    (c = ((c & (~0x1FE00)) | (cfs << 9)))
+#define WriteControlCallerFrameSize(c, cfs) (c = ((c & (~0x1FE00)) | (cfs << 9)))
 
 void PushOneFakeFrame(void)
 {
@@ -235,18 +215,14 @@ void PushOneFakeFrame(void)
     fp[0] = *(((LispObjRecordp)(&(processor->continuation))));
     fp[0].tag |= 0xc0;
     fp[1].tag = 0xc0 | Type_Fixnum;
-    fp[1].data = ((unsigned int)(processor->control) & 0x3FFFFFFF)
-        | ((unsigned int)TrapMode_FEP << 30);
+    fp[1].data = ((unsigned int)(processor->control) & 0x3FFFFFFF) | ((unsigned int)TrapMode_FEP << 30);
     processor->control = (unsigned int)TrapMode_FEP << 30;
     WriteControlArgumentSize(processor->control, 2);
-    WriteControlCallerFrameSize(
-        processor->control, fp - ((LispObjRecordp)(processor->fp)));
+    WriteControlCallerFrameSize(processor->control, fp - ((LispObjRecordp)(processor->fp)));
     if (processor->epc & 1) { /* Odd PC */
-        SetIvoryWord(
-            &(processor->continuation), Type_OddPC, processor->epc >> 1);
+        SetIvoryWord(&(processor->continuation), Type_OddPC, processor->epc >> 1);
     } else {
-        SetIvoryWord(
-            &(processor->continuation), Type_EvenPC, processor->epc >> 1);
+        SetIvoryWord(&(processor->continuation), Type_EvenPC, processor->epc >> 1);
     }
     processor->fp = *(((uint64_t *)&fp));
     processor->sp = *(((uint64_t *)&fp)) + 8;
@@ -264,11 +240,9 @@ void PopOneFakeFrame(void)
     processor->sp = *(((uint64_t *)&fp)) - 8;
     processor->fp -= 8 * ReadControlCallerFrameSize(processor->control);
     pc = ((LispObjRecordp)(&(processor->continuation)));
-    processor->epc
-        = (((uint64_t)(pc->data)) << 1) + (pc->tag == Type_OddPC ? 1L : 0L);
+    processor->epc = (((uint64_t)(pc->data)) << 1) + (pc->tag == Type_OddPC ? 1L : 0L);
     SetIvoryWord(&(processor->continuation), fp[0].tag, fp[0].data);
-    processor->lp
-        = processor->fp + 8 * ReadControlArgumentSize(processor->control);
+    processor->lp = processor->fp + 8 * ReadControlArgumentSize(processor->control);
 }
 
 void InitializeFIBTest()
@@ -352,12 +326,9 @@ void CheckMat()
     int *matline;
     for (i = 0, matline = debugcopymat; i < 13; i++, matline += 64) {
         int *e;
-        for (e = &MemoryActionTable[i][0], j = 0;
-             e < &MemoryActionTable[i][64]; e++, j++) {
+        for (e = &MemoryActionTable[i][0], j = 0; e < &MemoryActionTable[i][64]; e++, j++) {
             if (matline[j] != *e)
-                vwarn(NULL,
-                    "MAT difference found at [i=%d,j=%d] MAT=%d copymat=%d\n",
-                    i, j, *e, matline[j]);
+                vwarn(NULL, "MAT difference found at [i=%d,j=%d] MAT=%d copymat=%d\n", i, j, *e, matline[j]);
         }
     }
 }
@@ -371,12 +342,10 @@ static void ComputeSpeed(int64_t *speed)
     int64_t tps = sysconf(_SC_CLK_TCK);
     for (i = 0; i < 3; i++) {
         times(&tms);
-        timebefore = ((
-            int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
+        timebefore = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
         SpinWheels();
         times(&tms);
-        timeafter = ((
-            int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
+        timeafter = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
         t1 = timeafter - timebefore;
         if (t1 < tmin)
             tmin = t1;
@@ -386,19 +355,16 @@ static void ComputeSpeed(int64_t *speed)
 }
 
 #elif defined(ARCH_PPC64)
-#define timebase()                                                           \
-    ({                                                                       \
-        int64_t __value;                                                     \
-        asm("	mftb 0,268\n	std 0,%0" : "=g"(__value) : : "r0");         \
-        __value;                                                             \
+#define timebase()                                                                                                     \
+    ({                                                                                                                 \
+        int64_t __value;                                                                                               \
+        asm("	mftb 0,268\n	std 0,%0" : "=g"(__value) : : "r0");                                                   \
+        __value;                                                                                                       \
     })
 
 volatile int gotit = 0;
 
-static void alarm_handler(int sigval, register siginfo_t *si, void *uc_p)
-{
-    gotit = 1;
-}
+static void alarm_handler(int sigval, register siginfo_t *si, void *uc_p) { gotit = 1; }
 
 static void ComputeSpeed(int64_t *speed)
 {
@@ -426,12 +392,10 @@ static void ComputeSpeed(int64_t *speed)
     int64_t tps = sysconf(_SC_CLK_TCK);
     for (i = 0; i < 3; i++) {
         times(&tms);
-        timebefore = ((
-            int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
+        timebefore = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
         SpinWheels();
         times(&tms);
-        timeafter = ((
-            int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
+        timeafter = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
         t1 = timeafter - timebefore;
         if (t1 < tmin)
             tmin = t1;
@@ -461,14 +425,12 @@ static void RunPOST(int64_t speed)
 #elif defined(ARCH_PPC64)
     mstimeb = timebase() / processor->ticksperms;
 #endif
-    if (result = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0)),
-        result != HaltReason_Halted)
+    if (result = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0)), result != HaltReason_Halted)
         vwarn("POST", "FAILED: %s", haltreason(result));
     else {
 #if defined(ARCH_ALPHA) || defined(ARCH_X86_64)
         times(&tms);
-        mstimea = ((
-            int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
+        mstimea = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
 #elif defined(ARCH_PPC64)
         mstimea = timebase() / processor->ticksperms;
 #endif
@@ -504,30 +466,25 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
     if (processor == NULL) {
         /* processor state preceeds TagSpace, both accessed from Ivory
          * register */
-        caddr_t state_page
-            = (caddr_t)MapVirtualAddressTag(0) - ALPHAPAGESIZE * 2; /* pr */
+        caddr_t state_page = (caddr_t)MapVirtualAddressTag(0) - ALPHAPAGESIZE * 2; /* pr */
         caddr_t block;
 
         if (state_page
-            != mmap(state_page, 2 * ALPHAPAGESIZE,
-                   PROT_READ | PROT_WRITE, /* pr */
-                   MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+            != mmap(state_page, 2 * ALPHAPAGESIZE, PROT_READ | PROT_WRITE, /* pr */
+                MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
             vpunt(NULL, "Couldn't create processor state page");
         /* allocate processor-state block (aligned to end of d-cache) */
-        processor = (PROCESSORSTATEP)(
-            state_page + 2 * ALPHAPAGESIZE - PROCESSORSTATE_SIZE); /* pr */
+        processor = (PROCESSORSTATEP)(state_page + 2 * ALPHAPAGESIZE - PROCESSORSTATE_SIZE); /* pr */
         /* allocate stack-cache in the same page (aligned at 0 relative to
          * d-cache) */
         stackcache = (LispObjRecordp)state_page;
 
-        block = (caddr_t)malloc(
-            (16 * 64 * sizeof(int)) /* 16 vs. 13 to get full block */
+        block = (caddr_t)malloc((16 * 64 * sizeof(int)) /* 16 vs. 13 to get full block */
             + 2 * ALPHAPAGESIZE);
         if (block == NULL)
             vpunt(NULL, "Unable to allocate internal data structures");
         /* align block */
-        block = (caddr_t)(
-            ((uint64_t)block + ALPHAPAGESIZE - 1) & (~(ALPHAPAGESIZE - 1)));
+        block = (caddr_t)(((uint64_t)block + ALPHAPAGESIZE - 1) & (~(ALPHAPAGESIZE - 1)));
         /* allocate mat block (aligned at 0 relative to d-cache again) */
         debugcopymat = copymat = (int *)block;
         /* skip (.5x d-cache size) */
@@ -592,23 +549,18 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         processor->trapvecbase = 0xF8040000L;
         processor->fepmodetrapvecaddress = 0xF8040A47L;
         processor->tvi = 0;
-        for (i = 0, maskPointer = &processor->dataread_mask,
-            tablePointer = &processor->dataread, matline = copymat;
-             i < 13;
-             i++, maskPointer += 2, tablePointer += 2, matline += 64) {
+        for (i = 0, maskPointer = &processor->dataread_mask, tablePointer = &processor->dataread, matline = copymat;
+             i < 13; i++, maskPointer += 2, tablePointer += 2, matline += 64) {
             int *e;
             uint64_t mask = 0;
 
-            *tablePointer
-                = (char *)matline; /* (char*)&MemoryActionTable[i][0];*/
+            *tablePointer = (char *)matline; /* (char*)&MemoryActionTable[i][0];*/
             /* VLM does not use transport bits, clear from table to save a
              * cycle */
-            for (e = &MemoryActionTable[i][0], j = 0;
-                 e < &MemoryActionTable[i][64]; e++, j++) {
+            for (e = &MemoryActionTable[i][0], j = 0; e < &MemoryActionTable[i][64]; e++, j++) {
                 *e &= ~MemoryAction_Transport;
                 if (*e)
-                    mask |= (1L
-                        << j); /* accumulate mask of types with action */
+                    mask |= (1L << j); /* accumulate mask of types with action */
                 matline[j] = *e; /* copy bits into copymat */
             }
             *maskPointer = mask;
@@ -658,8 +610,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
     InitializeInstructionCache();
     processor->icachebase = (char *)instructioncache;
-    processor->endicache
-        = ((char *)instructioncache) + icachesize * sizeof(CACHELINE);
+    processor->endicache = ((char *)instructioncache) + icachesize * sizeof(CACHELINE);
 
     /* Initialize the stack cache */
 
@@ -668,8 +619,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
     processor->cslimit = processor->stackcachebasevma + 0x800; /* pr */
     processor->csextralimit = processor->stackcachebasevma + 0x1000; /* pr */
     processor->scovlimit = 256;
-    processor->stackcachetopvma
-        = (uint64_t)(((unsigned)BootStackBase) + (unsigned)stackcachesize);
+    processor->stackcachetopvma = (uint64_t)(((unsigned)BootStackBase) + (unsigned)stackcachesize);
     processor->stackcachesize = (uint64_t)stackcachesize;
     processor->stackcachedata = (char *)stackcache;
 
@@ -700,11 +650,9 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
     /* Initialize the interpreter state */
     /* Push an Initial Frame */
-    *((int64_t *)(processor->sp))
-        = ((((int64_t)Type_NIL) << 32) | 037001011000L);
+    *((int64_t *)(processor->sp)) = ((((int64_t)Type_NIL) << 32) | 037001011000L);
     processor->sp += 8;
-    *((int64_t *)(processor->sp))
-        = ((((int64_t)Type_NIL) << 32) | 037001011000L);
+    *((int64_t *)(processor->sp)) = ((((int64_t)Type_NIL) << 32) | 037001011000L);
     processor->lp = processor->sp + 8;
 
 #ifdef TRANSACTIONAL
@@ -729,8 +677,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
     }
 #endif
 #ifdef TRAPMETERING
-    processor->trapmeterdata
-        = (void *)malloc(sizeof(int64_t) * TrapMeter_NEntries);
+    processor->trapmeterdata = (void *)malloc(sizeof(int64_t) * TrapMeter_NEntries);
     {
         int i;
         for (i = 0; i < TrapMeter_NEntries; i++)
@@ -739,8 +686,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 #endif
 
     if (first_time) {
-        uint64_t plp = processor->lp, psp = processor->sp,
-                 pfp = processor->fp;
+        uint64_t plp = processor->lp, psp = processor->sp, pfp = processor->fp;
         int64_t speed;
         first_time = 0;
         ComputeSpeed(&speed);
@@ -786,12 +732,9 @@ int IvoryProcessorSystemStartup(int bootingP)
     LispObj q;
     if (bootingP) {
         signal(SIGFPE, SIG_IGN);
-        InitializeIvoryProcessor(
-            MapVirtualAddressData(0), MapVirtualAddressTag(0));
-        if (((q = ReadFEPCommSlot(fepStartup))
-                && (LispObjTag(q) == Type_CompiledFunction))
-            || ((q = ReadSystemCommSlot(systemStartup))
-                   && (LispObjTag(q) == Type_CompiledFunction))) {
+        InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
+        if (((q = ReadFEPCommSlot(fepStartup)) && (LispObjTag(q) == Type_CompiledFunction))
+            || ((q = ReadSystemCommSlot(systemStartup)) && (LispObjTag(q) == Type_CompiledFunction))) {
             LispObjRecordp fp;
             fp = ((LispObjRecordp)(processor->fp));
             fp[0].tag = 0xc0 | Type_EvenPC;
@@ -816,27 +759,19 @@ void SendInterruptToEmulator(void)
 }
 
 /* Convert a stack cache address to a vma */
-#define SCAtoVMA(sca)                                                        \
-    ((((uint64_t)(((char *)sca) - processor->stackcachedata)) >> 3)          \
-        + processor->stackcachebasevma)
+#define SCAtoVMA(sca) ((((uint64_t)(((char *)sca) - processor->stackcachedata)) >> 3) + processor->stackcachebasevma)
 
 /* Convert a vma to a stack cache address */
-#define VMAtoSCA(vma)                                                        \
-    ((int64_t)((((uint64_t)vma - processor->stackcachebasevma) << 3)         \
-        + processor->stackcachedata))
+#define VMAtoSCA(vma) ((int64_t)((((uint64_t)vma - processor->stackcachebasevma) << 3) + processor->stackcachedata))
 
 /* Halfword PC to PC:
    OK, here it goes.  We keep PC's internally as a halfword address.  This
    darling little macro takes one of these guys and converts it into a good
    ol' Ivory PC with a DTP-EvenPC or DTP-OddPC ... so there
  */
-#define HWPCtoPC(hwpc)                                                       \
-    (((((uint64_t)((((int)hwpc) & 1) ? Type_OddPC : Type_EvenPC))) << 32)    \
-        | (((uint64_t)hwpc) >> 1))
+#define HWPCtoPC(hwpc) (((((uint64_t)((((int)hwpc) & 1) ? Type_OddPC : Type_EvenPC))) << 32) | (((uint64_t)hwpc) >> 1))
 
-#define PCtoHWPC(pc)                                                         \
-    (((((((uint64_t)(pc)) >> 32) & 0x3F) == Type_OddPC) ? 1 : 0)             \
-        | (((uint64_t)(pc)&0xFFFFFFFF) << 1))
+#define PCtoHWPC(pc) (((((((uint64_t)(pc)) >> 32) & 0x3F) == Type_OddPC) ? 1 : 0) | (((uint64_t)(pc)&0xFFFFFFFF) << 1))
 
 LispObj WriteInternalRegister(int regno, LispObj val)
 {
@@ -845,8 +780,7 @@ LispObj WriteInternalRegister(int regno, LispObj val)
     *((LispObj *)&object) = val;
     switch (regno) {
     case InternalRegister_EA:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_FP: /* Register #1 */
         processor->fp = VMAtoSCA(object.data);
@@ -887,16 +821,14 @@ LispObj WriteInternalRegister(int regno, LispObj val)
     case InternalRegister_PHTHash3:
     case InternalRegister_EPC:
     case InternalRegister_DPC:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_Continuation: /* Register #10 */
         processor->continuation = (PCtoHWPC(val));
         break;
 
     case InternalRegister_AluAndRotateControl:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_ControlRegister: /* Register #12 */
         processor->control = MakeLispObj(Type_Fixnum, object.data);
@@ -922,8 +854,7 @@ LispObj WriteInternalRegister(int regno, LispObj val)
     case InternalRegister_LoadMap1:
     case InternalRegister_LoadMap2:
     case InternalRegister_LoadMap3:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_StackCacheOverflowLimit:
         processor->stackcachetopvma = object.data;
@@ -943,12 +874,10 @@ LispObj WriteInternalRegister(int regno, LispObj val)
     case InternalRegister_LoadBAR1:
     case InternalRegister_LoadBAR2:
     case InternalRegister_LoadBAR3:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_TOS:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_EventCount:
     case InternalRegister_BindingStackPointer:
@@ -983,8 +912,7 @@ LispObj WriteInternalRegister(int regno, LispObj val)
     case InternalRegister_StackCacheDumpQuantum:
     case InternalRegister_ConstantNIL:
     case InternalRegister_ConstantT:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
     }
     return (*((LispObj *)(&object)));
 }
@@ -994,8 +922,7 @@ LispObj ReadInternalRegister(int regno)
     LispObjRecord object;
     switch (regno) {
     case InternalRegister_EA:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_FP: /* Register #1 */
         object.tag = Type_Locative;
@@ -1039,15 +966,13 @@ LispObj ReadInternalRegister(int regno)
     case InternalRegister_PHTHash3:
     case InternalRegister_EPC:
     case InternalRegister_DPC:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_Continuation: /* Register #10 */
         return (HWPCtoPC(processor->continuation));
 
     case InternalRegister_AluAndRotateControl:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_ControlRegister: /* Register #12 */
         object.tag = Type_Fixnum;
@@ -1074,8 +999,7 @@ LispObj ReadInternalRegister(int regno)
     case InternalRegister_LoadMap1:
     case InternalRegister_LoadMap2:
     case InternalRegister_LoadMap3:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_StackCacheOverflowLimit:
         object.tag = Type_Locative;
@@ -1096,12 +1020,10 @@ LispObj ReadInternalRegister(int regno)
     case InternalRegister_LoadBAR1:
     case InternalRegister_LoadBAR2:
     case InternalRegister_LoadBAR3:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_TOS:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
 
     case InternalRegister_EventCount:
     case InternalRegister_BindingStackPointer:
@@ -1129,8 +1051,7 @@ LispObj ReadInternalRegister(int regno)
     case InternalRegister_StackCacheDumpQuantum:
     case InternalRegister_ConstantNIL:
     case InternalRegister_ConstantT:
-        return (LispObj)(
-            -1); /* -1 is the error result for an unimplemented register */
+        return (LispObj)(-1); /* -1 is the error result for an unimplemented register */
     }
     return (*((LispObj *)(&object)));
 }

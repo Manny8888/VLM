@@ -1,45 +1,45 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 (defmacro check-temporaries ((&rest lives) (&rest temps))
   `(check-temporaries-1 (list ,@lives) (list ,@temps)))
 ;(defmacro check-temporaries ((&rest lives) (&rest temps)))
 
-(defvar *memoized-vmdata* nil)
-(defvar *memoized-vmtags* nil)
-(defvar *memoized-base*  nil)
-(defvar *memoized-limit* nil)
-(defvar *memoized-action* nil)
-(defvar *memoized-action-cycle* nil)
-(defvar *cant-be-in-cache-p* nil)
+(defparameter *memoized-vmdata* nil)
+(defparameter *memoized-vmtags* nil)
+(defparameter *memoized-base*  nil)
+(defparameter *memoized-limit* nil)
+(defparameter *memoized-action* nil)
+(defparameter *memoized-action-cycle* nil)
+(defparameter *cant-be-in-cache-p* nil)
 
 ;;+++ Is this ever a kludge or what!
-(defvar *inhibit-alignment-in-memory-read* nil)
+(defparameter *inhibit-alignment-in-memory-read* nil)
 
- (eval-when (compile load eval)
- (defun check-temporaries-1 (lives temps)
-   (let ((shared (intersection lives temps 
- 			      :test #'(lambda (r1 r2) 
- 					(eql (register-asmname (find-register r1))
- 					     (register-asmname (find-register r2)))))))
-     (when shared
-       (warn "The following registers are used as both live ~
- 		      registers and temps in ~A:~%~A" 
-         *function-being-processed* shared)))
-   (when *memoized-vmdata*
-     (stack-let ((sc-memos (list *memoized-vmdata* *memoized-vmtags*
- 				*memoized-base* *memoized-limit*))
- 		(memos (list *memoized-vmdata* *memoized-vmtags*))
- 		(regs  (append lives temps)))
-       (let ((shared (intersection (if *cant-be-in-cache-p* memos sc-memos) regs
- 				  :test #'(lambda (r1 r2) 
- 					    (eql (register-asmname (find-register r1))
- 						 (register-asmname (find-register r2)))))))
- 	(when shared
- 	  (warn "The following memoized registers are being reused in ~A:~%~A" 
- 	      *function-being-processed* shared))))))
- )	;eval-when
+;; (eval-when (compile load eval)
+(defun check-temporaries-1 (lives temps)
+  (let ((shared (intersection lives temps
+ 			                        :test #'(lambda (r1 r2)
+ 					                              (eql (register-asmname (find-register r1))
+ 					                                   (register-asmname (find-register r2)))))))
+    (when shared
+      (warn "The following registers are used as both live ~ registers and temps in ~A:~%~A"
+            *function-being-processed* shared)))
+  (when *memoized-vmdata*
+    ;; NOTE: Used to be (stack-let
+    (let*
+        ((sc-memos (list *memoized-vmdata* *memoized-vmtags* *memoized-base* *memoized-limit*))
+ 		     (memos (list *memoized-vmdata* *memoized-vmtags*))
+ 		     (regs  (append lives temps))
+         (shared (intersection (if *cant-be-in-cache-p* memos sc-memos) regs
+ 				                       :test #'(lambda (r1 r2)
+ 					                               (eql (register-asmname (find-register r1))
+ 						                                  (register-asmname (find-register r2)))))))
+ 	    (when shared
+ 	      (warn "The following memoized registers are being reused in ~A:~%~A"
+ 	            *function-being-processed* shared)))))
+;; )	;eval-when
 
 (defmacro branch-true (r label &optional comment)
   `((BNE ,r ,label ,@(if comment `(,comment)))))
@@ -141,7 +141,7 @@
   "Branches to NOTINCACHE if out of range, leaves stack-cache word-offset in WORD-OFFSET"
   (check-temporaries (VMA) (word-offset temp2))
   (assert (not (eq VMA word-offset)) () "Can't use ~A as ~A" VMA 'word-offset)
-  `(,@(if (lisp:and *memoized-base* *memoized-limit*)
+  `(,@(if (common-lisp:and *memoized-base* *memoized-limit*)
 	  `()
 	  `(
 	    (LDQ ,word-offset PROCESSORSTATE_STACKCACHEBASEVMA (ivory) "Base of the cache")
@@ -155,7 +155,7 @@
   "Either branches to notincache or converts VMA"
   (check-temporaries (VMA SCA) (temp temp2))
   `(;; In-line (VMAinStackCache ,VMA ,notincache ,temp ,SCA) for dual-issue
-    ,@(if (lisp:and *memoized-base* *memoized-limit*)
+    ,@(if (common-lisp:and *memoized-base* *memoized-limit*)
 	  `()
 	  `(
 	    (LDQ ,temp PROCESSORSTATE_STACKCACHEBASEVMA (ivory) "Base of the stack cache")
@@ -178,10 +178,11 @@
     (AND ,to 63 ,to)))
 
 (defmacro TagCdrFromLispObj (from to &optional comment)
-  `((comment "TagCdr from LispObj.")                               
+  `((comment "TagCdr from LispObj.")
     (SRL ,from ,(+ 32 6) ,to  ,@(if comment `(,comment)))))
 
 (defmacro PackedInstructionP (iword temp &optional comment)
+  (declare (ignore comment))
   (check-temporaries (iword) (temp))
   `((comment "Identifiy a packed instruction type.")
     (EXTBL ,iword 4 ,temp             "Extract the tag byte")
@@ -248,7 +249,7 @@
 (defmacro maybe-icount (r)
   (let ((lb (gensym)))
     `((comment "Update the instruction count.")
-      (LDQ ,r PROCESSORSTATE_INSTRUCTION_COUNT (ivory)) 
+      (LDQ ,r PROCESSORSTATE_INSTRUCTION_COUNT (ivory))
       (SUBQ ,r 1 ,r "Decrement the instruction count.")
       (BNE ,r ,lb "J. if not reached stop point.")
       (BIS zero zero zero "put a breakpoint here to catch stops")
@@ -295,7 +296,7 @@
     `((LDL ,temp6 PROCESSORSTATE_METERVALUE (ivory))
       (LDL ,temp2 PROCESSORSTATE_METERCOUNT (ivory) "The number of remaining tokens.")
       (LDQ ,temp PROCESSORSTATE_METERDATABUFF (ivory) "The cache miss meter buffer.")
-      ;(SUBQ ,temp2 1 ,temp2 "record a cache miss")
+      ;; (SUBQ ,temp2 1 ,temp2 "record a cache miss")
       (ADDQ ,temp6 1 ,temp6 "count the miss.")
       (LDL ,temp4 PROCESSORSTATE_METERPOS (ivory) "Position for new data.")
       (STL ,temp6 PROCESSORSTATE_METERVALUE (ivory))
@@ -451,7 +452,7 @@
 ;; current instruction's cache line) and execute that instruction".  That
 ;; is, this is used to continue executing straight-line code, and hence
 ;; does not check to see if the emulator has been requested to stop.
-;; This can often dual issue with previous instruction.  
+;; This can often dual issue with previous instruction.
 (defmacro ContinueToNextInstruction (&optional comment)
   ;; Don't use EXTERNAL-BRANCH because we want to get a warning...
   `((BR zero nextinstruction ,@(if comment `(,comment)))))
@@ -537,28 +538,28 @@
 ;;; If the body can trap, be sure to supply :CAN-TRAP T, otherwise iPC and
 ;;; iCP will get clobbered prematurely and the trap handler will lose!
 (defmacro with-predicate-push ((ttag niltag fall-into t1 t2 &key can-trap)
-			       &body body)
+			                         &body body)
   (let* ((prelude `((force-alignment)
-		    ,(if fall-into `(get-t ,t1) `(get-nil ,t2))
-		    (force-alignment)
-		    ,(if fall-into `(get-nil ,t2) `(get-t ,t1))
-		    ,@(unless can-trap `((GetNextPCandCP)))))
-	 (tclause `((label ,ttag "Here to push T")
+		                ,(if fall-into `(get-t ,t1) `(get-nil ,t2))
+		                (force-alignment)
+		                ,(if fall-into `(get-nil ,t2) `(get-t ,t1))
+		                ,@(unless can-trap `((GetNextPCandCP)))))
+	       (tclause `((label ,ttag "Here to push T")
                     (STQ ,t1 8 (iSP))
-		    (ADDQ iSP 8 iSP)
-		    ,(if can-trap
-			 `(ContinueToNextInstruction)
-		         `(ContinueToNextInstruction-NoStall))))
-	 (nilclause `((comment "here to push NIL")
-		      (label ,niltag)
-		      (STQ ,t2 8 (iSP))
-		      (ADDQ iSP 8 iSP)
-		      ,(if can-trap
-			 `(ContinueToNextInstruction)
-		         `(ContinueToNextInstruction-NoStall)))))
+		                (ADDQ iSP 8 iSP)
+		                ,(if can-trap
+			                   `(ContinueToNextInstruction)
+		                     `(ContinueToNextInstruction-NoStall))))
+	       (nilclause `((comment "here to push NIL")
+		                  (label ,niltag)
+		                  (STQ ,t2 8 (iSP))
+		                  (ADDQ iSP 8 iSP)
+		                  ,(if can-trap
+			                     `(ContinueToNextInstruction)
+		                       `(ContinueToNextInstruction-NoStall)))))
     (if fall-into
-	(append prelude `(,@body) tclause nilclause)
-	(append prelude `(,@body) nilclause tclause))))
+	      (append prelude `(,@body) tclause nilclause)
+	      (append prelude `(,@body) nilclause tclause))))
 
 
 
@@ -569,9 +570,9 @@
 ;;; chunk of the page.  Then two 4k chunks are skipped.
 
 (defmacro align4Kskip8K ()
-  `((align4k)					; skip to end of current 4k chunk
+  `((align4k)                           ; skip to end of current 4k chunk
     (AND zero zero zero)
-    (align4k)					; skip a half page
+    (align4k)                           ; skip a half page
     (AND zero zero zero)
     (align4k)))					; skip another half page
 
@@ -589,13 +590,13 @@
       #---ignore ,@(apply #'expand-instruction-procedure-trailer format name options)
       #+++ignore (end ,name ,format))))
 
-(clos:defgeneric expand-instruction-procedure-header (format name &key &allow-other-keys))
-(clos:defgeneric expand-instruction-procedure-trailer (format name &key &allow-other-keys))
+(defgeneric expand-instruction-procedure-header (format name &key &allow-other-keys))
+(defgeneric expand-instruction-procedure-trailer (format name &key &allow-other-keys))
 
 ;;; A :full-word-instruction has a single entry point defined to be 'name'
 ;;; No default unpacking is necessary.  All information about the instruction
 ;;; is available via iCP and iPC.
-(clos:defmethod expand-instruction-procedure-header
+(defmethod expand-instruction-procedure-header
 		((format (eql :full-word-instruction)) name &key)
   `((comment ,(format nil "Fullword instruction - ~a" name))
     (passthru "#ifdef TRACING")
@@ -604,7 +605,7 @@
     (passthru "#endif")
     (label ,(format nil "~a" name))))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql :full-word-instruction)) name &key)
   `((end ,name)
     (comment ,(format nil "End of Fullword instruction - ~a" name))))
@@ -617,16 +618,16 @@
 ;;; watched carefully since the arg2 is left with a pointer beyond the top
 ;;; of the stack.  The operand value must be read before the stack is pushed
 ;;; or it will be overwritten.
-(clos:defmethod expand-instruction-procedure-header
+(defmethod expand-instruction-procedure-header
 		((format (eql :operand-from-stack)) name
 		 &key own-immediate needs-tos
-		 provide-immediate signed-immediate)
-  (assert (not (lisp:and own-immediate provide-immediate)) () "Huh?")
+		   provide-immediate signed-immediate)
+  (assert (not (common-lisp:and own-immediate provide-immediate)) () "Huh?")
   (let ((fpname (format nil "~aFP" name))
-	(spname (format nil "~aSP" name))
-	(lpname (format nil "~aLP" name))
-	(imname (format nil "~aIM" name))
-	(bodyname (format nil "begin~a" name)))
+	      (spname (format nil "~aSP" name))
+	      (lpname (format nil "~aLP" name))
+	      (imname (format nil "~aIM" name))
+	      (bodyname (format nil "begin~a" name)))
     `((comment ,(format nil "Halfword operand from stack instruction - ~a" name))
       (comment "arg2 has the preloaded 8 bit operand.")
       (passthru ,(format nil  "	.globl ~a" fpname))
@@ -636,28 +637,28 @@
       (label ,(format nil "~a" name))
 
       ,@(when provide-immediate
-	  `((comment "arg2 has the preloaded 8 bit operand.")
-	    (passthru "#ifdef TRACING")
-	    ,@(if signed-immediate
-		  `((passthru ,(format nil "	.byte 0x83")))
-		  `((passthru ,(format nil "	.byte 0x82"))))
-	    (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	    (passthru "#endif")
-	    (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
-	    ,@(if signed-immediate
-		  `((comment "This sequence only sucks a moderate amount")
-		    ;; Careful!  We are using arg1 as a temp so we can
-		    ;; clear arg2 in the stall slot
-		    (SLL arg2 #.(- 64 8) arg1 "sign extend the byte argument.")
-		    (BIS zero zero arg2)
-		    (SRA arg1 #.(- 64 8) arg1 "Rest of sign extension")
-		    (STL arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
-		    (LDA arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory)))
-		  `((comment "This sequence is lukewarm")
-		    (STL arg2 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
-		    (LDA arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
-		    (BIS zero zero arg2)))
-	    (BR zero ,bodyname)))
+	        `((comment "arg2 has the preloaded 8 bit operand.")
+	          (passthru "#ifdef TRACING")
+	          ,@(if signed-immediate
+		              `((passthru ,(format nil "	.byte 0x83")))
+		              `((passthru ,(format nil "	.byte 0x82"))))
+	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
+	          (passthru "#endif")
+	          (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
+	          ,@(if signed-immediate
+		              `((comment "This sequence only sucks a moderate amount")
+		                ;; Careful!  We are using arg1 as a temp so we can
+		                ;; clear arg2 in the stall slot
+		                (SLL arg2 #.(- 64 8) arg1 "sign extend the byte argument.")
+		                (BIS zero zero arg2)
+		                (SRA arg1 #.(- 64 8) arg1 "Rest of sign extension")
+		                (STL arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
+		                (LDA arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory)))
+		              `((comment "This sequence is lukewarm")
+		                (STL arg2 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
+		                (LDA arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
+		                (BIS zero zero arg2)))
+	          (BR zero ,bodyname)))
 
       (passthru "#ifdef TRACING")
       (passthru ,(format nil "	.byte 0x88"))
@@ -666,17 +667,17 @@
       (label ,(format nil "~a" spname) "Entry point for SP relative")
       (BIS arg5 zero arg1                "Assume SP mode")
       ,@(if needs-tos
-	    ;; This sequence gets assumes sp|pop most likely (sp-relative
-	    ;; takes a forward branch).  As a consolation, it gets more
-	    ;; dual-issues than would be needed to do everything
-	    ;; conditionally.
-	    `((BNE arg2 ,bodyname)
-	      (LDQ arg6 0 (arg4)                "SP-pop, Reload TOS")
-	      (BIS iSP zero arg1                "SP-pop mode")
-	      (BIS arg4 zero iSP                "Adjust SP"))
-	    `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
-	      (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
-      
+	          ;; This sequence gets assumes sp|pop most likely (sp-relative
+	          ;; takes a forward branch).  As a consolation, it gets more
+	          ;; dual-issues than would be needed to do everything
+	          ;; conditionally.
+	          `((BNE arg2 ,bodyname)
+	            (LDQ arg6 0 (arg4)                "SP-pop, Reload TOS")
+	            (BIS iSP zero arg1                "SP-pop mode")
+	            (BIS arg4 zero iSP                "Adjust SP"))
+	          `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
+	            (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
+
       (passthru "#ifdef TRACING")
       (BR zero ,bodyname)
       (passthru ,(format nil "	.byte 0x90"))
@@ -690,36 +691,36 @@
       (passthru ,(format nil "	.asciiz \"~a\"" fpname))
       (passthru "#endif")
       (label ,(format nil "~a" fpname) "Entry point for FP relative")
-      
+
       (label ,bodyname)
       (comment "arg1 has the operand address.")
       (S8ADDQ arg2 arg1 arg1         "Compute operand address")
       )))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql :operand-from-stack)) name &key own-immediate provide-immediate)
   (let ((imname (format nil "~aIM" name)))
     `(;; put this here for lack of a better spot
       ,@(unless (or own-immediate provide-immediate)
-	  `((passthru "#ifdef TRACING")
-	    (passthru ,(format nil "	.byte 0x82"))
-	    (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	    (passthru "#endif")
-	    (unlikely-label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
-	    (external-branch |DoIStageError| ,(format nil "IMMEDIATE mode not legal in ~a."
-						      name))))
+	        `((passthru "#ifdef TRACING")
+	          (passthru ,(format nil "	.byte 0x82"))
+	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
+	          (passthru "#endif")
+	          (unlikely-label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
+	          (external-branch |DoIStageError| ,(format nil "IMMEDIATE mode not legal in ~a."
+						                                          name))))
       (end ,name)
       (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name)))))
 
 
-(clos:defmethod expand-instruction-procedure-header
+(defmethod expand-instruction-procedure-header
 		((format (eql :operand-from-stack-immediate)) name &key own-immediate needs-tos)
   (let ((fpname (format nil "~aFP" name))
-	(spname (format nil "~aSP" name))
-	(lpname (format nil "~aLP" name))
-	(imname (format nil "~aIM" name))
-	(bodyname (format nil "head~a" name))
-	(realbodyname (format nil "begin~a" name)))
+	      (spname (format nil "~aSP" name))
+	      (lpname (format nil "~aLP" name))
+	      (imname (format nil "~aIM" name))
+	      (bodyname (format nil "head~a" name))
+	      (realbodyname (format nil "begin~a" name)))
     `((comment ,(format nil "Halfword operand from stack instruction - ~a" name))
       (comment "arg2 has the preloaded 8 bit operand.")
       (passthru ,(format nil  "	.globl ~a" fpname))
@@ -728,15 +729,15 @@
       (passthru ,(format nil  "	.globl ~a" imname))
       (label ,(format nil "~a" name))
       ,@(unless own-immediate
-	  `((passthru "#ifdef TRACING")
+	        `((passthru "#ifdef TRACING")
             (passthru ,(format nil "	.byte 0x82"))
-	    (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	    (passthru "#endif")
-	    (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
-	    (comment "This sequence is lukewarm")
-	    (STL arg2 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
-	    (LDQ arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
-	    (BR zero ,realbodyname)))
+	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
+	          (passthru "#endif")
+	          (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
+	          (comment "This sequence is lukewarm")
+	          (STL arg2 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
+	          (LDQ arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
+	          (BR zero ,realbodyname)))
 
       (passthru "#ifdef TRACING")
       (passthru ,(format nil "	.byte 0x88"))
@@ -745,18 +746,18 @@
       (label ,(format nil "~a" spname) "Entry point for SP relative")
       (BIS arg5 zero arg1                "Assume SP mode")
       ,@(if needs-tos
-	    ;; This sequence gets assumes sp|pop most likely (sp-relative
-	    ;; takes a forward branch).  As a consolation, it gets more
-	    ;; dual-issues than would be needed to do everything
-	    ;; conditionally.
-	    `((BNE arg2 ,bodyname)
-	      (BIS arg6 zero arg1               "SP-pop mode, TOS->arg1")
-	      (LDQ arg6 0 (arg4)                "Reload TOS")
-	      (BIS arg4 zero iSP                "Adjust SP")
-	      (BR zero ,realbodyname))
-	    `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
-	      (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
-      
+	          ;; This sequence gets assumes sp|pop most likely (sp-relative
+	          ;; takes a forward branch).  As a consolation, it gets more
+	          ;; dual-issues than would be needed to do everything
+	          ;; conditionally.
+	          `((BNE arg2 ,bodyname)
+	            (BIS arg6 zero arg1               "SP-pop mode, TOS->arg1")
+	            (LDQ arg6 0 (arg4)                "Reload TOS")
+	            (BIS arg4 zero iSP                "Adjust SP")
+	            (BR zero ,realbodyname))
+	          `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
+	            (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
+
       (passthru "#ifdef TRACING")
       (BR zero ,bodyname)
       (passthru ,(format nil "	.byte 0x90"))
@@ -770,14 +771,14 @@
       (passthru ,(format nil "	.asciiz \"~a\"" fpname))
       (passthru "#endif")
       (label ,(format nil "~a" fpname) "Entry point for FP relative")
-      
+
       (label ,bodyname)
       (S8ADDQ arg2 arg1 arg1         "Compute operand address")
       (LDQ arg1 0 (arg1) "Get the operand")
       (label ,realbodyname)
       (comment "arg1 has the operand, not sign extended if immediate."))))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql :operand-from-stack-immediate)) name &key)
   `((end ,name)
     (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name))))
@@ -793,15 +794,15 @@
       (passthru ,(format nil ".align ~D" *function-alignment*))
       (label ,imname "Entry point for IMMEDIATE mode"))))
 
- 
-(clos:defmethod expand-instruction-procedure-header
+
+(defmethod expand-instruction-procedure-header
 		((format (eql :operand-from-stack-signed-immediate)) name &key own-immediate needs-tos)
   (let ((fpname (format nil "~aFP" name))
-	(spname (format nil "~aSP" name))
-	(lpname (format nil "~aLP" name))
-	(imname (format nil "~aIM" name))
-	(bodyname (format nil "head~a" name))
-	(realbodyname (format nil "begin~a" name)))
+	      (spname (format nil "~aSP" name))
+	      (lpname (format nil "~aLP" name))
+	      (imname (format nil "~aIM" name))
+	      (bodyname (format nil "head~a" name))
+	      (realbodyname (format nil "begin~a" name)))
     `((comment ,(format nil "Halfword operand from stack instruction - ~a" name))
       (passthru ,(format nil  "	.globl ~a" fpname))
       (passthru ,(format nil  "	.globl ~a" spname))
@@ -809,19 +810,19 @@
       (passthru ,(format nil  "	.globl ~a" imname))
       (label ,(format nil "~a" name))
       ,@(unless own-immediate
-	  `((comment "arg2 has the preloaded 8 bit operand.")
-	    (passthru "#ifdef TRACING")
-	    (passthru ,(format nil "	.byte 0x83"))
-	    (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	    (passthru "#endif")
-	    (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
-	    (comment "This sequence only sucks a moderate amount")
-	    (SLL arg2 #.(- 64 8) arg2 "sign extend the byte argument.")
-	    (force-alignment)
-	    (SRA arg2 #.(- 64 8) arg2 "Rest of sign extension")
-	    (STL arg2 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
-	    (LDQ arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
-	    (BR zero ,realbodyname)))
+	        `((comment "arg2 has the preloaded 8 bit operand.")
+	          (passthru "#ifdef TRACING")
+	          (passthru ,(format nil "	.byte 0x83"))
+	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
+	          (passthru "#endif")
+	          (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
+	          (comment "This sequence only sucks a moderate amount")
+	          (SLL arg2 #.(- 64 8) arg2 "sign extend the byte argument.")
+	          (force-alignment)
+	          (SRA arg2 #.(- 64 8) arg2 "Rest of sign extension")
+	          (STL arg2 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
+	          (LDQ arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
+	          (BR zero ,realbodyname)))
 
       (passthru "#ifdef TRACING")
       (passthru ,(format nil "	.byte 0x88"))
@@ -830,18 +831,18 @@
       (label ,(format nil "~a" spname) "Entry point for SP relative")
       (BIS arg5 zero arg1                "Assume SP mode")
       ,@(if needs-tos
-	    ;; This sequence gets assumes sp|pop most likely (sp-relative
-	    ;; takes a forward branch).  As a consolation, it gets more
-	    ;; dual-issues than would be needed to do everything
-	    ;; conditionally.
-	    `((BNE arg2 ,bodyname)
-	      (BIS arg6 zero arg1               "SP-pop mode, TOS->arg1")
-	      (LDQ arg6 0 (arg4)                "Reload TOS")
-	      (BIS arg4 zero iSP                "Adjust SP")
-	      (BR zero ,realbodyname))
-	    `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
-	      (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
-      
+	          ;; This sequence gets assumes sp|pop most likely (sp-relative
+	          ;; takes a forward branch).  As a consolation, it gets more
+	          ;; dual-issues than would be needed to do everything
+	          ;; conditionally.
+	          `((BNE arg2 ,bodyname)
+	            (BIS arg6 zero arg1               "SP-pop mode, TOS->arg1")
+	            (LDQ arg6 0 (arg4)                "Reload TOS")
+	            (BIS arg4 zero iSP                "Adjust SP")
+	            (BR zero ,realbodyname))
+	          `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
+	            (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
+
       (passthru "#ifdef TRACING")
       (BR zero ,bodyname)
       (passthru ,(format nil "	.byte 0x90"))
@@ -862,19 +863,19 @@
       (label ,realbodyname)
       (comment "arg1 has the operand, sign extended if immediate."))))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql :operand-from-stack-signed-immediate)) name &key)
   `((end ,name)
     (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name))))
 
 
-(clos:defmethod expand-instruction-procedure-header
+(defmethod expand-instruction-procedure-header
 		((format (eql :10-bit-immediate)) name &key own-immediate needs-tos)
   (declare (ignore needs-tos))
   (let ((fpname (format nil "~aFP" name))
-	(spname (format nil "~aSP" name))
-	(lpname (format nil "~aLP" name))
-	(imname (format nil "~aIM" name)))
+	      (spname (format nil "~aSP" name))
+	      (lpname (format nil "~aLP" name))
+	      (imname (format nil "~aIM" name)))
     `((comment ,(format nil "Halfword 10 bit immediate instruction - ~a" name))
       (passthru ,(format nil  "	.globl ~a" fpname))
       (passthru ,(format nil  "	.globl ~a" spname))
@@ -891,16 +892,16 @@
       (label ,(format nil "~a" lpname))
       (label ,(format nil "~a" fpname))
       ,@(unless own-immediate
-	  `((EXTWL arg3 4 arg1)))
+	        `((EXTWL arg3 4 arg1)))
       (comment "arg1 has operand preloaded.")
       )))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql :10-bit-immediate)) name &key)
   `((end ,name)
-    (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name)))) 
+    (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name))))
 
-(clos:defmethod expand-instruction-procedure-header
+(defmethod expand-instruction-procedure-header
 		((format (eql :10-bit-signed-immediate)) name &key own-immediate needs-tos)
   (declare (ignore needs-tos))
   (let ((fpname (format nil "~aFP" name))
@@ -927,21 +928,21 @@
       (comment "arg1 has signed operand preloaded.")
       )))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql :10-bit-signed-immediate)) name &key)
   `((end ,name)
-    (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name)))) 
+    (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name))))
 
 ;;; 10 bit operand encoded position= ls 5 bits size=ms5 bits.
 ;;; 10 bit operand is in arg1, truncated 8 bit is in arg2
 ;;; shift arg1 right by 5 bits to give 'size-1'
 ;;; mask arg2 by #x1F to give position.
-(clos:defmethod expand-instruction-procedure-header
+(defmethod expand-instruction-procedure-header
 		((format (eql :field-extraction)) name &key)
   (let ((fpname (format nil "~aFP" name))
-	(spname (format nil "~aSP" name))
-	(lpname (format nil "~aLP" name))
-	(imname (format nil "~aIM" name)))
+	      (spname (format nil "~aSP" name))
+	      (lpname (format nil "~aLP" name))
+	      (imname (format nil "~aIM" name)))
     `((comment ,(format nil "Field Extraction instruction - ~a" name))
       (passthru ,(format nil  "	.globl ~a" fpname))
       (passthru ,(format nil  "	.globl ~a" spname))
@@ -962,7 +963,7 @@
       (AND arg1 #x1F arg1 "mask out the unwanted bits in arg1")
       (comment "arg1 has size-1, arg2 has position."))))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql  :field-extraction)) name &key)
   `((end ,name)
     (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name))))
@@ -978,12 +979,12 @@
 ;;; we lose two cycles to stalling, and we get no dual.  We may want to
 ;;; pull out the last two instructions and hand position them. Especially as
 ;;; there are very few of these instructions.
-(clos:defmethod expand-instruction-procedure-header
+(defmethod expand-instruction-procedure-header
 		((format (eql :entry-instruction)) name &key)
   (let ((fpname (format nil "~aFP" name))
-	(spname (format nil "~aSP" name))
-	(lpname (format nil "~aLP" name))
-	(imname (format nil "~aIM" name)))
+	      (spname (format nil "~aSP" name))
+	      (lpname (format nil "~aLP" name))
+	      (imname (format nil "~aIM" name)))
     `((comment ,(format nil "Field Extraction instruction - ~a" name))
       (passthru ,(format nil  "	.globl ~a" fpname))
       (passthru ,(format nil  "	.globl ~a" spname))
@@ -1005,7 +1006,7 @@
       (AND arg4 #xFF arg4)
       (comment "arg1=ptr field, arg2=required, arg3=instn, arg4=optionals arg5=control-register"))))
 
-(clos:defmethod expand-instruction-procedure-trailer
+(defmethod expand-instruction-procedure-trailer
 		((format (eql :entry-instruction)) name &key)
   `((end ,name)
     (comment ,(format nil "End of Halfword operand from stack instruction - ~a" name))))
@@ -1035,7 +1036,7 @@
 	       (return-from branchp t))
 	      (t
 		(return-from branchp nil)))))))
-    
+
 ;;; deals with tags of up to 8 bits only
 (defmacro basic-dispatch (t1 t2 &body clauses &environment env)
   (let* ((expanded ())
@@ -1054,7 +1055,7 @@
 	    (setq label else-label)
 	    (setq label end-label)))
       (destructuring-bind (key &rest body) clause
-	(let* ((body (if (lisp:and (atom (car body)) (null (cdr body)))
+	(let* ((body (if (common-lisp:and (atom (car body)) (null (cdr body)))
 			 (car body)
 			 (macroexpand-asm-form body env)))
 	       (dont-emit-branch
@@ -1098,7 +1099,7 @@
 			 `((label ,rest-label)))
 		       ,@(loop for (cl . rest) on key
 			       collect
-				 (if (lisp:and (integerp cl) (zerop cl))
+				 (if (common-lisp:and (integerp cl) (zerop cl))
 				     `(,@(if (null rest)
 					     `((BNE ,t1 ,label))
 					     `((BEQ ,t1 ,matchlabel))))
@@ -1119,7 +1120,7 @@
 		 (push
 		   `(,@(when rest-label
 			 `((label ,rest-label)))
-		     ,(if (lisp:and (integerp key) (zerop key))
+		     ,(if (common-lisp:and (integerp key) (zerop key))
 			   (cond ((null body)
 				  `(BEQ ,t1 ,end-label))
 				 ((atom body)
@@ -1188,7 +1189,7 @@
 		   ,@(unless (= i nlabels) `((BR zero ,end-label)))
 		   (label ,label))
 		 expanded)
-	       (incf i) 
+	       (incf i)
 	       (setq label (gensym))))
 	    (t
 	     (push
@@ -1200,7 +1201,7 @@
 		 ,@(unless (= i nlabels) `((BR zero ,end-label)))
 		 (label ,label))
 	       expanded)))
-      (incf i) 
+      (incf i)
       (setq label (gensym)))
     `(,@(apply #'nconc (nreverse expanded))
       (label ,end-label))))
@@ -1250,9 +1251,9 @@
 		 (if scl
 		     (setf (cdr scl) (cons `(,(cadar cl) ,@(cdr cl)) (cdr scl)))
 		     (push `(,(caar cl) (,(cadar cl) ,@(cdr cl))) subclause-alist))))))
-    (assert (not (lisp:and elseclause (or else1clause else2clause))) ()
+    (assert (not (common-lisp:and elseclause (or else1clause else2clause))) ()
 	    "Can't have :else and :else<n>")
-    (assert (or elseclause (lisp:and else1clause else2clause)) ()
+    (assert (or elseclause (common-lisp:and else1clause else2clause)) ()
 	    "Must supply both :else1 and :else2")
     ;; Add else clauses to the embedded dispatches if required
     (cond (else2clause
@@ -1281,7 +1282,7 @@
 	      `((BR zero ,done)
 		,@else2clause
 		(label ,done))))))))
-    
+
 ;;; State Saving and restoring, register definitions.
 
 ;;; Macros to save and restore the cached state of the machine in the ivory object.
@@ -1300,7 +1301,6 @@
     (STQ iFP PROCESSORSTATE_FP (ivory))
     (STQ iLP PROCESSORSTATE_LP (ivory))))
 
-(eval-when (compile load eval)
 ;;; Register definitions.
 (define-integer-register t1 1)
 (define-integer-register t2 2)
@@ -1315,7 +1315,7 @@
 (define-integer-register iLP 11)
 (define-integer-register iSP 12)
 (define-integer-register iCP 13)
-(define-integer-register ivory 14)		; ivory processor object 
+(define-integer-register ivory 14)		; ivory processor object
 (define-integer-register arg1 16)
 (define-integer-register arg2 17)
 (define-integer-register arg3 18)
@@ -1343,4 +1343,3 @@
 (define-integer-register hwopmask 20)		; = ARG5 (the halfword operand mask)
 (define-integer-register fwdispatch 21)		; = ARG6 (the fullword dispatch table)
 (define-integer-register hwdispatch 22)		; = T9 (the halfword dispatch table)
-)

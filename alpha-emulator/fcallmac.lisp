@@ -1,15 +1,15 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 (defmacro set-continuation2 (ctag cdata &optional comment)
   `((STL ,ctag |PROCESSORSTATE_CONTINUATION+4| (ivory) ,@(if comment `(,comment)))
     (STL ,cdata PROCESSORSTATE_CONTINUATION (ivory))))
- 
+
 (defmacro set-continuation2r (ctag cdata &optional comment)
   `((STL ,cdata PROCESSORSTATE_CONTINUATION (ivory))
     (STL ,ctag |PROCESSORSTATE_CONTINUATION+4| (ivory) ,@(if comment `(,comment)))))
- 
+
 (defmacro get-continuation2 (ctag cdata &optional comment)
   `((LDL ,cdata PROCESSORSTATE_CONTINUATION (ivory))
     (LDL ,ctag |PROCESSORSTATE_CONTINUATION+4| (ivory) ,@(if comment `(,comment)))
@@ -32,7 +32,7 @@
 ;;; Support macros for Function Calling/Frame manipulation.
 
 (defmacro push-frame (temp temp2 temp3 temp4 temp5 &optional etag edata)
-  (if (lisp:and etag edata)
+  (if (common-lisp:and etag edata)
       (check-temporaries (etag edata) (temp temp2 temp3 temp4))
       (check-temporaries () (temp temp2 temp3 temp4)))
   `((LDL ,temp2 PROCESSORSTATE_CONTINUATION+4 (ivory))
@@ -77,7 +77,7 @@
 	(hardway (gensym)))
     `((label ,again)
       ;; Constant shared by several branches
-      (LDQ ,temp PROCESSORSTATE_TRAPVECBASE (ivory))    
+      (LDQ ,temp PROCESSORSTATE_TRAPVECBASE (ivory))
       (type-dispatch ,tag ,temp2 ,temp3
 	(|TypeCompiledFunction|
 	  (label ,call)
@@ -103,13 +103,13 @@
 	  ;; Build the constant PC for generic dispatch
 	  (BIS ,tag zero ,extra-tag)
 	  (EXTLL ,data 0 ,extra-data)
-	  (LDA ,data #.sys:%generic-dispatch-trap-vector ,temp)
+	  (LDA ,data #.%generic-dispatch-trap-vector ,temp)
 	  (BR zero ,call-extra))
 	(|TypeInstance|
 	  ;; Build the constant PC for message dispatch
 	  (BIS ,tag zero ,extra-tag)
 	  (EXTLL ,data 0 ,extra-data)
-	  (LDA ,data #.sys:%message-dispatch-trap-vector ,temp)
+	  (LDA ,data #.%message-dispatch-trap-vector ,temp)
 	  (BR zero ,call-extra))
 	(|TypeSymbol|
 	  ;; We don't know what might be in the function-cell of a
@@ -143,7 +143,7 @@
 	  ;; (start-call-escape tag data notpc temp temp2 temp3 extra-tag extra-data temp6 temp7 temp8)
 	  (BIS ,tag zero ,extra-tag)
 	  (BIS ,data zero ,extra-data)
-	  (LDA ,temp3 #.sys:%interpreter-function-vector ,temp)
+	  (LDA ,temp3 #.%interpreter-function-vector ,temp)
 	  (TagType ,tag ,tag)
 	  (ADDQ ,tag ,temp3 ,indirect)
 	  (memory-read ,indirect ,tag ,data PROCESSORSTATE_DATAREAD ,temp6 ,temp7 ,temp8 ,temp9 nil t)
@@ -152,10 +152,10 @@
 	  (BR zero ,call-extra)))
       (label ,notpc)
       ;; Blech!  we "know" the VMA will be in temp (from start-call-escape)
-      (illegal-operand interpreter-table-contents-not-pc ,temp "Bad type for start-call")))) 
+      (illegal-operand interpreter-table-contents-not-pc ,temp "Bad type for start-call"))))
 
 (defmacro start-call-compiled (impctag ctag cdata temp temp2 temp3 temp4 temp5 &optional etag edata)
-  (if (lisp:and etag edata)
+  (if (common-lisp:and etag edata)
       (check-temporaries (ctag cdata etag edata) (temp temp2 temp3 temp4 temp5))
       (check-temporaries (ctag cdata) (temp temp2 temp3 temp4 temp5)))
   `((push-frame ,temp ,temp2 ,temp3 ,temp4 ,temp5 ,etag ,edata)
@@ -180,7 +180,7 @@
 (defmacro start-call-escape (tag data notpc temp temp2 temp3 temp4 temp5 temp6 temp7 temp8)
   (check-temporaries (tag data) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8))
   `((LDQ ,temp2 PROCESSORSTATE_TRAPVECBASE (ivory))
-    (LDA ,temp #.sys:%interpreter-function-vector ,temp2)
+    (LDA ,temp #.%interpreter-function-vector ,temp2)
     (TagType ,tag ,tag)
     (ADDQ ,tag ,temp ,temp)
     (memory-read ,temp ,temp4 ,temp3 PROCESSORSTATE_DATAREAD ,temp5 ,temp6 ,temp7 ,temp8 nil t)
@@ -276,7 +276,7 @@
       (force-alignment)
       (BLBS ,temp2 ,apply "J. if apply args")
       (unlikely-label ,done)
-      ))) 
+      )))
 
 ;;; INDEX is an entry with an entry index in it.
 ;;; Branches back to the instruction interpreter when done.
@@ -343,7 +343,7 @@
       (type-dispatch ,tag ,temp ,temp2
 	(|TypeList|
 	  (VMAtoSCAMaybe ,data ,temp ,notincache ,temp2 ,temp3)
-	  (pull-apply-args-quickly 
+	  (pull-apply-args-quickly
 	    ,n ,temp ,done ,temp2 ,temp3 ,temp4 ,temp5 ,temp6 ,temp7 ,temp8))
 	(|TypeNIL|
 	  (get-control-register ,temp3 "Get the control register")
@@ -416,10 +416,10 @@
 	  (type-dispatch ,listtag ,temp ,temp2
 	    (|TypeList|
 	      (VMAtoSCAmaybe ,listdata ,rest ,notincache ,temp ,temp2)
-	      (BR zero ,loopentry))	      
+	      (BR zero ,loopentry))
 	    (|TypeNIL|
 	      (BR zero ,ranout))
-	    (:else	 
+	    (:else
 	     (label ,notincache)
 	      (stack-push2 ,listtag ,listdata ,temp)
 	      (BR zero ,maybedone))))
@@ -453,7 +453,7 @@
 ;; the stack, replace the new rest arg on the stack, fix up the control
 ;; register, and then restart the instruction.
 (defmacro pull-apply-args-slowly (nargs  cr atag adata rtag rdata
-				  temp temp2 temp3 temp4 temp5 temp6) 
+				  temp temp2 temp3 temp4 temp5 temp6)
   `((stack-top2 ,atag ,adata "Get the rest arg")
     ;; Get the arg to push in atag/adata, and the new rest arg in rtag/rdata.
     ;; Any exception doing this forces a pull-apply-args trap
@@ -611,7 +611,7 @@
       (passthru "#endif")
       )))
 
-      
+
 (defmacro abandon-frame-simple
 	  (restorepctest cr cleanuplabel temp temp2 temp3 temp4 temp5 temp6 next-cp)
   "If the pc is restored, you must go to InterpretInstructionForBranch to update the CP"

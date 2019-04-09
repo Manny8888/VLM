@@ -10,34 +10,30 @@
 #define SystemCommAreaSize 256
 
 /* Returns the address of a slot in the SystemComm area */
-#define SystemCommSlotAddress(slot)                                          \
-    ((ptrdiff_t)SystemCommAreaAddress                                        \
-        + offsetof(SystemCommArea, slot) / sizeof(EmbWord))
+#define SystemCommSlotAddress(slot)                                                                                    \
+    ((ptrdiff_t)SystemCommAreaAddress + offsetof(SystemCommArea, slot) / sizeof(EmbWord))
 
 /* Reads a slot of the SystemComm area using the emulator's VM implementation
  */
 #ifdef _C_EMULATOR_
-#define ReadSystemCommSlot(slot, object)                                     \
-    VirtualMemoryRead(SystemCommSlotAddress(slot), &object)
+#define ReadSystemCommSlot(slot, object) VirtualMemoryRead(SystemCommSlotAddress(slot), &object)
 #else
-#define ReadSystemCommSlot(slot)                                             \
-    VirtualMemoryRead(SystemCommSlotAddress(slot))
+#define ReadSystemCommSlot(slot) VirtualMemoryRead(SystemCommSlotAddress(slot))
 #endif
 
 /* Writes a slot of the SystemComm area using the emulator's VM implementation
  */
 #ifdef _C_EMULATOR_
-#define WriteSystemCommSlot(slot, datum, tag)                                \
-    {                                                                        \
-        LispObj lispDatum;                                                   \
-        lispDatum.DATA.u = (Integer)datum;                                   \
-        lispDatum.TAG = (Tag)tag;                                            \
-        VirtualMemoryWrite(SystemCommSlotAddress(slot), &lispDatum);         \
+#define WriteSystemCommSlot(slot, datum, tag)                                                                          \
+    {                                                                                                                  \
+        LispObj lispDatum;                                                                                             \
+        lispDatum.DATA.u = (Integer)datum;                                                                             \
+        lispDatum.TAG = (Tag)tag;                                                                                      \
+        VirtualMemoryWrite(SystemCommSlotAddress(slot), &lispDatum);                                                   \
     }
 #else
-#define WriteSystemCommSlot(slot, datum, tag)                                \
-    VirtualMemoryWrite(                                                      \
-        SystemCommSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
+#define WriteSystemCommSlot(slot, datum, tag)                                                                          \
+    VirtualMemoryWrite(SystemCommSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
 #endif
 
 #ifndef MINIMA

@@ -11,9 +11,13 @@
 
 #undef __OSF__
 #undef __osf__
+#undef __APPLE__
+#undef __apple__
+#undef __FreeBSD__
+#undef __FREEBSD__
 
 // caddr_t definition is not picked up
-#define __USE_MISC
+// #define __USE_MISC
 #define LONG_BIT 64
 
 #ifndef _GNU_SOURCE
@@ -66,8 +70,7 @@ typedef void *(*pthread_startroutine_t)(void *);
 
 #ifndef OS_OSF
 #define pthread_yield sched_yield
-int pthread_get_expiration_np(
-    const struct timespec *delta, struct timespec *abstime);
+int pthread_get_expiration_np(const struct timespec *delta, struct timespec *abstime);
 int pthread_delay_np(const struct timespec *interval);
 #endif
 

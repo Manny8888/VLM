@@ -18,15 +18,11 @@ typedef struct {
     Integer address; /* VMA to be filled in by this load map entry */
     struct {
 #if BYTE_ORDER == LITTLE_ENDIAN
-        Integer
-            count : 24; /* Number of words to be filled in by this entry */
-        Integer
-            opcode : 8; /* An LoadMapEntryOpcode specifying how to do so */
+        Integer count : 24; /* Number of words to be filled in by this entry */
+        Integer opcode : 8; /* An LoadMapEntryOpcode specifying how to do so */
 #else
-        Integer
-            opcode : 8; /* An LoadMapEntryOpcode specifying how to do so */
-        Integer
-            count : 24; /* Number of words to be filled in by this entry */
+        Integer opcode : 8; /* An LoadMapEntryOpcode specifying how to do so */
+        Integer count : 24; /* Number of words to be filled in by this entry */
 #endif
     } op;
     LispObj data; /* Interpretation is based on the opcode */
@@ -34,17 +30,14 @@ typedef struct {
 } LoadMapEntry;
 
 /* Load map operation codes */
-
 enum LoadMapEntryOpcode {
     LoadMapDataPages, /* Load data pages from the file */
     LoadMapConstant, /* Store a constant into memory */
-    LoadMapConstantIncremented, /* Store an auto-incrementing constant into
-                                   memory */
+    LoadMapConstantIncremented, /* Store an auto-incrementing constant into memory */
     LoadMapCopy /* Copy an existing piece of memory */
 };
 
 /* Description of an open world file */
-
 typedef struct World {
     char *pathname; /* -> Pathname of the world file */
     int fd; /* Unix filedes # if the world file is open */
@@ -58,44 +51,35 @@ typedef struct World {
     int currentPageNumber; /* Page number of the page in the buffer, if any */
     int currentQNumber; /* Q number within the page to be read */
     struct World *parentWorld; /* -> Parent of this world if it's an IDS */
-    Integer
-        sysoutGeneration; /* Generation number of this world (> 0 if IDS) */
+    Integer sysoutGeneration; /* Generation number of this world (> 0 if IDS) */
     Integer sysoutTimestamp1; /* Unique ID of this world, part 1 ... */
     Integer sysoutTimestamp2; /* ... part 2 */
-    Integer sysoutParentTimestamp1; /* Unique ID of this world's parent, part
-                                       1 ... */
+    Integer sysoutParentTimestamp1; /* Unique ID of this world's parent, part 1 ... */
     Integer sysoutParentTimestamp2; /* ... part 2 */
     int nWiredMapEntries; /* Number of wired load map entries */
     LoadMapEntry *wiredMapEntries; /* -> The wired load map entries */
-    int nMergedWiredMapEntries; /* As above but after merging with parent
-                                   worlds */
+    int nMergedWiredMapEntries; /* As above but after merging with parent worlds */
     LoadMapEntry *mergedWiredMapEntries; /* .. */
-    int nUnwiredMapEntries; /* Number of unwired load map entries (Ivory only)
-                             */
-    LoadMapEntry
-        *unwiredMapEntries; /* -> The unwired load map entries (Ivory only) */
-    int nMergedUnwiredMapEntries; /* As above but after merging with parent
-                                     worlds */
+    int nUnwiredMapEntries; /* Number of unwired load map entries (Ivory only) */
+    LoadMapEntry *unwiredMapEntries; /* -> The unwired load map entries (Ivory only) */
+    int nMergedUnwiredMapEntries; /* As above but after merging with parent worlds */
     LoadMapEntry *mergedUnwiredMapEntries; /* .. */
 } World;
 
 /* Possible world file formats */
-
 enum LoadFileFormat {
     VLMWorldFormat, /* VLM world file (.VLOD) */
     IvoryWorldFormat /* Ivory world file (.ILOD) */
 };
 
 /* Common world format format definitions */
-
 #define VersionAndArchitectureQ 0
 
 /* VLM world file format definitions */
-
 #define VLMWorldSuffix ".vlod"
 
-#define VLMWorldFileCookie 024342504610L
-#define VLMWorldFileCookieSwapped 021042305243L
+#define VLMWorldFileCookie 024342504610L // 0x A3 8A 89 88
+#define VLMWorldFileCookieSwapped 021042305243L // 0x 88 89 8A A3
 #define VLMPageSizeQs 8192
 #define VLMBlockSize 8192
 #define VLMBlocksPerDataPage 4
@@ -132,7 +116,6 @@ typedef struct {
 } VLMPageBases;
 
 /* Ivory world file format definitions */
-
 #define IvoryWorldSuffix ".ilod"
 
 #if BYTE_ORDER == LITTLE_ENDIAN
@@ -148,7 +131,6 @@ typedef struct {
 #define IvoryWorldFileFirstMapQ 8
 
 /* Data structures passed by Lisp via the SaveWorld coprocessor register */
-
 typedef struct {
     Integer address; /* VMA of data (usually a region) to be saved */
     Integer extent; /* Number of words starting at this address to save */
@@ -161,7 +143,6 @@ typedef struct {
 } SaveWorldData;
 
 /* Prototypes of all functions in worlds_tools.c */
-
 void LoadVLMDebugger(VLMConfig *config);
 Integer LoadWorld(VLMConfig *config);
 void SaveWorld(Integer saveWorldDataVMA);
@@ -175,9 +156,8 @@ static void CreateWorldFile(World *world);
 static void FindParentWorlds(World *world, char *worldSearchPath);
 static Integer IvoryLoadMapData(World *world, LoadMapEntry *mapEntry);
 static Integer LoadMapData(World *world, LoadMapEntry *mapEntry);
-static void MergeAMap(int nForeground, LoadMapEntry *foreground,
-    int nBackground, LoadMapEntry *background, int *nMerged,
-    LoadMapEntry **merged);
+static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground, LoadMapEntry *background,
+    int *nMerged, LoadMapEntry **merged);
 static void MergeLoadMaps(World *world, char *worldSearchPath);
 static void MergeParentLoadMap(World *world);
 static boolean OpenWorldFile(World *world, boolean puntOnErrors);
@@ -185,8 +165,7 @@ static void PrepareToWriteIvoryWorldFilePage(World *world, int pageNumber);
 static void ReadIvoryWorldFileNextQ(World *world, LispObj *q);
 static void ReadIvoryWorldFilePage(World *world, int pageNumber);
 static void ReadIvoryWorldFileQ(World *world, int qNumber, LispObj *q);
-static void ReadLoadMap(
-    World *world, int nMapEntries, LoadMapEntry *mapEntries);
+static void ReadLoadMap(World *world, int nMapEntries, LoadMapEntry *mapEntries);
 static void ReadSwappedVLMWorldFileNextQ(World *world, LispObj *q);
 static void ReadSwappedVLMWorldFilePage(World *world, int pageNumber);
 static void ReadSwappedVLMWorldFileQ(World *world, int qNumber, LispObj *q);

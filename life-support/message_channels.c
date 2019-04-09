@@ -9,14 +9,13 @@
 #include "utilities.h"
 #include "spy.h"
 
-#define SetSubtypeData(mc, p)                                                \
-    {                                                                        \
-        mc->subtypeData0 = (((uint64_t)p) >> 32) & 0xFFFFFFFFL;              \
-        mc->subtypeData1 = ((uint64_t)p) & 0xFFFFFFFFL;                      \
+#define SetSubtypeData(mc, p)                                                                                          \
+    {                                                                                                                  \
+        mc->subtypeData0 = (((uint64_t)p) >> 32) & 0xFFFFFFFFL;                                                        \
+        mc->subtypeData1 = ((uint64_t)p) & 0xFFFFFFFFL;                                                                \
     }
 
-#define SubtypeData(mc)                                                      \
-    (PtrV)(((uint64_t)mc->subtypeData0 << 32) | mc->subtypeData1)
+#define SubtypeData(mc) (PtrV)(((uint64_t)mc->subtypeData0 << 32) | mc->subtypeData1)
 
 /* Initialize the command message channel and all other message channel
  * structures */
@@ -48,12 +47,10 @@ void InitializeMessageChannels(VLMConfig *config)
 
     p->guestToHostQueue = CreateQueue(CommandQueueSize, sizeof(EmbPtr));
     cc->guestToHostQueue = (EmbQueue *)HostPointer(p->guestToHostQueue);
-    cc->guestToHostQueue->signal = InstallSignalHandler(
-        (ProcPtrV)&ExecuteGuestCommands, (PtrV)cc, FALSE);
+    cc->guestToHostQueue->signal = InstallSignalHandler((ProcPtrV)&ExecuteGuestCommands, (PtrV)cc, FALSE);
 
     p->guestToHostReturnQueue = CreateQueue(CommandQueueSize, sizeof(EmbPtr));
-    cc->guestToHostReturnQueue
-        = (EmbQueue *)HostPointer(p->guestToHostReturnQueue);
+    cc->guestToHostReturnQueue = (EmbQueue *)HostPointer(p->guestToHostReturnQueue);
 }
 
 /* Poll all active message channels -- Our caller is holding Life Support's
@@ -68,17 +65,12 @@ void PollMessageChannels()
     if (NullEmbPtr == EmbCommAreaPtr->command_channel)
         return;
 
-    for (messageChannel
-         = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel);
-         messageChannel != NULL;
+    for (messageChannel = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel); messageChannel != NULL;
          messageChannel = subtypeData->header.nextActiveChannel) {
         subtypeData = (EmbMessageSubtypeData *)SubtypeData(messageChannel);
-        guestToHostQueue
-            = (EmbQueue *)HostPointer(messageChannel->guestToHostQueue);
-        if (messageChannel->guestToHostImpulse
-            && (guestToHostQueue->signal != -1))
-            EmbCommAreaPtr->guest_to_host_signals |= 1
-                << guestToHostQueue->signal;
+        guestToHostQueue = (EmbQueue *)HostPointer(messageChannel->guestToHostQueue);
+        if (messageChannel->guestToHostImpulse && (guestToHostQueue->signal != -1))
+            EmbCommAreaPtr->guest_to_host_signals |= 1 << guestToHostQueue->signal;
     }
 }
 
@@ -90,13 +82,9 @@ static void ThreadActiveMessageChannel(EmbMessageChannel *theChannel)
     register EmbMessageChannel *messageChannel;
     register EmbMessageSubtypeData *subtypeData;
 
-    ((EmbMessageSubtypeData *)SubtypeData(theChannel))
-        ->header.nextActiveChannel
-        = NULL;
+    ((EmbMessageSubtypeData *)SubtypeData(theChannel))->header.nextActiveChannel = NULL;
 
-    for (messageChannel
-         = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel);
-         messageChannel != NULL;
+    for (messageChannel = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel); messageChannel != NULL;
          messageChannel = subtypeData->header.nextActiveChannel) {
         subtypeData = (EmbMessageSubtypeData *)SubtypeData(messageChannel);
         if (NULL == subtypeData->header.nextActiveChannel) {
@@ -114,15 +102,12 @@ void UnthreadMessageChannel(EmbMessageChannel *theChannel)
     register EmbMessageSubtypeData *subtypeData;
     EmbMessageSubtypeData *theSubtypeData;
 
-    for (messageChannel
-         = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel);
-         messageChannel != NULL;
+    for (messageChannel = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel); messageChannel != NULL;
          messageChannel = subtypeData->header.nextActiveChannel) {
         subtypeData = (EmbMessageSubtypeData *)SubtypeData(messageChannel);
         if (theChannel == subtypeData->header.nextActiveChannel) {
             theSubtypeData = (EmbMessageSubtypeData *)SubtypeData(theChannel);
-            subtypeData->header.nextActiveChannel
-                = theSubtypeData->header.nextActiveChannel;
+            subtypeData->header.nextActiveChannel = theSubtypeData->header.nextActiveChannel;
             theSubtypeData->header.nextActiveChannel = NULL;
             return;
         }
@@ -155,33 +140,24 @@ void ExecuteGuestCommands(EmbCommandChannel *commandChannel)
             case EmbCommandBufferStartMBIN:
                 /* Activate an MBIN channel that was created by the VLM */
                 startMBINCommand = (EmbCommandStartMBINBuffer *)command;
-                mbinChannel = (EmbMessageChannel *)HostPointer(
-                    startMBINCommand->mbinChannel);
+                mbinChannel = (EmbMessageChannel *)HostPointer(startMBINCommand->mbinChannel);
                 mbinSubChannel = malloc(sizeof(EmbMBINChannel));
                 if (NULL == mbinSubChannel)
                     command->resultCode = ENOMEM;
                 else {
                     mbinSubChannel->header.commArea = EmbCommAreaPtr;
                     mbinSubChannel->header.messageChannel = mbinChannel;
-                    mbinSubChannel->guestToHostQueue
-                        = (EmbQueue *)HostPointer(
-                            mbinChannel->guestToHostQueue);
+                    mbinSubChannel->guestToHostQueue = (EmbQueue *)HostPointer(mbinChannel->guestToHostQueue);
                     mbinSubChannel->guestToHostReturnQueue
-                        = (EmbQueue *)HostPointer(
-                            mbinChannel->guestToHostReturnQueue);
-                    mbinSubChannel->hostToGuestQueue
-                        = (EmbQueue *)HostPointer(
-                            mbinChannel->hostToGuestQueue);
+                        = (EmbQueue *)HostPointer(mbinChannel->guestToHostReturnQueue);
+                    mbinSubChannel->hostToGuestQueue = (EmbQueue *)HostPointer(mbinChannel->hostToGuestQueue);
                     mbinSubChannel->hostToGuestSupplyQueue
-                        = (EmbQueue *)HostPointer(
-                            mbinChannel->hostToGuestSupplyQueue);
+                        = (EmbQueue *)HostPointer(mbinChannel->hostToGuestSupplyQueue);
                     SetSubtypeData(mbinChannel, mbinSubChannel);
-                    ThreadActiveMessageChannel(
-                        (EmbMessageChannel *)mbinChannel);
+                    ThreadActiveMessageChannel((EmbMessageChannel *)mbinChannel);
                     activeMBINChannel = mbinSubChannel;
                     mbinSubChannel->guestToHostQueue->signal
-                        = InstallSignalHandler((ProcPtrV)&SendMBINBuffers,
-                            (PtrV)mbinSubChannel, FALSE);
+                        = InstallSignalHandler((ProcPtrV)&SendMBINBuffers, (PtrV)mbinSubChannel, FALSE);
                     command->resultCode = ESUCCESS;
                 }
                 break;
@@ -204,8 +180,7 @@ void ResetMessageChannel(EmbChannel *channel)
     register EmbMessageSubtypeData *subtypeData;
     boolean allocatedByVLM;
 
-    allocatedByVLM = GuestPointer(channel) > EmbCommAreaPtr->host_buffer_start
-            + EmbCommAreaPtr->host_buffer_size;
+    allocatedByVLM = GuestPointer(channel) > EmbCommAreaPtr->host_buffer_start + EmbCommAreaPtr->host_buffer_size;
 
     messageChannel->guestToHostImpulse = EmbMessageImpulseNone;
     messageChannel->hostToGuestImpulse = EmbMessageImpulseNone;
@@ -214,23 +189,16 @@ void ResetMessageChannel(EmbChannel *channel)
 
     switch (messageChannel->subtype) {
     case EmbMessageChannelCommandSubtype:
-        ResetIncomingQueue(
-            (EmbQueue *)HostPointer(messageChannel->guestToHostQueue));
-        ResetOutgoingQueue(
-            (EmbQueue *)HostPointer(messageChannel->guestToHostReturnQueue));
+        ResetIncomingQueue((EmbQueue *)HostPointer(messageChannel->guestToHostQueue));
+        ResetOutgoingQueue((EmbQueue *)HostPointer(messageChannel->guestToHostReturnQueue));
         break;
 
     case EmbMessageChannelMBINSubtype:
-        ResetIncomingQueue(
-            (EmbQueue *)HostPointer(messageChannel->guestToHostQueue));
-        ResetOutgoingQueue(
-            (EmbQueue *)HostPointer(messageChannel->guestToHostReturnQueue));
-        ResetIncomingQueue(
-            (EmbQueue *)HostPointer(messageChannel->hostToGuestSupplyQueue));
-        ResetOutgoingQueue(
-            (EmbQueue *)HostPointer(messageChannel->hostToGuestQueue));
-        if (allocatedByVLM
-            && (activeMBINChannel == (EmbMBINChannel *)subtypeData))
+        ResetIncomingQueue((EmbQueue *)HostPointer(messageChannel->guestToHostQueue));
+        ResetOutgoingQueue((EmbQueue *)HostPointer(messageChannel->guestToHostReturnQueue));
+        ResetIncomingQueue((EmbQueue *)HostPointer(messageChannel->hostToGuestSupplyQueue));
+        ResetOutgoingQueue((EmbQueue *)HostPointer(messageChannel->hostToGuestQueue));
+        if (allocatedByVLM && (activeMBINChannel == (EmbMBINChannel *)subtypeData))
             activeMBINChannel = NULL;
         break;
 

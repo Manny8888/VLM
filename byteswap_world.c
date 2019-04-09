@@ -23,9 +23,7 @@ int main(int argc, char **argv)
 
     for (i = 1; i < argc; i++) {
         argLength = strlen(argv[i]);
-        if (0
-            == strncmp(
-                   argv[i], "-searchpath", (argLength < 7) ? 7 : argLength))
+        if (0 == strncmp(argv[i], "-searchpath", (argLength < 7) ? 7 : argLength))
             if (i < argc - 1)
                 searchPath = argv[++i];
             else
@@ -34,9 +32,7 @@ int main(int argc, char **argv)
 
     for (i = 1; i < argc; i++) {
         argLength = strlen(argv[i]);
-        if (0
-            == strncmp(
-                   argv[i], "-searchpath", (argLength < 7) ? 7 : argLength))
+        if (0 == strncmp(argv[i], "-searchpath", (argLength < 7) ? 7 : argLength))
             i++;
         else if (0 == strncmp(argv[i], "-", 1))
             vpunt(NULL, "Unrecognized option: %s", argv[i]);

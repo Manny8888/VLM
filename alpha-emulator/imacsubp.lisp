@@ -1,8 +1,8 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
-;;; Macros in support of subprimitive instructions.  These are mostly 
+;;; Macros in support of subprimitive instructions.  These are mostly
 ;;; in ifunsubp.as
 
 (defmacro %allocate-internal (type area amount escape address t1 t2 t3 t4 &environment env)
@@ -23,7 +23,7 @@
 	    'PROCESSORSTATE_SCAREA
 	    'PROCESSORSTATE_SCADDRESS
 	    'PROCESSORSTATE_SCLENGTH)))
-	    
+
   `((LDQ ,t1 ,cache-area (ivory))
     ;; --- Implement default-cons-area and check against that
     #-ign (Get-Nil ,t4)
@@ -77,7 +77,7 @@
       (SUBQ t4 arg1 t2 "Effectively an unsigned 32-bit compare")
       (BLT t2 ,ielab "Insufficient cache")
       (LDQ t1 ,adr (ivory) "Fetch address")
-      (load-constant t3 #.(sys:%logdpb sys:trap-mode-fep sys:%%cr.trap-mode 0))
+      (load-constant t3 #.(%logdpb trap-mode-fep %%cr.trap-mode 0))
       (EXTLL t3 0 t3)
       (STL t2 ,len (ivory) "Store remaining length")
       (stack-write iSP t1 "Cache address/tag -> TOS")
@@ -157,10 +157,10 @@
 ;; For the first three or four internal registers, this is slower than
 ;; just using REGISTER-DISPATCH, but after that this wins big.
 (defmacro internal-register-dispatch (reg writep error temp1 temp2 temp3)
-  (let ((low-slot (if writep 
+  (let ((low-slot (if writep
 		      'PROCESSORSTATE_INTERNALREGISTERWRITE1
 		      'PROCESSORSTATE_INTERNALREGISTERREAD1))
-	(high-slot (if writep 
+	(high-slot (if writep
 		       'PROCESSORSTATE_INTERNALREGISTERWRITE2
 		       'PROCESSORSTATE_INTERNALREGISTERREAD2))
 	(high-ones (gensym)))

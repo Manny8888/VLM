@@ -18,12 +18,10 @@ typedef struct {
 
 /* DEC LK401 keyboard */
 
-static coldmapentry coldmapDECLK[] = { SK_Rubout, XK_Delete, SK_Help, XK_Help,
-    SK_Backspace, XK_BackSpace, SK_Backspace, DXK_Remove, SK_Tab, XK_Tab,
-    SK_Line, XK_Linefeed, SK_Return, XK_Return, SK_Escape, XK_Escape,
-    SK_Complete, XK_Find, SK_Line, XK_Insert, SK_Select, XK_Select, SK_Scroll,
-    XK_Next, SK_End, XK_Menu, SK_End, XK_KP_Enter, SK_Refresh, XK_KP_F1,
-    SK_Page, XK_KP_F2, -1, -1 };
+static coldmapentry coldmapDECLK[] = { SK_Rubout, XK_Delete, SK_Help, XK_Help, SK_Backspace, XK_BackSpace, SK_Backspace,
+    DXK_Remove, SK_Tab, XK_Tab, SK_Line, XK_Linefeed, SK_Return, XK_Return, SK_Escape, XK_Escape, SK_Complete, XK_Find,
+    SK_Line, XK_Insert, SK_Select, XK_Select, SK_Scroll, XK_Next, SK_End, XK_Menu, SK_End, XK_KP_Enter, SK_Refresh,
+    XK_KP_F1, SK_Page, XK_KP_F2, -1, -1 };
 
 static short fkmapDECLK[] = {
     SK_Function, SK_Function, /* F1 */
@@ -58,14 +56,11 @@ static short fkmapDECLK[] = {
 
 /* DEC PC-style keyboard */
 
-static coldmapentry coldmapDECPC[] = { SK_Rubout, XK_Delete, SK_Help,
-    XK_Insert, SK_Backspace, XK_BackSpace, SK_Backspace, DXK_Remove, SK_Tab,
-    XK_Tab, SK_Line, XK_Linefeed, SK_Line, XK_Right, SK_Return, XK_Return,
-    SK_Escape, XK_Escape, SK_Complete, XK_Find, SK_Complete, XK_Home, SK_Line,
-    XK_Right, SK_Select, XK_Select, SK_Scroll, XK_Next, SK_End, XK_Menu,
-    SK_End, XK_KP_Enter, SK_Refresh, XK_KP_F1, SK_Page, XK_KP_F2, SK_Page,
-    XK_Page_Up, SK_Suspend, XK_KP_Divide, SK_Resume, XK_KP_Multiply, SK_Abort,
-    XK_KP_Subtract, -1, -1 };
+static coldmapentry coldmapDECPC[] = { SK_Rubout, XK_Delete, SK_Help, XK_Insert, SK_Backspace, XK_BackSpace,
+    SK_Backspace, DXK_Remove, SK_Tab, XK_Tab, SK_Line, XK_Linefeed, SK_Line, XK_Right, SK_Return, XK_Return, SK_Escape,
+    XK_Escape, SK_Complete, XK_Find, SK_Complete, XK_Home, SK_Line, XK_Right, SK_Select, XK_Select, SK_Scroll, XK_Next,
+    SK_End, XK_Menu, SK_End, XK_KP_Enter, SK_Refresh, XK_KP_F1, SK_Page, XK_KP_F2, SK_Page, XK_Page_Up, SK_Suspend,
+    XK_KP_Divide, SK_Resume, XK_KP_Multiply, SK_Abort, XK_KP_Subtract, -1, -1 };
 
 static short fkmapDECPC[] = {
     SK_Select, SK_Select, /* F1 */
@@ -96,13 +91,10 @@ static short fkmapDECPC[] = {
 /* Apple Keyboard */
 
 /* No mappings for -- SK_Square, SK_Circle, SK_Triangle, SK_Clear_Input */
-static coldmapentry coldmapApple[] = { SK_Clear_Input,
-    0, /* Depends on X server */
-    SK_Rubout, XK_Delete, SK_Help, XK_Insert, SK_Backspace, XK_BackSpace,
-    SK_Tab, XK_Tab, SK_Line, XK_Right, SK_Return, XK_Return, SK_Escape,
-    XK_Escape, SK_Complete, XK_Home, SK_End, XK_End, SK_Scroll, XK_KP_Enter,
-    SK_Page, XK_Prior, SK_Suspend, XK_KP_Equal, SK_Resume, XK_KP_Divide,
-    SK_Abort, XK_KP_Multiply, -1, -1 };
+static coldmapentry coldmapApple[] = { SK_Clear_Input, 0, /* Depends on X server */
+    SK_Rubout, XK_Delete, SK_Help, XK_Insert, SK_Backspace, XK_BackSpace, SK_Tab, XK_Tab, SK_Line, XK_Right, SK_Return,
+    XK_Return, SK_Escape, XK_Escape, SK_Complete, XK_Home, SK_End, XK_End, SK_Scroll, XK_KP_Enter, SK_Page, XK_Prior,
+    SK_Suspend, XK_KP_Equal, SK_Resume, XK_KP_Divide, SK_Abort, XK_KP_Multiply, -1, -1 };
 
 static short fkmapApple[] = {
     SK_Select, SK_Select, /* F1 */

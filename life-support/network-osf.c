@@ -35,18 +35,15 @@ void InitializeNetworkChannels(VLMConfig *config)
     if (NULL == (localHostEntry = gethostbyname(localHost)))
         vpunt(NULL, "Unable to determine local host network address");
 
-    memcpy((char *)&localHostAddress.s_addr, localHostEntry->h_addr,
-        sizeof(localHostAddress.s_addr));
+    memcpy((char *)&localHostAddress.s_addr, localHostEntry->h_addr, sizeof(localHostAddress.s_addr));
 
     for (i = 0; i < MaxNetworkInterfaces; i++)
         if (config->interfaces[i].present)
-            InitializeNetChannel(
-                &config->interfaces[i], i, &localHostAddress);
+            InitializeNetChannel(&config->interfaces[i], i, &localHostAddress);
 
 #ifdef MINIMA
     WriteFEPCommSlot(localIPAddress0, 0, Type_Fixnum);
-    WriteFEPCommSlot(diagnosticIPAddress,
-        htonl(config->diagnosticIPAddress.s_addr), Type_Fixnum);
+    WriteFEPCommSlot(diagnosticIPAddress, htonl(config->diagnosticIPAddress.s_addr), Type_Fixnum);
     WriteFEPCommSlot(localIPAddress1, 0, Type_Fixnum);
     WriteFEPCommSlot(localIPSubnetMask0, 0, Type_Fixnum);
     WriteFEPCommSlot(localIPSubnetMask1, 0, Type_Fixnum);
@@ -58,8 +55,7 @@ void InitializeNetworkChannels(VLMConfig *config)
 
 /* Create a single network channel */
 
-static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
-    struct in_addr *localHostAddress)
+static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, struct in_addr *localHostAddress)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbNetChannel));
     register EmbNetChannel *p = (EmbNetChannel *)HostPointer(cp);
@@ -68,11 +64,8 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
     struct timeval timeout;
     u_short ioctlBits, *fp;
     int x;
-    u_short etherTypeOffset
-        = offsetof(struct ether_header, ether_type) / sizeof(u_short);
-    u_short ipAddressOffset
-        = (offsetof(struct ip, ip_dst) + sizeof(struct ether_header))
-        / sizeof(u_short);
+    u_short etherTypeOffset = offsetof(struct ether_header, ether_type) / sizeof(u_short);
+    u_short ipAddressOffset = (offsetof(struct ip, ip_dst) + sizeof(struct ether_header)) / sizeof(u_short);
 #ifdef GENERA
     struct in_addr guestAddress;
     char addressAsString[_POSIX_ARG_MAX];
@@ -88,13 +81,10 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
 
 /*#define NOROOT*/
 #ifndef NOROOT
-    p->fd = pfopen(
-        (0 == interface->device[0]) ? NULL : interface->device, O_RDWR);
+    p->fd = pfopen((0 == interface->device[0]) ? NULL : interface->device, O_RDWR);
     if (-1 == p->fd)
-        vpunt(NULL, "Unable to open VLM network interface #%d using %s",
-            unitNumber,
-            (0 == interface->device[0]) ? "the default channel"
-                                        : interface->device);
+        vpunt(NULL, "Unable to open VLM network interface #%d using %s", unitNumber,
+            (0 == interface->device[0]) ? "the default channel" : interface->device);
 
     if (-1 == ioctl(p->fd, EIOCIFNAME, &hardwareInterface))
         vpunt(NULL,
@@ -103,8 +93,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
             unitNumber);
 #endif
     p->name0 = p->name1 = 0;
-    memcpy(
-        (char *)&p->name0, hardwareInterface.ifr_name, 2 * sizeof(EmbWord));
+    memcpy((char *)&p->name0, hardwareInterface.ifr_name, 2 * sizeof(EmbWord));
 
     p->status = 0;
     p->hostPrimaryProtocol = ETHERTYPE_IP;
@@ -120,38 +109,28 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
             unitNumber);
 #endif
     p->hardwareAddressHigh = p->hardwareAddressLow = 0;
-    memcpy((char *)&p->hardwareAddressHigh, deviceParms.end_addr,
-        deviceParms.end_addr_len);
+    memcpy((char *)&p->hardwareAddressHigh, deviceParms.end_addr, deviceParms.end_addr_len);
 
 #ifndef NOROOT
     x = 1;
     if (-1 == ioctl(p->fd, EIOCALLOWPROMISC, &x))
-        vpunt(NULL,
-            "Unable to set ALLOWPROMISC for VLM network interface #%d",
-            unitNumber);
+        vpunt(NULL, "Unable to set ALLOWPROMISC for VLM network interface #%d", unitNumber);
 
     x = 1;
     if (-1 == ioctl(p->fd, EIOCALLOWCOPYALL, &x))
-        vpunt(NULL,
-            "Unable to set ALLOWCOPYALL for VLM network interface #%d",
-            unitNumber);
+        vpunt(NULL, "Unable to set ALLOWCOPYALL for VLM network interface #%d", unitNumber);
 
     ioctlBits = ENHOLDSIG | ENNONEXCL | ENCOPYALL;
     if (-1 == ioctl(p->fd, EIOCMBIS, &ioctlBits))
-        vpunt(NULL, "Unable to set attributes for VLM network interface #%d",
-            unitNumber);
+        vpunt(NULL, "Unable to set attributes for VLM network interface #%d", unitNumber);
 
     ioctlBits = ENBATCH | ENTSTAMP | ENPROMISC | ENBPFHDR;
     if (-1 == ioctl(p->fd, EIOCMBIC, &ioctlBits))
-        vpunt(NULL,
-            "Unable to clear attributes for VLM network interface #%d",
-            unitNumber);
+        vpunt(NULL, "Unable to clear attributes for VLM network interface #%d", unitNumber);
 
     timeout.tv_sec = timeout.tv_usec = 0; /* Wait indefinitely for packets */
     if (-1 == ioctl(p->fd, EIOCSRTIMEOUT, &timeout))
-        vpunt(NULL,
-            "Unable to set packet timeout for VLM network interface #%d",
-            unitNumber);
+        vpunt(NULL, "Unable to set packet timeout for VLM network interface #%d", unitNumber);
 
 #if 0
 	x = deviceParms.end_MTU;					/* TEMPORARY workaround to DEC bug */
@@ -168,8 +147,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
             "interface #%d",
             unitNumber);
     if (-1 == ioctl(p->fd, EIOCSETW, &x))
-        vpunt(NULL, "Unable to set queue size for VLM network interface #%d",
-            unitNumber);
+        vpunt(NULL, "Unable to set queue size for VLM network interface #%d", unitNumber);
 #endif
 
     p->filter.enf_Priority = 255; /* Maximum priority */
@@ -261,24 +239,17 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
 
     p->nTransmitFailures = p->nReceiveFailures = 0;
 
-    p->guestToHostQueue
-        = CreateQueue(NetworkTransmitterQueueSize, sizeof(EmbPtr));
+    p->guestToHostQueue = CreateQueue(NetworkTransmitterQueueSize, sizeof(EmbPtr));
     p->guestToHostQ = (EmbQueue *)HostPointer(p->guestToHostQueue);
-    p->guestToHostQ->signal = InstallSignalHandler(
-        (ProcPtrV)&NetworkChannelTransmitter, (PtrV)p, FALSE);
+    p->guestToHostQ->signal = InstallSignalHandler((ProcPtrV)&NetworkChannelTransmitter, (PtrV)p, FALSE);
 
-    p->guestToHostReturnQueue
-        = CreateQueue(NetworkTransmitterQueueSize, sizeof(EmbPtr));
-    p->guestToHostReturnQ
-        = (EmbQueue *)HostPointer(p->guestToHostReturnQueue);
+    p->guestToHostReturnQueue = CreateQueue(NetworkTransmitterQueueSize, sizeof(EmbPtr));
+    p->guestToHostReturnQ = (EmbQueue *)HostPointer(p->guestToHostReturnQueue);
 
-    p->hostToGuestSupplyQueue
-        = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
-    p->hostToGuestSupplyQ
-        = (EmbQueue *)HostPointer(p->hostToGuestSupplyQueue);
+    p->hostToGuestSupplyQueue = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
+    p->hostToGuestSupplyQ = (EmbQueue *)HostPointer(p->hostToGuestSupplyQueue);
 
-    p->hostToGuestQueue
-        = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
+    p->hostToGuestQueue = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
     p->hostToGuestQ = (EmbQueue *)HostPointer(p->hostToGuestQueue);
 
 #ifdef GENERA
@@ -289,30 +260,25 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber,
         else
             sprintf(addressAsString, "%s,", addressAsString);
         if (interface->device[0])
-            sprintf(
-                addressAsString, "%s%s:", addressAsString, interface->device);
+            sprintf(addressAsString, "%s%s:", addressAsString, interface->device);
         switch (interface->myProtocol) {
         case ETHERTYPE_IP:
             guestAddress.s_addr = htonl(interface->myAddress.s_addr);
-            sprintf(addressAsString, "%sINTERNET|%s", addressAsString,
-                inet_ntoa(guestAddress));
+            sprintf(addressAsString, "%sINTERNET|%s", addressAsString, inet_ntoa(guestAddress));
             break;
         case ETHERTYPE_CHAOS:
-            sprintf(addressAsString, "%sCHAOS|%o", addressAsString,
-                htonl(interface->myAddress.s_addr));
+            sprintf(addressAsString, "%sCHAOS|%o", addressAsString, htonl(interface->myAddress.s_addr));
             break;
         }
         if (interface->myOptions[0])
-            sprintf(addressAsString, "%s;%s", addressAsString,
-                interface->myOptions);
+            sprintf(addressAsString, "%s;%s", addressAsString, interface->myOptions);
     }
     p->addressString = MakeEmbString(addressAsString);
     printf("%s\n", addressAsString);
 #endif
 
     if (pthread_create(&p->receiverThread, &EmbCommAreaPtr->inputThreadAttrs,
-            (pthread_startroutine_t)&NetworkChannelReceiver,
-            (pthread_addr_t)p))
+            (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p))
         vpunt(NULL,
             "Unable to create thread to receive packets for VLM network "
             "interface #%d",
@@ -360,10 +326,8 @@ static void show_packet(char *who, unsigned char *pkt)
         }
         sp = (p[14 + 20 + 0] << 8) | p[14 + 20 + 1];
         dp = (p[14 + 20 + 2] << 8) | p[14 + 20 + 3];
-        printf("%s %u.%u.%u.%u:%u -> %u.%u.%u.%u:%u %s\n", who,
-            p[14 + 20 - 8], p[14 + 20 - 7], p[14 + 20 - 6], p[14 + 20 - 5],
-            sp, p[14 + 20 - 4], p[14 + 20 - 3], p[14 + 20 - 2],
-            p[14 + 20 - 1], dp, prot);
+        printf("%s %u.%u.%u.%u:%u -> %u.%u.%u.%u:%u %s\n", who, p[14 + 20 - 8], p[14 + 20 - 7], p[14 + 20 - 6],
+            p[14 + 20 - 5], sp, p[14 + 20 - 4], p[14 + 20 - 3], p[14 + 20 - 2], p[14 + 20 - 1], dp, prot);
     }
     if (p[12] == 0x08 && p[13] == 6) {
         printf(".");
@@ -403,8 +367,7 @@ static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
                 nBytes = (ssize_t)netPacket->nBytes;
 #ifndef NOROOT
                 show_packet("tx", (unsigned char *)&netPacket->data[0]);
-                actualBytes
-                    = write(netChannel->fd, &netPacket->data[0], nBytes);
+                actualBytes = write(netChannel->fd, &netPacket->data[0], nBytes);
 #else
                 actualBytes = 0;
 #endif
@@ -450,8 +413,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
         if (0 == (pollReceiver.revents & POLLNORM))
             continue;
 
-        actualBytes = read(
-            netChannel->fd, &netChannel->receiveBuffer, MaxEmbNetPacketSize);
+        actualBytes = read(netChannel->fd, &netChannel->receiveBuffer, MaxEmbNetPacketSize);
 
         if (actualBytes < 0)
             netChannel->nReceiveFailures++;
@@ -462,8 +424,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
         else if (!(netChannel->status & EmbNetStatusGuestReady))
             ;
 
-        else if ((0 == EmbQueueSpace(supplyQueue))
-            || (0 == EmbQueueSpace(receiveQueue)))
+        else if ((0 == EmbQueueSpace(supplyQueue)) || (0 == EmbQueueSpace(receiveQueue)))
             netChannel->nReceivedPacketsLost++;
 
         else {
@@ -477,8 +438,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
             }
             netPacket = (EmbNetPacket *)HostPointer(netPacketPtr);
             netPacket->nBytes = (EmbWord)actualBytes;
-            memcpy(&netPacket->data[0], &netChannel->receiveBuffer[0],
-                actualBytes);
+            memcpy(&netPacket->data[0], &netChannel->receiveBuffer[0], actualBytes);
             EmbQueuePutWord(receiveQueue, netPacketPtr);
         }
     }
@@ -511,8 +471,7 @@ void TerminateNetworkChannels()
     EmbNetChannel *netChannel;
     EmbPtr channel;
 
-    for (channel = EmbCommAreaPtr->channel_table; channel != NullEmbPtr;
-         channel = netChannel->next) {
+    for (channel = EmbCommAreaPtr->channel_table; channel != NullEmbPtr; channel = netChannel->next) {
         netChannel = (EmbNetChannel *)HostPointer(channel);
         if (EmbNetworkChannelType == netChannel->type)
             TerminateNetChannel(netChannel);
