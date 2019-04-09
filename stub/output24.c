@@ -11,121 +11,111 @@
 
 fetchdoublefloat:
   if (_trace) printf("fetchdoublefloat:\n");
-  sp = sp + -8;
+  sp = sp + -8;   
   /* Memory Read Internal */
 
-g9021:
+g30690:
   t7 = arg2 + ivory;
-  arg6 = (t7 * 4);
-  arg5 = LDQ_U(t7);
-  /* Stack cache offset */
+  arg6 = (t7 * 4);   
+  arg5 = LDQ_U(t7);   
+		/* Stack cache offset */
   t5 = arg2 - t11;
   t8 = *(u64 *)&(processor->dataread_mask);
-  /* In range? */
-  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;
+  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
   arg6 = *(s32 *)arg6;
-  arg5 = (u8)(arg5 >> ((t7&7)*8));
-  if (t6 != 0)
-    goto g9023;
+  arg5 = (u8)(arg5 >> ((t7&7)*8));   
+  if (t6 != 0)   
+    goto g30692;
 
-g9022:
-  t7 = zero + 240;
+g30691:
+  t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);
   t7 = t7 >> (arg5 & 63);
-  if (t8 & 1)
-    goto g9025;
+  if (t8 & 1)   
+    goto g30694;
 
-g9032:
+g30701:
   t5 = arg5 - Type_Fixnum;
-  /* Strip CDR code */
-  t5 = t5 & 63;
-  if (t5 != 0)
-    goto g9020;
+  t5 = t5 & 63;		// Strip CDR code 
+  if (t5 != 0)   
+    goto g30689;
   *((u32 *)(&processor->fp0)+1) = arg6;
   arg2 = arg2 + 1;
   /* Memory Read Internal */
 
-g9033:
+g30702:
   t7 = arg2 + ivory;
-  arg6 = (t7 * 4);
-  arg5 = LDQ_U(t7);
-  /* Stack cache offset */
+  arg6 = (t7 * 4);   
+  arg5 = LDQ_U(t7);   
+		/* Stack cache offset */
   t5 = arg2 - t11;
   t8 = *(u64 *)&(processor->dataread_mask);
-  /* In range? */
-  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;
+  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
   arg6 = *(s32 *)arg6;
-  arg5 = (u8)(arg5 >> ((t7&7)*8));
-  if (t6 != 0)
-    goto g9035;
+  arg5 = (u8)(arg5 >> ((t7&7)*8));   
+  if (t6 != 0)   
+    goto g30704;
 
-g9034:
-  t7 = zero + 240;
+g30703:
+  t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);
   t7 = t7 >> (arg5 & 63);
-  if (t8 & 1)
-    goto g9037;
+  if (t8 & 1)   
+    goto g30706;
 
-g9044:
+g30713:
   t5 = arg5 - Type_Fixnum;
-  /* Strip CDR code */
-  t5 = t5 & 63;
-  if (t5 != 0)
-    goto g9020;
+  t5 = t5 & 63;		// Strip CDR code 
+  if (t5 != 0)   
+    goto g30689;
   *(u32 *)&processor->fp0 = arg6;
-  sp = sp + 8;
+  sp = sp + 8;   
   goto *r0; /* ret */
 
-g9037:
-  if (_trace) printf("g9037:\n");
-  if ((t7 & 1) == 0)
-    goto g9036;
-  /* Do the indirect thing */
-  arg2 = (u32)arg6;
-  goto g9033;
+g30706:
+  if (_trace) printf("g30706:\n");
+  if ((t7 & 1) == 0)   
+    goto g30705;
+  arg2 = (u32)arg6;   		// Do the indirect thing 
+  goto g30702;   
 
-g9036:
-  if (_trace) printf("g9036:\n");
+g30705:
+  if (_trace) printf("g30705:\n");
 
-g9035:
-  if (_trace) printf("g9035:\n");
+g30704:
+  if (_trace) printf("g30704:\n");
   *(u64 *)sp = r0;
-  r0 = (u64)&&return0300;
+  r0 = (u64)&&return0668;
   goto memoryreaddatadecode;
-return0300:
+return0668:
   r0 = *(u64 *)sp;
-  goto g9044;
+  goto g30713;   
 
-g9025:
-  if (_trace) printf("g9025:\n");
-  if ((t7 & 1) == 0)
-    goto g9024;
-  /* Do the indirect thing */
-  arg2 = (u32)arg6;
-  goto g9021;
+g30694:
+  if (_trace) printf("g30694:\n");
+  if ((t7 & 1) == 0)   
+    goto g30693;
+  arg2 = (u32)arg6;   		// Do the indirect thing 
+  goto g30690;   
 
-g9024:
-  if (_trace) printf("g9024:\n");
+g30693:
+  if (_trace) printf("g30693:\n");
 
-g9023:
-  if (_trace) printf("g9023:\n");
+g30692:
+  if (_trace) printf("g30692:\n");
   *(u64 *)sp = r0;
-  r0 = (u64)&&return0301;
+  r0 = (u64)&&return0669;
   goto memoryreaddatadecode;
-return0301:
+return0669:
   r0 = *(u64 *)sp;
-  goto g9032;
+  goto g30701;   
 
-g9020:
-  if (_trace) printf("g9020:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = Type_DoubleFloat;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g30689:
+  if (_trace) printf("g30689:\n");
+  arg6 = Type_DoubleFloat;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
 /* end FetchDoubleFloat */
@@ -134,73 +124,65 @@ g9020:
 
 consdoublefloat:
   if (_trace) printf("consdoublefloat:\n");
-  sp = sp + -8;
+  sp = sp + -8;   
   arg6 = *(s32 *)&processor->fp0;
   arg5 = *((s32 *)(&processor->fp0)+1);
   t5 = *(u64 *)&(processor->lcarea);
   t8 = *(u64 *)&(processor->niladdress);
   t6 = *(s32 *)&processor->lclength;
-  /* Fetch address */
+		/* Fetch address */
   arg2 = *(u64 *)&(processor->lcaddress);
-  t7 = (t5 == t8) ? 1 : 0;
-  /* Decached area */
-  if (t7 != 0)
-    goto g9045;
-  /* Effectively an unsigned 32-bit compare */
+  t7 = (t5 == t8) ? 1 : 0;   
+  if (t7 != 0)   		// Decached area 
+    goto g30714;
+		/* Effectively an unsigned 32-bit compare */
   t7 = t6 - 2;
-  /* Insufficient cache */
-  if ((s64)t7 < 0)
-    goto g9045;
-  /* Force the trap to occur here */
-  /* trapb force the trap to occur here */
-  /* Store remaining length */
+  if ((s64)t7 < 0)   		// Insufficient cache 
+    goto g30714;
+  /* trapb force the trap to occur here */   		// Force the trap to occur here 
+		/* Store remaining length */
   *(u32 *)&processor->lclength = t7;
-  t8 = (u32)arg2;
-  /* Increment address */
-  t8 = t8 + 2;
-  /* Store updated address */
+  t8 = (u32)arg2;   
+  t8 = t8 + 2;		// Increment address 
+		/* Store updated address */
   *(u32 *)&processor->lcaddress = t8;
-  arg2 = (u32)arg2;
+  arg2 = (u32)arg2;   
   t9 = Type_Fixnum;
   t9 = t9 | 128;
   t5 = arg2 + ivory;
-  t8 = (t5 * 4);
-  t7 = LDQ_U(t5);
-  t6 = (t9 & 0xff) << ((t5&7)*8);
+  t8 = (t5 * 4);   
+  t7 = LDQ_U(t5);   
+  t6 = (t9 & 0xff) << ((t5&7)*8);   
   t7 = t7 & ~(0xffL << (t5&7)*8);
 
-g9046:
-  if (_trace) printf("g9046:\n");
+g30715:
+  if (_trace) printf("g30715:\n");
   t7 = t7 | t6;
-  STQ_U(t5, t7);
+  STQ_U(t5, t7);   
   *(u32 *)t8 = arg5;
   t10 = arg2 + 1;
   t9 = Type_Fixnum;
   t9 = t9 | 64;
   t5 = t10 + ivory;
-  t8 = (t5 * 4);
-  t7 = LDQ_U(t5);
-  t6 = (t9 & 0xff) << ((t5&7)*8);
+  t8 = (t5 * 4);   
+  t7 = LDQ_U(t5);   
+  t6 = (t9 & 0xff) << ((t5&7)*8);   
   t7 = t7 & ~(0xffL << (t5&7)*8);
 
-g9047:
-  if (_trace) printf("g9047:\n");
+g30716:
+  if (_trace) printf("g30716:\n");
   t7 = t7 | t6;
-  STQ_U(t5, t7);
+  STQ_U(t5, t7);   
   *(u32 *)t8 = arg6;
-  sp = sp + 8;
+  sp = sp + 8;   
   goto *r0; /* ret */
 
-g9045:
-  if (_trace) printf("g9045:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = Type_DoubleFloat;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g30714:
+  if (_trace) printf("g30714:\n");
+  arg6 = Type_DoubleFloat;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
 /* end ConsDoubleFloat */
@@ -219,28 +201,25 @@ DoDoubleFloatOpIM:
   /* This sequence is lukewarm */
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);
-  goto begindodoublefloatop;
+  goto begindodoublefloatop;   
 #ifdef TRACING
 #endif
 
 DoDoubleFloatOpSP:
   if (_trace) printf("DoDoubleFloatOpSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdodoublefloatop;
+  goto headdodoublefloatop;   
 #endif
 
 DoDoubleFloatOpLP:
   if (_trace) printf("DoDoubleFloatOpLP:\n");
 #ifdef TRACING
-  goto headdodoublefloatop;
+  goto headdodoublefloatop;   
 #endif
 
 DoDoubleFloatOpFP:
@@ -248,124 +227,119 @@ DoDoubleFloatOpFP:
 
 headdodoublefloatop:
   if (_trace) printf("headdodoublefloatop:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindodoublefloatop:
   if (_trace) printf("begindodoublefloatop:\n");
   /* arg1 has the operand, not sign extended if immediate. */
-  /* X high */
+		/* X high */
   arg3 = *(s32 *)(iSP + -24);
-  /* X low */
+		/* X low */
   arg4 = *(s32 *)(iSP + -16);
-  /* Y high */
+		/* Y high */
   arg5 = *(s32 *)(iSP + -8);
-  /* Y low */
+		/* Y low */
   arg6 = *(s32 *)iSP;
-  /* Get high part up top */
+		/* Get high part up top */
   arg3 = arg3 << 32;
-  arg4 = (u32)arg4;
-  /* Get high part up top */
+  arg4 = (u32)arg4;   
+		/* Get high part up top */
   arg5 = arg5 << 32;
-  arg6 = (u32)arg6;
-  /* ARG3 is now X */
-  arg3 = arg3 | arg4;
-  /* ARG5 is now Y */
-  arg5 = arg5 | arg6;
+  arg6 = (u32)arg6;   
+  arg3 = arg3 | arg4;		// ARG3 is now X 
+  arg5 = arg5 | arg6;		// ARG5 is now Y 
   *(u64 *)&processor->fp0 = arg3;
   *(u64 *)&processor->fp1 = arg5;
-  /* Immediate tag */
+		/* Immediate tag */
   t2 = arg1 >> 32;
-  /* Immediate data */
-  t1 = (u32)arg1;
+  t1 = (u32)arg1;   		// Immediate data 
   t3 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t3 = t3 & 63;
-  if (t3 != 0)
+  t3 = t3 & 63;		// Strip CDR code 
+  if (t3 != 0)   
     goto doublefloatiop;
-  LDT(1, f1, processor->fp0);
-  LDT(2, f2, processor->fp1);
+  LDT(1, f1, processor->fp0);   
+  LDT(2, f2, processor->fp1);   
   /* NIL */
-  t3 = zero + DoubleFloatOp_Add;
+  t3 = zero + DoubleFloatOp_Add;   
   t3 = t1 - t3;
-  if (t3 != 0)
-    goto g9049;
+  if (t3 != 0)   
+    goto g30718;
   /* Here if argument DoubleFloatOpAdd */
   ADDT(1, f1, 1, f1, 2, f2); /* addt */
-  goto g9048;
+  goto g30717;   
 
-g9049:
-  if (_trace) printf("g9049:\n");
-  t3 = zero + DoubleFloatOp_Sub;
+g30718:
+  if (_trace) printf("g30718:\n");
+  t3 = zero + DoubleFloatOp_Sub;   
   t3 = t1 - t3;
-  if (t3 != 0)
-    goto g9050;
+  if (t3 != 0)   
+    goto g30719;
   /* Here if argument DoubleFloatOpSub */
   SUBT(1, f1, 1, f1, 2, f2);
-  goto g9048;
+  goto g30717;   
 
-g9050:
-  if (_trace) printf("g9050:\n");
-  t3 = zero + DoubleFloatOp_Multiply;
+g30719:
+  if (_trace) printf("g30719:\n");
+  t3 = zero + DoubleFloatOp_Multiply;   
   t3 = t1 - t3;
-  if (t3 != 0)
-    goto g9051;
+  if (t3 != 0)   
+    goto g30720;
   /* Here if argument DoubleFloatOpMultiply */
   MULT(1, f1, 1, f1, 2, f2);
-  goto g9048;
+  goto g30717;   
 
-g9051:
-  if (_trace) printf("g9051:\n");
-  t3 = zero + DoubleFloatOp_Divide;
+g30720:
+  if (_trace) printf("g30720:\n");
+  t3 = zero + DoubleFloatOp_Divide;   
   t3 = t1 - t3;
-  if (t3 != 0)
-    goto g9052;
+  if (t3 != 0)   
+    goto g30721;
   /* Here if argument DoubleFloatOpDivide */
   DIVT(1, f1, 1, f1, 2, f2);
-  goto g9048;
+  goto g30717;   
 
-g9052:
-  if (_trace) printf("g9052:\n");
+g30721:
+  if (_trace) printf("g30721:\n");
 
-g9048:
-  if (_trace) printf("g9048:\n");
-  /* Force the trap to occur here */
-  /* trapb force the trap to occur here */
-  /* There was no FP exception */
+g30717:
+  if (_trace) printf("g30717:\n");
+  /* trapb force the trap to occur here */   		// Force the trap to occur here 
+		/* There was no FP exception */
   t3 = *(u64 *)&(processor->niladdress);
 
 doublefloatmerge:
-  STT( (u64 *)&processor->fp0, 1, f1 );
+  STT( (u64 *)&processor->fp0, 1, f1 );   
   t1 = *(s32 *)&processor->fp0;
   t2 = *((s32 *)(&processor->fp0)+1);
-  /* Pop all the operands */
+		/* Pop all the operands */
   iSP = iSP - 32;
   t4 = Type_Fixnum;
-  /* Push high result */
+		/* Push high result */
   *(u32 *)(iSP + 8) = t2;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 12) = t4;
   iSP = iSP + 8;
   t4 = Type_Fixnum;
-  /* Push low result */
+		/* Push low result */
   *(u32 *)(iSP + 8) = t1;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 12) = t4;
   iSP = iSP + 8;
   iSP = iSP + 8;
   t4 = t3 << 26;
   t4 = t4 >> 26;
-  /* Push the exception predicate */
+		/* Push the exception predicate */
   *(u64 *)iSP = t4;
-  goto NEXTINSTRUCTION;
+  goto NEXTINSTRUCTION;   
 
 doublefloatexc:
   if (_trace) printf("doublefloatexc:\n");
-  /* Indicate an FP exception occurred */
+		/* Indicate an FP exception occurred */
   t3 = *(u64 *)&(processor->taddress);
-  goto doublefloatmerge;
+  goto doublefloatmerge;   
 
 doublefloatiop:
   if (_trace) printf("doublefloatiop:\n");

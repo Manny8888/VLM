@@ -11,7 +11,7 @@
 
 dummydonothingsubroutine:
   if (_trace) printf("dummydonothingsubroutine:\n");
-  goto continuecurrentinstruction;
+  goto continuecurrentinstruction;   
 
 /* end DummyDoNothingSubroutine */
 /* start MemoryReadData */
@@ -21,117 +21,109 @@ memoryreaddata:
   if (_trace) printf("memoryreaddata:\n");
   /* Memory Read Internal */
 
-g6401:
+g28070:
   t7 = arg2 + ivory;
-  arg6 = (t7 * 4);
-  arg5 = LDQ_U(t7);
-  /* Stack cache offset */
+  arg6 = (t7 * 4);   
+  arg5 = LDQ_U(t7);   
+		/* Stack cache offset */
   t5 = arg2 - t11;
   t8 = *(u64 *)&(processor->dataread_mask);
-  /* In range? */
-  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;
+  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
   arg6 = *(s32 *)arg6;
-  arg5 = (u8)(arg5 >> ((t7&7)*8));
-  if (t6 != 0)
-    goto g6403;
+  arg5 = (u8)(arg5 >> ((t7&7)*8));   
+  if (t6 != 0)   
+    goto g28072;
 
-g6402:
-  t7 = zero + 240;
+g28071:
+  t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);
   t7 = t7 >> (arg5 & 63);
-  arg6 = (u32)arg6;
-  if (t8 & 1)
-    goto g6405;
+  arg6 = (u32)arg6;   
+  if (t8 & 1)   
+    goto g28074;
 
-g6411:
+g28080:
   goto *r0; /* ret */
 
 memoryreaddatadecode:
   if (_trace) printf("memoryreaddatadecode:\n");
-  if (t6 == 0)
-    goto g6404;
+  if (t6 == 0) 
+    goto g28073;
 
-g6403:
-  if (_trace) printf("g6403:\n");
+g28072:
+  if (_trace) printf("g28072:\n");
   t6 = *(u64 *)&(processor->stackcachedata);
-  /* reconstruct SCA */
+		/* reconstruct SCA */
   t5 = (t5 * 8) + t6;
   arg6 = *(s32 *)t5;
-  /* Read from stack cache */
+		/* Read from stack cache */
   arg5 = *(s32 *)(t5 + 4);
-  goto g6402;
+  goto g28071;   
 
-g6405:
-  if (_trace) printf("g6405:\n");
-  if ((t7 & 1) == 0)
-    goto g6404;
-  /* Do the indirect thing */
-  arg2 = (u32)arg6;
-  goto g6401;
+g28074:
+  if (_trace) printf("g28074:\n");
+  if ((t7 & 1) == 0)   
+    goto g28073;
+  arg2 = (u32)arg6;   		// Do the indirect thing 
+  goto g28070;   
 
-g6404:
-  if (_trace) printf("g6404:\n");
-  /* Load the memory action table for cycle */
+g28073:
+  if (_trace) printf("g28073:\n");
+		/* Load the memory action table for cycle */
   t8 = *(u64 *)&(processor->dataread);
   /* TagType. */
-  /* Discard the CDR code */
-  t7 = arg5 & 63;
-  /* stash the VMA for the (likely) trap */
+  t7 = arg5 & 63;		// Discard the CDR code 
+		/* stash the VMA for the (likely) trap */
   *(u64 *)&processor->vma = arg2;
-  /* Adjust for a longword load */
-  t7 = (t7 * 4) + t8;
-  /* Get the memory action */
+  t7 = (t7 * 4) + t8;   		// Adjust for a longword load 
+		/* Get the memory action */
   t8 = *(s32 *)t7;
 
-g6408:
-  if (_trace) printf("g6408:\n");
+g28077:
+  if (_trace) printf("g28077:\n");
   t7 = t8 & MemoryActionTransform;
-  if (t7 == 0)
-    goto g6407;
+  if (t7 == 0) 
+    goto g28076;
   arg5 = arg5 & ~63L;
   arg5 = arg5 | Type_ExternalValueCellPointer;
-  goto g6411;
+  goto g28080;   
 #ifndef MINIMA
 
-g6407:
+g28076:
 #endif
 #ifdef MINIMA
 
-g6407:
-  if (_trace) printf("g6407:\n");
+g28076:
+  if (_trace) printf("g28076:\n");
   t7 = t8 & MemoryActionBinding;
   t6 = *(u64 *)&(processor->dbcmask);
-  if (t7 == 0)
-    goto g6406;
+  if (t7 == 0) 
+    goto g28075;
   t5 = arg2 << 1;
   t7 = *(u64 *)&(processor->dbcbase);
-  /* Hash index */
-  t5 = t5 & t6;
+  t5 = t5 & t6;		// Hash index 
   t6 = 1;
   t6 = t6 << (ivorymemorydata & 63);
   t5 = (s32)t5 + (s32)t7;
-  /* Clear sign-extension */
-  t5 = (u32)t5;
-  t6 = (t5 * 4) + t6;
-  /* Fetch the key */
+  t5 = (u32)t5;   		// Clear sign-extension 
+  t6 = (t5 * 4) + t6;   
+		/* Fetch the key */
   t5 = *(s32 *)t6;
-  /* Fetch value */
+		/* Fetch value */
   arg6 = *(s32 *)(t6 + 4);
-  /* Compare */
+		/* Compare */
   t7 = (s32)arg2 - (s32)t5;
-  /* Trap on miss */
-  if (t7 != 0)
-    goto g6410;
-  /* Extract the pointer, and indirect */
-  arg2 = (u32)arg6;
-  goto g6401;
+  if (t7 != 0)   		// Trap on miss 
+    goto g28079;
+  arg2 = (u32)arg6;   		// Extract the pointer, and indirect 
+  goto g28070;   		// This is another memory read tailcall. 
 
-g6410:
-  if (_trace) printf("g6410:\n");
+g28079:
+  if (_trace) printf("g28079:\n");
   goto dbcachemisstrap;
 #endif
 
-g6406:
+g28075:
   /* Perform memory action */
   arg1 = t8;
   arg2 = 0;
@@ -145,124 +137,114 @@ memoryreadgeneral:
   if (_trace) printf("memoryreadgeneral:\n");
   /* Memory Read Internal */
 
-g6412:
+g28081:
   t7 = arg2 + ivory;
-  /* Cycle-number -> table offset */
-  t8 = (arg3 * 4);
-  arg5 = LDQ_U(t7);
-  t8 = (t8 * 4) + ivory;
-  arg6 = (t7 * 4);
-  /* Stack cache offset */
+  t8 = (arg3 * 4);   		// Cycle-number -> table offset 
+  arg5 = LDQ_U(t7);   
+  t8 = (t8 * 4) + ivory;   
+  arg6 = (t7 * 4);   
+		/* Stack cache offset */
   t5 = arg2 - t11;
   t8 = *(u64 *)(t8 + PROCESSORSTATE_DATAREAD_MASK);
-  /* In range? */
-  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;
+  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
   arg6 = *(s32 *)arg6;
-  arg5 = (u8)(arg5 >> ((t7&7)*8));
-  if (t6 != 0)
-    goto g6414;
+  arg5 = (u8)(arg5 >> ((t7&7)*8));   
+  if (t6 != 0)   
+    goto g28083;
 
-g6413:
+g28082:
   t8 = t8 >> (arg5 & 63);
-  arg6 = (u32)arg6;
-  if (t8 & 1)
-    goto g6416;
+  arg6 = (u32)arg6;   
+  if (t8 & 1)   
+    goto g28085;
 
-g6422:
+g28091:
   goto *r0; /* ret */
 
 memoryreadgeneraldecode:
   if (_trace) printf("memoryreadgeneraldecode:\n");
-  if (t6 == 0)
-    goto g6415;
+  if (t6 == 0) 
+    goto g28084;
 
-g6414:
-  if (_trace) printf("g6414:\n");
+g28083:
+  if (_trace) printf("g28083:\n");
   t6 = *(u64 *)&(processor->stackcachedata);
-  /* reconstruct SCA */
+		/* reconstruct SCA */
   t5 = (t5 * 8) + t6;
   arg6 = *(s32 *)t5;
-  /* Read from stack cache */
+		/* Read from stack cache */
   arg5 = *(s32 *)(t5 + 4);
-  goto g6413;
+  goto g28082;   
 
-g6416:
-  if (_trace) printf("g6416:\n");
+g28085:
+  if (_trace) printf("g28085:\n");
 
-g6415:
-  if (_trace) printf("g6415:\n");
-  /* Cycle-number -> table offset */
-  t8 = (arg3 * 4);
-  t8 = (t8 * 4) + ivory;
+g28084:
+  if (_trace) printf("g28084:\n");
+  t8 = (arg3 * 4);   		// Cycle-number -> table offset 
+  t8 = (t8 * 4) + ivory;   
   t8 = *(u64 *)(t8 + PROCESSORSTATE_DATAREAD);
   /* TagType. */
-  /* Discard the CDR code */
-  t7 = arg5 & 63;
-  /* stash the VMA for the (likely) trap */
+  t7 = arg5 & 63;		// Discard the CDR code 
+		/* stash the VMA for the (likely) trap */
   *(u64 *)&processor->vma = arg2;
-  /* Adjust for a longword load */
-  t7 = (t7 * 4) + t8;
-  /* Get the memory action */
+  t7 = (t7 * 4) + t8;   		// Adjust for a longword load 
+		/* Get the memory action */
   t8 = *(s32 *)t7;
 
-g6420:
-  if (_trace) printf("g6420:\n");
+g28089:
+  if (_trace) printf("g28089:\n");
   t6 = t8 & MemoryActionIndirect;
-  if (t6 == 0)
-    goto g6419;
-  /* Do the indirect thing */
-  arg2 = (u32)arg6;
-  goto g6412;
+  if (t6 == 0) 
+    goto g28088;
+  arg2 = (u32)arg6;   		// Do the indirect thing 
+  goto g28081;   
 
-g6419:
-  if (_trace) printf("g6419:\n");
+g28088:
+  if (_trace) printf("g28088:\n");
   t7 = t8 & MemoryActionTransform;
-  if (t7 == 0)
-    goto g6418;
+  if (t7 == 0) 
+    goto g28087;
   arg5 = arg5 & ~63L;
   arg5 = arg5 | Type_ExternalValueCellPointer;
-  goto g6422;
+  goto g28091;   
 #ifndef MINIMA
 
-g6418:
+g28087:
 #endif
 #ifdef MINIMA
 
-g6418:
-  if (_trace) printf("g6418:\n");
+g28087:
+  if (_trace) printf("g28087:\n");
   t7 = t8 & MemoryActionBinding;
   t6 = *(u64 *)&(processor->dbcmask);
-  if (t7 == 0)
-    goto g6417;
+  if (t7 == 0) 
+    goto g28086;
   t5 = arg2 << 1;
   t7 = *(u64 *)&(processor->dbcbase);
-  /* Hash index */
-  t5 = t5 & t6;
+  t5 = t5 & t6;		// Hash index 
   t6 = 1;
   t6 = t6 << (ivorymemorydata & 63);
   t5 = (s32)t5 + (s32)t7;
-  /* Clear sign-extension */
-  t5 = (u32)t5;
-  t6 = (t5 * 4) + t6;
-  /* Fetch the key */
+  t5 = (u32)t5;   		// Clear sign-extension 
+  t6 = (t5 * 4) + t6;   
+		/* Fetch the key */
   t5 = *(s32 *)t6;
-  /* Fetch value */
+		/* Fetch value */
   arg6 = *(s32 *)(t6 + 4);
-  /* Compare */
+		/* Compare */
   t7 = (s32)arg2 - (s32)t5;
-  /* Trap on miss */
-  if (t7 != 0)
-    goto g6421;
-  /* Extract the pointer, and indirect */
-  arg2 = (u32)arg6;
-  goto g6412;
+  if (t7 != 0)   		// Trap on miss 
+    goto g28090;
+  arg2 = (u32)arg6;   		// Extract the pointer, and indirect 
+  goto g28081;   		// This is another memory read tailcall. 
 
-g6421:
-  if (_trace) printf("g6421:\n");
+g28090:
+  if (_trace) printf("g28090:\n");
   goto dbcachemisstrap;
 #endif
 
-g6417:
+g28086:
   /* Perform memory action */
   arg1 = t8;
   arg2 = arg3;
@@ -276,69 +258,65 @@ memoryreadheader:
   if (_trace) printf("memoryreadheader:\n");
   /* Memory Read Internal */
 
-g6423:
+g28092:
   t7 = arg2 + ivory;
-  arg6 = (t7 * 4);
-  arg5 = LDQ_U(t7);
-  /* Stack cache offset */
+  arg6 = (t7 * 4);   
+  arg5 = LDQ_U(t7);   
+		/* Stack cache offset */
   t5 = arg2 - t11;
   t8 = *(u64 *)&(processor->header_mask);
-  /* In range? */
-  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;
+  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
   arg6 = *(s32 *)arg6;
-  arg5 = (u8)(arg5 >> ((t7&7)*8));
-  if (t6 != 0)
-    goto g6425;
+  arg5 = (u8)(arg5 >> ((t7&7)*8));   
+  if (t6 != 0)   
+    goto g28094;
 
-g6424:
-  t7 = zero + 64;
+g28093:
+  t7 = zero + 64;   
   t8 = t8 >> (arg5 & 63);
   t7 = t7 >> (arg5 & 63);
-  arg6 = (u32)arg6;
-  if (t8 & 1)
-    goto g6427;
+  arg6 = (u32)arg6;   
+  if (t8 & 1)   
+    goto g28096;
 
-g6431:
+g28100:
   goto *r0; /* ret */
 
 memoryreadheaderdecode:
   if (_trace) printf("memoryreadheaderdecode:\n");
-  if (t6 == 0)
-    goto g6426;
+  if (t6 == 0) 
+    goto g28095;
 
-g6425:
-  if (_trace) printf("g6425:\n");
+g28094:
+  if (_trace) printf("g28094:\n");
   t6 = *(u64 *)&(processor->stackcachedata);
-  /* reconstruct SCA */
+		/* reconstruct SCA */
   t5 = (t5 * 8) + t6;
   arg6 = *(s32 *)t5;
-  /* Read from stack cache */
+		/* Read from stack cache */
   arg5 = *(s32 *)(t5 + 4);
-  goto g6424;
+  goto g28093;   
 
-g6427:
-  if (_trace) printf("g6427:\n");
-  if ((t7 & 1) == 0)
-    goto g6426;
-  /* Do the indirect thing */
-  arg2 = (u32)arg6;
-  goto g6423;
+g28096:
+  if (_trace) printf("g28096:\n");
+  if ((t7 & 1) == 0)   
+    goto g28095;
+  arg2 = (u32)arg6;   		// Do the indirect thing 
+  goto g28092;   
 
-g6426:
-  if (_trace) printf("g6426:\n");
-  /* Load the memory action table for cycle */
+g28095:
+  if (_trace) printf("g28095:\n");
+		/* Load the memory action table for cycle */
   t8 = *(u64 *)&(processor->header);
   /* TagType. */
-  /* Discard the CDR code */
-  t7 = arg5 & 63;
-  /* stash the VMA for the (likely) trap */
+  t7 = arg5 & 63;		// Discard the CDR code 
+		/* stash the VMA for the (likely) trap */
   *(u64 *)&processor->vma = arg2;
-  /* Adjust for a longword load */
-  t7 = (t7 * 4) + t8;
-  /* Get the memory action */
+  t7 = (t7 * 4) + t8;   		// Adjust for a longword load 
+		/* Get the memory action */
   t8 = *(s32 *)t7;
 
-g6428:
+g28097:
   /* Perform memory action */
   arg1 = t8;
   arg2 = 6;
@@ -352,69 +330,65 @@ memoryreadcdr:
   if (_trace) printf("memoryreadcdr:\n");
   /* Memory Read Internal */
 
-g6432:
+g28101:
   t7 = arg2 + ivory;
-  arg6 = (t7 * 4);
-  arg5 = LDQ_U(t7);
-  /* Stack cache offset */
+  arg6 = (t7 * 4);   
+  arg5 = LDQ_U(t7);   
+		/* Stack cache offset */
   t5 = arg2 - t11;
   t8 = *(u64 *)&(processor->cdr_mask);
-  /* In range? */
-  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;
+  t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
   arg6 = *(s32 *)arg6;
-  arg5 = (u8)(arg5 >> ((t7&7)*8));
-  if (t6 != 0)
-    goto g6434;
+  arg5 = (u8)(arg5 >> ((t7&7)*8));   
+  if (t6 != 0)   
+    goto g28103;
 
-g6433:
-  t7 = zero + 192;
+g28102:
+  t7 = zero + 192;   
   t8 = t8 >> (arg5 & 63);
   t7 = t7 >> (arg5 & 63);
-  arg6 = (u32)arg6;
-  if (t8 & 1)
-    goto g6436;
+  arg6 = (u32)arg6;   
+  if (t8 & 1)   
+    goto g28105;
 
-g6440:
+g28109:
   goto *r0; /* ret */
 
 memoryreadcdrdecode:
   if (_trace) printf("memoryreadcdrdecode:\n");
-  if (t6 == 0)
-    goto g6435;
+  if (t6 == 0) 
+    goto g28104;
 
-g6434:
-  if (_trace) printf("g6434:\n");
+g28103:
+  if (_trace) printf("g28103:\n");
   t6 = *(u64 *)&(processor->stackcachedata);
-  /* reconstruct SCA */
+		/* reconstruct SCA */
   t5 = (t5 * 8) + t6;
   arg6 = *(s32 *)t5;
-  /* Read from stack cache */
+		/* Read from stack cache */
   arg5 = *(s32 *)(t5 + 4);
-  goto g6433;
+  goto g28102;   
 
-g6436:
-  if (_trace) printf("g6436:\n");
-  if ((t7 & 1) == 0)
-    goto g6435;
-  /* Do the indirect thing */
-  arg2 = (u32)arg6;
-  goto g6432;
+g28105:
+  if (_trace) printf("g28105:\n");
+  if ((t7 & 1) == 0)   
+    goto g28104;
+  arg2 = (u32)arg6;   		// Do the indirect thing 
+  goto g28101;   
 
-g6435:
-  if (_trace) printf("g6435:\n");
-  /* Load the memory action table for cycle */
+g28104:
+  if (_trace) printf("g28104:\n");
+		/* Load the memory action table for cycle */
   t8 = *(u64 *)&(processor->cdr);
   /* TagType. */
-  /* Discard the CDR code */
-  t7 = arg5 & 63;
-  /* stash the VMA for the (likely) trap */
+  t7 = arg5 & 63;		// Discard the CDR code 
+		/* stash the VMA for the (likely) trap */
   *(u64 *)&processor->vma = arg2;
-  /* Adjust for a longword load */
-  t7 = (t7 * 4) + t8;
-  /* Get the memory action */
+  t7 = (t7 * 4) + t8;   		// Adjust for a longword load 
+		/* Get the memory action */
   t8 = *(s32 *)t7;
 
-g6437:
+g28106:
   /* Perform memory action */
   arg1 = t8;
   arg2 = 9;
@@ -432,86 +406,77 @@ ICACHEMISS:
   /* Here when instruction cache miss detected.  Fill the cache from */
   /* PC and then resume interpreter loop */
   /* First round the PC down to an even halfword address */
-  /* get the base of the icache */
+		/* get the base of the icache */
   arg2 = *(u64 *)&(processor->icachebase);
-  /* the even PC */
-  epc = iPC & ~1L;
+  epc = iPC & ~1L;		// the even PC 
   ecp = epc >> (CacheLine_RShift & 63);
-  arg1 = zero + -1;
+  arg1 = zero + -1;   
   arg1 = arg1 + ((4) << 16);
   ecp = ecp << (CacheLine_LShift & 63);
-  /* instn is instruction address here */
+		/* instn is instruction address here */
   instn = iPC >> 1;
   ecp = epc + ecp;
   ecp = ecp & arg1;
-  /* temp=cpos*32 */
+		/* temp=cpos*32 */
   arg3 = ecp << 5;
-  /* cpos=cpos*16 */
+		/* cpos=cpos*16 */
   ecp = ecp << 4;
-  /* temp2=base+cpos*32 */
-  arg4 = arg2 + arg3;
-  /* cpos=base+cpos*48 */
-  ecp = arg4 + ecp;
-  /* the odd PC */
-  opc = epc | 1;
-  /* Assume iPC is the even PC */
-  iCP = ecp;
-  /* See if iPC is the odd PC */
-  arg1 = (iPC == opc) ? 1 : 0;
+  arg4 = arg2 + arg3;		// temp2=base+cpos*32 
+  ecp = arg4 + ecp;		// cpos=base+cpos*48 
+  opc = epc | 1;		// the odd PC 
+  iCP = ecp;		// Assume iPC is the even PC 
+  arg1 = (iPC == opc) ? 1 : 0;   		// See if iPC is the odd PC 
   ocp = ecp + CACHELINE_SIZE;
-  /* Stash the odd cache pointer if iPC is the odd PC */
-  if (arg1)
+  if (arg1)   		// Stash the odd cache pointer if iPC is the odd PC 
     iCP = ocp;
   hwdispatch = *(u64 *)&(processor->halfworddispatch);
-  hwopmask = zero + 1023;
+  hwopmask = zero + 1023;   
   fwdispatch = *(u64 *)&(processor->fullworddispatch);
-  count = zero + 20;
+  count = zero + 20;   
   t11 = instn + ivory;
-  iword = (t11 * 4);
-  arg4 = LDQ_U(t11);
+  iword = (t11 * 4);   
+  arg4 = LDQ_U(t11);   
   iword = *(s32 *)iword;
-  arg4 = (u8)(arg4 >> ((t11&7)*8));
-  goto fillicacheprefetched;
+  arg4 = (u8)(arg4 >> ((t11&7)*8));   
+  goto fillicacheprefetched;   
 
 pcbackone:
   if (_trace) printf("pcbackone:\n");
   /* Wire in continuation for even half */
   *(u64 *)&((CACHELINEP)ocp)->nextpcdata = epc;
-  /* Backup in cache too */
+		/* Backup in cache too */
   t10 = ecp - CACHELINE_SIZE;
   *(u64 *)&((CACHELINEP)ocp)->nextcp = ecp;
-  /* Backup PC one halfword */
+		/* Backup PC one halfword */
   arg1 = epc - 1;
   *(u64 *)&((CACHELINEP)ecp)->nextcp = t10;
   /* TagType. */
-  /* arg4=tag-cdr code */
-  arg4 = arg4 & 63;
+  arg4 = arg4 & 63;		// arg4=tag-cdr code 
   *(u64 *)&((CACHELINEP)ecp)->nextpcdata = arg1;
   /* Wire in continuation for odd half */
-  goto maybeunpack;
+  goto maybeunpack;   
 
 pcadvone:
   if (_trace) printf("pcadvone:\n");
-  /* Simple advance of PC one halfword. */
+		/* Simple advance of PC one halfword. */
   *(u64 *)&((CACHELINEP)ecp)->nextpcdata = opc;
   arg1 = opc + 1;
   *(u64 *)&((CACHELINEP)ecp)->nextcp = ocp;
   t10 = ocp + CACHELINE_SIZE;
   *(u64 *)&((CACHELINEP)ocp)->nextpcdata = arg1;
   /* TagType. */
-  /* arg4=tag-cdr code */
-  arg4 = arg4 & 63;
+  arg4 = arg4 & 63;		// arg4=tag-cdr code 
   *(u64 *)&((CACHELINEP)ocp)->nextcp = t10;
-  goto maybeunpack;
+  goto maybeunpack;   
   /* This is the cache fill loop. */
 
 fillicache:
   if (_trace) printf("fillicache:\n");
   t11 = instn + ivory;
-  iword = (t11 * 4);
-  arg4 = LDQ_U(t11);
+  iword = (t11 * 4);   
+  arg4 = LDQ_U(t11);   
   iword = *(s32 *)iword;
-  arg4 = (u8)(arg4 >> ((t11&7)*8));
+  arg4 = (u8)(arg4 >> ((t11&7)*8));   
 
 fillicacheprefetched:
   if (_trace) printf("fillicacheprefetched:\n");
@@ -519,212 +484,186 @@ fillicacheprefetched:
   /* Increment the fill count for both cache entries */
   t10 = *(s32 *)&((CACHELINEP)ecp)->annotation;
   t11 = *(s32 *)&((CACHELINEP)ocp)->annotation;
-  t10 = (u32)t10;
-  t11 = (u32)t11;
+  t10 = (u32)t10;   
+  t11 = (u32)t11;   
   t10 = t10 + 1;
   *(u32 *)&((CACHELINEP)ecp)->annotation = t10;
   t11 = t11 + 1;
   *(u32 *)&((CACHELINEP)ocp)->annotation = t11;
 #endif
-  /* Set address of even cache posn. */
+		/* Set address of even cache posn. */
   *(u64 *)&((CACHELINEP)ecp)->pcdata = epc;
-  /* CDR code << 6 */
-  arg1 = arg4 & 192;
+  arg1 = arg4 & 192;		// CDR code << 6 
   /* TagType. */
-  /* Strip cdr */
-  arg4 = arg4 & 63;
-  /* Set address of odd cache posn. */
+  arg4 = arg4 & 63;		// Strip cdr 
+		/* Set address of odd cache posn. */
   *(u64 *)&((CACHELINEP)ocp)->pcdata = opc;
-  /* Strip nasty bits out. */
-  iword = (u32)iword;
+  iword = (u32)iword;   		// Strip nasty bits out. 
 
-g6441:
-  if (_trace) printf("g6441:\n");
-  /* ready to remerge */
+g28110:
+  if (_trace) printf("g28110:\n");
+		/* ready to remerge */
   arg2 = arg4 << 32;
-  /* Zerotag means advance one HW */
-  if (arg1 == 0)
+  if (arg1 == 0) 		// Zerotag means advance one HW 
     goto pcadvone;
-  /* 2<<6 */
+		/* 2<<6 */
   arg1 = arg1 - 128;
-  /* Tag=2 means backup one HW */
-  if (arg1 == 0)
+  if (arg1 == 0) 		// Tag=2 means backup one HW 
     goto pcbackone;
-  /* Tag=1 means end of compiled function */
-  if ((s64)arg1 < 0)
+  if ((s64)arg1 < 0)   		// Tag=1 means end of compiled function 
     goto pcendcf;
 
 pcadvtwo:
   if (_trace) printf("pcadvtwo:\n");
   /* Tag=3 means advance over one full word */
   /* Wire in continuation for even half */
-  /* Next word */
-  arg1 = epc + 2;
+  arg1 = epc + 2;		// Next word 
   r31 = r31 | r31;
-  /* corresponding CP entry */
-  t10 = ecp + TWOCACHELINESIZE;
-  /* Next PC even of next word */
+  t10 = ecp + TWOCACHELINESIZE;		// corresponding CP entry 
+		/* Next PC even of next word */
   *(u64 *)&((CACHELINEP)ecp)->nextpcdata = arg1;
-  /* Skip one fullword */
-  arg1 = epc + 4;
-  /* Next CP */
+  arg1 = epc + 4;		// Skip one fullword 
+		/* Next CP */
   *(u64 *)&((CACHELINEP)ecp)->nextcp = t10;
   /* Wire in continuation for odd half */
-  /* corresponding CP entry */
-  t10 = ecp + FOURCACHELINESIZE;
+  t10 = ecp + FOURCACHELINESIZE;		// corresponding CP entry 
   *(u64 *)&((CACHELINEP)ocp)->nextpcdata = arg1;
   /* TagType. */
-  /* arg4=tag-cdr code */
-  arg4 = arg4 & 63;
+  arg4 = arg4 & 63;		// arg4=tag-cdr code 
   *(u64 *)&((CACHELINEP)ocp)->nextcp = t10;
-  goto maybeunpack;
+  goto maybeunpack;   
 
 decodepackedword:
   if (_trace) printf("decodepackedword:\n");
   /* Here to decode a packed word */
 #ifdef CACHEMETERING
   arg1 = *(s32 *)&processor->metervalue;
-  /* The number of remaining tokens. */
+		/* The number of remaining tokens. */
   arg4 = *(s32 *)&processor->metercount;
-  /* The cache miss meter buffer. */
+		/* The cache miss meter buffer. */
   t10 = *(u64 *)&(processor->meterdatabuff);
-  /* count the miss. */
-  arg1 = arg1 + 1;
-  /* Position for new data. */
+  arg1 = arg1 + 1;		// count the miss. 
+		/* Position for new data. */
   t11 = *(s32 *)&processor->meterpos;
   *(u32 *)&processor->metervalue = arg1;
-  if (arg4 != 0)
-    goto g6442;
+  if (arg4 != 0)   
+    goto g28111;
   arg2 = *(s32 *)&processor->metermask;
-  /* position of the current data item */
-  t10 = (t11 * 4) + t10;
+  t10 = (t11 * 4) + t10;   		// position of the current data item 
   t11 = t11 + 1;
   t11 = t11 & arg2;
   arg2 = *(s32 *)&processor->metermax;
   t12 = arg1 - arg2;
-  if ((s64)t12 > 0)
+  if ((s64)t12 > 0)   
     arg2 = arg1;
   *(u32 *)&processor->metermax = arg2;
-  /* store the datapoint */
+		/* store the datapoint */
   *(u32 *)t10 = arg1;
-  /* Position for new data. */
+		/* Position for new data. */
   *(u32 *)&processor->meterpos = t11;
   *(u32 *)&processor->metervalue = zero;
   arg4 = *(s32 *)&processor->meterfreq;
 
-g6442:
-  if (_trace) printf("g6442:\n");
+g28111:
+  if (_trace) printf("g28111:\n");
   *(u32 *)&processor->metercount = arg4;
 #endif
-  /* arg4 contains the odd packedword */
+		/* arg4 contains the odd packedword */
   arg4 = iword >> 18;
-  /* even opcode+2bits */
+		/* even opcode+2bits */
   t10 = iword >> 8;
-  /* Save the odd instruction */
+		/* Save the odd instruction */
   *(u64 *)&((CACHELINEP)ocp)->instruction = arg4;
-  /* First phase of even operand sign extension. */
+		/* First phase of even operand sign extension. */
   t11 = iword << 54;
-  /* even operand+2bits */
-  t12 = iword & hwopmask;
+  t12 = iword & hwopmask;		// even operand+2bits 
 #ifndef CACHEMETERING
   *(u64 *)&((CACHELINEP)ocp)->annotation = zero;
 #endif
-  /* even opcode */
-  t10 = t10 & hwopmask;
-  /* Second phase of even operand sign extension. */
+  t10 = t10 & hwopmask;		// even opcode 
+		/* Second phase of even operand sign extension. */
   t11 = (s64)t11 >> 38;
   arg2 = t10 - 92;
   t10 = (t10 * 8) + hwdispatch;
-  /* Merge signed/unsigned even operand */
-  t12 = t11 | t12;
+  t12 = t11 | t12;		// Merge signed/unsigned even operand 
   arg2 = arg2 & ~3L;
   *(u32 *)&((CACHELINEP)ecp)->operand = t12;
-  /* clear count if finish-call seen */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// clear count if finish-call seen 
     count = arg2;
-  /* odd opcode+2bits */
+		/* odd opcode+2bits */
   arg2 = arg4 >> 8;
-  /* First phase of odd operand sign extension. */
+		/* First phase of odd operand sign extension. */
   t11 = arg4 << 54;
-  /* odd operand+2bits */
-  arg1 = arg4 & hwopmask;
+  arg1 = arg4 & hwopmask;		// odd operand+2bits 
   t10 = *(u64 *)t10;
-  /* odd opcode */
-  arg2 = arg2 & hwopmask;
-  /* Second phase of odd operand sign extension. */
+  arg2 = arg2 & hwopmask;		// odd opcode 
+		/* Second phase of odd operand sign extension. */
   t11 = (s64)t11 >> 38;
   *(u64 *)&((CACHELINEP)ecp)->code = t10;
   t12 = arg2 - 92;
   arg2 = (arg2 * 8) + hwdispatch;
-  /* Merge signed/unsigned odd operand */
-  arg1 = t11 | arg1;
+  arg1 = t11 | arg1;		// Merge signed/unsigned odd operand 
   *(u32 *)&((CACHELINEP)ocp)->operand = arg1;
   t12 = t12 & ~3L;
   arg2 = *(u64 *)arg2;
-  /* clear count if finish-call seen */
-  if (t12 == 0)
+  if (t12 == 0)   		// clear count if finish-call seen 
     count = t12;
   *(u64 *)&((CACHELINEP)ocp)->code = arg2;
-  goto enddecode;
+  goto enddecode;   
 
 maybeunpack:
   if (_trace) printf("maybeunpack:\n");
-  /* reassemble tag and word. */
-  iword = arg2 | iword;
-  /* save the even instruction */
+  iword = arg2 | iword;		// reassemble tag and word. 
+		/* save the even instruction */
   *(u64 *)&((CACHELINEP)ecp)->instruction = iword;
-  /* t10>=0 if packed */
+		/* t10>=0 if packed */
   t10 = arg4 - 48;
 #ifndef CACHEMETERING
   *(u64 *)&((CACHELINEP)ecp)->annotation = zero;
 #endif
 #ifdef CACHEMETERING
   epc = *(s32 *)&processor->metervalue;
-  /* The number of remaining tokens. */
+		/* The number of remaining tokens. */
   t12 = *(s32 *)&processor->metercount;
-  /* The cache miss meter buffer. */
+		/* The cache miss meter buffer. */
   t11 = *(u64 *)&(processor->meterdatabuff);
-  /* count the miss. */
-  epc = epc + 1;
-  /* Position for new data. */
+  epc = epc + 1;		// count the miss. 
+		/* Position for new data. */
   arg1 = *(s32 *)&processor->meterpos;
   *(u32 *)&processor->metervalue = epc;
-  if (t12 != 0)
-    goto g6443;
+  if (t12 != 0)   
+    goto g28112;
   arg2 = *(s32 *)&processor->metermask;
-  /* position of the current data item */
-  t11 = (arg1 * 4) + t11;
+  t11 = (arg1 * 4) + t11;   		// position of the current data item 
   arg1 = arg1 + 1;
   arg1 = arg1 & arg2;
   arg2 = *(s32 *)&processor->metermax;
   t10 = epc - arg2;
-  if ((s64)t10 > 0)
+  if ((s64)t10 > 0)   
     arg2 = epc;
   *(u32 *)&processor->metermax = arg2;
-  /* store the datapoint */
+		/* store the datapoint */
   *(u32 *)t11 = epc;
-  /* Position for new data. */
+		/* Position for new data. */
   *(u32 *)&processor->meterpos = arg1;
   *(u32 *)&processor->metervalue = zero;
   t12 = *(s32 *)&processor->meterfreq;
 
-g6443:
-  if (_trace) printf("g6443:\n");
+g28112:
+  if (_trace) printf("g28112:\n");
   *(u32 *)&processor->metercount = t12;
 #endif
-  /* B. if a packed instruction */
-  if ((s64)t10 >= 0)
+  if ((s64)t10 >= 0)   		// B. if a packed instruction 
     goto decodepackedword;
-  /* t11 is the fwdispatch index */
+		/* t11 is the fwdispatch index */
   t11 = (arg4 * 8) + fwdispatch;
   t12 = *(u64 *)&(processor->i_stage_error_hook);
   arg1 = arg4 - 33;
-  /* Extract the opcode handler */
+		/* Extract the opcode handler */
   t11 = *(u64 *)t11;
-  /* Store I-STATE-ERROR at odd pc */
+		/* Store I-STATE-ERROR at odd pc */
   *(u64 *)&((CACHELINEP)ocp)->code = t12;
-  /* clear count if native instn seen */
-  if (arg1 == 0)
+  if (arg1 == 0)   		// clear count if native instn seen 
     count = arg1;
   *(u64 *)&((CACHELINEP)ecp)->code = t11;
 
@@ -733,32 +672,29 @@ enddecode:
   /* Here we decide if to stop filling the cache and return to the */
   /* instruction interpretation stream, or whether to fill further */
   instn = instn + 1;
-  /* If count is zero, resume */
-  if ((s64)count <= 0)
+  if ((s64)count <= 0)  		// If count is zero, resume 
     goto cachevalid;
   epc = instn << 1;
-  /* decrement count */
+		/* decrement count */
   count = count - 1;
   opc = epc | 1;
-  /* pointer to the end of icache */
+		/* pointer to the end of icache */
   t10 = *(u64 *)&(processor->endicache);
   ocp = ocp + TWOCACHELINESIZE;
   ecp = ecp + TWOCACHELINESIZE;
   t10 = ocp - t10;
-  /* Still room for more */
-  if ((s64)t10 <= 0)
+  if ((s64)t10 <= 0)  		// Still room for more 
     goto fillicache;
-  goto cachevalid;
+  goto cachevalid;   
 
 pcendcf:
   if (_trace) printf("pcendcf:\n");
   t11 = *(u64 *)&(processor->i_stage_error_hook);
-  /* We reached the end of the fcn. */
-  count = r31 | r31;
-  /* Store I-STATE-ERROR dispatch at even and odd pc */
+  count = r31 | r31;		// We reached the end of the fcn. 
+		/* Store I-STATE-ERROR dispatch at even and odd pc */
   *(u64 *)&((CACHELINEP)ecp)->code = t11;
   *(u64 *)&((CACHELINEP)ocp)->code = t11;
-  goto enddecode;
+  goto enddecode;   
 
 /* end DoICacheFill */
   /* These are the instruction reentry points.  Instructions end by returning */
@@ -782,65 +718,58 @@ iinterpret:
   *(u64 *)&processor->asrr29 = r29;
   *(u64 *)&processor->asrr30 = r30;
   *(u64 *)&processor->asrr14 = r14;
-  /* Setup our processor object handle */
-  ivory = arg1;
+  ivory = arg1;		// Setup our processor object handle 
   /* Upon entry, load cached state. */
   iCP = *(u64 *)&(processor->cp);
   iPC = *(u64 *)&(processor->epc);
   iSP = *(u64 *)&(processor->sp);
   iFP = *(u64 *)&(processor->fp);
   iLP = *(u64 *)&(processor->lp);
-  /* First time in iCP will be zero. */
-  if (iCP != 0)
+  if (iCP != 0)   		// First time in iCP will be zero. 
     goto INTERPRETINSTRUCTION;
-  goto ICACHEMISS;
+  goto ICACHEMISS;   		// If this is the first time in cache is empty! 
 
 interpretinstructionpredicted:
   if (_trace) printf("interpretinstructionpredicted:\n");
-  /* Get the PC to check cache hit. */
+		/* Get the PC to check cache hit. */
   t2 = *(u64 *)&(((CACHELINEP)arg2)->pcdata);
-  /* Assume FP mode */
-  arg1 = iFP;
-  /* Have we been asked to stop? */
+  arg1 = iFP;   		// Assume FP mode 
+		/* Have we been asked to stop? */
   r0 = *(u64 *)&(processor->stop_interpreter);
-  /* SP-pop mode constant */
-  arg4 = iSP + -8;
-  /* Grab the instruction/operand while stalled */
+  arg4 = iSP + -8;   		// SP-pop mode constant 
+		/* Grab the instruction/operand while stalled */
   arg3 = *(u64 *)&(((CACHELINEP)arg2)->instruction);
   t1 = iPC - t2;
-  if (t1 != 0)
+  if (t1 != 0)   
     goto interpretinstructionforbranch;
   iCP = arg2;
-  /* Stop the world! someone wants out. */
-  if (r0 != 0)
+  if (r0 != 0)   		// Stop the world! someone wants out. 
     goto traporsuspendmachine;
-  goto continuecurrentinstruction;
+  goto continuecurrentinstruction;   
 
 interpretinstructionforjump:
   if (_trace) printf("interpretinstructionforjump:\n");
 
 interpretinstructionforbranch:
   if (_trace) printf("interpretinstructionforbranch:\n");
-  /* get the base of the icache */
+		/* get the base of the icache */
   t5 = *(u64 *)&(processor->icachebase);
-  t4 = zero + -1;
+  t4 = zero + -1;   
   t4 = t4 + ((4) << 16);
   arg2 = iPC >> 10;
-  t3 = zero + -64;
+  t3 = zero + -64;   
   arg2 = arg2 & t3;
   arg2 = iPC + arg2;
   arg2 = arg2 & t4;
-  /* temp=cpos*32 */
+		/* temp=cpos*32 */
   t4 = arg2 << 5;
-  /* cpos=cpos*16 */
+		/* cpos=cpos*16 */
   arg2 = arg2 << 4;
-  /* temp2=base+cpos*32 */
-  t5 = t5 + t4;
+  t5 = t5 + t4;		// temp2=base+cpos*32 
 
-g6444:
-  if (_trace) printf("g6444:\n");
-  /* cpos=base+cpos*48 */
-  arg2 = t5 + arg2;
+g28113:
+  if (_trace) printf("g28113:\n");
+  arg2 = t5 + arg2;		// cpos=base+cpos*48 
 #ifndef CACHEMETERING
   *(u64 *)&((CACHELINEP)iCP)->annotation = arg2;
 #endif
@@ -849,20 +778,17 @@ g6444:
 INTERPRETINSTRUCTION:
   if (_trace) printf("INTERPRETINSTRUCTION:\n");
   r30 = *(u64 *)&(processor->asrr30);
-  /* Have we been asked to stop? */
+		/* Have we been asked to stop? */
   r0 = *(u64 *)&(processor->stop_interpreter);
-  /* Assume FP mode */
-  arg1 = iFP;
-  /* Grab the instruction/operand while stalled */
+  arg1 = iFP;   		// Assume FP mode 
+		/* Grab the instruction/operand while stalled */
   arg3 = *(u64 *)&(((CACHELINEP)iCP)->instruction);
-  /* SP-pop mode constant */
-  arg4 = iSP + -8;
-  /* Get the PC to check cache hit. */
+  arg4 = iSP + -8;   		// SP-pop mode constant 
+		/* Get the PC to check cache hit. */
   t2 = *(u64 *)&(((CACHELINEP)iCP)->pcdata);
-  /* Stop the world! someone wants out. */
-  if (r0 != 0)
+  if (r0 != 0)   		// Stop the world! someone wants out. 
     goto traporsuspendmachine;
-  goto continuecurrentinstruction;
+  goto continuecurrentinstruction;   
 
 /* end iInterpret */
 

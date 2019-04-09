@@ -143,8 +143,13 @@
       ,@(collecting-function-epilogue body env)
       (end ,name))))
 
+(defmacro trailing-comment (arg)
+   `(if ,arg
+        (format nil "~C~C// ~A " #\tab #\tab ,arg)
+        (format nil "")))
+
 (defmacro check-comment (arg)
-  `(if ,arg (format destination "  /* ~A */~%" ,arg)))
+  `(if ,arg (format destination "~C~C/* ~A */~%" #\tab #\tab ,arg)))
 
 (defun remap-arg (str)
   (cdr (assoc str
@@ -1116,262 +1121,245 @@
 	     (format destination "  iLP = processor->lp;~%"))
 
 	    (ADDL
-	     (check-comment arg4)
 	     (cond
 	       ((equal arg1 'zero)
-	        (format destination "  ~A = (s32)~A;~%"
+          (format destination "  ~A = (s32)~A;"
 		              (fixarg arg3) (fixarg arg2)))
 	       ((equal arg2 'zero)
-	        (format destination "  ~A = (s32)~A;~%"
+	        (format destination "  ~A = (s32)~A;"
 		              (fixarg arg3) (fixarg arg1)))
 	       (t
-	        (format destination "  ~A = (s32)~A + (s32)~A;~%"
-		              (fixarg arg3) (fixarg arg1) (fixarg arg2)))))
+	        (format destination "  ~A = (s32)~A + (s32)~A;"
+		              (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+
+       (format destination "~A~%" (trailing-comment arg4)))
 
 	    (ADDL/V
-	     (check-comment arg4)
 	     (format destination
-		           "  ~A = (u64)((s32)~A + (s64)(s32)~A); /* addl/v */~%"
+		           "  ~A = (u64)((s32)~A + (s64)(s32)~A); ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2))
-	     (format destination "  if (~A >> 32)~%    exception();~%"
+		           (fixarg arg2)
+               (trailing-comment arg4))
+	     (format destination "  if (~A >> 32)~%    exception();  /* addl/v */~%"
 		           (fixarg arg3)))
 
 	    (SUBL/V
-	     (check-comment arg4)
 	     (format destination
-		           "  ~A = (s64)((s32)~A - (s64)(s32)~A); /* subl/v */~%"
+		           "  ~A = (s64)((s32)~A - (s64)(s32)~A); ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2))
-	     (format destination "  if (~A >> 32)~%    exception();~%"
+		           (fixarg arg2)
+               (trailing-comment arg4))
+	     (format destination "  if (~A >> 32)~%    exception();  /* subl/v */ ~%"
 		           (fixarg arg3)))
 
 	    (ADDQ
-	     (check-comment arg4)
 	     (cond
 	       ((eq arg1 'zero)
-	        (format destination "  ~A = ~A;~%" (fixarg arg3) (fixarg arg2)))
+	        (format destination "  ~A = ~A;" (fixarg arg3) (fixarg arg2)))
 	       ((eq arg2 'zero)
-	        (format destination "  ~A = ~A;~%" (fixarg arg3) (fixarg arg1)))
+	        (format destination "  ~A = ~A;" (fixarg arg3) (fixarg arg1)))
 	       (t
-	        (format destination "  ~A = ~A + ~A;~%"
-		              (fixarg arg3) (fixarg arg1) (fixarg arg2)))))
+	        (format destination "  ~A = ~A + ~A;"
+		              (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+       (format destination "~A~%" (trailing-comment arg4)))
 
 	    ('AND
-	     (check-comment arg4)
 	     (if (not (eq arg3 'zero))
-	         (format destination "  ~A = ~A & ~A;~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = ~A & ~A;~A~%"
+                   (fixarg arg3) (fixarg arg1) (fixarg arg2)
+                   (trailing-comment arg4))))
 
 	    (BIC
-	     (check-comment arg4)
-	     (format destination "  ~A = ~A & ~~~A;~%"
+	     (format destination "  ~A = ~A & ~~~A;~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
 		           (longnum arg2)
+               (trailing-comment arg4)
 		           ))
 
 	    (BIS
-	     (check-comment arg4)
 	     (cond
 	       ((eq arg1 'zero)
-	        (format destination "  ~A = ~A;~%" (fixarg arg3) (fixarg arg2)))
+	        (format destination "  ~A = ~A;" (fixarg arg3) (fixarg arg2)))
 	       ((eq arg2 'zero)
-	        (format destination "  ~A = ~A;~%" (fixarg arg3) (fixarg arg1)))
+	        (format destination "  ~A = ~A;" (fixarg arg3) (fixarg arg1)))
 	       (t
-	        (format destination "  ~A = ~A | ~A;~%"
-		              (fixarg arg3) (fixarg arg1) (fixarg arg2)))))
+	        (format destination "  ~A = ~A | ~A;"
+		              (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+       (format destination "~A~%" (trailing-comment arg4)))
 
 	    (BEQ
-	     (check-comment arg3)
-	     (format destination "  if (~A == 0)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if (~A == 0) ~A~%    goto ~A;~%"
+		           (fixarg arg1) (trailing-comment arg3)
+               (gotolabel arg2)
+               ))
 
 	    (BLE
-	     (check-comment arg3)
-	     (format destination "  if ((s64)~A <= 0)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if ((s64)~A <= 0)  ~A~%    goto ~A;~%"
+		           (fixarg arg1) (trailing-comment arg3)
+               (gotolabel arg2)))
 
 	    (BLT
-	     (check-comment arg3)
-	     (format destination "  if ((s64)~A < 0)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if ((s64)~A < 0)   ~A~%    goto ~A;~%"
+		           (fixarg arg1) (trailing-comment arg3)
+               (gotolabel arg2)))
 
 	    (BLBC
-	     (check-comment arg3)
-	     (format destination "  if ((~A & 1) == 0)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if ((~A & 1) == 0)   ~A~%    goto ~A;~%"
+		           (fixarg arg1) (trailing-comment arg3)
+               (gotolabel arg2)))
 
 	    (BLBS
-	     (check-comment arg3)
-	     (format destination "  if (~A & 1)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if (~A & 1)   ~A~%    goto ~A;~%"
+		           (fixarg arg1) (trailing-comment arg3)
+               (gotolabel arg2)))
 
 	    (BGE
-	     (check-comment arg3)
-	     (format destination "  if ((s64)~A >= 0)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if ((s64)~A >= 0)   ~A~%    goto ~A;~%"
+		           (fixarg arg1) (trailing-comment arg3)
+               (gotolabel arg2)))
 
 	    (BGT
-	     (check-comment arg3)
-	     (format destination "  if ((s64)~A > 0)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if ((s64)~A > 0)   ~A~%    goto ~A;~%"
+		           (fixarg arg1)(trailing-comment arg3)
+               (gotolabel arg2)))
 
 	    (BNE
-	     (check-comment arg3)
-	     (format destination "  if (~A != 0)~%    goto ~A;~%"
-		           (fixarg arg1) (gotolabel arg2)))
+	     (format destination "  if (~A != 0)   ~A~%    goto ~A;~%"
+		           (fixarg arg1) (trailing-comment arg3)
+               (gotolabel arg2)))
 
 	    (BR
-	     (check-comment arg4)
-	     (format destination "  goto ~A;~%"
-		           (gotolabel arg2)))
+	     (format destination "  goto ~A;   ~A~%"
+		           (gotolabel arg2)
+               (trailing-comment arg3)))
 
 	    (CLR
-	     (check-comment arg2)
-	     (format destination "  ~A = 0;~%"
-		           (fixarg arg1)))
+	     (format destination "  ~A = 0;   ~A~%"
+		           (fixarg arg1)
+               (trailing-comment arg2)))
 
 	    (CMPBGE
-	     (check-comment arg4)
-	     (format destination "  ~A = CMPBGE(~A, ~A);~%"
+	     (format destination "  ~A = CMPBGE(~A, ~A);  ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPLE
-	     (check-comment arg4)
-	     (format destination "  ~A = ((s64)~A <= (s64)~A) ? 1 : 0;~%"
+	     (format destination "  ~A = ((s64)~A <= (s64)~A) ? 1 : 0;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPEQ
-	     (check-comment arg4)
-	     (format destination "  ~A = (~A == ~A) ? 1 : 0;~%"
+	     (format destination "  ~A = (~A == ~A) ? 1 : 0;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPLT
-	     (check-comment arg4)
-	     (format destination "  ~A = ((s64)~A < (s64)~A) ? 1 : 0;~%"
+	     (format destination "  ~A = ((s64)~A < (s64)~A) ? 1 : 0;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPTLE
-	     (check-comment arg4)
-	     (format destination
-		           "  SETFLTT(~A,~A, FLTU64(~A,~A) <= FLTU64(~A,~A) ? 2.0:0);~%"
+	     (format destination "  SETFLTT(~A,~A, FLTU64(~A,~A) <= FLTU64(~A,~A) ? 2.0:0);  ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPTLT
-	     (check-comment arg4)
-	     (format destination
-		           "  SETFLTT(~A,~A, FLTU64(~A,~A) < FLTU64(~A,~A) ? 2.0:0);~%"
+	     (format destination "  SETFLTT(~A,~A, FLTU64(~A,~A) < FLTU64(~A,~A) ? 2.0:0);   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPTEQ
-	     (check-comment arg4)
-	     (format destination
-		           "  SETFLTT(~A,~A, FLTU64(~A,~A) == FLTU64(~A,~A) ? 2.0:0);~%"
+	     (format destination "  SETFLTT(~A,~A, FLTU64(~A,~A) == FLTU64(~A,~A) ? 2.0:0);   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPULE
-	     (check-comment arg4)
-	     (format destination "  ~A = ((u64)~A <= (u64)~A) ? 1 : 0;~%"
+	     (format destination "  ~A = ((u64)~A <= (u64)~A) ? 1 : 0;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMPULT
-	     (check-comment arg4)
-	     (format destination "  ~A = ((u64)~A < (u64)~A) ? 1 : 0;~%"
+	     (format destination "  ~A = ((u64)~A < (u64)~A) ? 1 : 0;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CMOVLBS
-	     (check-comment arg4)
-	     (format destination "  if (~A & 1)~%"
-		           (fixarg arg1))
+	     (format destination "  if (~A & 1)   ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "   ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CMOVLBC
-	     (check-comment arg4)
-	     (format destination "  if ((~A & 1) == 0)~%"
-		           (fixarg arg1))
+	     (format destination "  if ((~A & 1) == 0)   ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "   ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CMOVEQ
-	     (check-comment arg4)
-	     (format destination "  if (~A == 0)~%"
-		           (fixarg arg1))
+	     (format destination "  if (~A == 0)   ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CMOVGE
-	     (check-comment arg4)
-	     (format destination "  if ((s64)~A >= 0)~%"
-		           (fixarg arg1))
+	     (format destination "  if ((s64)~A >= 0)  ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CMOVGT
-	     (check-comment arg4)
-	     (format destination "  if ((s64)~A > 0)~%"
-		           (fixarg arg1))
+	     (format destination "  if ((s64)~A > 0)   ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CMOVLE
-	     (check-comment arg4)
-	     (format destination "  if ((s64)~A <= 0)~%"
-		           (fixarg arg1))
+	     (format destination "  if ((s64)~A <= 0)   ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CMOVLT
-	     (check-comment arg4)
-	     (format destination "  if ((s64)~A < 0)~%"
-		           (fixarg arg1))
+	     (format destination "  if ((s64)~A < 0)   ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CMOVNE
-	     (check-comment arg4)
-	     (format destination "  if (~A)~%"
-		           (fixarg arg1))
+	     (format destination "  if (~A)   ~A~%"
+		           (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg2)))
+		           (fixarg arg3) (fixarg arg2)))
 
 	    (CPYSN
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  CPYSN(~A, ~A, ~A, ~A, ~A, ~A);~%"
+	     (format destination "  CPYSN(~A, ~A, ~A, ~A, ~A, ~A);   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (CVTQL
 	     (format destination "  CVTQL(~A, ~A, ~A, ~A, ~A);~%"
@@ -1430,111 +1418,102 @@
 		           (fixarg arg1) (regnum (fixarg arg2)) (fixarg arg2)))
 
 	    (M-DIVQU
-	     (check-comment arg4)
-	     (format destination "  ~A = ~A / ~A;~%"
+	     (format destination "  ~A = ~A / ~A;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (EXTERNAL-BRANCH
 	     (format destination "  goto ~A;~%"
 		           (gotolabel arg1)))
 
 	    (EXTBL
-	     (check-comment arg4)
 	     (if (eq arg2 0)
-	         (format destination "  ~A = (u8)~A;~%"
+	         (format destination "  ~A = (u8)~A;"
 		               (fixarg arg3) (fixarg arg1))
-	         (format destination "  ~A = (u8)(~A >> ((~A&7)*8));~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = (u8)(~A >> ((~A&7)*8));"
+		               (fixarg arg3) (fixarg arg1) (fixarg arg2)))
+       (format destination "   ~A~%"  (trailing-comment arg4)))
 
 	    (EXTWL
-	     (check-comment arg4)
 	     (if (eq arg2 0)
-	         (format destination "  ~A = (u16)~A;~%"
+	         (format destination "  ~A = (u16)~A;"
 		               (fixarg arg3) (fixarg arg1))
-	         (format destination "  ~A = (u16)(~A >> ((~A&7)*8));~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = (u16)(~A >> ((~A&7)*8));"
+		               (fixarg arg3) (fixarg arg1) (fixarg arg2)))
+       (format destination "   ~A~%"  (trailing-comment arg4)))
 
 	    (EXTLL
-	     (check-comment arg4)
 	     (if (eq arg2 0)
-	         (format destination "  ~A = (u32)~A;~%"
+	         (format destination "  ~A = (u32)~A;"
 		               (fixarg arg3) (fixarg arg1))
-	         (format destination "  ~A = (u32)(~A >> ((~A&7)*8));~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = (u32)(~A >> ((~A&7)*8));"
+		               (fixarg arg3) (fixarg arg1) (fixarg arg2)))
+       (format destination "   ~A~%"  (trailing-comment arg4)))
 
 	    (FBEQ
-	     (check-comment arg3)
-	     (format destination "  if (FLTU64(~A, ~A) == 0.0)~%    goto ~A;~%"
-		           (regnum (fixarg arg1)) (fixarg arg1)
+	     (format destination "  if (FLTU64(~A, ~A) == 0.0)   ~A~%    goto ~A;~%"
+		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg3) 
 		           (gotolabel arg2)))
 
 	    (FBLT
-	     (check-comment arg3)
-	     (format destination "  if (FLTU64(~A, ~A) < 0.0)~%    goto ~A;~%"
-		           (regnum (fixarg arg1)) (fixarg arg1)
+	     (format destination "  if (FLTU64(~A, ~A) < 0.0)   ~A~%    goto ~A;~%"
+		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg3)
 		           (gotolabel arg2)))
 
 	    (FBGT
-	     (check-comment arg3)
-	     (format destination "  if (FLTU64(~A, ~A) > 0.0)~%    goto ~A;~%"
-		           (regnum (fixarg arg1)) (fixarg arg1)
+	     (format destination "  if (FLTU64(~A, ~A) > 0.0)   ~A~%    goto ~A;~%"
+		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg3)
 		           (gotolabel arg2)))
 
 	    (FBNE
-	     (check-comment arg3)
-	     (format destination "  if (FLTU64(~A, ~A) != 0.0)~%    goto ~A;~%"
-		           (regnum (fixarg arg1)) (fixarg arg1)
+	     (format destination "  if (FLTU64(~A, ~A) != 0.0)   ~A~%    goto ~A;~%"
+		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg3)
 		           (gotolabel arg2)))
 
 	    (FCMOVGT
-	     (check-comment arg4)
-	     (format destination "  if (FLTU64(~A, ~A) > 0.0)~%"
-		           (regnum (fixarg arg1)) (fixarg arg1))
+	     (format destination "  if (FLTU64(~A, ~A) > 0.0)   ~A~%"
+		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
 		           (fixarg arg3) (fixarg arg2)))
 
 	    (FCMOVLT
-	     (check-comment arg4)
-	     (format destination "  if (FLTU64(~A, ~A) < 0.0)~%"
-		           (regnum (fixarg arg1)) (fixarg arg1))
+	     (format destination "  if (FLTU64(~A, ~A) < 0.0)   ~A~%"
+		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg4))
 	     (format destination "    ~A = ~A;~%"
 		           (fixarg arg3) (fixarg arg2)))
 
 	    (INSBL
-	     (check-comment arg4)
-	     (format destination "  ~A = (~A & 0xff) << ((~A&7)*8);~%"
-		           (fixarg arg3) (fixarg arg1) (fixarg arg2)))
+	     (format destination "  ~A = (~A & 0xff) << ((~A&7)*8);   ~A~%"
+		           (fixarg arg3) (fixarg arg1) (fixarg arg2) (trailing-comment arg4)))
 
 	    (JMP
-	     (check-comment arg4)
-	     (format destination "    goto *~A; /* jmp */~%"
-		           (fixarg arg2)))
+	     (format destination "    goto *~A; /* jmp */   ~A~%"
+		           (fixarg arg2) (trailing-comment arg4)))
 
 	    (JSR
-	     (check-comment arg4)
 	     (format destination
-		           "    r0 = (*( u64 (*)(u64, u64) )~A)(arg1, arg2); /* jsr */~%"
-		           (fixarg arg2)))
+		           "    r0 = (*( u64 (*)(u64, u64) )~A)(arg1, arg2); /* jsr */  ~A~%"
+		           (fixarg arg2) (trailing-comment arg4)))
 
 	    (FETCH)
 	    (FETCH_M)
 
 	    (LDA
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (cond
 	       ((eq arg2 0)
-	        (format destination "  ~A = ~A;~%"
+	        (format destination "  ~A = ~A;"
 		              (fixarg arg1) (fixarg arg3)))
 	       ((or (numberp arg2) (isconstant arg2) (eq arg3 'zero))
-	        (format destination "  ~A = ~A + ~A;~%"
+	        (format destination "  ~A = ~A + ~A;"
 		              (fixarg arg1) (fixarg arg3) (fixarg arg2)))
 	       (t
-	        (format destination "  ~A = (u64)&~A->~A;~%"
-		              (fixarg arg1) (structptr arg3 arg2) (fixarg arg2)))))
+	        (format destination "  ~A = (u64)&~A->~A;"
+		              (fixarg arg1) (structptr arg3 arg2) (fixarg arg2))))
+                      (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDAH
 	     (check-comment arg4)
@@ -1605,76 +1584,76 @@
 		                     (fixarg arg1) ptr (fixarg arg2))))))
 
 	    (LDQ_U
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (eq arg2 0)
-	         (format destination "  ~A = LDQ_U(~A);~%"
+	         (format destination "  ~A = LDQ_U(~A);"
 		               (fixarg arg1) (fixarg arg3))
-	         (format destination "  ~A = LDQ_U(&~A->~A);~%"
-		               (fixarg arg1) (structptr arg3) (fixarg arg2))))
+	         (format destination "  ~A = LDQ_U(&~A->~A);"
+		               (fixarg arg1) (structptr arg3) (fixarg arg2)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDQ_L
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (eq arg2 0)
-	         (format destination "  ~A = *(u64 *)~A; /* lock */~%"
+	         (format destination "  ~A = *(u64 *)~A; /* lock */  "
 		               (fixarg arg1) (fixarg arg3))
-	         (format destination "  ~A = *(u64 *)&(~A->~A); /* lock */~%"
-		               (fixarg arg1) (structptr arg3) (fixarg arg2))))
+	         (format destination "  ~A = *(u64 *)&(~A->~A); /* lock */  "
+		               (fixarg arg1) (structptr arg3) (fixarg arg2)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDS
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (eq arg2 0)
-	         (format destination "  LDS(~A, ~A, *(u32 *)~A );~%"
+	         (format destination "  LDS(~A, ~A, *(u32 *)~A );"
 		               (regnum (fixarg arg1)) (fixarg arg1) (fixarg arg3))
-	         (format destination "  LDS(~A, ~A, ~A->~A);~%"
+	         (format destination "  LDS(~A, ~A, ~A->~A);"
 		               (regnum (fixarg arg1))
-		               (fixarg arg1) (structptr arg3) (fixarg arg2))))
+		               (fixarg arg1) (structptr arg3) (fixarg arg2)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDT
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (eq arg2 0)
-	         (format destination "  LDT(~A, ~A, *(u32 *)~A );~%"
+	         (format destination "  LDT(~A, ~A, *(u32 *)~A );"
 		               (regnum (fixarg arg1)) (fixarg arg1) (fixarg arg3))
-	         (format destination "  LDT(~A, ~A, ~A->~A);~%"
+	         (format destination "  LDT(~A, ~A, ~A->~A);"
 		               (regnum (fixarg arg1))
-		               (fixarg arg1) (structptr arg3) (fixarg arg2))))
+		               (fixarg arg1) (structptr arg3) (fixarg arg2)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (STS
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (numberp arg2)
 	         (if (eq arg2 0)
-		           (format destination "  STS( (u32 *)~A, ~A, ~A );~%"
+		           (format destination "  STS( (u32 *)~A, ~A, ~A );"
 			                 (structptr arg3) (regnum (fixarg arg1)) (fixarg arg1))
-	             (format destination "  STS( (u32 *)(~A + ~A), ~A, ~A );~%"
+	             (format destination "  STS( (u32 *)(~A + ~A), ~A, ~A );"
 		                   (structptr arg3 arg2) (fixarg arg2)
 		                   (regnum (fixarg arg1)) (fixarg arg1)))
-	         (format destination "  STS( (u32 *)&~A->~A, ~A, ~A );~%"
+	         (format destination "  STS( (u32 *)&~A->~A, ~A, ~A );"
 		               (structptr arg3) (fixarg arg2)
-		               (regnum (fixarg arg1)) (fixarg arg1))))
+		               (regnum (fixarg arg1)) (fixarg arg1)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (STT
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (numberp arg2)
 	         (if (eq arg2 0)
-		           (format destination "  STT( (u64 *)~A, ~A, ~A );~%"
+		           (format destination "  STT( (u64 *)~A, ~A, ~A );"
 			                 (structptr arg3) (regnum (fixarg arg1)) (fixarg arg1))
-	             (format destination "  STT( (u64 *)(~A + ~A), ~A, ~A );~%"
+	             (format destination "  STT( (u64 *)(~A + ~A), ~A, ~A );"
 		                   (structptr arg3 arg2) (fixarg arg2)
 		                   (regnum (fixarg arg1)) (fixarg arg1)))
-	         (format destination "  STT( (u64 *)&~A->~A, ~A, ~A );~%"
+	         (format destination "  STT( (u64 *)&~A->~A, ~A, ~A );"
 		               (structptr arg3) (fixarg arg2)
-		               (regnum (fixarg arg1)) (fixarg arg1))))
+		               (regnum (fixarg arg1)) (fixarg arg1)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (ADDS
 	     (check-comment arg4)
@@ -1750,14 +1729,14 @@
 		           (regnum (fixarg arg2)) (fixarg arg2)))
 
 	    (LOAD-CONSTANT
-	     (check-comment arg4)
 	     (if (numberp arg2)
-	         (format destination "  ~A = 0x~X;~%"
+	         (format destination "  ~A = 0x~X;"
 		               (fixarg arg1)
 		               arg2)
-	         (format destination "  ~A = ~A;~%"
+	         (format destination "  ~A = ~A;"
 		               (fixarg arg1)
-		               (fixarg arg2))))
+		               (fixarg arg2)))
+                       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (MSKBL
 	     (check-comment arg4)
@@ -1772,25 +1751,23 @@
 		           (fixarg arg2)))
 
 	    (MULL/V
-	     (check-comment arg4)
-	     (check-comment arg4)
-	     (format destination
-		           "  ~A = (s64)((s32)~A * (s64)(s32)~A); /* mull/v */~%"
+	     (format destination "  ~A = (s64)((s32)~A * (s64)(s32)~A); /* mull/v */   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2))
-	     (format destination "  if (~A >> 32)~%    exception();~%"
+		           (fixarg arg2)
+               (trailing-comment arg4))
+	     (format destination "  if (~A >> 32)~%    exception();  // WARNING !!! THIS IS ADJUSTED BY THE DIFF FILE~%"
 		           (fixarg arg3)))
 
 	    (NOP)
 
 	    (ORNOT
-	     (check-comment arg4)
 	     (if (eq arg1 'zero)
-	         (format destination "  ~A = ~~~A;~%"
+	         (format destination "  ~A = ~~~A;"
 		               (fixarg arg3) (fixarg arg2))
-	         (format destination "  ~A = ~A | ~~(~A);~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = ~A | ~~(~A);"
+		               (fixarg arg3) (fixarg arg1) (fixarg arg2)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (RPCC
 	     (format destination "  ~A = RPCC();~%"
@@ -1836,12 +1813,12 @@
 		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
 
 	    (S4ADDQ
-	     (check-comment arg4)
 	     (if (equal arg2 'zero)
-	         (format destination "  ~A = (~A * 4);~%"
+	         (format destination "  ~A = (~A * 4);"
 		               (fixarg arg3) (fixarg arg1))
-	         (format destination "  ~A = (~A * 4) + ~A;~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = (~A * 4) + ~A;"
+		               (fixarg arg3) (fixarg arg1) (fixarg arg2)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (S8ADDQ
 	     (check-comment arg4)
@@ -1858,11 +1835,11 @@
 		           (fixarg arg2)))
 
 	    (S8SUBQ
-	     (check-comment arg4)
-	     (format destination "  ~A = (~A * 8) - ~A;~%"
+	     (format destination "  ~A = (~A * 8) - ~A;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (STL
 	     (check-comment arg4)
@@ -1897,13 +1874,10 @@
 	         (setf arg3 (car arg3)))
 	     (if (numberp arg2)
 	         (if (eq arg2 0)
-		           (format destination "  *(u64 *)~A = ~A;~%"
-			                 (structptr arg3 arg2) (fixarg arg1))
-	             (format destination "  *(u64 *)(~A + ~A) = ~A;~%"
-		                   (structptr arg3 arg2) (fixarg arg2) (fixarg arg1)))
+		         (format destination "  *(u64 *)~A = ~A;~%" (structptr arg3 arg2) (fixarg arg1))
+	             (format destination "  *(u64 *)(~A + ~A) = ~A;~%" (structptr arg3 arg2) (fixarg arg2) (fixarg arg1)))
 	         ;; handle ugly x+4 case
-	         (multiple-value-bind (ptr member offset)
-				       (decompose-args arg3 arg2)
+	         (multiple-value-bind (ptr member offset) (decompose-args arg3 arg2)
 		         (if (numberp offset)
 		             (progn
 		               (if (eq (mod offset 8) 0)
@@ -1923,38 +1897,35 @@
 			                  ptr (fixarg member) offset (fixarg arg1)))))))
 
 	    (STQ_C
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  *(u64 *)&~A->~A = ~A; /* lock */~%"
-		           (structptr arg3) (fixarg arg2) (fixarg arg1))
-	     (format destination "  ~A = 1;~%"
-		           (fixarg arg1)))
+	     (format destination "  *(u64 *)&~A->~A = ~A; /* lock */   ~A~%"
+		           (structptr arg3) (fixarg arg2) (fixarg arg1) 
+               (trailing-comment arg4))
+	     (format destination "  ~A = 1;~%" (fixarg arg1)))
 
 	    (STQ_U
-	     (check-comment arg4)
-	     (if (listp arg3)
-	         (setf arg3 (car arg3)))
+	     (if (listp arg3) (setf arg3 (car arg3)))
 	     (if (eq arg2 0)
-	         (format destination "  STQ_U(~A, ~A);~%"
+	         (format destination "  STQ_U(~A, ~A);"
 		               (fixarg arg3)
 		               (fixarg arg1))
-	         (format destination "  STQ_U((u64)&~A->~A, ~A);~%"
+	         (format destination "  STQ_U((u64)&~A->~A, ~A);"
 		               (structptr arg3)
 		               (fixarg arg2)
-		               (fixarg arg1))))
+		               (fixarg arg1)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (TRAPB
-	     (check-comment arg1)
-	     (format destination "  /* trapb ~A */~%"
-		           (fixarg arg1)))
+	     (format destination "  /* trapb ~A */   ~A~%"
+		           (fixarg arg1) (trailing-comment arg1)))
 
 	    (XOR
-	     (check-comment arg4)
-	     (format destination "  ~A = ~A ^ ~A;~%"
+	     (format destination "  ~A = ~A ^ ~A;   ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
-		           (fixarg arg2)))
+		           (fixarg arg2)
+               (trailing-comment arg4)))
 
       ;;-------------------------------------
 

@@ -18,22 +18,19 @@ doeql:
 
 DoEqlSP:
   if (_trace) printf("DoEqlSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdoeql;
+  goto headdoeql;   
 #endif
 
 DoEqlLP:
   if (_trace) printf("DoEqlLP:\n");
 #ifdef TRACING
-  goto headdoeql;
+  goto headdoeql;   
 #endif
 
 DoEqlFP:
@@ -41,98 +38,89 @@ DoEqlFP:
 
 headdoeql:
   if (_trace) printf("headdoeql:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindoeql:
   if (_trace) printf("begindoeql:\n");
   /* arg1 has the operand, not sign extended if immediate. */
   arg6 = arg3 >> 12;
-  /* Load arg1 into t3 */
+		/* Load arg1 into t3 */
   t3 = *(u64 *)iSP;
-  /* Low part of EQ-NOT-EQL mask */
-  t4 = zero + -2048;
+  t4 = zero + -2048;   		// Low part of EQ-NOT-EQL mask 
   t11 = *(u64 *)&(processor->niladdress);
-  /* High part of EQ-NOT-EQL mask */
+		/* High part of EQ-NOT-EQL mask */
   t4 = t4 + ((1) << 16);
-  /* Assume result will be T */
+		/* Assume result will be T */
   t12 = *(u64 *)&(processor->taddress);
-  t5 = arg1 ^ t3;
-  /* Shift left to lose CDRCODE. */
+  t5 = arg1 ^ t3;   
+		/* Shift left to lose CDRCODE. */
   t5 = t5 << 26;
-  /* 1 if no-pop, 0 if pop */
-  arg6 = arg6 & 1;
-  if (t5 == 0)
+  arg6 = arg6 & 1;		// 1 if no-pop, 0 if pop 
+  if (t5 == 0) 
     goto eqldone;
   /* They are not EQ, if types different or not numeric return nil */
-  /* Get the tag alone */
+		/* Get the tag alone */
   t5 = t5 >> 58;
-  /* Now assume result will be NIL */
-  t12 = t11;
-  /* Return NIL if tags different */
-  if (t5 != 0)
+  t12 = t11;		// Now assume result will be NIL 
+  if (t5 != 0)   		// Return NIL if tags different 
     goto eqldone;
-  /* Get tag, check for numeric */
+		/* Get tag, check for numeric */
   t3 = t3 >> 32;
   /* TagType. */
   t3 = t3 & 63;
-  /* Type is now a bit mask */
+		/* Type is now a bit mask */
   t4 = t4 >> (t3 & 63);
-  /* If funny numeric type, exception */
-  if (t4 & 1)
+  if (t4 & 1)   		// If funny numeric type, exception 
     goto eqlexc;
 
 eqldone:
   if (_trace) printf("eqldone:\n");
-  /* Either a stack-push or a stack-write */
+		/* Either a stack-push or a stack-write */
   iSP = (arg6 * 8) + iSP;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
   *(u64 *)iSP = t12;
-  goto cachevalid;
+  goto cachevalid;   
 #ifdef TRACING
-  goto DoEqlIM;
+  goto DoEqlIM;   
 #endif
 
 DoEqlIM:
   if (_trace) printf("DoEqlIM:\n");
   arg2 = arg2 << 56;
-  /* t4=tag t3=data */
+		/* t4=tag t3=data */
   t4 = *(s32 *)(iSP + 4);
   t3 = *(s32 *)iSP;
   arg6 = arg3 >> 12;
-  /* Sign extension of arg2 is complete */
+		/* Sign extension of arg2 is complete */
   arg2 = (s64)arg2 >> 56;
-  t3 = (u32)t3;
+  t3 = (u32)t3;   
   t11 = *(u64 *)&(processor->niladdress);
   /* TagType. */
   t4 = t4 & 63;
   t12 = *(u64 *)&(processor->taddress);
   arg2 = (s32)t3 - (s32)arg2;
-  t4 = t4 ^ Type_Fixnum;
-  /* 1 if no-pop, 0 if pop */
-  arg6 = arg6 & 1;
+  t4 = t4 ^ Type_Fixnum;   
+  arg6 = arg6 & 1;		// 1 if no-pop, 0 if pop 
   t4 = arg2 | t4;
-  /* Either a stack-push or a stack-write */
+		/* Either a stack-push or a stack-write */
   iSP = (arg6 * 8) + iSP;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  if (t4 == 0)
+  if (t4 == 0)   
     t11 = t12;
-  /* Yes Virginia, this does dual issue with above */
+		/* Yes Virginia, this does dual issue with above */
   *(u64 *)iSP = t11;
-  goto cachevalid;
+  goto cachevalid;   
 
 eqlexc:
   if (_trace) printf("eqlexc:\n");
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto exception;
 
 /* end DoEql */
@@ -149,24 +137,21 @@ dogreaterp:
 
 DoGreaterpSP:
   if (_trace) printf("DoGreaterpSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  if (arg2 != 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 != 0)   
     goto begindogreaterp;
-  /* SP-pop, Reload TOS */
+		/* SP-pop, Reload TOS */
   arg6 = *(u64 *)arg4;
-  /* SP-pop mode */
-  arg1 = iSP;
-  /* Adjust SP */
-  iSP = arg4;
+  arg1 = iSP;		// SP-pop mode 
+  iSP = arg4;		// Adjust SP 
 #ifdef TRACING
-  goto begindogreaterp;
+  goto begindogreaterp;   
 #endif
 
 DoGreaterpLP:
   if (_trace) printf("DoGreaterpLP:\n");
 #ifdef TRACING
-  goto begindogreaterp;
+  goto begindogreaterp;   
 #endif
 
 DoGreaterpFP:
@@ -175,147 +160,136 @@ DoGreaterpFP:
 begindogreaterp:
   if (_trace) printf("begindogreaterp:\n");
   /* arg1 has the operand address. */
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
   t11 = *(u64 *)&(processor->niladdress);
   t7 = arg3 >> 12;
   t12 = *(u64 *)&(processor->taddress);
-  /* Get ARG1 tag */
-  arg3 = (u32)(arg6 >> ((4&7)*8));
-  /* t1 is tag of arg2 */
+  arg3 = (u32)(arg6 >> ((4&7)*8));   		// Get ARG1 tag 
+		/* t1 is tag of arg2 */
   t1 = *(s32 *)(arg1 + 4);
-  LDS(1, f1, *(u32 *)iSP );
+  LDS(1, f1, *(u32 *)iSP );   
   t7 = t7 & 1;
   arg2 = *(s32 *)arg1;
   arg4 = (s32)arg6;
-  LDS(2, f2, *(u32 *)arg1 );
-  /* Strip off any CDR code bits. */
-  t5 = arg3 & 63;
-  /* Strip off any CDR code bits. */
-  t4 = t1 & 63;
-  t6 = (t5 == Type_Fixnum) ? 1 : 0;
+  LDS(2, f2, *(u32 *)arg1 );   
+  t5 = arg3 & 63;		// Strip off any CDR code bits. 
+  t4 = t1 & 63;		// Strip off any CDR code bits. 
+  t6 = (t5 == Type_Fixnum) ? 1 : 0;   
 
-g8151:
-  if (_trace) printf("g8151:\n");
-  if (t6 == 0)
-    goto g8139;
+g29820:
+  if (_trace) printf("g29820:\n");
+  if (t6 == 0) 
+    goto g29808;
   /* Here if argument TypeFixnum */
-  t3 = (t4 == Type_Fixnum) ? 1 : 0;
+  t3 = (t4 == Type_Fixnum) ? 1 : 0;   
 
-g8143:
-  if (_trace) printf("g8143:\n");
-  if (t3 == 0)
-    goto g8134;
+g29812:
+  if (_trace) printf("g29812:\n");
+  if (t3 == 0) 
+    goto g29803;
   /* Here if argument TypeFixnum */
   t2 = arg4 - arg2;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-  /* Pop/No-pop */
+		/* Pop/No-pop */
   iSP = (t7 * 8) + iSP;
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* T if the test succeeds */
-  if ((s64)t2 > 0)
+  if ((s64)t2 > 0)   		// T if the test succeeds 
     t11 = t12;
   *(u64 *)iSP = t11;
-  goto cachevalid;
+  goto cachevalid;   
 
-g8140:
-  if (_trace) printf("g8140:\n");
+g29809:
+  if (_trace) printf("g29809:\n");
 
-g8139:
-  if (_trace) printf("g8139:\n");
-  t6 = (t5 == Type_SingleFloat) ? 1 : 0;
+g29808:
+  if (_trace) printf("g29808:\n");
+  t6 = (t5 == Type_SingleFloat) ? 1 : 0;   
 
-g8152:
-  if (_trace) printf("g8152:\n");
-  if (t6 == 0)
-    goto g8144;
+g29821:
+  if (_trace) printf("g29821:\n");
+  if (t6 == 0) 
+    goto g29813;
   /* Here if argument TypeSingleFloat */
-  t3 = (t4 == Type_SingleFloat) ? 1 : 0;
+  t3 = (t4 == Type_SingleFloat) ? 1 : 0;   
 
-g8148:
-  if (_trace) printf("g8148:\n");
-  if (t3 == 0)
-    goto g8134;
+g29817:
+  if (_trace) printf("g29817:\n");
+  if (t3 == 0) 
+    goto g29803;
   /* Here if argument TypeSingleFloat */
 
 greaterpmmexcfltflt:
   if (_trace) printf("greaterpmmexcfltflt:\n");
-  SETFLTT(3,f3, FLTU64(1,f1) <= FLTU64(2,f2) ? 2.0:0);
-  /* Force the trap to occur here */
-  /* trapb force the trap to occur here */
+  SETFLTT(3,f3, FLTU64(1,f1) <= FLTU64(2,f2) ? 2.0:0);  
+  /* trapb force the trap to occur here */   		// Force the trap to occur here 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iSP = (t7 * 8) + iSP;
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
   *(u64 *)iSP = t12;
-  if (FLTU64(3, f3) == 0.0)
+  if (FLTU64(3, f3) == 0.0)   
     goto cachevalid;
-  /* Didn't branch, answer is NIL */
+		/* Didn't branch, answer is NIL */
   *(u64 *)iSP = t11;
-  goto cachevalid;
+  goto cachevalid;   
 
-g8145:
-  if (_trace) printf("g8145:\n");
+g29814:
+  if (_trace) printf("g29814:\n");
 
-g8144:
-  if (_trace) printf("g8144:\n");
+g29813:
+  if (_trace) printf("g29813:\n");
   /* Here for all other cases */
 
-g8134:
-  if (_trace) printf("g8134:\n");
-  goto greaterpmmexc;
+g29803:
+  if (_trace) printf("g29803:\n");
+  goto greaterpmmexc;   
 
-g8138:
-  if (_trace) printf("g8138:\n");
+g29807:
+  if (_trace) printf("g29807:\n");
 #ifdef TRACING
-  goto DoGreaterpIM;
+  goto DoGreaterpIM;   
 #endif
 
 DoGreaterpIM:
   if (_trace) printf("DoGreaterpIM:\n");
   t11 = *(u64 *)&(processor->niladdress);
-  /* First half of sign extension */
+		/* First half of sign extension */
   arg2 = arg2 << 56;
   t12 = *(u64 *)&(processor->taddress);
   t7 = arg3 >> 12;
-  arg3 = (u32)(arg6 >> ((4&7)*8));
+  arg3 = (u32)(arg6 >> ((4&7)*8));   
   arg4 = (s32)arg6;
-  /* Second half of sign extension */
+		/* Second half of sign extension */
   arg2 = (s64)arg2 >> 56;
   t7 = t7 & 1;
-  /* Strip off any CDR code bits. */
-  t3 = arg3 & 63;
-  t4 = (t3 == Type_Fixnum) ? 1 : 0;
+  t3 = arg3 & 63;		// Strip off any CDR code bits. 
+  t4 = (t3 == Type_Fixnum) ? 1 : 0;   
 
-g8157:
-  if (_trace) printf("g8157:\n");
-  if (t4 == 0)
-    goto g8154;
+g29826:
+  if (_trace) printf("g29826:\n");
+  if (t4 == 0) 
+    goto g29823;
   /* Here if argument TypeFixnum */
   t2 = arg4 - arg2;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iSP = (t7 * 8) + iSP;
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* T if the test succeeds */
-  if ((s64)t2 > 0)
+  if ((s64)t2 > 0)   		// T if the test succeeds 
     t11 = t12;
   *(u64 *)iSP = t11;
-  goto cachevalid;
+  goto cachevalid;   
 
-g8154:
-  if (_trace) printf("g8154:\n");
+g29823:
+  if (_trace) printf("g29823:\n");
   /* Here for all other cases */
-  /* arg6 = tag to dispatch on */
-  arg6 = arg3;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+  arg6 = arg3;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-g8153:
-  if (_trace) printf("g8153:\n");
+g29822:
+  if (_trace) printf("g29822:\n");
 
 /* end DoGreaterp */
   /* End of Halfword operand from stack instruction - DoGreaterp */
@@ -331,24 +305,21 @@ dologtest:
 
 DoLogtestSP:
   if (_trace) printf("DoLogtestSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  if (arg2 != 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 != 0)   
     goto begindologtest;
-  /* SP-pop, Reload TOS */
+		/* SP-pop, Reload TOS */
   arg6 = *(u64 *)arg4;
-  /* SP-pop mode */
-  arg1 = iSP;
-  /* Adjust SP */
-  iSP = arg4;
+  arg1 = iSP;		// SP-pop mode 
+  iSP = arg4;		// Adjust SP 
 #ifdef TRACING
-  goto begindologtest;
+  goto begindologtest;   
 #endif
 
 DoLogtestLP:
   if (_trace) printf("DoLogtestLP:\n");
 #ifdef TRACING
-  goto begindologtest;
+  goto begindologtest;   
 #endif
 
 DoLogtestFP:
@@ -357,137 +328,119 @@ DoLogtestFP:
 begindologtest:
   if (_trace) printf("begindologtest:\n");
   /* arg1 has the operand address. */
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
   t11 = *(u64 *)&(processor->niladdress);
   t7 = arg3 >> 12;
   t12 = *(u64 *)&(processor->taddress);
-  /* Get ARG1 tag */
-  arg3 = (u32)(arg6 >> ((4&7)*8));
+  arg3 = (u32)(arg6 >> ((4&7)*8));   		// Get ARG1 tag 
   arg2 = *(s32 *)arg1;
-  LDS(1, f1, *(u32 *)iSP );
+  LDS(1, f1, *(u32 *)iSP );   
   t7 = t7 & 1;
-  /* t1 is tag of arg2 */
+		/* t1 is tag of arg2 */
   t1 = *(s32 *)(arg1 + 4);
-  arg4 = (u32)arg6;
-  arg2 = (u32)arg2;
-  LDS(2, f2, *(u32 *)arg1 );
-  /* Strip off any CDR code bits. */
-  t5 = arg3 & 63;
-  /* Strip off any CDR code bits. */
-  t4 = t1 & 63;
-  t6 = (t5 == Type_Fixnum) ? 1 : 0;
+  arg4 = (u32)arg6;   
+  arg2 = (u32)arg2;   
+  LDS(2, f2, *(u32 *)arg1 );   
+  t5 = arg3 & 63;		// Strip off any CDR code bits. 
+  t4 = t1 & 63;		// Strip off any CDR code bits. 
+  t6 = (t5 == Type_Fixnum) ? 1 : 0;   
 
-g8170:
-  if (_trace) printf("g8170:\n");
-  if (t6 == 0)
-    goto g8163;
+g29839:
+  if (_trace) printf("g29839:\n");
+  if (t6 == 0) 
+    goto g29832;
   /* Here if argument TypeFixnum */
-  t3 = (t4 == Type_Fixnum) ? 1 : 0;
+  t3 = (t4 == Type_Fixnum) ? 1 : 0;   
 
-g8167:
-  if (_trace) printf("g8167:\n");
-  if (t3 == 0)
-    goto g8160;
+g29836:
+  if (_trace) printf("g29836:\n");
+  if (t3 == 0) 
+    goto g29829;
   /* Here if argument TypeFixnum */
   t2 = arg4 & arg2;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-  /* Pop/No-pop */
+		/* Pop/No-pop */
   iSP = (t7 * 8) + iSP;
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* T if the test succeeds */
-  if (t2)
+  if (t2)   		// T if the test succeeds 
     t11 = t12;
   *(u64 *)iSP = t11;
-  goto cachevalid;
+  goto cachevalid;   
 
-g8164:
-  if (_trace) printf("g8164:\n");
+g29833:
+  if (_trace) printf("g29833:\n");
 
-g8163:
-  if (_trace) printf("g8163:\n");
+g29832:
+  if (_trace) printf("g29832:\n");
   /* Here for all other cases */
 
-g8159:
-  if (_trace) printf("g8159:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = arg3;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29828:
+  if (_trace) printf("g29828:\n");
+  arg6 = arg3;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
-  goto g8161;
+  goto g29830;   
 
-g8160:
-  if (_trace) printf("g8160:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = t1;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29829:
+  if (_trace) printf("g29829:\n");
+  arg6 = t1;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-g8161:
-  if (_trace) printf("g8161:\n");
+g29830:
+  if (_trace) printf("g29830:\n");
 
-g8162:
-  if (_trace) printf("g8162:\n");
+g29831:
+  if (_trace) printf("g29831:\n");
 #ifdef TRACING
-  goto DoLogtestIM;
+  goto DoLogtestIM;   
 #endif
 
 DoLogtestIM:
   if (_trace) printf("DoLogtestIM:\n");
   t11 = *(u64 *)&(processor->niladdress);
-  /* First half of sign extension */
+		/* First half of sign extension */
   arg2 = arg2 << 56;
   t12 = *(u64 *)&(processor->taddress);
   t7 = arg3 >> 12;
-  arg3 = (u32)(arg6 >> ((4&7)*8));
+  arg3 = (u32)(arg6 >> ((4&7)*8));   
   arg4 = (s32)arg6;
-  /* Second half of sign extension */
+		/* Second half of sign extension */
   arg2 = (s64)arg2 >> 56;
   t7 = t7 & 1;
-  /* Strip off any CDR code bits. */
-  t3 = arg3 & 63;
-  t4 = (t3 == Type_Fixnum) ? 1 : 0;
+  t3 = arg3 & 63;		// Strip off any CDR code bits. 
+  t4 = (t3 == Type_Fixnum) ? 1 : 0;   
 
-g8175:
-  if (_trace) printf("g8175:\n");
-  if (t4 == 0)
-    goto g8172;
+g29844:
+  if (_trace) printf("g29844:\n");
+  if (t4 == 0) 
+    goto g29841;
   /* Here if argument TypeFixnum */
   t2 = arg4 & arg2;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iSP = (t7 * 8) + iSP;
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* T if the test succeeds */
-  if (t2)
+  if (t2)   		// T if the test succeeds 
     t11 = t12;
   *(u64 *)iSP = t11;
-  goto cachevalid;
+  goto cachevalid;   
 
-g8172:
-  if (_trace) printf("g8172:\n");
+g29841:
+  if (_trace) printf("g29841:\n");
   /* Here for all other cases */
-  /* arg6 = tag to dispatch on */
-  arg6 = arg3;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+  arg6 = arg3;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-g8171:
-  if (_trace) printf("g8171:\n");
+g29840:
+  if (_trace) printf("g29840:\n");
 
 /* end DoLogtest */
   /* End of Halfword operand from stack instruction - DoLogtest */
@@ -496,88 +449,78 @@ g8171:
 
 equalnumbermmexc:
   if (_trace) printf("equalnumbermmexc:\n");
-  /* Strip off any CDR code bits. */
-  t5 = arg3 & 63;
-  /* Strip off any CDR code bits. */
-  t4 = t1 & 63;
-  t6 = (t5 == Type_Fixnum) ? 1 : 0;
+  t5 = arg3 & 63;		// Strip off any CDR code bits. 
+  t4 = t1 & 63;		// Strip off any CDR code bits. 
+  t6 = (t5 == Type_Fixnum) ? 1 : 0;   
 
-g8193:
-  if (_trace) printf("g8193:\n");
-  if (t6 == 0)
-    goto g8181;
+g29862:
+  if (_trace) printf("g29862:\n");
+  if (t6 == 0) 
+    goto g29850;
   /* Here if argument TypeFixnum */
-  t3 = (t4 == Type_SingleFloat) ? 1 : 0;
+  t3 = (t4 == Type_SingleFloat) ? 1 : 0;   
 
-g8185:
-  if (_trace) printf("g8185:\n");
-  if (t3 == 0)
-    goto g8178;
+g29854:
+  if (_trace) printf("g29854:\n");
+  if (t3 == 0) 
+    goto g29847;
   /* Here if argument TypeSingleFloat */
   CVTLQ(1, f1, f31, 1, f1);
   CVTQS(1, f1, f31, 1, f1);
-  goto equalnumbermmexcfltflt;
+  goto equalnumbermmexcfltflt;   
 
-g8182:
-  if (_trace) printf("g8182:\n");
+g29851:
+  if (_trace) printf("g29851:\n");
 
-g8181:
-  if (_trace) printf("g8181:\n");
-  t6 = (t5 == Type_SingleFloat) ? 1 : 0;
+g29850:
+  if (_trace) printf("g29850:\n");
+  t6 = (t5 == Type_SingleFloat) ? 1 : 0;   
 
-g8194:
-  if (_trace) printf("g8194:\n");
-  if (t6 == 0)
-    goto g8186;
+g29863:
+  if (_trace) printf("g29863:\n");
+  if (t6 == 0) 
+    goto g29855;
   /* Here if argument TypeSingleFloat */
-  t3 = (t4 == Type_Fixnum) ? 1 : 0;
+  t3 = (t4 == Type_Fixnum) ? 1 : 0;   
 
-g8190:
-  if (_trace) printf("g8190:\n");
-  if (t3 == 0)
-    goto g8178;
+g29859:
+  if (_trace) printf("g29859:\n");
+  if (t3 == 0) 
+    goto g29847;
   /* Here if argument TypeFixnum */
   CVTLQ(2, f2, f31, 2, f2);
   CVTQS(2, f2, f31, 2, f2);
-  goto equalnumbermmexcfltflt;
+  goto equalnumbermmexcfltflt;   
 
-g8187:
-  if (_trace) printf("g8187:\n");
+g29856:
+  if (_trace) printf("g29856:\n");
 
-g8186:
-  if (_trace) printf("g8186:\n");
+g29855:
+  if (_trace) printf("g29855:\n");
   /* Here for all other cases */
 
-g8177:
-  if (_trace) printf("g8177:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = arg3;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29846:
+  if (_trace) printf("g29846:\n");
+  arg6 = arg3;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
-  goto g8179;
+  goto g29848;   
 
-g8178:
-  if (_trace) printf("g8178:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = t1;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29847:
+  if (_trace) printf("g29847:\n");
+  arg6 = t1;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-g8179:
-  if (_trace) printf("g8179:\n");
+g29848:
+  if (_trace) printf("g29848:\n");
 
-g8180:
-  if (_trace) printf("g8180:\n");
+g29849:
+  if (_trace) printf("g29849:\n");
 
 /* end EqualNumberMMExc */
 /* start LesspMMExc */
@@ -585,88 +528,78 @@ g8180:
 
 lesspmmexc:
   if (_trace) printf("lesspmmexc:\n");
-  /* Strip off any CDR code bits. */
-  t5 = arg3 & 63;
-  /* Strip off any CDR code bits. */
-  t4 = t1 & 63;
-  t6 = (t5 == Type_Fixnum) ? 1 : 0;
+  t5 = arg3 & 63;		// Strip off any CDR code bits. 
+  t4 = t1 & 63;		// Strip off any CDR code bits. 
+  t6 = (t5 == Type_Fixnum) ? 1 : 0;   
 
-g8212:
-  if (_trace) printf("g8212:\n");
-  if (t6 == 0)
-    goto g8200;
+g29881:
+  if (_trace) printf("g29881:\n");
+  if (t6 == 0) 
+    goto g29869;
   /* Here if argument TypeFixnum */
-  t3 = (t4 == Type_SingleFloat) ? 1 : 0;
+  t3 = (t4 == Type_SingleFloat) ? 1 : 0;   
 
-g8204:
-  if (_trace) printf("g8204:\n");
-  if (t3 == 0)
-    goto g8197;
+g29873:
+  if (_trace) printf("g29873:\n");
+  if (t3 == 0) 
+    goto g29866;
   /* Here if argument TypeSingleFloat */
   CVTLQ(1, f1, f31, 1, f1);
   CVTQS(1, f1, f31, 1, f1);
-  goto lesspmmexcfltflt;
+  goto lesspmmexcfltflt;   
 
-g8201:
-  if (_trace) printf("g8201:\n");
+g29870:
+  if (_trace) printf("g29870:\n");
 
-g8200:
-  if (_trace) printf("g8200:\n");
-  t6 = (t5 == Type_SingleFloat) ? 1 : 0;
+g29869:
+  if (_trace) printf("g29869:\n");
+  t6 = (t5 == Type_SingleFloat) ? 1 : 0;   
 
-g8213:
-  if (_trace) printf("g8213:\n");
-  if (t6 == 0)
-    goto g8205;
+g29882:
+  if (_trace) printf("g29882:\n");
+  if (t6 == 0) 
+    goto g29874;
   /* Here if argument TypeSingleFloat */
-  t3 = (t4 == Type_Fixnum) ? 1 : 0;
+  t3 = (t4 == Type_Fixnum) ? 1 : 0;   
 
-g8209:
-  if (_trace) printf("g8209:\n");
-  if (t3 == 0)
-    goto g8197;
+g29878:
+  if (_trace) printf("g29878:\n");
+  if (t3 == 0) 
+    goto g29866;
   /* Here if argument TypeFixnum */
   CVTLQ(2, f2, f31, 2, f2);
   CVTQS(2, f2, f31, 2, f2);
-  goto lesspmmexcfltflt;
+  goto lesspmmexcfltflt;   
 
-g8206:
-  if (_trace) printf("g8206:\n");
+g29875:
+  if (_trace) printf("g29875:\n");
 
-g8205:
-  if (_trace) printf("g8205:\n");
+g29874:
+  if (_trace) printf("g29874:\n");
   /* Here for all other cases */
 
-g8196:
-  if (_trace) printf("g8196:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = arg3;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29865:
+  if (_trace) printf("g29865:\n");
+  arg6 = arg3;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
-  goto g8198;
+  goto g29867;   
 
-g8197:
-  if (_trace) printf("g8197:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = t1;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29866:
+  if (_trace) printf("g29866:\n");
+  arg6 = t1;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-g8198:
-  if (_trace) printf("g8198:\n");
+g29867:
+  if (_trace) printf("g29867:\n");
 
-g8199:
-  if (_trace) printf("g8199:\n");
+g29868:
+  if (_trace) printf("g29868:\n");
 
 /* end LesspMMExc */
 /* start GreaterpMMExc */
@@ -674,88 +607,78 @@ g8199:
 
 greaterpmmexc:
   if (_trace) printf("greaterpmmexc:\n");
-  /* Strip off any CDR code bits. */
-  t5 = arg3 & 63;
-  /* Strip off any CDR code bits. */
-  t4 = t1 & 63;
-  t6 = (t5 == Type_Fixnum) ? 1 : 0;
+  t5 = arg3 & 63;		// Strip off any CDR code bits. 
+  t4 = t1 & 63;		// Strip off any CDR code bits. 
+  t6 = (t5 == Type_Fixnum) ? 1 : 0;   
 
-g8231:
-  if (_trace) printf("g8231:\n");
-  if (t6 == 0)
-    goto g8219;
+g29900:
+  if (_trace) printf("g29900:\n");
+  if (t6 == 0) 
+    goto g29888;
   /* Here if argument TypeFixnum */
-  t3 = (t4 == Type_SingleFloat) ? 1 : 0;
+  t3 = (t4 == Type_SingleFloat) ? 1 : 0;   
 
-g8223:
-  if (_trace) printf("g8223:\n");
-  if (t3 == 0)
-    goto g8216;
+g29892:
+  if (_trace) printf("g29892:\n");
+  if (t3 == 0) 
+    goto g29885;
   /* Here if argument TypeSingleFloat */
   CVTLQ(1, f1, f31, 1, f1);
   CVTQS(1, f1, f31, 1, f1);
-  goto greaterpmmexcfltflt;
+  goto greaterpmmexcfltflt;   
 
-g8220:
-  if (_trace) printf("g8220:\n");
+g29889:
+  if (_trace) printf("g29889:\n");
 
-g8219:
-  if (_trace) printf("g8219:\n");
-  t6 = (t5 == Type_SingleFloat) ? 1 : 0;
+g29888:
+  if (_trace) printf("g29888:\n");
+  t6 = (t5 == Type_SingleFloat) ? 1 : 0;   
 
-g8232:
-  if (_trace) printf("g8232:\n");
-  if (t6 == 0)
-    goto g8224;
+g29901:
+  if (_trace) printf("g29901:\n");
+  if (t6 == 0) 
+    goto g29893;
   /* Here if argument TypeSingleFloat */
-  t3 = (t4 == Type_Fixnum) ? 1 : 0;
+  t3 = (t4 == Type_Fixnum) ? 1 : 0;   
 
-g8228:
-  if (_trace) printf("g8228:\n");
-  if (t3 == 0)
-    goto g8216;
+g29897:
+  if (_trace) printf("g29897:\n");
+  if (t3 == 0) 
+    goto g29885;
   /* Here if argument TypeFixnum */
   CVTLQ(2, f2, f31, 2, f2);
   CVTQS(2, f2, f31, 2, f2);
-  goto greaterpmmexcfltflt;
+  goto greaterpmmexcfltflt;   
 
-g8225:
-  if (_trace) printf("g8225:\n");
+g29894:
+  if (_trace) printf("g29894:\n");
 
-g8224:
-  if (_trace) printf("g8224:\n");
+g29893:
+  if (_trace) printf("g29893:\n");
   /* Here for all other cases */
 
-g8215:
-  if (_trace) printf("g8215:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = arg3;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29884:
+  if (_trace) printf("g29884:\n");
+  arg6 = arg3;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
-  goto g8217;
+  goto g29886;   
 
-g8216:
-  if (_trace) printf("g8216:\n");
-  /* arg6 = tag to dispatch on */
-  arg6 = t1;
-  /* arg3 = stackp */
-  arg3 = 0;
-  /* arg1 = instruction arity */
-  arg1 = 2;
-  /* arg4 = arithmeticp */
-  arg4 = 1;
+g29885:
+  if (_trace) printf("g29885:\n");
+  arg6 = t1;		// arg6 = tag to dispatch on 
+  arg3 = 0;		// arg3 = stackp 
+  arg1 = 2;		// arg1 = instruction arity 
+  arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-g8217:
-  if (_trace) printf("g8217:\n");
+g29886:
+  if (_trace) printf("g29886:\n");
 
-g8218:
-  if (_trace) printf("g8218:\n");
+g29887:
+  if (_trace) printf("g29887:\n");
 
 /* end GreaterpMMExc */
   /* Fin. */

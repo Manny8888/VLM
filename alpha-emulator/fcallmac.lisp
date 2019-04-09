@@ -40,7 +40,7 @@
     (LDL ,temp PROCESSORSTATE_CONTROL (ivory))
     (BIS zero |TypeFixnum+0xC0| ,temp5)
     (LDL ,temp3 PROCESSORSTATE_CONTINUATION (ivory))
-    (load-constant ,temp4 #.1_22 "cr.call-started")
+    (load-constant ,temp4 1_22 "cr.call-started")
     (BIS ,temp2 #xC0 ,temp2 "Set CDR code 3")
     (stack-write2-disp iSP -8 ,temp2 ,temp3 "push continuation")
     (BIS ,temp ,temp4 ,temp3 "Set call started bit in CR")

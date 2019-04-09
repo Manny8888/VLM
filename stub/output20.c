@@ -168,7 +168,7 @@ logicvariablefw:
 
 pushsparepointer3:
   if (_trace) printf("pushsparepointer3:\n");
-  /* Get operand */
+		/* Get operand */
   arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);
   /* This instruction has not been written yet. */
   arg5 = 0;
@@ -185,7 +185,7 @@ pushsparepointer3:
 
 pushsparepointer4:
   if (_trace) printf("pushsparepointer4:\n");
-  /* Get operand */
+		/* Get operand */
   arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);
   /* This instruction has not been written yet. */
   arg5 = 0;
@@ -205,12 +205,10 @@ callcompiledodd:
 
 callcompiledoddprefetch:
   if (_trace) printf("callcompiledoddprefetch:\n");
-  /* Get operand */
-  arg6 = arg3;
+  arg6 = arg3;		// Get operand 
   arg5 = Type_OddPC;
-  /* No extra arg */
-  arg3 = zero;
-  goto startcallcompiledmerge;
+  arg3 = zero;		// No extra arg 
+  goto startcallcompiledmerge;   
 
 /* end callcompiledodd */
   /* End of Fullword instruction - callcompiledodd */
@@ -222,14 +220,10 @@ callcompiledoddprefetch:
 
 nativeinstruction:
   if (_trace) printf("nativeinstruction:\n");
-  /* arg1 is instruction address*2 here */
-  arg1 = iPC & ~1L;
-  /* Select the DATA address */
-  arg1 = arg1 + arg1;
-  /* Add in the memory base */
-  arg1 = (ivory * 4) + arg1;
-  /* Jump into the Ivory code */
-    r0 = (*( u64 (*)(u64, u64) )arg1)(arg1, arg2); /* jsr */
+  arg1 = iPC & ~1L;		// arg1 is instruction address*2 here 
+  arg1 = arg1 + arg1;		// Select the DATA address 
+  arg1 = (ivory * 4) + arg1;   		// Add in the memory base 
+    r0 = (*( u64 (*)(u64, u64) )arg1)(arg1, arg2); /* jsr */  		// Jump into the Ivory code 
 
 /* end nativeinstruction */
   /* End of Fullword instruction - nativeinstruction */
@@ -242,9 +236,9 @@ resumeemulated:
   iPC = (ivory * 4) - arg1;
   iPC = zero - iPC;
   iPC = iPC >> 1;
-  if (arg2 != 0)
+  if (arg2 != 0)   
     goto interpretinstructionpredicted;
-  goto interpretinstructionforbranch;
+  goto interpretinstructionforbranch;   
 
 /* end resumeemulated */
   /* Fin. */

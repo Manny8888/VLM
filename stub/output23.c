@@ -15,109 +15,100 @@ ioutofline:
 traporsuspendmachine:
   if (_trace) printf("traporsuspendmachine:\n");
   t4 = *(s32 *)&processor->control;
-  /* Be sure this is up-to-date */
+		/* Be sure this is up-to-date */
   *(u64 *)&processor->restartsp = iSP;
-  /* Has the spy asked us to stop or trap? */
-  r0 = *(u64 *)&(processor->please_stop); /* lock */
+  r0 = *(u64 *)&(processor->please_stop); /* lock */     		// Has the spy asked us to stop or trap? 
   t5 = zero;
-  *(u64 *)&processor->please_stop = t5; /* lock */
+  *(u64 *)&processor->please_stop = t5; /* lock */   
   t5 = 1;
-  if (t5 == 0)
+  if (t5 == 0) 
     goto collision;
   *(u64 *)&processor->stop_interpreter = zero;
 
 collision:
-  /* t3<0>=1 if we've been asked to stop */
-  t3 = CMPBGE(r0, HaltReason_IllInstn);
-  if (t3 & 1)
+  t3 = CMPBGE(r0, HaltReason_IllInstn);  		// t3<0>=1 if we've been asked to stop 
+  if (t3 & 1)   
     goto SUSPENDMACHINE;
   /* Here when someone wants the emulator to trap. */
-  /* Extract PROCESSORSTATE_PLEASE_TRAP (ivory) */
-  r0 = (u32)(r0 >> ((4&7)*8));
-  /* Isolate current trap mode */
+  r0 = (u32)(r0 >> ((4&7)*8));   		// Extract PROCESSORSTATE_PLEASE_TRAP (ivory) 
+		/* Isolate current trap mode */
   t4 = t4 >> 30;
-  t3 = (r0 == TrapReason_HighPrioritySequenceBreak) ? 1 : 0;
+  t3 = (r0 == TrapReason_HighPrioritySequenceBreak) ? 1 : 0;   
 
-g9018:
-  if (_trace) printf("g9018:\n");
-  if (t3 == 0)
-    goto g9014;
+g30687:
+  if (_trace) printf("g30687:\n");
+  if (t3 == 0) 
+    goto g30683;
   /* Here if argument TrapReasonHighPrioritySequenceBreak */
-  /* Only interrupts EXTRA-STACK and EMULATOR */
-  t4 = ((u64)t4 <= (u64)TrapMode_ExtraStack) ? 1 : 0;
-  if (t4 == 0)
+  t4 = ((u64)t4 <= (u64)TrapMode_ExtraStack) ? 1 : 0;   		// Only interrupts EXTRA-STACK and EMULATOR 
+  if (t4 == 0) 
     goto continuecurrentinstruction;
   goto highprioritysequencebreak;
 
-g9014:
-  if (_trace) printf("g9014:\n");
-  t3 = (r0 == TrapReason_LowPrioritySequenceBreak) ? 1 : 0;
+g30683:
+  if (_trace) printf("g30683:\n");
+  t3 = (r0 == TrapReason_LowPrioritySequenceBreak) ? 1 : 0;   
 
-g9019:
-  if (_trace) printf("g9019:\n");
-  if (t3 == 0)
-    goto g9015;
+g30688:
+  if (_trace) printf("g30688:\n");
+  if (t3 == 0) 
+    goto g30684;
   /* Here if argument TrapReasonLowPrioritySequenceBreak */
-  /* Only interrupts EMULATOR */
-  if (t4 != 0)
+  if (t4 != 0)   		// Only interrupts EMULATOR 
     goto continuecurrentinstruction;
   goto lowprioritysequencebreak;
 
-g9015:
-  if (_trace) printf("g9015:\n");
+g30684:
+  if (_trace) printf("g30684:\n");
   /* Here for all other cases */
   /* Check for preempt-request trap */
-  /* Get the preempt-pending bit */
+		/* Get the preempt-pending bit */
   t5 = *(s32 *)&processor->interruptreg;
-  /* Don't take preempt trap unless in emulator mode */
-  if (t4 != 0)
+  if (t4 != 0)   		// Don't take preempt trap unless in emulator mode 
     goto continuecurrentinstruction;
-  /* Jump if preempt request not pending */
-  if ((t5 & 1) == 0)
+  if ((t5 & 1) == 0)   		// Jump if preempt request not pending 
     goto continuecurrentinstruction;
   goto preemptrequesttrap;
 
-g9013:
-  if (_trace) printf("g9013:\n");
+g30682:
+  if (_trace) printf("g30682:\n");
 
 SUSPENDMACHINE:
   if (_trace) printf("SUSPENDMACHINE:\n");
-  /* Get the reason */
-  t1 = (u32)r0;
-  goto stopinterp;
+  t1 = (u32)r0;   		// Get the reason 
+  goto stopinterp;   
 
 ILLEGALINSTRUCTION:
   if (_trace) printf("ILLEGALINSTRUCTION:\n");
   t1 = HaltReason_IllInstn;
-  goto stopinterp;
+  goto stopinterp;   
 
 haltmachine:
   if (_trace) printf("haltmachine:\n");
   t1 = HaltReason_Halted;
-  goto stopinterp;
+  goto stopinterp;   
 
 fatalstackoverflow:
   if (_trace) printf("fatalstackoverflow:\n");
   t1 = HaltReason_FatalStackOverflow;
-  goto stopinterp;
+  goto stopinterp;   
 
 illegaltrapvector:
   if (_trace) printf("illegaltrapvector:\n");
   t1 = HaltReason_IllegalTrapVector;
-  goto stopinterp;
+  goto stopinterp;   
 
 stopinterp:
   if (_trace) printf("stopinterp:\n");
-  /* Return the halt reason */
-  r0 = t1;
-  /* Clear the request flag */
+  r0 = t1;		// Return the halt reason 
+		/* Clear the request flag */
   *(u32 *)&processor->please_stop = zero;
   *(u64 *)&processor->cp = iCP;
   *(u64 *)&processor->epc = iPC;
   *(u64 *)&processor->sp = iSP;
   *(u64 *)&processor->fp = iFP;
   *(u64 *)&processor->lp = iLP;
-  /* Stop the (emulated) chip */
+		/* Stop the (emulated) chip */
   *(u64 *)&processor->runningp = zero;
   r9 = *(u64 *)&(processor->asrr9);
   r10 = *(u64 *)&(processor->asrr10);

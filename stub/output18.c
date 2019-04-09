@@ -27,10 +27,10 @@ DoBlock0ReadLP:
 
 DoBlock0ReadFP:
   if (_trace) printf("DoBlock0ReadFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar0;
-  goto blockread;
+  arg2 = (u64)&processor->bar0;   
+  goto blockread;   
 
 /* end DoBlock0Read */
   /* End of Halfword operand from stack instruction - DoBlock0Read */
@@ -47,37 +47,34 @@ doblock0write:
 DoBlock0WriteIM:
   if (_trace) printf("DoBlock0WriteIM:\n");
   /* This sequence only sucks a moderate amount */
-  /* sign extend the byte argument. */
+		/* sign extend the byte argument. */
   arg2 = arg2 << 56;
 
-g8506:
-  if (_trace) printf("g8506:\n");
-  /* Rest of sign extension */
+g30175:
+  if (_trace) printf("g30175:\n");
+		/* Rest of sign extension */
   arg2 = (s64)arg2 >> 56;
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);
-  goto begindoblock0write;
+  goto begindoblock0write;   
 #ifdef TRACING
 #endif
 
 DoBlock0WriteSP:
   if (_trace) printf("DoBlock0WriteSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdoblock0write;
+  goto headdoblock0write;   
 #endif
 
 DoBlock0WriteLP:
   if (_trace) printf("DoBlock0WriteLP:\n");
 #ifdef TRACING
-  goto headdoblock0write;
+  goto headdoblock0write;   
 #endif
 
 DoBlock0WriteFP:
@@ -85,17 +82,17 @@ DoBlock0WriteFP:
 
 headdoblock0write:
   if (_trace) printf("headdoblock0write:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindoblock0write:
   if (_trace) printf("begindoblock0write:\n");
   /* arg1 has the operand, sign extended if immediate. */
   arg3 = *(s32 *)&processor->bar0;
-  arg2 = (u64)&processor->bar0;
-  goto blockwrite;
+  arg2 = (u64)&processor->bar0;   
+  goto blockwrite;   
 
 /* end DoBlock0Write */
   /* End of Halfword operand from stack instruction - DoBlock0Write */
@@ -120,10 +117,10 @@ DoBlock0ReadShiftLP:
 
 DoBlock0ReadShiftFP:
   if (_trace) printf("DoBlock0ReadShiftFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar0;
-  goto blockreadshift;
+  arg2 = (u64)&processor->bar0;   
+  goto blockreadshift;   
 
 /* end DoBlock0ReadShift */
   /* End of Halfword operand from stack instruction - DoBlock0ReadShift */
@@ -148,10 +145,10 @@ DoBlock3ReadShiftLP:
 
 DoBlock3ReadShiftFP:
   if (_trace) printf("DoBlock3ReadShiftFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar3;
-  goto blockreadshift;
+  arg2 = (u64)&processor->bar3;   
+  goto blockreadshift;   
 
 /* end DoBlock3ReadShift */
   /* End of Halfword operand from stack instruction - DoBlock3ReadShift */
@@ -176,10 +173,10 @@ DoBlock2ReadShiftLP:
 
 DoBlock2ReadShiftFP:
   if (_trace) printf("DoBlock2ReadShiftFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar2;
-  goto blockreadshift;
+  arg2 = (u64)&processor->bar2;   
+  goto blockreadshift;   
 
 /* end DoBlock2ReadShift */
   /* End of Halfword operand from stack instruction - DoBlock2ReadShift */
@@ -204,274 +201,249 @@ DoBlock1ReadShiftLP:
 
 DoBlock1ReadShiftFP:
   if (_trace) printf("DoBlock1ReadShiftFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar1;
+  arg2 = (u64)&processor->bar1;   
 
 blockreadshift:
   if (_trace) printf("blockreadshift:\n");
   arg5 = *(u64 *)&(processor->stackcachebasevma);
-  /* Size of the stack cache (words) */
+		/* Size of the stack cache (words) */
   arg6 = *(s32 *)&processor->scovlimit;
-  /* Get the vma */
+		/* Get the vma */
   t2 = *(s32 *)arg2;
-  /* cycle type */
+		/* cycle type */
   t1 = arg1 >> 6;
-  /* =no-incrementp */
-  t4 = arg1 & 4;
-  /* =cdr-code-nextp */
-  t5 = arg1 & 16;
-  /* =fixnum onlyp */
-  t6 = arg1 & 32;
-  t2 = (u32)t2;
+  t4 = arg1 & 4;		// =no-incrementp 
+  t5 = arg1 & 16;		// =cdr-code-nextp 
+  t6 = arg1 & 32;		// =fixnum onlyp 
+  t2 = (u32)t2;   
   /* Memory Read Internal */
 
-g8511:
+g30180:
   t11 = t2 + ivory;
-  /* Cycle-number -> table offset */
-  t12 = (t1 * 4);
-  t8 = LDQ_U(t11);
-  t12 = (t12 * 4) + ivory;
-  t7 = (t11 * 4);
-  /* Stack cache offset */
+  t12 = (t1 * 4);   		// Cycle-number -> table offset 
+  t8 = LDQ_U(t11);   
+  t12 = (t12 * 4) + ivory;   
+  t7 = (t11 * 4);   
+		/* Stack cache offset */
   t9 = t2 - arg5;
   t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD_MASK);
-  /* In range? */
-  t10 = ((u64)t9 < (u64)arg6) ? 1 : 0;
+  t10 = ((u64)t9 < (u64)arg6) ? 1 : 0;   		// In range? 
   t7 = *(s32 *)t7;
-  t8 = (u8)(t8 >> ((t11&7)*8));
-  if (t10 != 0)
-    goto g8513;
+  t8 = (u8)(t8 >> ((t11&7)*8));   
+  if (t10 != 0)   
+    goto g30182;
 
-g8512:
+g30181:
   t12 = t12 >> (t8 & 63);
-  t7 = (u32)t7;
-  if (t12 & 1)
-    goto g8515;
+  t7 = (u32)t7;   
+  if (t12 & 1)   
+    goto g30184;
 
-g8522:
-  /* J. if we don't have to test for fixnump. */
-  if (t6 == 0)
-    goto g8507;
+g30191:
+  if (t6 == 0) 		// J. if we don't have to test for fixnump. 
+    goto g30176;
   t9 = t8 - Type_Fixnum;
-  /* Strip CDR code */
-  t9 = t9 & 63;
-  if (t9 != 0)
-    goto g8510;
+  t9 = t9 & 63;		// Strip CDR code 
+  if (t9 != 0)   
+    goto g30179;
 
-g8507:
-  if (_trace) printf("g8507:\n");
-  /* J. if we don't have to increment the address. */
-  if (t4 != 0)
-    goto g8508;
-  /* Increment the address */
-  t2 = t2 + 1;
+g30176:
+  if (_trace) printf("g30176:\n");
+  if (t4 != 0)   		// J. if we don't have to increment the address. 
+    goto g30177;
+  t2 = t2 + 1;		// Increment the address 
 
-g8508:
-  if (_trace) printf("g8508:\n");
-  /* Store updated vma in BAR */
+g30177:
+  if (_trace) printf("g30177:\n");
+		/* Store updated vma in BAR */
   *(u32 *)arg2 = t2;
-  /* J. if we don't have to clear CDR codes. */
-  if (t5 == 0)
-    goto g8509;
+  if (t5 == 0) 		// J. if we don't have to clear CDR codes. 
+    goto g30178;
   t8 = t8 & 63;
 
-g8509:
-  if (_trace) printf("g8509:\n");
-  t1 = zero + 21504;
-  /* Get rotate */
+g30178:
+  if (_trace) printf("g30178:\n");
+  t1 = zero + 21504;   
+		/* Get rotate */
   t3 = *(u64 *)&(processor->byterotate);
-  /* Get bytesize */
+		/* Get bytesize */
   t4 = *(u64 *)&(processor->bytesize);
   /* Get background */
   t2 = t1 >> 10;
-  /* Extract the byte background */
-  t2 = t2 & 3;
-  t5 = (t2 == ALUByteBackground_Op1) ? 1 : 0;
+  t2 = t2 & 3;		// Extract the byte background 
+  t5 = (t2 == ALUByteBackground_Op1) ? 1 : 0;   
 
-g8529:
-  if (_trace) printf("g8529:\n");
-  if (t5 == 0)
-    goto g8525;
+g30198:
+  if (_trace) printf("g30198:\n");
+  if (t5 == 0) 
+    goto g30194;
   /* Here if argument ALUByteBackgroundOp1 */
   t2 = t1;
 
-g8524:
-  if (_trace) printf("g8524:\n");
+g30193:
+  if (_trace) printf("g30193:\n");
   t6 = t1 >> 12;
-  /* Extractthe byte rotate latch */
-  t6 = t6 & 1;
+  t6 = t6 & 1;		// Extractthe byte rotate latch 
   t7 = t7 << (t3 & 63);
-  t5 = (u32)(t7 >> ((4&7)*8));
-  t7 = (u32)t7;
-  /* OP2 rotated */
-  t7 = t7 | t5;
-  /* Don't update rotate latch if not requested */
-  if (t6 == 0)
-    goto g8523;
+  t5 = (u32)(t7 >> ((4&7)*8));   
+  t7 = (u32)t7;   
+  t7 = t7 | t5;		// OP2 rotated 
+  if (t6 == 0) 		// Don't update rotate latch if not requested 
+    goto g30192;
   *(u64 *)&processor->rotatelatch = t7;
 
-g8523:
-  if (_trace) printf("g8523:\n");
-  t6 = zero + -2;
+g30192:
+  if (_trace) printf("g30192:\n");
+  t6 = zero + -2;   
   t6 = t6 << (t4 & 63);
-  /* Compute mask */
-  t6 = ~t6;
+  t6 = ~t6;   		// Compute mask 
   /* Get byte function */
   t5 = t1 >> 13;
   t5 = t5 & 1;
-  t4 = (t5 == ALUByteFunction_Dpb) ? 1 : 0;
+  t4 = (t5 == ALUByteFunction_Dpb) ? 1 : 0;   
 
-g8534:
-  if (_trace) printf("g8534:\n");
-  if (t4 == 0)
-    goto g8531;
+g30203:
+  if (_trace) printf("g30203:\n");
+  if (t4 == 0) 
+    goto g30200;
   /* Here if argument ALUByteFunctionDpb */
-  /* Position mask */
+		/* Position mask */
   t6 = t6 << (t3 & 63);
 
-g8530:
-  if (_trace) printf("g8530:\n");
-  /* rotated&mask */
-  t7 = t7 & t6;
-  /* background&~mask */
-  t2 = t2 & ~t6;
+g30199:
+  if (_trace) printf("g30199:\n");
+  t7 = t7 & t6;		// rotated&mask 
+  t2 = t2 & ~t6;		// background&~mask 
   t7 = t7 | t2;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
   *(u32 *)(iSP + 8) = t7;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 12) = t8;
   iSP = iSP + 8;
-  goto cachevalid;
+  goto cachevalid;   
 
-g8510:
-  if (_trace) printf("g8510:\n");
+g30179:
+  if (_trace) printf("g30179:\n");
   arg5 = t2;
   arg2 = 23;
   goto illegaloperand;
 
-g8531:
-  if (_trace) printf("g8531:\n");
-  t4 = (t5 == ALUByteFunction_Ldb) ? 1 : 0;
+g30200:
+  if (_trace) printf("g30200:\n");
+  t4 = (t5 == ALUByteFunction_Ldb) ? 1 : 0;   
 
-g8535:
-  if (_trace) printf("g8535:\n");
-  if (t4 != 0)
-    goto g8530;
-  goto g8530;
+g30204:
+  if (_trace) printf("g30204:\n");
+  if (t4 != 0)   
+    goto g30199;
+  goto g30199;   
 
-g8525:
-  if (_trace) printf("g8525:\n");
-  t5 = (t2 == ALUByteBackground_RotateLatch) ? 1 : 0;
+g30194:
+  if (_trace) printf("g30194:\n");
+  t5 = (t2 == ALUByteBackground_RotateLatch) ? 1 : 0;   
 
-g8536:
-  if (_trace) printf("g8536:\n");
-  if (t5 == 0)
-    goto g8526;
+g30205:
+  if (_trace) printf("g30205:\n");
+  if (t5 == 0) 
+    goto g30195;
   /* Here if argument ALUByteBackgroundRotateLatch */
   t2 = *(u64 *)&(processor->rotatelatch);
-  goto g8524;
+  goto g30193;   
 
-g8526:
-  if (_trace) printf("g8526:\n");
-  t5 = (t2 == ALUByteBackground_Zero) ? 1 : 0;
+g30195:
+  if (_trace) printf("g30195:\n");
+  t5 = (t2 == ALUByteBackground_Zero) ? 1 : 0;   
 
-g8537:
-  if (_trace) printf("g8537:\n");
-  if (t5 == 0)
-    goto g8524;
+g30206:
+  if (_trace) printf("g30206:\n");
+  if (t5 == 0) 
+    goto g30193;
   /* Here if argument ALUByteBackgroundZero */
   t2 = zero;
-  goto g8524;
+  goto g30193;   
 
-g8513:
-  if (_trace) printf("g8513:\n");
+g30182:
+  if (_trace) printf("g30182:\n");
   t10 = *(u64 *)&(processor->stackcachedata);
-  /* reconstruct SCA */
+		/* reconstruct SCA */
   t9 = (t9 * 8) + t10;
   t7 = *(s32 *)t9;
-  /* Read from stack cache */
+		/* Read from stack cache */
   t8 = *(s32 *)(t9 + 4);
-  goto g8512;
+  goto g30181;   
 
-g8515:
-  if (_trace) printf("g8515:\n");
+g30184:
+  if (_trace) printf("g30184:\n");
 
-g8514:
-  if (_trace) printf("g8514:\n");
-  /* Cycle-number -> table offset */
-  t12 = (t1 * 4);
-  t12 = (t12 * 4) + ivory;
+g30183:
+  if (_trace) printf("g30183:\n");
+  t12 = (t1 * 4);   		// Cycle-number -> table offset 
+  t12 = (t12 * 4) + ivory;   
   t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD);
   /* TagType. */
-  /* Discard the CDR code */
-  t11 = t8 & 63;
-  /* stash the VMA for the (likely) trap */
+  t11 = t8 & 63;		// Discard the CDR code 
+		/* stash the VMA for the (likely) trap */
   *(u64 *)&processor->vma = t2;
-  /* Adjust for a longword load */
-  t11 = (t11 * 4) + t12;
-  /* Get the memory action */
+  t11 = (t11 * 4) + t12;   		// Adjust for a longword load 
+		/* Get the memory action */
   t12 = *(s32 *)t11;
 
-g8520:
-  if (_trace) printf("g8520:\n");
+g30189:
+  if (_trace) printf("g30189:\n");
   t10 = t12 & MemoryActionIndirect;
-  if (t10 == 0)
-    goto g8519;
-  /* Do the indirect thing */
-  t2 = (u32)t7;
-  goto g8511;
+  if (t10 == 0) 
+    goto g30188;
+  t2 = (u32)t7;   		// Do the indirect thing 
+  goto g30180;   
 
-g8519:
-  if (_trace) printf("g8519:\n");
+g30188:
+  if (_trace) printf("g30188:\n");
   t11 = t12 & MemoryActionTransform;
-  if (t11 == 0)
-    goto g8518;
+  if (t11 == 0) 
+    goto g30187;
   t8 = t8 & ~63L;
   t8 = t8 | Type_ExternalValueCellPointer;
-  goto g8522;
+  goto g30191;   
 #ifndef MINIMA
 
-g8518:
+g30187:
 #endif
 #ifdef MINIMA
 
-g8518:
-  if (_trace) printf("g8518:\n");
+g30187:
+  if (_trace) printf("g30187:\n");
   t11 = t12 & MemoryActionBinding;
   t10 = *(u64 *)&(processor->dbcmask);
-  if (t11 == 0)
-    goto g8517;
+  if (t11 == 0) 
+    goto g30186;
   t9 = t2 << 1;
   t11 = *(u64 *)&(processor->dbcbase);
-  /* Hash index */
-  t9 = t9 & t10;
+  t9 = t9 & t10;		// Hash index 
   t10 = 1;
   t10 = t10 << (ivorymemorydata & 63);
   t9 = (s32)t9 + (s32)t11;
-  /* Clear sign-extension */
-  t9 = (u32)t9;
-  t10 = (t9 * 4) + t10;
-  /* Fetch the key */
+  t9 = (u32)t9;   		// Clear sign-extension 
+  t10 = (t9 * 4) + t10;   
+		/* Fetch the key */
   t9 = *(s32 *)t10;
-  /* Fetch value */
+		/* Fetch value */
   t7 = *(s32 *)(t10 + 4);
-  /* Compare */
+		/* Compare */
   t11 = (s32)t2 - (s32)t9;
-  /* Trap on miss */
-  if (t11 != 0)
-    goto g8521;
-  /* Extract the pointer, and indirect */
-  t2 = (u32)t7;
-  goto g8511;
+  if (t11 != 0)   		// Trap on miss 
+    goto g30190;
+  t2 = (u32)t7;   		// Extract the pointer, and indirect 
+  goto g30180;   		// This is another memory read tailcall. 
 
-g8521:
-  if (_trace) printf("g8521:\n");
+g30190:
+  if (_trace) printf("g30190:\n");
   goto dbcachemisstrap;
 #endif
 
-g8517:
+g30186:
   /* Perform memory action */
   arg1 = t12;
   arg2 = t1;
@@ -491,22 +463,19 @@ doblock0readalu:
 
 DoBlock0ReadAluSP:
   if (_trace) printf("DoBlock0ReadAluSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto begindoblock0readalu;
+  goto begindoblock0readalu;   
 #endif
 
 DoBlock0ReadAluLP:
   if (_trace) printf("DoBlock0ReadAluLP:\n");
 #ifdef TRACING
-  goto begindoblock0readalu;
+  goto begindoblock0readalu;   
 #endif
 
 DoBlock0ReadAluFP:
@@ -515,10 +484,10 @@ DoBlock0ReadAluFP:
 begindoblock0readalu:
   if (_trace) printf("begindoblock0readalu:\n");
   /* arg1 has the operand address. */
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  arg2 = (u64)&processor->bar0;
-  goto blockreadalu;
+  arg2 = (u64)&processor->bar0;   
+  goto blockreadalu;   
 #ifdef TRACING
 #endif
 
@@ -539,22 +508,19 @@ doblock3readalu:
 
 DoBlock3ReadAluSP:
   if (_trace) printf("DoBlock3ReadAluSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto begindoblock3readalu;
+  goto begindoblock3readalu;   
 #endif
 
 DoBlock3ReadAluLP:
   if (_trace) printf("DoBlock3ReadAluLP:\n");
 #ifdef TRACING
-  goto begindoblock3readalu;
+  goto begindoblock3readalu;   
 #endif
 
 DoBlock3ReadAluFP:
@@ -563,10 +529,10 @@ DoBlock3ReadAluFP:
 begindoblock3readalu:
   if (_trace) printf("begindoblock3readalu:\n");
   /* arg1 has the operand address. */
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  arg2 = (u64)&processor->bar3;
-  goto blockreadalu;
+  arg2 = (u64)&processor->bar3;   
+  goto blockreadalu;   
 #ifdef TRACING
 #endif
 
@@ -587,22 +553,19 @@ doblock2readalu:
 
 DoBlock2ReadAluSP:
   if (_trace) printf("DoBlock2ReadAluSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto begindoblock2readalu;
+  goto begindoblock2readalu;   
 #endif
 
 DoBlock2ReadAluLP:
   if (_trace) printf("DoBlock2ReadAluLP:\n");
 #ifdef TRACING
-  goto begindoblock2readalu;
+  goto begindoblock2readalu;   
 #endif
 
 DoBlock2ReadAluFP:
@@ -611,10 +574,10 @@ DoBlock2ReadAluFP:
 begindoblock2readalu:
   if (_trace) printf("begindoblock2readalu:\n");
   /* arg1 has the operand address. */
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  arg2 = (u64)&processor->bar2;
-  goto blockreadalu;
+  arg2 = (u64)&processor->bar2;   
+  goto blockreadalu;   
 #ifdef TRACING
 #endif
 
@@ -635,22 +598,19 @@ doblock1readalu:
 
 DoBlock1ReadAluSP:
   if (_trace) printf("DoBlock1ReadAluSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto begindoblock1readalu;
+  goto begindoblock1readalu;   
 #endif
 
 DoBlock1ReadAluLP:
   if (_trace) printf("DoBlock1ReadAluLP:\n");
 #ifdef TRACING
-  goto begindoblock1readalu;
+  goto begindoblock1readalu;   
 #endif
 
 DoBlock1ReadAluFP:
@@ -659,589 +619,564 @@ DoBlock1ReadAluFP:
 begindoblock1readalu:
   if (_trace) printf("begindoblock1readalu:\n");
   /* arg1 has the operand address. */
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  arg2 = (u64)&processor->bar1;
+  arg2 = (u64)&processor->bar1;   
 
 blockreadalu:
   if (_trace) printf("blockreadalu:\n");
   arg5 = *(u64 *)&(processor->stackcachebasevma);
-  /* Size of the stack cache (words) */
+		/* Size of the stack cache (words) */
   arg6 = *(s32 *)&processor->scovlimit;
-  /* Get the vma */
+		/* Get the vma */
   t1 = *(s32 *)arg2;
   t5 = *(s32 *)arg1;
   t4 = *(s32 *)(arg1 + 4);
-  t5 = (u32)t5;
+  t5 = (u32)t5;   
   t9 = t4 - Type_Fixnum;
-  /* Strip CDR code */
-  t9 = t9 & 63;
-  if (t9 != 0)
-    goto g8538;
-  t1 = (u32)t1;
+  t9 = t9 & 63;		// Strip CDR code 
+  if (t9 != 0)   
+    goto g30207;
+  t1 = (u32)t1;   
   /* Memory Read Internal */
 
-g8540:
+g30209:
   t11 = t1 + ivory;
-  t3 = (t11 * 4);
-  t2 = LDQ_U(t11);
-  /* Stack cache offset */
+  t3 = (t11 * 4);   
+  t2 = LDQ_U(t11);   
+		/* Stack cache offset */
   t9 = t1 - arg5;
   t12 = *(u64 *)&(processor->dataread_mask);
-  /* In range? */
-  t10 = ((u64)t9 < (u64)arg6) ? 1 : 0;
+  t10 = ((u64)t9 < (u64)arg6) ? 1 : 0;   		// In range? 
   t3 = *(s32 *)t3;
-  t2 = (u8)(t2 >> ((t11&7)*8));
-  if (t10 != 0)
-    goto g8542;
+  t2 = (u8)(t2 >> ((t11&7)*8));   
+  if (t10 != 0)   
+    goto g30211;
 
-g8541:
-  t11 = zero + 240;
+g30210:
+  t11 = zero + 240;   
   t12 = t12 >> (t2 & 63);
   t11 = t11 >> (t2 & 63);
-  t3 = (u32)t3;
-  if (t12 & 1)
-    goto g8544;
+  t3 = (u32)t3;   
+  if (t12 & 1)   
+    goto g30213;
 
-g8551:
+g30220:
   t9 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t9 = t9 & 63;
-  if (t9 != 0)
-    goto g8539;
-  /* Increment the address */
-  t1 = t1 + 1;
-  /* Store updated vma in BAR */
+  t9 = t9 & 63;		// Strip CDR code 
+  if (t9 != 0)   
+    goto g30208;
+  t1 = t1 + 1;		// Increment the address 
+		/* Store updated vma in BAR */
   *(u32 *)arg2 = t1;
   t6 = *(u64 *)&(processor->aluop);
   *(u64 *)&processor->aluoverflow = zero;
   t7 = *(u64 *)&(processor->aluandrotatecontrol);
-  t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;
+  t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;   
 
-g8612:
-  if (_trace) printf("g8612:\n");
-  if (t1 == 0)
-    goto g8553;
+g30281:
+  if (_trace) printf("g30281:\n");
+  if (t1 == 0) 
+    goto g30222;
   /* Here if argument ALUFunctionBoolean */
   t8 = t7 >> 10;
-  /* Extract the ALU boolean function */
-  t8 = t8 & 15;
-  t1 = (t8 == Boole_Clear) ? 1 : 0;
+  t8 = t8 & 15;		// Extract the ALU boolean function 
+  t1 = (t8 == Boole_Clear) ? 1 : 0;   
 
-g8572:
-  if (_trace) printf("g8572:\n");
-  if (t1 != 0)
-    goto g8554;
+g30241:
+  if (_trace) printf("g30241:\n");
+  if (t1 != 0)   
+    goto g30223;
 
-g8555:
-  if (_trace) printf("g8555:\n");
-  t1 = (t8 == Boole_And) ? 1 : 0;
+g30224:
+  if (_trace) printf("g30224:\n");
+  t1 = (t8 == Boole_And) ? 1 : 0;   
 
-g8573:
-  if (_trace) printf("g8573:\n");
-  if (t1 == 0)
-    goto g8556;
+g30242:
+  if (_trace) printf("g30242:\n");
+  if (t1 == 0) 
+    goto g30225;
   /* Here if argument BooleAnd */
   t8 = t3 & t5;
-  goto g8554;
+  goto g30223;   
 
-g8556:
-  if (_trace) printf("g8556:\n");
-  t1 = (t8 == Boole_AndC1) ? 1 : 0;
+g30225:
+  if (_trace) printf("g30225:\n");
+  t1 = (t8 == Boole_AndC1) ? 1 : 0;   
 
-g8574:
-  if (_trace) printf("g8574:\n");
-  if (t1 == 0)
-    goto g8557;
+g30243:
+  if (_trace) printf("g30243:\n");
+  if (t1 == 0) 
+    goto g30226;
   /* Here if argument BooleAndC1 */
   t8 = t5 & ~t3;
-  goto g8554;
+  goto g30223;   
 
-g8557:
-  if (_trace) printf("g8557:\n");
-  t1 = (t8 == Boole_2) ? 1 : 0;
+g30226:
+  if (_trace) printf("g30226:\n");
+  t1 = (t8 == Boole_2) ? 1 : 0;   
 
-g8575:
-  if (_trace) printf("g8575:\n");
-  if (t1 == 0)
-    goto g8558;
+g30244:
+  if (_trace) printf("g30244:\n");
+  if (t1 == 0) 
+    goto g30227;
   /* Here if argument Boole2 */
   t8 = t5;
-  goto g8554;
+  goto g30223;   
 
-g8558:
-  if (_trace) printf("g8558:\n");
-  t1 = (t8 == Boole_AndC2) ? 1 : 0;
+g30227:
+  if (_trace) printf("g30227:\n");
+  t1 = (t8 == Boole_AndC2) ? 1 : 0;   
 
-g8576:
-  if (_trace) printf("g8576:\n");
-  if (t1 == 0)
-    goto g8559;
+g30245:
+  if (_trace) printf("g30245:\n");
+  if (t1 == 0) 
+    goto g30228;
   /* Here if argument BooleAndC2 */
   t8 = t3 & ~t5;
-  goto g8554;
+  goto g30223;   
 
-g8559:
-  if (_trace) printf("g8559:\n");
-  t1 = (t8 == Boole_1) ? 1 : 0;
+g30228:
+  if (_trace) printf("g30228:\n");
+  t1 = (t8 == Boole_1) ? 1 : 0;   
 
-g8577:
-  if (_trace) printf("g8577:\n");
-  if (t1 == 0)
-    goto g8560;
+g30246:
+  if (_trace) printf("g30246:\n");
+  if (t1 == 0) 
+    goto g30229;
   /* Here if argument Boole1 */
   t8 = t3;
-  goto g8554;
+  goto g30223;   
 
-g8560:
-  if (_trace) printf("g8560:\n");
-  t1 = (t8 == Boole_Xor) ? 1 : 0;
+g30229:
+  if (_trace) printf("g30229:\n");
+  t1 = (t8 == Boole_Xor) ? 1 : 0;   
 
-g8578:
-  if (_trace) printf("g8578:\n");
-  if (t1 == 0)
-    goto g8561;
+g30247:
+  if (_trace) printf("g30247:\n");
+  if (t1 == 0) 
+    goto g30230;
   /* Here if argument BooleXor */
-  t8 = t3 ^ t5;
-  goto g8554;
+  t8 = t3 ^ t5;   
+  goto g30223;   
 
-g8561:
-  if (_trace) printf("g8561:\n");
-  t1 = (t8 == Boole_Ior) ? 1 : 0;
+g30230:
+  if (_trace) printf("g30230:\n");
+  t1 = (t8 == Boole_Ior) ? 1 : 0;   
 
-g8579:
-  if (_trace) printf("g8579:\n");
-  if (t1 == 0)
-    goto g8562;
+g30248:
+  if (_trace) printf("g30248:\n");
+  if (t1 == 0) 
+    goto g30231;
   /* Here if argument BooleIor */
   t8 = t3 | t5;
-  goto g8554;
+  goto g30223;   
 
-g8562:
-  if (_trace) printf("g8562:\n");
-  t1 = (t8 == Boole_Nor) ? 1 : 0;
+g30231:
+  if (_trace) printf("g30231:\n");
+  t1 = (t8 == Boole_Nor) ? 1 : 0;   
 
-g8580:
-  if (_trace) printf("g8580:\n");
-  if (t1 == 0)
-    goto g8563;
+g30249:
+  if (_trace) printf("g30249:\n");
+  if (t1 == 0) 
+    goto g30232;
   /* Here if argument BooleNor */
   t8 = t3 | t5;
-  t8 = ~t8;
-  goto g8554;
+  t8 = ~t8;   
+  goto g30223;   
 
-g8563:
-  if (_trace) printf("g8563:\n");
-  t1 = (t8 == Boole_Equiv) ? 1 : 0;
+g30232:
+  if (_trace) printf("g30232:\n");
+  t1 = (t8 == Boole_Equiv) ? 1 : 0;   
 
-g8581:
-  if (_trace) printf("g8581:\n");
-  if (t1 == 0)
-    goto g8564;
+g30250:
+  if (_trace) printf("g30250:\n");
+  if (t1 == 0) 
+    goto g30233;
   /* Here if argument BooleEquiv */
-  t8 = t3 ^ t5;
-  t8 = ~t8;
-  goto g8554;
+  t8 = t3 ^ t5;   
+  t8 = ~t8;   
+  goto g30223;   
 
-g8564:
-  if (_trace) printf("g8564:\n");
-  t1 = (t8 == Boole_C1) ? 1 : 0;
+g30233:
+  if (_trace) printf("g30233:\n");
+  t1 = (t8 == Boole_C1) ? 1 : 0;   
 
-g8582:
-  if (_trace) printf("g8582:\n");
-  if (t1 == 0)
-    goto g8565;
+g30251:
+  if (_trace) printf("g30251:\n");
+  if (t1 == 0) 
+    goto g30234;
   /* Here if argument BooleC1 */
-  t8 = ~t3;
-  goto g8554;
+  t8 = ~t3;   
+  goto g30223;   
 
-g8565:
-  if (_trace) printf("g8565:\n");
-  t1 = (t8 == Boole_OrC1) ? 1 : 0;
+g30234:
+  if (_trace) printf("g30234:\n");
+  t1 = (t8 == Boole_OrC1) ? 1 : 0;   
 
-g8583:
-  if (_trace) printf("g8583:\n");
-  if (t1 == 0)
-    goto g8566;
+g30252:
+  if (_trace) printf("g30252:\n");
+  if (t1 == 0) 
+    goto g30235;
   /* Here if argument BooleOrC1 */
-  t8 = t5 | ~(t3);
-  goto g8554;
+  t8 = t5 | ~(t3);   
+  goto g30223;   
 
-g8566:
-  if (_trace) printf("g8566:\n");
-  t1 = (t8 == Boole_C2) ? 1 : 0;
+g30235:
+  if (_trace) printf("g30235:\n");
+  t1 = (t8 == Boole_C2) ? 1 : 0;   
 
-g8584:
-  if (_trace) printf("g8584:\n");
-  if (t1 == 0)
-    goto g8567;
+g30253:
+  if (_trace) printf("g30253:\n");
+  if (t1 == 0) 
+    goto g30236;
   /* Here if argument BooleC2 */
-  t8 = ~t5;
-  goto g8554;
+  t8 = ~t5;   
+  goto g30223;   
 
-g8567:
-  if (_trace) printf("g8567:\n");
-  t1 = (t8 == Boole_OrC2) ? 1 : 0;
+g30236:
+  if (_trace) printf("g30236:\n");
+  t1 = (t8 == Boole_OrC2) ? 1 : 0;   
 
-g8585:
-  if (_trace) printf("g8585:\n");
-  if (t1 == 0)
-    goto g8568;
+g30254:
+  if (_trace) printf("g30254:\n");
+  if (t1 == 0) 
+    goto g30237;
   /* Here if argument BooleOrC2 */
   t8 = t3 & ~t5;
-  goto g8554;
+  goto g30223;   
 
-g8568:
-  if (_trace) printf("g8568:\n");
-  t1 = (t8 == Boole_Nand) ? 1 : 0;
+g30237:
+  if (_trace) printf("g30237:\n");
+  t1 = (t8 == Boole_Nand) ? 1 : 0;   
 
-g8586:
-  if (_trace) printf("g8586:\n");
-  if (t1 == 0)
-    goto g8569;
+g30255:
+  if (_trace) printf("g30255:\n");
+  if (t1 == 0) 
+    goto g30238;
   /* Here if argument BooleNand */
   t8 = t3 & t5;
-  goto g8554;
+  goto g30223;   
 
-g8569:
-  if (_trace) printf("g8569:\n");
-  t1 = (t8 == Boole_Set) ? 1 : 0;
+g30238:
+  if (_trace) printf("g30238:\n");
+  t1 = (t8 == Boole_Set) ? 1 : 0;   
 
-g8587:
-  if (_trace) printf("g8587:\n");
-  if (t1 == 0)
-    goto g8554;
+g30256:
+  if (_trace) printf("g30256:\n");
+  if (t1 == 0) 
+    goto g30223;
   /* Here if argument BooleSet */
-  t8 = ~zero;
+  t8 = ~zero;   
 
-g8554:
-  if (_trace) printf("g8554:\n");
+g30223:
+  if (_trace) printf("g30223:\n");
   *(u32 *)arg1 = t8;
-  goto NEXTINSTRUCTION;
+  goto NEXTINSTRUCTION;   
 
-g8553:
-  if (_trace) printf("g8553:\n");
-  t1 = (t6 == ALUFunction_Byte) ? 1 : 0;
+g30222:
+  if (_trace) printf("g30222:\n");
+  t1 = (t6 == ALUFunction_Byte) ? 1 : 0;   
 
-g8613:
-  if (_trace) printf("g8613:\n");
-  if (t1 == 0)
-    goto g8588;
+g30282:
+  if (_trace) printf("g30282:\n");
+  if (t1 == 0) 
+    goto g30257;
   /* Here if argument ALUFunctionByte */
-  /* Get rotate */
+		/* Get rotate */
   t9 = *(u64 *)&(processor->byterotate);
-  /* Get bytesize */
+		/* Get bytesize */
   t10 = *(u64 *)&(processor->bytesize);
   /* Get background */
   t1 = t7 >> 10;
-  /* Extract the byte background */
-  t1 = t1 & 3;
-  t11 = (t1 == ALUByteBackground_Op1) ? 1 : 0;
+  t1 = t1 & 3;		// Extract the byte background 
+  t11 = (t1 == ALUByteBackground_Op1) ? 1 : 0;   
 
-g8595:
-  if (_trace) printf("g8595:\n");
-  if (t11 == 0)
-    goto g8591;
+g30264:
+  if (_trace) printf("g30264:\n");
+  if (t11 == 0) 
+    goto g30260;
   /* Here if argument ALUByteBackgroundOp1 */
   t1 = t3;
 
-g8590:
-  if (_trace) printf("g8590:\n");
+g30259:
+  if (_trace) printf("g30259:\n");
   t12 = t7 >> 12;
-  /* Extractthe byte rotate latch */
-  t12 = t12 & 1;
+  t12 = t12 & 1;		// Extractthe byte rotate latch 
   t8 = t5 << (t9 & 63);
-  t11 = (u32)(t8 >> ((4&7)*8));
-  t8 = (u32)t8;
-  /* OP2 rotated */
-  t8 = t8 | t11;
-  /* Don't update rotate latch if not requested */
-  if (t12 == 0)
-    goto g8589;
+  t11 = (u32)(t8 >> ((4&7)*8));   
+  t8 = (u32)t8;   
+  t8 = t8 | t11;		// OP2 rotated 
+  if (t12 == 0) 		// Don't update rotate latch if not requested 
+    goto g30258;
   *(u64 *)&processor->rotatelatch = t8;
 
-g8589:
-  if (_trace) printf("g8589:\n");
-  t12 = zero + -2;
+g30258:
+  if (_trace) printf("g30258:\n");
+  t12 = zero + -2;   
   t12 = t12 << (t10 & 63);
-  /* Compute mask */
-  t12 = ~t12;
+  t12 = ~t12;   		// Compute mask 
   /* Get byte function */
   t11 = t7 >> 13;
   t11 = t11 & 1;
-  t10 = (t11 == ALUByteFunction_Dpb) ? 1 : 0;
+  t10 = (t11 == ALUByteFunction_Dpb) ? 1 : 0;   
 
-g8600:
-  if (_trace) printf("g8600:\n");
-  if (t10 == 0)
-    goto g8597;
+g30269:
+  if (_trace) printf("g30269:\n");
+  if (t10 == 0) 
+    goto g30266;
   /* Here if argument ALUByteFunctionDpb */
-  /* Position mask */
+		/* Position mask */
   t12 = t12 << (t9 & 63);
 
-g8596:
-  if (_trace) printf("g8596:\n");
-  /* rotated&mask */
-  t8 = t8 & t12;
-  /* background&~mask */
-  t1 = t1 & ~t12;
+g30265:
+  if (_trace) printf("g30265:\n");
+  t8 = t8 & t12;		// rotated&mask 
+  t1 = t1 & ~t12;		// background&~mask 
   t8 = t8 | t1;
   *(u32 *)arg1 = t8;
-  goto NEXTINSTRUCTION;
+  goto NEXTINSTRUCTION;   
 
-g8588:
-  if (_trace) printf("g8588:\n");
-  t1 = (t6 == ALUFunction_Adder) ? 1 : 0;
+g30257:
+  if (_trace) printf("g30257:\n");
+  t1 = (t6 == ALUFunction_Adder) ? 1 : 0;   
 
-g8614:
-  if (_trace) printf("g8614:\n");
-  if (t1 == 0)
-    goto g8601;
+g30283:
+  if (_trace) printf("g30283:\n");
+  if (t1 == 0) 
+    goto g30270;
   /* Here if argument ALUFunctionAdder */
   t10 = t7 >> 11;
-  /* Extract the op2 */
-  t10 = t10 & 3;
+  t10 = t10 & 3;		// Extract the op2 
   t9 = t7 >> 10;
-  /* Extract the adder carry in */
-  t9 = t9 & 1;
-  t11 = (t10 == ALUAdderOp2_Op2) ? 1 : 0;
+  t9 = t9 & 1;		// Extract the adder carry in 
+  t11 = (t10 == ALUAdderOp2_Op2) ? 1 : 0;   
 
-g8609:
-  if (_trace) printf("g8609:\n");
-  if (t11 == 0)
-    goto g8604;
+g30278:
+  if (_trace) printf("g30278:\n");
+  if (t11 == 0) 
+    goto g30273;
   /* Here if argument ALUAdderOp2Op2 */
   t1 = t5;
 
-g8603:
-  if (_trace) printf("g8603:\n");
+g30272:
+  if (_trace) printf("g30272:\n");
   t8 = t3 + t1;
   t8 = t8 + t9;
-  /* Sign bit */
+		/* Sign bit */
   t10 = t8 >> 31;
-  /* Next bit */
+		/* Next bit */
   t11 = t8 >> 32;
-  /* Low bit is now overflow indicator */
-  t10 = t10 ^ t11;
-  /* Get the load-carry-in bit */
+  t10 = t10 ^ t11;   		// Low bit is now overflow indicator 
+		/* Get the load-carry-in bit */
   t11 = t7 >> 24;
   *(u64 *)&processor->aluoverflow = t10;
-  if ((t11 & 1) == 0)
-    goto g8602;
-  /* Get the carry */
-  t10 = (u32)(t8 >> ((4&7)*8));
-  t11 = zero + 1024;
+  if ((t11 & 1) == 0)   
+    goto g30271;
+  t10 = (u32)(t8 >> ((4&7)*8));   		// Get the carry 
+  t11 = zero + 1024;   
   t7 = t7 & ~t11;
   t11 = t10 & 1;
   t11 = t11 << 10;
-  /* Set the adder carry in */
-  t7 = t7 | t11;
+  t7 = t7 | t11;		// Set the adder carry in 
   *(u64 *)&processor->aluandrotatecontrol = t7;
 
-g8602:
-  if (_trace) printf("g8602:\n");
-  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
+g30271:
+  if (_trace) printf("g30271:\n");
+  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->aluborrow = t10;
   t3 = (s32)t3;
   t5 = (s32)t5;
-  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
+  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->alulessthan = t10;
   *(u32 *)arg1 = t8;
-  goto NEXTINSTRUCTION;
+  goto NEXTINSTRUCTION;   
 
-g8601:
-  if (_trace) printf("g8601:\n");
-  t1 = (t6 == ALUFunction_MultiplyDivide) ? 1 : 0;
+g30270:
+  if (_trace) printf("g30270:\n");
+  t1 = (t6 == ALUFunction_MultiplyDivide) ? 1 : 0;   
 
-g8615:
-  if (_trace) printf("g8615:\n");
-  if (t1 == 0)
-    goto g8552;
+g30284:
+  if (_trace) printf("g30284:\n");
+  if (t1 == 0) 
+    goto g30221;
   /* Here if argument ALUFunctionMultiplyDivide */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
   *(u32 *)arg1 = t8;
-  goto NEXTINSTRUCTION;
+  goto NEXTINSTRUCTION;   
 
-g8552:
-  if (_trace) printf("g8552:\n");
+g30221:
+  if (_trace) printf("g30221:\n");
 
-g8538:
-  if (_trace) printf("g8538:\n");
+g30207:
+  if (_trace) printf("g30207:\n");
   /* Convert stack cache address to VMA */
   t9 = *(u64 *)&(processor->stackcachedata);
-  /* stack cache base relative offset */
+		/* stack cache base relative offset */
   t9 = arg1 - t9;
-  /* convert byte address to word address */
+		/* convert byte address to word address */
   t9 = t9 >> 3;
-  /* reconstruct VMA */
-  t1 = t9 + arg5;
+  t1 = t9 + arg5;		// reconstruct VMA 
   arg5 = t1;
   arg2 = 23;
   goto illegaloperand;
 
-g8539:
-  if (_trace) printf("g8539:\n");
+g30208:
+  if (_trace) printf("g30208:\n");
   arg5 = t1;
   arg2 = 23;
   goto illegaloperand;
 
-g8604:
-  if (_trace) printf("g8604:\n");
-  t11 = (t10 == ALUAdderOp2_Zero) ? 1 : 0;
+g30273:
+  if (_trace) printf("g30273:\n");
+  t11 = (t10 == ALUAdderOp2_Zero) ? 1 : 0;   
 
-g8616:
-  if (_trace) printf("g8616:\n");
-  if (t11 == 0)
-    goto g8605;
+g30285:
+  if (_trace) printf("g30285:\n");
+  if (t11 == 0) 
+    goto g30274;
   /* Here if argument ALUAdderOp2Zero */
   t1 = zero;
-  goto g8603;
+  goto g30272;   
 
-g8605:
-  if (_trace) printf("g8605:\n");
-  t11 = (t10 == ALUAdderOp2_Invert) ? 1 : 0;
+g30274:
+  if (_trace) printf("g30274:\n");
+  t11 = (t10 == ALUAdderOp2_Invert) ? 1 : 0;   
 
-g8617:
-  if (_trace) printf("g8617:\n");
-  if (t11 == 0)
-    goto g8606;
+g30286:
+  if (_trace) printf("g30286:\n");
+  if (t11 == 0) 
+    goto g30275;
   /* Here if argument ALUAdderOp2Invert */
   t1 = (s32)t5;
   t1 = zero - t1;
-  t1 = (u32)t1;
-  goto g8603;
+  t1 = (u32)t1;   
+  goto g30272;   
 
-g8606:
-  if (_trace) printf("g8606:\n");
-  t11 = (t10 == ALUAdderOp2_MinusOne) ? 1 : 0;
+g30275:
+  if (_trace) printf("g30275:\n");
+  t11 = (t10 == ALUAdderOp2_MinusOne) ? 1 : 0;   
 
-g8618:
-  if (_trace) printf("g8618:\n");
-  if (t11 == 0)
-    goto g8603;
+g30287:
+  if (_trace) printf("g30287:\n");
+  if (t11 == 0) 
+    goto g30272;
   /* Here if argument ALUAdderOp2MinusOne */
-  t1 = ~zero;
-  t1 = (u32)t1;
-  goto g8603;
+  t1 = ~zero;   
+  t1 = (u32)t1;   
+  goto g30272;   
 
-g8597:
-  if (_trace) printf("g8597:\n");
-  t10 = (t11 == ALUByteFunction_Ldb) ? 1 : 0;
+g30266:
+  if (_trace) printf("g30266:\n");
+  t10 = (t11 == ALUByteFunction_Ldb) ? 1 : 0;   
 
-g8619:
-  if (_trace) printf("g8619:\n");
-  if (t10 != 0)
-    goto g8596;
-  goto g8596;
+g30288:
+  if (_trace) printf("g30288:\n");
+  if (t10 != 0)   
+    goto g30265;
+  goto g30265;   
 
-g8591:
-  if (_trace) printf("g8591:\n");
-  t11 = (t1 == ALUByteBackground_RotateLatch) ? 1 : 0;
+g30260:
+  if (_trace) printf("g30260:\n");
+  t11 = (t1 == ALUByteBackground_RotateLatch) ? 1 : 0;   
 
-g8620:
-  if (_trace) printf("g8620:\n");
-  if (t11 == 0)
-    goto g8592;
+g30289:
+  if (_trace) printf("g30289:\n");
+  if (t11 == 0) 
+    goto g30261;
   /* Here if argument ALUByteBackgroundRotateLatch */
   t1 = *(u64 *)&(processor->rotatelatch);
-  goto g8590;
+  goto g30259;   
 
-g8592:
-  if (_trace) printf("g8592:\n");
-  t11 = (t1 == ALUByteBackground_Zero) ? 1 : 0;
+g30261:
+  if (_trace) printf("g30261:\n");
+  t11 = (t1 == ALUByteBackground_Zero) ? 1 : 0;   
 
-g8621:
-  if (_trace) printf("g8621:\n");
-  if (t11 == 0)
-    goto g8590;
+g30290:
+  if (_trace) printf("g30290:\n");
+  if (t11 == 0) 
+    goto g30259;
   /* Here if argument ALUByteBackgroundZero */
   t1 = zero;
-  goto g8590;
+  goto g30259;   
 
-g8542:
-  if (_trace) printf("g8542:\n");
+g30211:
+  if (_trace) printf("g30211:\n");
   t10 = *(u64 *)&(processor->stackcachedata);
-  /* reconstruct SCA */
+		/* reconstruct SCA */
   t9 = (t9 * 8) + t10;
   t3 = *(s32 *)t9;
-  /* Read from stack cache */
+		/* Read from stack cache */
   t2 = *(s32 *)(t9 + 4);
-  goto g8541;
+  goto g30210;   
 
-g8544:
-  if (_trace) printf("g8544:\n");
-  if ((t11 & 1) == 0)
-    goto g8543;
-  /* Do the indirect thing */
-  t1 = (u32)t3;
-  goto g8540;
+g30213:
+  if (_trace) printf("g30213:\n");
+  if ((t11 & 1) == 0)   
+    goto g30212;
+  t1 = (u32)t3;   		// Do the indirect thing 
+  goto g30209;   
 
-g8543:
-  if (_trace) printf("g8543:\n");
-  /* Load the memory action table for cycle */
+g30212:
+  if (_trace) printf("g30212:\n");
+		/* Load the memory action table for cycle */
   t12 = *(u64 *)&(processor->dataread);
   /* TagType. */
-  /* Discard the CDR code */
-  t11 = t2 & 63;
-  /* stash the VMA for the (likely) trap */
+  t11 = t2 & 63;		// Discard the CDR code 
+		/* stash the VMA for the (likely) trap */
   *(u64 *)&processor->vma = t1;
-  /* Adjust for a longword load */
-  t11 = (t11 * 4) + t12;
-  /* Get the memory action */
+  t11 = (t11 * 4) + t12;   		// Adjust for a longword load 
+		/* Get the memory action */
   t12 = *(s32 *)t11;
 
-g8548:
-  if (_trace) printf("g8548:\n");
+g30217:
+  if (_trace) printf("g30217:\n");
   t11 = t12 & MemoryActionTransform;
-  if (t11 == 0)
-    goto g8547;
+  if (t11 == 0) 
+    goto g30216;
   t2 = t2 & ~63L;
   t2 = t2 | Type_ExternalValueCellPointer;
-  goto g8551;
+  goto g30220;   
 #ifndef MINIMA
 
-g8547:
+g30216:
 #endif
 #ifdef MINIMA
 
-g8547:
-  if (_trace) printf("g8547:\n");
+g30216:
+  if (_trace) printf("g30216:\n");
   t11 = t12 & MemoryActionBinding;
   t10 = *(u64 *)&(processor->dbcmask);
-  if (t11 == 0)
-    goto g8546;
+  if (t11 == 0) 
+    goto g30215;
   t9 = t1 << 1;
   t11 = *(u64 *)&(processor->dbcbase);
-  /* Hash index */
-  t9 = t9 & t10;
+  t9 = t9 & t10;		// Hash index 
   t10 = 1;
   t10 = t10 << (ivorymemorydata & 63);
   t9 = (s32)t9 + (s32)t11;
-  /* Clear sign-extension */
-  t9 = (u32)t9;
-  t10 = (t9 * 4) + t10;
-  /* Fetch the key */
+  t9 = (u32)t9;   		// Clear sign-extension 
+  t10 = (t9 * 4) + t10;   
+		/* Fetch the key */
   t9 = *(s32 *)t10;
-  /* Fetch value */
+		/* Fetch value */
   t3 = *(s32 *)(t10 + 4);
-  /* Compare */
+		/* Compare */
   t11 = (s32)t1 - (s32)t9;
-  /* Trap on miss */
-  if (t11 != 0)
-    goto g8550;
-  /* Extract the pointer, and indirect */
-  t1 = (u32)t3;
-  goto g8540;
+  if (t11 != 0)   		// Trap on miss 
+    goto g30219;
+  t1 = (u32)t3;   		// Extract the pointer, and indirect 
+  goto g30209;   		// This is another memory read tailcall. 
 
-g8550:
-  if (_trace) printf("g8550:\n");
+g30219:
+  if (_trace) printf("g30219:\n");
   goto dbcachemisstrap;
 #endif
 
-g8546:
+g30215:
   /* Perform memory action */
   arg1 = t12;
   arg2 = 0;
@@ -1275,10 +1210,10 @@ DoBlock0ReadTestLP:
 
 DoBlock0ReadTestFP:
   if (_trace) printf("DoBlock0ReadTestFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar0;
-  goto blockreadtest;
+  arg2 = (u64)&processor->bar0;   
+  goto blockreadtest;   
 
 /* end DoBlock0ReadTest */
   /* End of Halfword operand from stack instruction - DoBlock0ReadTest */
@@ -1303,10 +1238,10 @@ DoBlock3ReadTestLP:
 
 DoBlock3ReadTestFP:
   if (_trace) printf("DoBlock3ReadTestFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar3;
-  goto blockreadtest;
+  arg2 = (u64)&processor->bar3;   
+  goto blockreadtest;   
 
 /* end DoBlock3ReadTest */
   /* End of Halfword operand from stack instruction - DoBlock3ReadTest */
@@ -1331,10 +1266,10 @@ DoBlock2ReadTestLP:
 
 DoBlock2ReadTestFP:
   if (_trace) printf("DoBlock2ReadTestFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar2;
-  goto blockreadtest;
+  arg2 = (u64)&processor->bar2;   
+  goto blockreadtest;   
 
 /* end DoBlock2ReadTest */
   /* End of Halfword operand from stack instruction - DoBlock2ReadTest */
@@ -1359,1012 +1294,977 @@ DoBlock1ReadTestLP:
 
 DoBlock1ReadTestFP:
   if (_trace) printf("DoBlock1ReadTestFP:\n");
-  arg1 = (u16)(arg3 >> ((4&7)*8));
+  arg1 = (u16)(arg3 >> ((4&7)*8));   
   /* arg1 has operand preloaded. */
-  arg2 = (u64)&processor->bar1;
+  arg2 = (u64)&processor->bar1;   
 
 blockreadtest:
   if (_trace) printf("blockreadtest:\n");
-  /* Get the vma */
+		/* Get the vma */
   arg3 = *(s32 *)arg2;
-  /* cycle type */
+		/* cycle type */
   t1 = arg1 >> 6;
   t5 = *(s32 *)iSP;
   t4 = *(s32 *)(iSP + 4);
-  t5 = (u32)t5;
-  arg3 = (u32)arg3;
+  t5 = (u32)t5;   
+  arg3 = (u32)arg3;   
   /* Memory Read Internal */
 
-g8628:
-  /* Base of stack cache */
+g30297:
+		/* Base of stack cache */
   t9 = *(u64 *)&(processor->stackcachebasevma);
   t11 = arg3 + ivory;
   t10 = *(s32 *)&processor->scovlimit;
-  /* Cycle-number -> table offset */
-  t12 = (t1 * 4);
-  t2 = LDQ_U(t11);
-  t12 = (t12 * 4) + ivory;
-  t3 = (t11 * 4);
-  /* Stack cache offset */
+  t12 = (t1 * 4);   		// Cycle-number -> table offset 
+  t2 = LDQ_U(t11);   
+  t12 = (t12 * 4) + ivory;   
+  t3 = (t11 * 4);   
+		/* Stack cache offset */
   t9 = arg3 - t9;
   t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD_MASK);
-  /* In range? */
-  t10 = ((u64)t9 < (u64)t10) ? 1 : 0;
+  t10 = ((u64)t9 < (u64)t10) ? 1 : 0;   		// In range? 
   t3 = *(s32 *)t3;
-  t2 = (u8)(t2 >> ((t11&7)*8));
-  if (t10 != 0)
-    goto g8630;
+  t2 = (u8)(t2 >> ((t11&7)*8));   
+  if (t10 != 0)   
+    goto g30299;
 
-g8629:
+g30298:
   t12 = t12 >> (t2 & 63);
-  t3 = (u32)t3;
-  if (t12 & 1)
-    goto g8632;
+  t3 = (u32)t3;   
+  if (t12 & 1)   
+    goto g30301;
 
-g8639:
-  /* =fixnum onlyp */
-  t1 = arg1 & 32;
-  /* J. if we don't have to test for fixnump. */
-  if (t1 == 0)
-    goto g8622;
+g30308:
+  t1 = arg1 & 32;		// =fixnum onlyp 
+  if (t1 == 0) 		// J. if we don't have to test for fixnump. 
+    goto g30291;
   t9 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t9 = t9 & 63;
-  if (t9 != 0)
-    goto g8625;
+  t9 = t9 & 63;		// Strip CDR code 
+  if (t9 != 0)   
+    goto g30294;
   t9 = t4 - Type_Fixnum;
-  /* Strip CDR code */
-  t9 = t9 & 63;
-  if (t9 != 0)
-    goto g8626;
+  t9 = t9 & 63;		// Strip CDR code 
+  if (t9 != 0)   
+    goto g30295;
 
-g8622:
-  if (_trace) printf("g8622:\n");
-  /* =cdr-code-nextp */
-  t1 = arg1 & 16;
-  /* J. if we don't have to clear CDR codes. */
-  if (t1 == 0)
-    goto g8624;
+g30291:
+  if (_trace) printf("g30291:\n");
+  t1 = arg1 & 16;		// =cdr-code-nextp 
+  if (t1 == 0) 		// J. if we don't have to clear CDR codes. 
+    goto g30293;
   /* TagType. */
   t2 = t2 & 63;
 
-g8624:
-  if (_trace) printf("g8624:\n");
+g30293:
+  if (_trace) printf("g30293:\n");
   t6 = *(u64 *)&(processor->aluop);
   *(u64 *)&processor->aluoverflow = zero;
   t7 = *(u64 *)&(processor->aluandrotatecontrol);
-  t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;
+  t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;   
 
-g8700:
-  if (_trace) printf("g8700:\n");
-  if (t1 == 0)
-    goto g8641;
+g30369:
+  if (_trace) printf("g30369:\n");
+  if (t1 == 0) 
+    goto g30310;
   /* Here if argument ALUFunctionBoolean */
   t8 = t7 >> 10;
-  /* Extract the ALU boolean function */
-  t8 = t8 & 15;
-  t1 = (t8 == Boole_Clear) ? 1 : 0;
+  t8 = t8 & 15;		// Extract the ALU boolean function 
+  t1 = (t8 == Boole_Clear) ? 1 : 0;   
 
-g8660:
-  if (_trace) printf("g8660:\n");
-  if (t1 != 0)
-    goto g8642;
+g30329:
+  if (_trace) printf("g30329:\n");
+  if (t1 != 0)   
+    goto g30311;
 
-g8643:
-  if (_trace) printf("g8643:\n");
-  t1 = (t8 == Boole_And) ? 1 : 0;
+g30312:
+  if (_trace) printf("g30312:\n");
+  t1 = (t8 == Boole_And) ? 1 : 0;   
 
-g8661:
-  if (_trace) printf("g8661:\n");
-  if (t1 == 0)
-    goto g8644;
+g30330:
+  if (_trace) printf("g30330:\n");
+  if (t1 == 0) 
+    goto g30313;
   /* Here if argument BooleAnd */
   t8 = t3 & t5;
-  goto g8642;
+  goto g30311;   
 
-g8644:
-  if (_trace) printf("g8644:\n");
-  t1 = (t8 == Boole_AndC1) ? 1 : 0;
+g30313:
+  if (_trace) printf("g30313:\n");
+  t1 = (t8 == Boole_AndC1) ? 1 : 0;   
 
-g8662:
-  if (_trace) printf("g8662:\n");
-  if (t1 == 0)
-    goto g8645;
+g30331:
+  if (_trace) printf("g30331:\n");
+  if (t1 == 0) 
+    goto g30314;
   /* Here if argument BooleAndC1 */
   t8 = t5 & ~t3;
-  goto g8642;
+  goto g30311;   
 
-g8645:
-  if (_trace) printf("g8645:\n");
-  t1 = (t8 == Boole_2) ? 1 : 0;
+g30314:
+  if (_trace) printf("g30314:\n");
+  t1 = (t8 == Boole_2) ? 1 : 0;   
 
-g8663:
-  if (_trace) printf("g8663:\n");
-  if (t1 == 0)
-    goto g8646;
+g30332:
+  if (_trace) printf("g30332:\n");
+  if (t1 == 0) 
+    goto g30315;
   /* Here if argument Boole2 */
   t8 = t5;
-  goto g8642;
+  goto g30311;   
 
-g8646:
-  if (_trace) printf("g8646:\n");
-  t1 = (t8 == Boole_AndC2) ? 1 : 0;
+g30315:
+  if (_trace) printf("g30315:\n");
+  t1 = (t8 == Boole_AndC2) ? 1 : 0;   
 
-g8664:
-  if (_trace) printf("g8664:\n");
-  if (t1 == 0)
-    goto g8647;
+g30333:
+  if (_trace) printf("g30333:\n");
+  if (t1 == 0) 
+    goto g30316;
   /* Here if argument BooleAndC2 */
   t8 = t3 & ~t5;
-  goto g8642;
+  goto g30311;   
 
-g8647:
-  if (_trace) printf("g8647:\n");
-  t1 = (t8 == Boole_1) ? 1 : 0;
+g30316:
+  if (_trace) printf("g30316:\n");
+  t1 = (t8 == Boole_1) ? 1 : 0;   
 
-g8665:
-  if (_trace) printf("g8665:\n");
-  if (t1 == 0)
-    goto g8648;
+g30334:
+  if (_trace) printf("g30334:\n");
+  if (t1 == 0) 
+    goto g30317;
   /* Here if argument Boole1 */
   t8 = t3;
-  goto g8642;
+  goto g30311;   
 
-g8648:
-  if (_trace) printf("g8648:\n");
-  t1 = (t8 == Boole_Xor) ? 1 : 0;
+g30317:
+  if (_trace) printf("g30317:\n");
+  t1 = (t8 == Boole_Xor) ? 1 : 0;   
 
-g8666:
-  if (_trace) printf("g8666:\n");
-  if (t1 == 0)
-    goto g8649;
+g30335:
+  if (_trace) printf("g30335:\n");
+  if (t1 == 0) 
+    goto g30318;
   /* Here if argument BooleXor */
-  t8 = t3 ^ t5;
-  goto g8642;
+  t8 = t3 ^ t5;   
+  goto g30311;   
 
-g8649:
-  if (_trace) printf("g8649:\n");
-  t1 = (t8 == Boole_Ior) ? 1 : 0;
+g30318:
+  if (_trace) printf("g30318:\n");
+  t1 = (t8 == Boole_Ior) ? 1 : 0;   
 
-g8667:
-  if (_trace) printf("g8667:\n");
-  if (t1 == 0)
-    goto g8650;
+g30336:
+  if (_trace) printf("g30336:\n");
+  if (t1 == 0) 
+    goto g30319;
   /* Here if argument BooleIor */
   t8 = t3 | t5;
-  goto g8642;
+  goto g30311;   
 
-g8650:
-  if (_trace) printf("g8650:\n");
-  t1 = (t8 == Boole_Nor) ? 1 : 0;
+g30319:
+  if (_trace) printf("g30319:\n");
+  t1 = (t8 == Boole_Nor) ? 1 : 0;   
 
-g8668:
-  if (_trace) printf("g8668:\n");
-  if (t1 == 0)
-    goto g8651;
+g30337:
+  if (_trace) printf("g30337:\n");
+  if (t1 == 0) 
+    goto g30320;
   /* Here if argument BooleNor */
   t8 = t3 | t5;
-  t8 = ~t8;
-  goto g8642;
+  t8 = ~t8;   
+  goto g30311;   
 
-g8651:
-  if (_trace) printf("g8651:\n");
-  t1 = (t8 == Boole_Equiv) ? 1 : 0;
+g30320:
+  if (_trace) printf("g30320:\n");
+  t1 = (t8 == Boole_Equiv) ? 1 : 0;   
 
-g8669:
-  if (_trace) printf("g8669:\n");
-  if (t1 == 0)
-    goto g8652;
+g30338:
+  if (_trace) printf("g30338:\n");
+  if (t1 == 0) 
+    goto g30321;
   /* Here if argument BooleEquiv */
-  t8 = t3 ^ t5;
-  t8 = ~t8;
-  goto g8642;
+  t8 = t3 ^ t5;   
+  t8 = ~t8;   
+  goto g30311;   
 
-g8652:
-  if (_trace) printf("g8652:\n");
-  t1 = (t8 == Boole_C1) ? 1 : 0;
+g30321:
+  if (_trace) printf("g30321:\n");
+  t1 = (t8 == Boole_C1) ? 1 : 0;   
 
-g8670:
-  if (_trace) printf("g8670:\n");
-  if (t1 == 0)
-    goto g8653;
+g30339:
+  if (_trace) printf("g30339:\n");
+  if (t1 == 0) 
+    goto g30322;
   /* Here if argument BooleC1 */
-  t8 = ~t3;
-  goto g8642;
+  t8 = ~t3;   
+  goto g30311;   
 
-g8653:
-  if (_trace) printf("g8653:\n");
-  t1 = (t8 == Boole_OrC1) ? 1 : 0;
+g30322:
+  if (_trace) printf("g30322:\n");
+  t1 = (t8 == Boole_OrC1) ? 1 : 0;   
 
-g8671:
-  if (_trace) printf("g8671:\n");
-  if (t1 == 0)
-    goto g8654;
+g30340:
+  if (_trace) printf("g30340:\n");
+  if (t1 == 0) 
+    goto g30323;
   /* Here if argument BooleOrC1 */
-  t8 = t5 | ~(t3);
-  goto g8642;
+  t8 = t5 | ~(t3);   
+  goto g30311;   
 
-g8654:
-  if (_trace) printf("g8654:\n");
-  t1 = (t8 == Boole_C2) ? 1 : 0;
+g30323:
+  if (_trace) printf("g30323:\n");
+  t1 = (t8 == Boole_C2) ? 1 : 0;   
 
-g8672:
-  if (_trace) printf("g8672:\n");
-  if (t1 == 0)
-    goto g8655;
+g30341:
+  if (_trace) printf("g30341:\n");
+  if (t1 == 0) 
+    goto g30324;
   /* Here if argument BooleC2 */
-  t8 = ~t5;
-  goto g8642;
+  t8 = ~t5;   
+  goto g30311;   
 
-g8655:
-  if (_trace) printf("g8655:\n");
-  t1 = (t8 == Boole_OrC2) ? 1 : 0;
+g30324:
+  if (_trace) printf("g30324:\n");
+  t1 = (t8 == Boole_OrC2) ? 1 : 0;   
 
-g8673:
-  if (_trace) printf("g8673:\n");
-  if (t1 == 0)
-    goto g8656;
+g30342:
+  if (_trace) printf("g30342:\n");
+  if (t1 == 0) 
+    goto g30325;
   /* Here if argument BooleOrC2 */
   t8 = t3 & ~t5;
-  goto g8642;
+  goto g30311;   
 
-g8656:
-  if (_trace) printf("g8656:\n");
-  t1 = (t8 == Boole_Nand) ? 1 : 0;
+g30325:
+  if (_trace) printf("g30325:\n");
+  t1 = (t8 == Boole_Nand) ? 1 : 0;   
 
-g8674:
-  if (_trace) printf("g8674:\n");
-  if (t1 == 0)
-    goto g8657;
+g30343:
+  if (_trace) printf("g30343:\n");
+  if (t1 == 0) 
+    goto g30326;
   /* Here if argument BooleNand */
   t8 = t3 & t5;
-  goto g8642;
+  goto g30311;   
 
-g8657:
-  if (_trace) printf("g8657:\n");
-  t1 = (t8 == Boole_Set) ? 1 : 0;
+g30326:
+  if (_trace) printf("g30326:\n");
+  t1 = (t8 == Boole_Set) ? 1 : 0;   
 
-g8675:
-  if (_trace) printf("g8675:\n");
-  if (t1 == 0)
-    goto g8642;
+g30344:
+  if (_trace) printf("g30344:\n");
+  if (t1 == 0) 
+    goto g30311;
   /* Here if argument BooleSet */
-  t8 = ~zero;
+  t8 = ~zero;   
 
-g8642:
-  if (_trace) printf("g8642:\n");
+g30311:
+  if (_trace) printf("g30311:\n");
 
-g8640:
-  if (_trace) printf("g8640:\n");
+g30309:
+  if (_trace) printf("g30309:\n");
   t1 = t7 >> 16;
-  /* Extract ALU condition */
-  t1 = t1 & 31;
+  t1 = t1 & 31;		// Extract ALU condition 
   t10 = *(u64 *)&(processor->aluoverflow);
   t11 = *(u64 *)&(processor->aluborrow);
   t12 = *(u64 *)&(processor->alulessthan);
-  t9 = (t1 == ALUCondition_SignedLessThanOrEqual) ? 1 : 0;
+  t9 = (t1 == ALUCondition_SignedLessThanOrEqual) ? 1 : 0;   
 
-g8732:
-  if (_trace) printf("g8732:\n");
-  if (t9 == 0)
-    goto g8705;
+g30401:
+  if (_trace) printf("g30401:\n");
+  if (t9 == 0) 
+    goto g30374;
   /* Here if argument ALUConditionSignedLessThanOrEqual */
-  if (t12 != 0)
-    goto g8701;
-  if (t8 == 0)
-    goto g8701;
+  if (t12 != 0)   
+    goto g30370;
+  if (t8 == 0) 
+    goto g30370;
 
-g8704:
-  if (_trace) printf("g8704:\n");
+g30373:
+  if (_trace) printf("g30373:\n");
 
-g8702:
-  if (_trace) printf("g8702:\n");
+g30371:
+  if (_trace) printf("g30371:\n");
   t1 = zero;
-  goto g8703;
+  goto g30372;   
 
-g8701:
-  if (_trace) printf("g8701:\n");
+g30370:
+  if (_trace) printf("g30370:\n");
   t1 = 1;
 
-g8703:
-  if (_trace) printf("g8703:\n");
+g30372:
+  if (_trace) printf("g30372:\n");
   t9 = t7 >> 21;
-  /* Extract the condition sense */
-  t9 = t9 & 1;
-  t1 = t1 ^ t9;
-  if (t1 != 0)
-    goto g8627;
-  /* =no-incrementp */
-  t1 = arg1 & 4;
-  /* J. if we don't have to increment the address. */
-  if (t1 != 0)
-    goto g8623;
-  /* Increment the address */
-  arg3 = arg3 + 1;
+  t9 = t9 & 1;		// Extract the condition sense 
+  t1 = t1 ^ t9;   
+  if (t1 != 0)   
+    goto g30296;
+  t1 = arg1 & 4;		// =no-incrementp 
+  if (t1 != 0)   		// J. if we don't have to increment the address. 
+    goto g30292;
+  arg3 = arg3 + 1;		// Increment the address 
 
-g8623:
-  if (_trace) printf("g8623:\n");
-  /* Store updated vma in BAR */
+g30292:
+  if (_trace) printf("g30292:\n");
+		/* Store updated vma in BAR */
   *(u32 *)arg2 = arg3;
-  goto NEXTINSTRUCTION;
+  goto NEXTINSTRUCTION;   
 
-g8627:
-  if (_trace) printf("g8627:\n");
+g30296:
+  if (_trace) printf("g30296:\n");
   t10 = *(s32 *)(iSP + -8);
   t9 = *(s32 *)(iSP + -4);
-  t10 = (u32)t10;
+  t10 = (u32)t10;   
   t10 = t10 << 1;
   iPC = t9 & 1;
   iPC = iPC + t10;
-  goto interpretinstructionforjump;
+  goto interpretinstructionforjump;   
 
-g8626:
-  if (_trace) printf("g8626:\n");
+g30295:
+  if (_trace) printf("g30295:\n");
   /* Convert stack cache address to VMA */
   t9 = *(u64 *)&(processor->stackcachedata);
   arg3 = *(u64 *)&(processor->stackcachebasevma);
-  /* stack cache base relative offset */
+		/* stack cache base relative offset */
   t9 = iSP - t9;
-  /* convert byte address to word address */
+		/* convert byte address to word address */
   t9 = t9 >> 3;
-  /* reconstruct VMA */
-  arg3 = t9 + arg3;
+  arg3 = t9 + arg3;		// reconstruct VMA 
   arg5 = arg3;
   arg2 = 23;
   goto illegaloperand;
 
-g8625:
-  if (_trace) printf("g8625:\n");
+g30294:
+  if (_trace) printf("g30294:\n");
   arg5 = arg3;
   arg2 = 23;
   goto illegaloperand;
 
-g8705:
-  if (_trace) printf("g8705:\n");
-  t9 = (t1 == ALUCondition_SignedLessThan) ? 1 : 0;
+g30374:
+  if (_trace) printf("g30374:\n");
+  t9 = (t1 == ALUCondition_SignedLessThan) ? 1 : 0;   
 
-g8733:
-  if (_trace) printf("g8733:\n");
-  if (t9 == 0)
-    goto g8706;
+g30402:
+  if (_trace) printf("g30402:\n");
+  if (t9 == 0) 
+    goto g30375;
   /* Here if argument ALUConditionSignedLessThan */
-  if (t12 != 0)
-    goto g8701;
-  goto g8704;
+  if (t12 != 0)   
+    goto g30370;
+  goto g30373;   
 
-g8706:
-  if (_trace) printf("g8706:\n");
-  t9 = (t1 == ALUCondition_Negative) ? 1 : 0;
+g30375:
+  if (_trace) printf("g30375:\n");
+  t9 = (t1 == ALUCondition_Negative) ? 1 : 0;   
 
-g8734:
-  if (_trace) printf("g8734:\n");
-  if (t9 == 0)
-    goto g8707;
+g30403:
+  if (_trace) printf("g30403:\n");
+  if (t9 == 0) 
+    goto g30376;
   /* Here if argument ALUConditionNegative */
-  if ((s64)t8 < 0)
-    goto g8701;
-  goto g8704;
+  if ((s64)t8 < 0)   
+    goto g30370;
+  goto g30373;   
 
-g8707:
-  if (_trace) printf("g8707:\n");
-  t9 = (t1 == ALUCondition_SignedOverflow) ? 1 : 0;
+g30376:
+  if (_trace) printf("g30376:\n");
+  t9 = (t1 == ALUCondition_SignedOverflow) ? 1 : 0;   
 
-g8735:
-  if (_trace) printf("g8735:\n");
-  if (t9 == 0)
-    goto g8708;
+g30404:
+  if (_trace) printf("g30404:\n");
+  if (t9 == 0) 
+    goto g30377;
   /* Here if argument ALUConditionSignedOverflow */
-  if (t10 != 0)
-    goto g8701;
-  goto g8704;
+  if (t10 != 0)   
+    goto g30370;
+  goto g30373;   
 
-g8708:
-  if (_trace) printf("g8708:\n");
-  t9 = (t1 == ALUCondition_UnsignedLessThanOrEqual) ? 1 : 0;
+g30377:
+  if (_trace) printf("g30377:\n");
+  t9 = (t1 == ALUCondition_UnsignedLessThanOrEqual) ? 1 : 0;   
 
-g8736:
-  if (_trace) printf("g8736:\n");
-  if (t9 == 0)
-    goto g8709;
+g30405:
+  if (_trace) printf("g30405:\n");
+  if (t9 == 0) 
+    goto g30378;
   /* Here if argument ALUConditionUnsignedLessThanOrEqual */
-  if (t11 != 0)
-    goto g8701;
-  if (t8 == 0)
-    goto g8701;
-  goto g8704;
+  if (t11 != 0)   
+    goto g30370;
+  if (t8 == 0) 
+    goto g30370;
+  goto g30373;   
 
-g8709:
-  if (_trace) printf("g8709:\n");
-  t9 = (t1 == ALUCondition_UnsignedLessThan) ? 1 : 0;
+g30378:
+  if (_trace) printf("g30378:\n");
+  t9 = (t1 == ALUCondition_UnsignedLessThan) ? 1 : 0;   
 
-g8737:
-  if (_trace) printf("g8737:\n");
-  if (t9 == 0)
-    goto g8710;
+g30406:
+  if (_trace) printf("g30406:\n");
+  if (t9 == 0) 
+    goto g30379;
   /* Here if argument ALUConditionUnsignedLessThan */
-  if (t11 != 0)
-    goto g8701;
-  goto g8704;
+  if (t11 != 0)   
+    goto g30370;
+  goto g30373;   
 
-g8710:
-  if (_trace) printf("g8710:\n");
-  t9 = (t1 == ALUCondition_Zero) ? 1 : 0;
+g30379:
+  if (_trace) printf("g30379:\n");
+  t9 = (t1 == ALUCondition_Zero) ? 1 : 0;   
 
-g8738:
-  if (_trace) printf("g8738:\n");
-  if (t9 == 0)
-    goto g8711;
+g30407:
+  if (_trace) printf("g30407:\n");
+  if (t9 == 0) 
+    goto g30380;
   /* Here if argument ALUConditionZero */
-  if (t8 == 0)
-    goto g8701;
-  goto g8704;
+  if (t8 == 0) 
+    goto g30370;
+  goto g30373;   
 
-g8711:
-  if (_trace) printf("g8711:\n");
-  t9 = (t1 == ALUCondition_High25Zero) ? 1 : 0;
+g30380:
+  if (_trace) printf("g30380:\n");
+  t9 = (t1 == ALUCondition_High25Zero) ? 1 : 0;   
 
-g8739:
-  if (_trace) printf("g8739:\n");
-  if (t9 == 0)
-    goto g8712;
+g30408:
+  if (_trace) printf("g30408:\n");
+  if (t9 == 0) 
+    goto g30381;
   /* Here if argument ALUConditionHigh25Zero */
   t1 = t8 >> 7;
-  if (t1 == 0)
-    goto g8701;
-  goto g8704;
+  if (t1 == 0) 
+    goto g30370;
+  goto g30373;   
 
-g8712:
-  if (_trace) printf("g8712:\n");
-  t9 = (t1 == ALUCondition_Eq) ? 1 : 0;
+g30381:
+  if (_trace) printf("g30381:\n");
+  t9 = (t1 == ALUCondition_Eq) ? 1 : 0;   
 
-g8740:
-  if (_trace) printf("g8740:\n");
-  if (t9 == 0)
-    goto g8713;
+g30409:
+  if (_trace) printf("g30409:\n");
+  if (t9 == 0) 
+    goto g30382;
   /* Here if argument ALUConditionEq */
-  if (t8 != 0)
-    goto g8702;
-  t9 = t2 ^ t4;
+  if (t8 != 0)   
+    goto g30371;
+  t9 = t2 ^ t4;   
   /* TagType. */
   t9 = t9 & 63;
-  if (t9 == 0)
-    goto g8701;
-  goto g8704;
+  if (t9 == 0) 
+    goto g30370;
+  goto g30373;   
 
-g8713:
-  if (_trace) printf("g8713:\n");
-  t9 = (t1 == ALUCondition_Op1Ephemeralp) ? 1 : 0;
+g30382:
+  if (_trace) printf("g30382:\n");
+  t9 = (t1 == ALUCondition_Op1Ephemeralp) ? 1 : 0;   
 
-g8741:
-  if (_trace) printf("g8741:\n");
-  if (t9 == 0)
-    goto g8714;
+g30410:
+  if (_trace) printf("g30410:\n");
+  if (t9 == 0) 
+    goto g30383;
   /* Here if argument ALUConditionOp1Ephemeralp */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8714:
-  if (_trace) printf("g8714:\n");
-  t9 = (t1 == ALUCondition_ResultTypeNil) ? 1 : 0;
+g30383:
+  if (_trace) printf("g30383:\n");
+  t9 = (t1 == ALUCondition_ResultTypeNil) ? 1 : 0;   
 
-g8742:
-  if (_trace) printf("g8742:\n");
-  if (t9 == 0)
-    goto g8715;
+g30411:
+  if (_trace) printf("g30411:\n");
+  if (t9 == 0) 
+    goto g30384;
   /* Here if argument ALUConditionResultTypeNil */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8715:
-  if (_trace) printf("g8715:\n");
-  t9 = (t1 == ALUCondition_Op2Fixnum) ? 1 : 0;
+g30384:
+  if (_trace) printf("g30384:\n");
+  t9 = (t1 == ALUCondition_Op2Fixnum) ? 1 : 0;   
 
-g8743:
-  if (_trace) printf("g8743:\n");
-  if (t9 == 0)
-    goto g8716;
+g30412:
+  if (_trace) printf("g30412:\n");
+  if (t9 == 0) 
+    goto g30385;
   /* Here if argument ALUConditionOp2Fixnum */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8716:
-  if (_trace) printf("g8716:\n");
-  t9 = (t1 == ALUCondition_False) ? 1 : 0;
+g30385:
+  if (_trace) printf("g30385:\n");
+  t9 = (t1 == ALUCondition_False) ? 1 : 0;   
 
-g8744:
-  if (_trace) printf("g8744:\n");
-  if (t9 == 0)
-    goto g8717;
+g30413:
+  if (_trace) printf("g30413:\n");
+  if (t9 == 0) 
+    goto g30386;
   /* Here if argument ALUConditionFalse */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8717:
-  if (_trace) printf("g8717:\n");
-  t9 = (t1 == ALUCondition_ResultCdrLow) ? 1 : 0;
+g30386:
+  if (_trace) printf("g30386:\n");
+  t9 = (t1 == ALUCondition_ResultCdrLow) ? 1 : 0;   
 
-g8745:
-  if (_trace) printf("g8745:\n");
-  if (t9 == 0)
-    goto g8718;
+g30414:
+  if (_trace) printf("g30414:\n");
+  if (t9 == 0) 
+    goto g30387;
   /* Here if argument ALUConditionResultCdrLow */
   /* TagCdr. */
   t9 = t2 >> 6;
   t1 = t9 & 1;
-  goto g8703;
+  goto g30372;   
 
-g8718:
-  if (_trace) printf("g8718:\n");
-  t9 = (t1 == ALUCondition_CleanupBitsSet) ? 1 : 0;
+g30387:
+  if (_trace) printf("g30387:\n");
+  t9 = (t1 == ALUCondition_CleanupBitsSet) ? 1 : 0;   
 
-g8746:
-  if (_trace) printf("g8746:\n");
-  if (t9 == 0)
-    goto g8719;
+g30415:
+  if (_trace) printf("g30415:\n");
+  if (t9 == 0) 
+    goto g30388;
   /* Here if argument ALUConditionCleanupBitsSet */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8719:
-  if (_trace) printf("g8719:\n");
-  t9 = (t1 == ALUCondition_AddressInStackCache) ? 1 : 0;
+g30388:
+  if (_trace) printf("g30388:\n");
+  t9 = (t1 == ALUCondition_AddressInStackCache) ? 1 : 0;   
 
-g8747:
-  if (_trace) printf("g8747:\n");
-  if (t9 == 0)
-    goto g8720;
+g30416:
+  if (_trace) printf("g30416:\n");
+  if (t9 == 0) 
+    goto g30389;
   /* Here if argument ALUConditionAddressInStackCache */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8720:
-  if (_trace) printf("g8720:\n");
-  t9 = (t1 == ALUCondition_ExtraStackMode) ? 1 : 0;
+g30389:
+  if (_trace) printf("g30389:\n");
+  t9 = (t1 == ALUCondition_ExtraStackMode) ? 1 : 0;   
 
-g8748:
-  if (_trace) printf("g8748:\n");
-  if (t9 == 0)
-    goto g8721;
+g30417:
+  if (_trace) printf("g30417:\n");
+  if (t9 == 0) 
+    goto g30390;
   /* Here if argument ALUConditionExtraStackMode */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8721:
-  if (_trace) printf("g8721:\n");
-  t9 = (t1 == ALUCondition_FepMode) ? 1 : 0;
+g30390:
+  if (_trace) printf("g30390:\n");
+  t9 = (t1 == ALUCondition_FepMode) ? 1 : 0;   
 
-g8749:
-  if (_trace) printf("g8749:\n");
-  if (t9 == 0)
-    goto g8722;
+g30418:
+  if (_trace) printf("g30418:\n");
+  if (t9 == 0) 
+    goto g30391;
   /* Here if argument ALUConditionFepMode */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8722:
-  if (_trace) printf("g8722:\n");
-  t9 = (t1 == ALUCondition_FpCoprocessorPresent) ? 1 : 0;
+g30391:
+  if (_trace) printf("g30391:\n");
+  t9 = (t1 == ALUCondition_FpCoprocessorPresent) ? 1 : 0;   
 
-g8750:
-  if (_trace) printf("g8750:\n");
-  if (t9 == 0)
-    goto g8723;
+g30419:
+  if (_trace) printf("g30419:\n");
+  if (t9 == 0) 
+    goto g30392;
   /* Here if argument ALUConditionFpCoprocessorPresent */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8723:
-  if (_trace) printf("g8723:\n");
-  t9 = (t1 == ALUCondition_Op1Oldspacep) ? 1 : 0;
+g30392:
+  if (_trace) printf("g30392:\n");
+  t9 = (t1 == ALUCondition_Op1Oldspacep) ? 1 : 0;   
 
-g8751:
-  if (_trace) printf("g8751:\n");
-  if (t9 == 0)
-    goto g8724;
+g30420:
+  if (_trace) printf("g30420:\n");
+  if (t9 == 0) 
+    goto g30393;
   /* Here if argument ALUConditionOp1Oldspacep */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8724:
-  if (_trace) printf("g8724:\n");
-  t9 = (t1 == ALUCondition_PendingSequenceBreakEnabled) ? 1 : 0;
+g30393:
+  if (_trace) printf("g30393:\n");
+  t9 = (t1 == ALUCondition_PendingSequenceBreakEnabled) ? 1 : 0;   
 
-g8752:
-  if (_trace) printf("g8752:\n");
-  if (t9 == 0)
-    goto g8725;
+g30421:
+  if (_trace) printf("g30421:\n");
+  if (t9 == 0) 
+    goto g30394;
   /* Here if argument ALUConditionPendingSequenceBreakEnabled */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8725:
-  if (_trace) printf("g8725:\n");
-  t9 = (t1 == ALUCondition_Op1TypeAcceptable) ? 1 : 0;
+g30394:
+  if (_trace) printf("g30394:\n");
+  t9 = (t1 == ALUCondition_Op1TypeAcceptable) ? 1 : 0;   
 
-g8753:
-  if (_trace) printf("g8753:\n");
-  if (t9 == 0)
-    goto g8726;
+g30422:
+  if (_trace) printf("g30422:\n");
+  if (t9 == 0) 
+    goto g30395;
   /* Here if argument ALUConditionOp1TypeAcceptable */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8726:
-  if (_trace) printf("g8726:\n");
-  t9 = (t1 == ALUCondition_Op1TypeCondition) ? 1 : 0;
+g30395:
+  if (_trace) printf("g30395:\n");
+  t9 = (t1 == ALUCondition_Op1TypeCondition) ? 1 : 0;   
 
-g8754:
-  if (_trace) printf("g8754:\n");
-  if (t9 == 0)
-    goto g8727;
+g30423:
+  if (_trace) printf("g30423:\n");
+  if (t9 == 0) 
+    goto g30396;
   /* Here if argument ALUConditionOp1TypeCondition */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8727:
-  if (_trace) printf("g8727:\n");
-  t9 = (t1 == ALUCondition_StackCacheOverflow) ? 1 : 0;
+g30396:
+  if (_trace) printf("g30396:\n");
+  t9 = (t1 == ALUCondition_StackCacheOverflow) ? 1 : 0;   
 
-g8755:
-  if (_trace) printf("g8755:\n");
-  if (t9 == 0)
-    goto g8728;
+g30424:
+  if (_trace) printf("g30424:\n");
+  if (t9 == 0) 
+    goto g30397;
   /* Here if argument ALUConditionStackCacheOverflow */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8728:
-  if (_trace) printf("g8728:\n");
-  t9 = (t1 == ALUCondition_OrLogicVariable) ? 1 : 0;
+g30397:
+  if (_trace) printf("g30397:\n");
+  t9 = (t1 == ALUCondition_OrLogicVariable) ? 1 : 0;   
 
-g8756:
-  if (_trace) printf("g8756:\n");
-  if (t9 == 0)
-    goto g8729;
+g30425:
+  if (_trace) printf("g30425:\n");
+  if (t9 == 0) 
+    goto g30398;
   /* Here if argument ALUConditionOrLogicVariable */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8729:
-  if (_trace) printf("g8729:\n");
+g30398:
+  if (_trace) printf("g30398:\n");
   /* Here for all other cases */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8641:
-  if (_trace) printf("g8641:\n");
-  t1 = (t6 == ALUFunction_Byte) ? 1 : 0;
+g30310:
+  if (_trace) printf("g30310:\n");
+  t1 = (t6 == ALUFunction_Byte) ? 1 : 0;   
 
-g8757:
-  if (_trace) printf("g8757:\n");
-  if (t1 == 0)
-    goto g8676;
+g30426:
+  if (_trace) printf("g30426:\n");
+  if (t1 == 0) 
+    goto g30345;
   /* Here if argument ALUFunctionByte */
-  /* Get rotate */
+		/* Get rotate */
   t9 = *(u64 *)&(processor->byterotate);
-  /* Get bytesize */
+		/* Get bytesize */
   t10 = *(u64 *)&(processor->bytesize);
   /* Get background */
   t1 = t7 >> 10;
-  /* Extract the byte background */
-  t1 = t1 & 3;
-  t11 = (t1 == ALUByteBackground_Op1) ? 1 : 0;
+  t1 = t1 & 3;		// Extract the byte background 
+  t11 = (t1 == ALUByteBackground_Op1) ? 1 : 0;   
 
-g8683:
-  if (_trace) printf("g8683:\n");
-  if (t11 == 0)
-    goto g8679;
+g30352:
+  if (_trace) printf("g30352:\n");
+  if (t11 == 0) 
+    goto g30348;
   /* Here if argument ALUByteBackgroundOp1 */
   t1 = t3;
 
-g8678:
-  if (_trace) printf("g8678:\n");
+g30347:
+  if (_trace) printf("g30347:\n");
   t12 = t7 >> 12;
-  /* Extractthe byte rotate latch */
-  t12 = t12 & 1;
+  t12 = t12 & 1;		// Extractthe byte rotate latch 
   t8 = t5 << (t9 & 63);
-  t11 = (u32)(t8 >> ((4&7)*8));
-  t8 = (u32)t8;
-  /* OP2 rotated */
-  t8 = t8 | t11;
-  /* Don't update rotate latch if not requested */
-  if (t12 == 0)
-    goto g8677;
+  t11 = (u32)(t8 >> ((4&7)*8));   
+  t8 = (u32)t8;   
+  t8 = t8 | t11;		// OP2 rotated 
+  if (t12 == 0) 		// Don't update rotate latch if not requested 
+    goto g30346;
   *(u64 *)&processor->rotatelatch = t8;
 
-g8677:
-  if (_trace) printf("g8677:\n");
-  t12 = zero + -2;
+g30346:
+  if (_trace) printf("g30346:\n");
+  t12 = zero + -2;   
   t12 = t12 << (t10 & 63);
-  /* Compute mask */
-  t12 = ~t12;
+  t12 = ~t12;   		// Compute mask 
   /* Get byte function */
   t11 = t7 >> 13;
   t11 = t11 & 1;
-  t10 = (t11 == ALUByteFunction_Dpb) ? 1 : 0;
+  t10 = (t11 == ALUByteFunction_Dpb) ? 1 : 0;   
 
-g8688:
-  if (_trace) printf("g8688:\n");
-  if (t10 == 0)
-    goto g8685;
+g30357:
+  if (_trace) printf("g30357:\n");
+  if (t10 == 0) 
+    goto g30354;
   /* Here if argument ALUByteFunctionDpb */
-  /* Position mask */
+		/* Position mask */
   t12 = t12 << (t9 & 63);
 
-g8684:
-  if (_trace) printf("g8684:\n");
-  /* rotated&mask */
-  t8 = t8 & t12;
-  /* background&~mask */
-  t1 = t1 & ~t12;
+g30353:
+  if (_trace) printf("g30353:\n");
+  t8 = t8 & t12;		// rotated&mask 
+  t1 = t1 & ~t12;		// background&~mask 
   t8 = t8 | t1;
-  goto g8640;
+  goto g30309;   
 
-g8676:
-  if (_trace) printf("g8676:\n");
-  t1 = (t6 == ALUFunction_Adder) ? 1 : 0;
+g30345:
+  if (_trace) printf("g30345:\n");
+  t1 = (t6 == ALUFunction_Adder) ? 1 : 0;   
 
-g8758:
-  if (_trace) printf("g8758:\n");
-  if (t1 == 0)
-    goto g8689;
+g30427:
+  if (_trace) printf("g30427:\n");
+  if (t1 == 0) 
+    goto g30358;
   /* Here if argument ALUFunctionAdder */
   t10 = t7 >> 11;
-  /* Extract the op2 */
-  t10 = t10 & 3;
+  t10 = t10 & 3;		// Extract the op2 
   t9 = t7 >> 10;
-  /* Extract the adder carry in */
-  t9 = t9 & 1;
-  t11 = (t10 == ALUAdderOp2_Op2) ? 1 : 0;
+  t9 = t9 & 1;		// Extract the adder carry in 
+  t11 = (t10 == ALUAdderOp2_Op2) ? 1 : 0;   
 
-g8697:
-  if (_trace) printf("g8697:\n");
-  if (t11 == 0)
-    goto g8692;
+g30366:
+  if (_trace) printf("g30366:\n");
+  if (t11 == 0) 
+    goto g30361;
   /* Here if argument ALUAdderOp2Op2 */
   t1 = t5;
 
-g8691:
-  if (_trace) printf("g8691:\n");
+g30360:
+  if (_trace) printf("g30360:\n");
   t8 = t3 + t1;
   t8 = t8 + t9;
-  /* Sign bit */
+		/* Sign bit */
   t10 = t8 >> 31;
-  /* Next bit */
+		/* Next bit */
   t11 = t8 >> 32;
-  /* Low bit is now overflow indicator */
-  t10 = t10 ^ t11;
-  /* Get the load-carry-in bit */
+  t10 = t10 ^ t11;   		// Low bit is now overflow indicator 
+		/* Get the load-carry-in bit */
   t11 = t7 >> 24;
   *(u64 *)&processor->aluoverflow = t10;
-  if ((t11 & 1) == 0)
-    goto g8690;
-  /* Get the carry */
-  t10 = (u32)(t8 >> ((4&7)*8));
-  t11 = zero + 1024;
+  if ((t11 & 1) == 0)   
+    goto g30359;
+  t10 = (u32)(t8 >> ((4&7)*8));   		// Get the carry 
+  t11 = zero + 1024;   
   t7 = t7 & ~t11;
   t11 = t10 & 1;
   t11 = t11 << 10;
-  /* Set the adder carry in */
-  t7 = t7 | t11;
+  t7 = t7 | t11;		// Set the adder carry in 
   *(u64 *)&processor->aluandrotatecontrol = t7;
 
-g8690:
-  if (_trace) printf("g8690:\n");
-  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
+g30359:
+  if (_trace) printf("g30359:\n");
+  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->aluborrow = t10;
   t3 = (s32)t3;
   t5 = (s32)t5;
-  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
+  t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->alulessthan = t10;
-  goto g8640;
+  goto g30309;   
 
-g8689:
-  if (_trace) printf("g8689:\n");
-  t1 = (t6 == ALUFunction_MultiplyDivide) ? 1 : 0;
+g30358:
+  if (_trace) printf("g30358:\n");
+  t1 = (t6 == ALUFunction_MultiplyDivide) ? 1 : 0;   
 
-g8759:
-  if (_trace) printf("g8759:\n");
-  if (t1 == 0)
-    goto g8640;
+g30428:
+  if (_trace) printf("g30428:\n");
+  if (t1 == 0) 
+    goto g30309;
   /* Here if argument ALUFunctionMultiplyDivide */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-g8692:
-  if (_trace) printf("g8692:\n");
-  t11 = (t10 == ALUAdderOp2_Zero) ? 1 : 0;
+g30361:
+  if (_trace) printf("g30361:\n");
+  t11 = (t10 == ALUAdderOp2_Zero) ? 1 : 0;   
 
-g8760:
-  if (_trace) printf("g8760:\n");
-  if (t11 == 0)
-    goto g8693;
+g30429:
+  if (_trace) printf("g30429:\n");
+  if (t11 == 0) 
+    goto g30362;
   /* Here if argument ALUAdderOp2Zero */
   t1 = zero;
-  goto g8691;
+  goto g30360;   
 
-g8693:
-  if (_trace) printf("g8693:\n");
-  t11 = (t10 == ALUAdderOp2_Invert) ? 1 : 0;
+g30362:
+  if (_trace) printf("g30362:\n");
+  t11 = (t10 == ALUAdderOp2_Invert) ? 1 : 0;   
 
-g8761:
-  if (_trace) printf("g8761:\n");
-  if (t11 == 0)
-    goto g8694;
+g30430:
+  if (_trace) printf("g30430:\n");
+  if (t11 == 0) 
+    goto g30363;
   /* Here if argument ALUAdderOp2Invert */
   t1 = (s32)t5;
   t1 = zero - t1;
-  t1 = (u32)t1;
-  goto g8691;
+  t1 = (u32)t1;   
+  goto g30360;   
 
-g8694:
-  if (_trace) printf("g8694:\n");
-  t11 = (t10 == ALUAdderOp2_MinusOne) ? 1 : 0;
+g30363:
+  if (_trace) printf("g30363:\n");
+  t11 = (t10 == ALUAdderOp2_MinusOne) ? 1 : 0;   
 
-g8762:
-  if (_trace) printf("g8762:\n");
-  if (t11 == 0)
-    goto g8691;
+g30431:
+  if (_trace) printf("g30431:\n");
+  if (t11 == 0) 
+    goto g30360;
   /* Here if argument ALUAdderOp2MinusOne */
-  t1 = ~zero;
-  t1 = (u32)t1;
-  goto g8691;
+  t1 = ~zero;   
+  t1 = (u32)t1;   
+  goto g30360;   
 
-g8685:
-  if (_trace) printf("g8685:\n");
-  t10 = (t11 == ALUByteFunction_Ldb) ? 1 : 0;
+g30354:
+  if (_trace) printf("g30354:\n");
+  t10 = (t11 == ALUByteFunction_Ldb) ? 1 : 0;   
 
-g8763:
-  if (_trace) printf("g8763:\n");
-  if (t10 != 0)
-    goto g8684;
-  goto g8684;
+g30432:
+  if (_trace) printf("g30432:\n");
+  if (t10 != 0)   
+    goto g30353;
+  goto g30353;   
 
-g8679:
-  if (_trace) printf("g8679:\n");
-  t11 = (t1 == ALUByteBackground_RotateLatch) ? 1 : 0;
+g30348:
+  if (_trace) printf("g30348:\n");
+  t11 = (t1 == ALUByteBackground_RotateLatch) ? 1 : 0;   
 
-g8764:
-  if (_trace) printf("g8764:\n");
-  if (t11 == 0)
-    goto g8680;
+g30433:
+  if (_trace) printf("g30433:\n");
+  if (t11 == 0) 
+    goto g30349;
   /* Here if argument ALUByteBackgroundRotateLatch */
   t1 = *(u64 *)&(processor->rotatelatch);
-  goto g8678;
+  goto g30347;   
 
-g8680:
-  if (_trace) printf("g8680:\n");
-  t11 = (t1 == ALUByteBackground_Zero) ? 1 : 0;
+g30349:
+  if (_trace) printf("g30349:\n");
+  t11 = (t1 == ALUByteBackground_Zero) ? 1 : 0;   
 
-g8765:
-  if (_trace) printf("g8765:\n");
-  if (t11 == 0)
-    goto g8678;
+g30434:
+  if (_trace) printf("g30434:\n");
+  if (t11 == 0) 
+    goto g30347;
   /* Here if argument ALUByteBackgroundZero */
   t1 = zero;
-  goto g8678;
+  goto g30347;   
 
-g8630:
-  if (_trace) printf("g8630:\n");
+g30299:
+  if (_trace) printf("g30299:\n");
   t10 = *(u64 *)&(processor->stackcachedata);
-  /* reconstruct SCA */
+		/* reconstruct SCA */
   t9 = (t9 * 8) + t10;
   t3 = *(s32 *)t9;
-  /* Read from stack cache */
+		/* Read from stack cache */
   t2 = *(s32 *)(t9 + 4);
-  goto g8629;
+  goto g30298;   
 
-g8632:
-  if (_trace) printf("g8632:\n");
+g30301:
+  if (_trace) printf("g30301:\n");
 
-g8631:
-  if (_trace) printf("g8631:\n");
-  /* Cycle-number -> table offset */
-  t12 = (t1 * 4);
-  t12 = (t12 * 4) + ivory;
+g30300:
+  if (_trace) printf("g30300:\n");
+  t12 = (t1 * 4);   		// Cycle-number -> table offset 
+  t12 = (t12 * 4) + ivory;   
   t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD);
   /* TagType. */
-  /* Discard the CDR code */
-  t11 = t2 & 63;
-  /* stash the VMA for the (likely) trap */
+  t11 = t2 & 63;		// Discard the CDR code 
+		/* stash the VMA for the (likely) trap */
   *(u64 *)&processor->vma = arg3;
-  /* Adjust for a longword load */
-  t11 = (t11 * 4) + t12;
-  /* Get the memory action */
+  t11 = (t11 * 4) + t12;   		// Adjust for a longword load 
+		/* Get the memory action */
   t12 = *(s32 *)t11;
 
-g8637:
-  if (_trace) printf("g8637:\n");
+g30306:
+  if (_trace) printf("g30306:\n");
   t10 = t12 & MemoryActionIndirect;
-  if (t10 == 0)
-    goto g8636;
-  /* Do the indirect thing */
-  arg3 = (u32)t3;
-  goto g8628;
+  if (t10 == 0) 
+    goto g30305;
+  arg3 = (u32)t3;   		// Do the indirect thing 
+  goto g30297;   
 
-g8636:
-  if (_trace) printf("g8636:\n");
+g30305:
+  if (_trace) printf("g30305:\n");
   t11 = t12 & MemoryActionTransform;
-  if (t11 == 0)
-    goto g8635;
+  if (t11 == 0) 
+    goto g30304;
   t2 = t2 & ~63L;
   t2 = t2 | Type_ExternalValueCellPointer;
-  goto g8639;
+  goto g30308;   
 #ifndef MINIMA
 
-g8635:
+g30304:
 #endif
 #ifdef MINIMA
 
-g8635:
-  if (_trace) printf("g8635:\n");
+g30304:
+  if (_trace) printf("g30304:\n");
   t11 = t12 & MemoryActionBinding;
   t10 = *(u64 *)&(processor->dbcmask);
-  if (t11 == 0)
-    goto g8634;
+  if (t11 == 0) 
+    goto g30303;
   t9 = arg3 << 1;
   t11 = *(u64 *)&(processor->dbcbase);
-  /* Hash index */
-  t9 = t9 & t10;
+  t9 = t9 & t10;		// Hash index 
   t10 = 1;
   t10 = t10 << (ivorymemorydata & 63);
   t9 = (s32)t9 + (s32)t11;
-  /* Clear sign-extension */
-  t9 = (u32)t9;
-  t10 = (t9 * 4) + t10;
-  /* Fetch the key */
+  t9 = (u32)t9;   		// Clear sign-extension 
+  t10 = (t9 * 4) + t10;   
+		/* Fetch the key */
   t9 = *(s32 *)t10;
-  /* Fetch value */
+		/* Fetch value */
   t3 = *(s32 *)(t10 + 4);
-  /* Compare */
+		/* Compare */
   t11 = (s32)arg3 - (s32)t9;
-  /* Trap on miss */
-  if (t11 != 0)
-    goto g8638;
-  /* Extract the pointer, and indirect */
-  arg3 = (u32)t3;
-  goto g8628;
+  if (t11 != 0)   		// Trap on miss 
+    goto g30307;
+  arg3 = (u32)t3;   		// Extract the pointer, and indirect 
+  goto g30297;   		// This is another memory read tailcall. 
 
-g8638:
-  if (_trace) printf("g8638:\n");
+g30307:
+  if (_trace) printf("g30307:\n");
   goto dbcachemisstrap;
 #endif
 
-g8634:
+g30303:
   /* Perform memory action */
   arg1 = t12;
   arg2 = t1;

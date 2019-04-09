@@ -10,11 +10,11 @@
 
 nativeexception:
   if (_trace) printf("nativeexception:\n");
-  /* Load linkage to escape block */
+		/* Load linkage to escape block */
   t1 = *(u64 *)&(processor->linkage);
-  /* Re-load resumemulator */
+		/* Re-load resumemulator */
   r0 = *(u64 *)&(processor->resumeema);
-  /* Restore SP (Just in case?) */
+		/* Restore SP (Just in case?) */
   iSP = *(u64 *)&(processor->restartsp);
   *(u64 *)&processor->linkage = zero;
   goto *t1; /* ret */
@@ -25,18 +25,18 @@ nativeexception:
 
 padpastaref1:
   if (_trace) printf("padpastaref1:\n");
-  /* Load linkage to escape block */
+		/* Load linkage to escape block */
   t1 = *(u64 *)&(processor->linkage);
-  /* Re-load resumemulator */
+		/* Re-load resumemulator */
   r0 = *(u64 *)&(processor->resumeema);
-  /* Restore SP (Just in case?) */
+		/* Restore SP (Just in case?) */
   iSP = *(u64 *)&(processor->restartsp);
   *(u64 *)&processor->linkage = zero;
-  /* Load linkage to escape block */
+		/* Load linkage to escape block */
   t1 = *(u64 *)&(processor->linkage);
-  /* Re-load resumemulator */
+		/* Re-load resumemulator */
   r0 = *(u64 *)&(processor->resumeema);
-  /* Restore SP (Just in case?) */
+		/* Restore SP (Just in case?) */
   iSP = *(u64 *)&(processor->restartsp);
   *(u64 *)&processor->linkage = zero;
   goto *t1; /* ret */
@@ -47,20 +47,20 @@ padpastaref1:
 
 carsubroutine:
   if (_trace) printf("carsubroutine:\n");
-  sp = sp + -8;
+  sp = sp + -8;   
   *(u64 *)&processor->linkage = r0;
   t11 = *(u64 *)&(processor->stackcachebasevma);
-  /* Size of the stack cache (words) */
+		/* Size of the stack cache (words) */
   t12 = *(s32 *)&processor->scovlimit;
   r0 = r0 + 4;
   *(u64 *)&processor->restartsp = iSP;
   *(u64 *)sp = r0;
-  r0 = (u64)&&return0302;
+  r0 = (u64)&&return0670;
   goto carinternal;
-return0302:
+return0670:
   r0 = *(u64 *)sp;
   *(u64 *)&processor->linkage = zero;
-  sp = sp + 8;
+  sp = sp + 8;   
   goto *r0; /* ret */
 
 /* end CarSubroutine */
@@ -69,20 +69,20 @@ return0302:
 
 cdrsubroutine:
   if (_trace) printf("cdrsubroutine:\n");
-  sp = sp + -8;
+  sp = sp + -8;   
   *(u64 *)&processor->linkage = r0;
   t11 = *(u64 *)&(processor->stackcachebasevma);
-  /* Size of the stack cache (words) */
+		/* Size of the stack cache (words) */
   t12 = *(s32 *)&processor->scovlimit;
   r0 = r0 + 4;
   *(u64 *)&processor->restartsp = iSP;
   *(u64 *)sp = r0;
-  r0 = (u64)&&return0303;
+  r0 = (u64)&&return0671;
   goto cdrinternal;
-return0303:
+return0671:
   r0 = *(u64 *)sp;
   *(u64 *)&processor->linkage = zero;
-  sp = sp + 8;
+  sp = sp + 8;   
   goto *r0; /* ret */
 
 /* end CdrSubroutine */
@@ -91,20 +91,20 @@ return0303:
 
 carcdrsubroutine:
   if (_trace) printf("carcdrsubroutine:\n");
-  sp = sp + -8;
+  sp = sp + -8;   
   *(u64 *)&processor->linkage = r0;
   t11 = *(u64 *)&(processor->stackcachebasevma);
-  /* Size of the stack cache (words) */
+		/* Size of the stack cache (words) */
   t12 = *(s32 *)&processor->scovlimit;
   r0 = r0 + 4;
   *(u64 *)&processor->restartsp = iSP;
   *(u64 *)sp = r0;
-  r0 = (u64)&&return0304;
+  r0 = (u64)&&return0672;
   goto carcdrinternal;
-return0304:
+return0672:
   r0 = *(u64 *)sp;
   *(u64 *)&processor->linkage = zero;
-  sp = sp + 8;
+  sp = sp + 8;   
   goto *r0; /* ret */
 
 /* end CarCdrSubroutine */

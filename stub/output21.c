@@ -21,28 +21,25 @@ DoAddBignumStepIM:
   /* This sequence is lukewarm */
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);
-  goto begindoaddbignumstep;
+  goto begindoaddbignumstep;   
 #ifdef TRACING
 #endif
 
 DoAddBignumStepSP:
   if (_trace) printf("DoAddBignumStepSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdoaddbignumstep;
+  goto headdoaddbignumstep;   
 #endif
 
 DoAddBignumStepLP:
   if (_trace) printf("DoAddBignumStepLP:\n");
 #ifdef TRACING
-  goto headdoaddbignumstep;
+  goto headdoaddbignumstep;   
 #endif
 
 DoAddBignumStepFP:
@@ -50,59 +47,53 @@ DoAddBignumStepFP:
 
 headdoaddbignumstep:
   if (_trace) printf("headdoaddbignumstep:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindoaddbignumstep:
   if (_trace) printf("begindoaddbignumstep:\n");
   /* arg1 has the operand, not sign extended if immediate. */
-  /* Get arg2 */
+		/* Get arg2 */
   arg2 = *(s32 *)iSP;
-  /* and its tag */
+		/* and its tag */
   t2 = *(s32 *)(iSP + 4);
   t3 = arg1 >> 32;
-  /* Strip type from arg3 */
-  arg1 = (u32)arg1;
+  arg1 = (u32)arg1;   		// Strip type from arg3 
   t4 = t3 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto addbignumsteplose;
-  /* Get arg1 */
+		/* Get arg1 */
   arg3 = *(s32 *)(iSP + -8);
-  /* and its tag */
+		/* and its tag */
   t1 = *(s32 *)(iSP + -4);
-  /* Clear sign extension from arg2 */
-  arg2 = (u32)arg2;
+  arg2 = (u32)arg2;   		// Clear sign extension from arg2 
   t4 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto addbignumsteplose;
-  /* Clear sign extension */
-  arg3 = (u32)arg3;
+  arg3 = (u32)arg3;   		// Clear sign extension 
   t4 = t1 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto addbignumsteplose;
   arg4 = arg1 + arg2;
   arg5 = arg3 + arg4;
-  /* Shift the carry into arg6 */
+		/* Shift the carry into arg6 */
   arg6 = arg5 >> 32;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* Store fixnum result */
+		/* Store fixnum result */
   *(u32 *)(iSP + -8) = arg5;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + -4) = t1;
-  /* Store the carry if any */
+		/* Store the carry if any */
   *(u32 *)iSP = arg6;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 4) = t1;
-  goto cachevalid;
+  goto cachevalid;   
 
 addbignumsteplose:
   if (_trace) printf("addbignumsteplose:\n");
@@ -127,28 +118,25 @@ DoSubBignumStepIM:
   /* This sequence is lukewarm */
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);
-  goto begindosubbignumstep;
+  goto begindosubbignumstep;   
 #ifdef TRACING
 #endif
 
 DoSubBignumStepSP:
   if (_trace) printf("DoSubBignumStepSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdosubbignumstep;
+  goto headdosubbignumstep;   
 #endif
 
 DoSubBignumStepLP:
   if (_trace) printf("DoSubBignumStepLP:\n");
 #ifdef TRACING
-  goto headdosubbignumstep;
+  goto headdosubbignumstep;   
 #endif
 
 DoSubBignumStepFP:
@@ -156,67 +144,57 @@ DoSubBignumStepFP:
 
 headdosubbignumstep:
   if (_trace) printf("headdosubbignumstep:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindosubbignumstep:
   if (_trace) printf("begindosubbignumstep:\n");
   /* arg1 has the operand, not sign extended if immediate. */
-  /* Get arg2 */
+		/* Get arg2 */
   arg2 = *(s32 *)iSP;
-  /* and its tag */
+		/* and its tag */
   t2 = *(s32 *)(iSP + 4);
   t3 = arg1 >> 32;
-  /* Strip type from arg3 */
-  arg1 = (u32)arg1;
+  arg1 = (u32)arg1;   		// Strip type from arg3 
   t4 = t3 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto subbignumsteplose;
-  /* Get arg1 */
+		/* Get arg1 */
   arg3 = *(s32 *)(iSP + -8);
-  /* and its tag */
+		/* and its tag */
   t1 = *(s32 *)(iSP + -4);
-  /* Clear sign extension from arg2 */
-  arg2 = (u32)arg2;
+  arg2 = (u32)arg2;   		// Clear sign extension from arg2 
   t4 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto subbignumsteplose;
-  /* Clear sign extension */
-  arg3 = (u32)arg3;
+  arg3 = (u32)arg3;   		// Clear sign extension 
   t4 = t1 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto subbignumsteplose;
-  /* arg1-arg2 */
+		/* arg1-arg2 */
   arg4 = arg3 - arg2;
-  /* arg6=1 if we borrowed in 1st step */
-  arg6 = ((s64)arg4 < (s64)zero) ? 1 : 0;
-  /* Truncate 1st step to 32-bits */
-  arg4 = (u32)arg4;
-  /* (arg1-arg2)-arg3 */
+  arg6 = ((s64)arg4 < (s64)zero) ? 1 : 0;   		// arg6=1 if we borrowed in 1st step 
+  arg4 = (u32)arg4;   		// Truncate 1st step to 32-bits 
+		/* (arg1-arg2)-arg3 */
   arg5 = arg4 - arg1;
-  /* t6=1 if we borrowed in 2nd step */
-  t6 = ((s64)arg5 < (s64)zero) ? 1 : 0;
+  t6 = ((s64)arg5 < (s64)zero) ? 1 : 0;   		// t6=1 if we borrowed in 2nd step 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* Store fixnum result */
+		/* Store fixnum result */
   *(u32 *)(iSP + -8) = arg5;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + -4) = t1;
-  /* Compute borrow */
-  arg6 = arg6 + t6;
-  /* Store the borrow if any */
+  arg6 = arg6 + t6;		// Compute borrow 
+		/* Store the borrow if any */
   *(u32 *)iSP = arg6;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 4) = t1;
-  goto cachevalid;
+  goto cachevalid;   
 
 subbignumsteplose:
   if (_trace) printf("subbignumsteplose:\n");
@@ -241,28 +219,25 @@ DoMultiplyBignumStepIM:
   /* This sequence is lukewarm */
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);
-  goto begindomultiplybignumstep;
+  goto begindomultiplybignumstep;   
 #ifdef TRACING
 #endif
 
 DoMultiplyBignumStepSP:
   if (_trace) printf("DoMultiplyBignumStepSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdomultiplybignumstep;
+  goto headdomultiplybignumstep;   
 #endif
 
 DoMultiplyBignumStepLP:
   if (_trace) printf("DoMultiplyBignumStepLP:\n");
 #ifdef TRACING
-  goto headdomultiplybignumstep;
+  goto headdomultiplybignumstep;   
 #endif
 
 DoMultiplyBignumStepFP:
@@ -270,47 +245,43 @@ DoMultiplyBignumStepFP:
 
 headdomultiplybignumstep:
   if (_trace) printf("headdomultiplybignumstep:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindomultiplybignumstep:
   if (_trace) printf("begindomultiplybignumstep:\n");
   /* arg1 has the operand, not sign extended if immediate. */
-  /* Get arg1 */
+		/* Get arg1 */
   arg2 = *(s32 *)iSP;
   t1 = *(s32 *)(iSP + 4);
   t2 = arg1 >> 32;
-  /* Strip type from arg2 */
-  arg1 = (u32)arg1;
+  arg1 = (u32)arg1;   		// Strip type from arg2 
   t4 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto multbignumsteplose;
-  arg2 = (u32)arg2;
+  arg2 = (u32)arg2;   
   t4 = t1 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto multbignumsteplose;
-  /* arg1*arg2 */
+		/* arg1*arg2 */
   arg3 = arg2 * arg1;
-  /* arg6=high order word */
-  arg6 = (u32)(arg3 >> ((4&7)*8));
+  arg6 = (u32)(arg3 >> ((4&7)*8));   		// arg6=high order word 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* Store fixnum result ls word */
+		/* Store fixnum result ls word */
   *(u32 *)iSP = arg3;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 4) = t1;
-  /* Store ms word */
+		/* Store ms word */
   *(u32 *)(iSP + 8) = arg6;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 12) = t1;
   iSP = iSP + 8;
-  goto cachevalid;
+  goto cachevalid;   
 
 multbignumsteplose:
   if (_trace) printf("multbignumsteplose:\n");
@@ -335,28 +306,25 @@ DoDivideBignumStepIM:
   /* This sequence is lukewarm */
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);
-  goto begindodividebignumstep;
+  goto begindodividebignumstep;   
 #ifdef TRACING
 #endif
 
 DoDivideBignumStepSP:
   if (_trace) printf("DoDivideBignumStepSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdodividebignumstep;
+  goto headdodividebignumstep;   
 #endif
 
 DoDivideBignumStepLP:
   if (_trace) printf("DoDivideBignumStepLP:\n");
 #ifdef TRACING
-  goto headdodividebignumstep;
+  goto headdodividebignumstep;   
 #endif
 
 DoDivideBignumStepFP:
@@ -364,56 +332,50 @@ DoDivideBignumStepFP:
 
 headdodividebignumstep:
   if (_trace) printf("headdodividebignumstep:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindodividebignumstep:
   if (_trace) printf("begindodividebignumstep:\n");
   /* arg1 has the operand, not sign extended if immediate. */
-  /* Get arg2 */
+		/* Get arg2 */
   arg2 = *(s32 *)iSP;
   t1 = *(s32 *)(iSP + 4);
   t2 = arg1 >> 32;
-  arg1 = (u32)arg1;
+  arg1 = (u32)arg1;   
   t4 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto divbignumsteplose1;
-  /* J. if division by zero */
-  if (arg1 == 0)
+  if (arg1 == 0) 		// J. if division by zero 
     goto divbignumsteplose2;
-  arg2 = (u32)arg2;
-  /* Get arg1 */
+  arg2 = (u32)arg2;   
+		/* Get arg1 */
   arg3 = *(s32 *)(iSP + -8);
   t3 = *(s32 *)(iSP + -4);
   t4 = t1 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto divbignumsteplose1;
-  /* arg2=(ash arg2 32) */
+		/* arg2=(ash arg2 32) */
   arg2 = arg2 << 32;
-  arg3 = (u32)arg3;
+  arg3 = (u32)arg3;   
   t4 = t3 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto divbignumsteplose1;
-  /* arg1+(ash arg2 32) */
-  arg4 = arg3 | arg2;
-  /* t1 is now the quotient */
-  t1 = arg4 / arg1;
+  arg4 = arg3 | arg2;		// arg1+(ash arg2 32) 
+  t1 = arg4 / arg1;   		// t1 is now the quotient 
   t2 = t1 * arg1;
-  /* t2 is now the remainder */
+		/* t2 is now the remainder */
   t2 = arg4 - t2;
-  /* store quotient (already fixnum) */
+		/* store quotient (already fixnum) */
   *(u32 *)(iSP + -8) = t1;
-  /* store remainder (already fixnum) */
+		/* store remainder (already fixnum) */
   *(u32 *)iSP = t2;
-  goto NEXTINSTRUCTION;
+  goto NEXTINSTRUCTION;   
 
 divbignumsteplose1:
   if (_trace) printf("divbignumsteplose1:\n");
@@ -442,37 +404,34 @@ dolshcbignumstep:
 DoLshcBignumStepIM:
   if (_trace) printf("DoLshcBignumStepIM:\n");
   /* This sequence only sucks a moderate amount */
-  /* sign extend the byte argument. */
+		/* sign extend the byte argument. */
   arg2 = arg2 << 56;
 
-g8885:
-  if (_trace) printf("g8885:\n");
-  /* Rest of sign extension */
+g30554:
+  if (_trace) printf("g30554:\n");
+		/* Rest of sign extension */
   arg2 = (s64)arg2 >> 56;
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);
-  goto begindolshcbignumstep;
+  goto begindolshcbignumstep;   
 #ifdef TRACING
 #endif
 
 DoLshcBignumStepSP:
   if (_trace) printf("DoLshcBignumStepSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto headdolshcbignumstep;
+  goto headdolshcbignumstep;   
 #endif
 
 DoLshcBignumStepLP:
   if (_trace) printf("DoLshcBignumStepLP:\n");
 #ifdef TRACING
-  goto headdolshcbignumstep;
+  goto headdolshcbignumstep;   
 #endif
 
 DoLshcBignumStepFP:
@@ -480,56 +439,51 @@ DoLshcBignumStepFP:
 
 headdolshcbignumstep:
   if (_trace) printf("headdolshcbignumstep:\n");
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
-  /* Get the operand */
+		/* Get the operand */
   arg1 = *(u64 *)arg1;
 
 begindolshcbignumstep:
   if (_trace) printf("begindolshcbignumstep:\n");
   /* arg1 has the operand, sign extended if immediate. */
-  /* Get arg2 */
+		/* Get arg2 */
   arg2 = *(s32 *)iSP;
   t2 = *(s32 *)(iSP + 4);
-  /* Pop Stack */
+		/* Pop Stack */
   iSP = iSP - 8;
   t3 = arg1 >> 32;
-  /* Strip type from arg3 */
-  arg1 = (u32)arg1;
+  arg1 = (u32)arg1;   		// Strip type from arg3 
   t4 = t3 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto lshcbignumsteplose;
-  arg2 = (u32)arg2;
-  /* Get arg1 */
+  arg2 = (u32)arg2;   
+		/* Get arg1 */
   arg3 = *(s32 *)iSP;
   t1 = *(s32 *)(iSP + 4);
   t4 = t2 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto lshcbignumsteplose;
-  /* arg2=(ash arg2 32) */
+		/* arg2=(ash arg2 32) */
   arg2 = arg2 << 32;
-  arg3 = (u32)arg3;
+  arg3 = (u32)arg3;   
   t4 = t1 - Type_Fixnum;
-  /* Strip CDR code */
-  t4 = t4 & 63;
-  if (t4 != 0)
+  t4 = t4 & 63;		// Strip CDR code 
+  if (t4 != 0)   
     goto lshcbignumsteplose;
-  /* arg1+(ash arg2 32) */
-  arg4 = arg3 | arg2;
+  arg4 = arg3 | arg2;		// arg1+(ash arg2 32) 
   arg5 = arg4 << (arg1 & 63);
-  /* Extract the result */
+		/* Extract the result */
   arg6 = (s64)arg5 >> 32;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-  /* Store the result as a fixnum */
+		/* Store the result as a fixnum */
   *(u32 *)iSP = arg6;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iSP + 4) = t1;
-  goto cachevalid;
+  goto cachevalid;   
 
 lshcbignumsteplose:
   if (_trace) printf("lshcbignumsteplose:\n");

@@ -18,22 +18,19 @@ domessagedispatch:
 
 DoMessageDispatchSP:
   if (_trace) printf("DoMessageDispatchSP:\n");
-  /* Assume SP mode */
-  arg1 = arg5;
-  /* SP-pop mode */
-  if (arg2 == 0)
+  arg1 = arg5;		// Assume SP mode 
+  if (arg2 == 0)   		// SP-pop mode 
     arg1 = iSP;
-  /* Adjust SP if SP-pop mode */
-  if (arg2 == 0)
+  if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
 #ifdef TRACING
-  goto begindomessagedispatch;
+  goto begindomessagedispatch;   
 #endif
 
 DoMessageDispatchLP:
   if (_trace) printf("DoMessageDispatchLP:\n");
 #ifdef TRACING
-  goto begindomessagedispatch;
+  goto begindomessagedispatch;   
 #endif
 
 DoMessageDispatchFP:
@@ -42,70 +39,66 @@ DoMessageDispatchFP:
 begindomessagedispatch:
   if (_trace) printf("begindomessagedispatch:\n");
   /* arg1 has the operand address. */
-  /* Compute operand address */
+		/* Compute operand address */
   arg1 = (arg2 * 8) + arg1;
   arg2 = *(s32 *)&processor->control;
-  /* get message tag and data */
+		/* get message tag and data */
   arg1 = *(s32 *)(iFP + 28);
   t1 = *(s32 *)(iFP + 24);
-  /* get number of arguments */
-  arg5 = arg2 & 255;
-  /* get instance tag and data */
+  arg5 = arg2 & 255;		// get number of arguments 
+		/* get instance tag and data */
   arg3 = *(s32 *)(iFP + 20);
   arg4 = *(s32 *)(iFP + 16);
-  /* done if 2 or more arguments (plus 2 extra words) */
+		/* done if 2 or more arguments (plus 2 extra words) */
   arg5 = arg5 - 4;
-  if ((s64)arg5 < 0)
+  if ((s64)arg5 < 0)   
     goto verifygenericarity;
-  t1 = (u32)t1;
-  arg4 = (u32)arg4;
-  r0 = (u64)&&return0244;
+  t1 = (u32)t1;   
+  arg4 = (u32)arg4;   
+  r0 = (u64)&&return0612;
   goto lookuphandler;
-return0244:
-  /* clobbered by |LookupHandler| */
+return0612:
+		/* clobbered by |LookupHandler| */
   arg4 = *(u64 *)(iFP + 16);
   t3 = t4 - Type_EvenPC;
-  /* Strip CDR code, low bits */
-  t3 = t3 & 62;
-  if (t3 != 0)
-    goto g7120;
-  /* Strip CDR code */
-  t3 = t6 & 63;
+  t3 = t3 & 62;		// Strip CDR code, low bits 
+  if (t3 != 0)   
+    goto g28789;
+  t3 = t6 & 63;		// Strip CDR code 
   t3 = t3 - Type_NIL;
-  if (t3 == 0)
-    goto g7118;
+  if (t3 == 0) 
+    goto g28787;
   *(u32 *)(iFP + 16) = t7;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iFP + 20) = t6;
-  goto g7119;
+  goto g28788;   
 
-g7118:
-  if (_trace) printf("g7118:\n");
-  /* swap message/instance in the frame */
+g28787:
+  if (_trace) printf("g28787:\n");
+		/* swap message/instance in the frame */
   *(u32 *)(iFP + 16) = t1;
-  /* write the stack cache */
+		/* write the stack cache */
   *(u32 *)(iFP + 20) = arg1;
 
-g7119:
-  if (_trace) printf("g7119:\n");
+g28788:
+  if (_trace) printf("g28788:\n");
   *(u64 *)(iFP + 24) = arg4;
   /* Convert real continuation to PC. */
   iPC = t4 & 1;
   iPC = t9 + iPC;
   iPC = t9 + iPC;
-  goto interpretinstructionforjump;
+  goto interpretinstructionforjump;   
 
-g7120:
-  if (_trace) printf("g7120:\n");
+g28789:
+  if (_trace) printf("g28789:\n");
   /* Convert stack cache address to VMA */
   t2 = *(u64 *)&(processor->stackcachedata);
   t3 = *(u64 *)&(processor->stackcachebasevma);
-  /* stack cache base relative offset */
+		/* stack cache base relative offset */
   t2 = iSP - t2;
-  /* convert byte address to word address */
+		/* convert byte address to word address */
   t2 = t2 >> 3;
-  /* reconstruct VMA */
-  t3 = t2 + t3;
+  t3 = t2 + t3;		// reconstruct VMA 
   arg5 = t3;
   arg2 = 37;
   goto illegaloperand;
