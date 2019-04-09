@@ -1,5 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: SCT; Base: 10; Lowercase: Yes -*-
-
 
 ;;; DSDL files
 

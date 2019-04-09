@@ -430,14 +430,14 @@
 (defmacro find-memory-subroutine
 	  ((vma tag data cycle temp temp2 temp3 temp4)
 	   (vmdata vmtags base limit))
-  #+Genera (declare (values subr args linkage))
+  (declare (values subr args linkage))
   `(stack-let ((args (list ,vma ,tag ,data))
 	             (temps (list ,temp ,temp2 ,temp3 ,temp4))
 	             (caches (list ,vmdata ,vmtags ,base ,limit)))
      (funcall 'find-memory-subr-internal args ,cycle temps caches)))
 
 (defun find-memory-subr-internal (args cycle temps caches)
-  #+Genera (declare (values subr args linkage))
+  (declare (values subr args linkage))
   (let () #+ign ((args (map 'list #'real-reg args))
 		             (temps (map 'list #'real-reg temps))
 		             (caches (map 'list #'real-reg caches)))
@@ -505,14 +505,8 @@
 			                    (shiftf cycle :general))))
 	       (cycle-mask (unless (eq cycle :general)
 		                   (intern (concatenate 'string (string cycle) "_MASK"))))
-	       #+obsolete
-	       (cantransport (member cycle '(:general
-					                             processorstate_dataread
-					                             processorstate_bindread
-					                             processorstate_bindreadnomonitor
-					                             processorstate_header
-					                             processorstate_scavenge)))
-	       (canindirect (not (member cycle '(processorstate_scavenge
+
+         (canindirect (not (member cycle '(processorstate_scavenge
 					                                 processorstate_gccopy
 					                                 processorstate_raw
 					                                 processorstate_rawtranslate))))
@@ -763,7 +757,7 @@
 	       (BR zero ,done))
 	     *function-epilogue*))
     `(
-                                        ;     (force-alignment)				;tuned for aligned
+      ;; (force-alignment)				;tuned for aligned
       ;; VM-write to validate access, but then check for cached
       ;; Below is in-lined:
       ;;   (VM-write vma tag data temp temp2 temp3 temp4)

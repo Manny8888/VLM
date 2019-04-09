@@ -1,8 +1,5 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: COMMON-LISP-USER; Base: 10; Lowercase: Yes -*-
 
-(in-package "COMMON-LISP-USER")
-
-;;; Compile the Alpha AXP (G5) assembly source files using OpenMCL
+(in-package :common-lisp-user)
 
 ;;; TODO: Integrate with MAKE?
 
@@ -15,39 +12,39 @@
 
 (defun compile-if-needed (file &optional force? &rest compile-options)
   (let* ((input  (merge-pathnames file (make-pathname :type "lisp")))
-	 (output (apply #'compile-file-pathname input compile-options)))
+	       (output (apply #'compile-file-pathname input compile-options)))
     (if (and (not force?)
-	     (probe-file output)
-	     (> (file-write-date output) (file-write-date input)))
-	(load output :verbose t)
+	           (probe-file output)
+	           (> (file-write-date output) (file-write-date input)))
+	      (load output :verbose t)
         (apply #'compile-file input :verbose t :load t compile-options))))
 
 (defun dsdl-if-needed (file &optional force?)
   (let* ((input  (pathname file))
-	 (output (merge-pathnames (make-pathname :type "lisp") input)))
+	       (output (merge-pathnames (make-pathname :type "lisp") input)))
     (when (or force?
-	      (not (probe-file output))
-	      (> (file-write-date input) (file-write-date output)))
+	            (not (probe-file output))
+	            (> (file-write-date input) (file-write-date output)))
       (let ((*package* (find-package "ALPHA-AXP-INTERNALS")))
-	(format t "~&;Translating ~S... " input)
-	(funcall (intern "DSDL" "ALPHA-AXP-INTERNALS") input '(:c :asm :lisp))))
+	      (format t "~&;Translating ~S... " input)
+	      (funcall (intern "DSDL" "ALPHA-AXP-INTERNALS") input '(:c :asm :lisp))))
     (load output :verbose t)))
 
 (defun assemble (file)
   (let* ((input  (merge-pathnames file (make-pathname :type "as")))
-	 (output (merge-pathnames (make-pathname :type "s") input)))
+	       (output (merge-pathnames (make-pathname :type "s") input)))
     (format t "~&;Translating ~S... " input)
     (funcall (intern "PROCESS-ASM-SOURCE" "ALPHA-AXP-INTERNALS") input output)))
 
 (defun translate ()
   ;; The actual emulator core
   (dolist (file '("ifunhead" "idispat" "ifuncom1" "ifuncom2"
-		  "ifungene" "ifunfcal" "ifunloop" "ifunlist"
-		  "ifuninst" "ifunmath" "ifunarra" "ifunmove"
-		  "ifunpred" "ifunsubp" "ifunfext" "ifunlexi"
-		  "ifunbits" "ifunblok" "ifunbind" "ifunfull"
-		  "ifunbnum" "ifuntrap" "ihalt" "idouble"
-		  "ifunjosh" "ifuntran"))
+		              "ifungene" "ifunfcal" "ifunloop" "ifunlist"
+		              "ifuninst" "ifunmath" "ifunarra" "ifunmove"
+		              "ifunpred" "ifunsubp" "ifunfext" "ifunlexi"
+		              "ifunbits" "ifunblok" "ifunbind" "ifunfull"
+		              "ifunbnum" "ifuntrap" "ihalt" "idouble"
+		              "ifunjosh" "ifuntran"))
     (assemble (format nil "vlm:alpha-emulator;~A" file))))
 
 (defun build (&optional force?)
@@ -74,10 +71,10 @@
 
   ;; Macros
   (dolist (file '("alphamac" "intrpmac" "stacklis"
-		  "memoryem" "imaclist" "fcallmac" "imacbits"
-		  "imacblok" "imaclexi" "imacgene" "imacinst" "imacialu"
-		  "imacloop" "imacmath" "imacbind" "imacjosh" "imacarra"
-		  "imacpred" "imacsubp" "imactrap"))
+		              "memoryem" "imaclist" "fcallmac" "imacbits"
+		              "imacblok" "imaclexi" "imacgene" "imacinst" "imacialu"
+		              "imacloop" "imacmath" "imacbind" "imacjosh" "imacarra"
+		              "imacpred" "imacsubp" "imactrap"))
     (compile-if-needed (format nil "vlm:alpha-emulator;~A" file) force?))
 
   ;; The actual emulator core

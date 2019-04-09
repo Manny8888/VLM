@@ -7,39 +7,6 @@
 ;;; contain any Ivory related macros.  Ivory related macros should live
 ;;; in ivorymacs.lisp.
 
-;; #-Genera (defconstant 1_0  #.(ash 1  0))
-;; #-Genera (defconstant 1_1  #.(ash 1  1))
-;; #-Genera (defconstant 1_2  #.(ash 1  2))
-;; #-Genera (defconstant 1_3  #.(ash 1  3))
-;; #-Genera (defconstant 1_4  #.(ash 1  4))
-;; #-Genera (defconstant 1_5  #.(ash 1  5))
-;; #-Genera (defconstant 1_6  #.(ash 1  6))
-;; #-Genera (defconstant 1_7  #.(ash 1  7))
-;; #-Genera (defconstant 1_8  #.(ash 1  8))
-;; #-Genera (defconstant 1_9  #.(ash 1  9))
-;; #-Genera (defconstant 1_10 #.(ash 1 10))
-;; #-Genera (defconstant 1_11 #.(ash 1 11))
-;; #-Genera (defconstant 1_12 #.(ash 1 12))
-;; #-Genera (defconstant 1_13 #.(ash 1 13))
-;; #-Genera (defconstant 1_14 #.(ash 1 14))
-;; #-Genera (defconstant 1_15 #.(ash 1 15))
-;; #-Genera (defconstant 1_16 #.(ash 1 16))
-;; #-Genera (defconstant 1_17 #.(ash 1 17))
-;; #-Genera (defconstant 1_18 #.(ash 1 18))
-;; #-Genera (defconstant 1_19 #.(ash 1 19))
-;; #-Genera (defconstant 1_20 #.(ash 1 20))
-;; #-Genera (defconstant 1_21 #.(ash 1 21))
-;; #-Genera (defconstant 1_22 #.(ash 1 22))
-;; #-Genera (defconstant 1_23 #.(ash 1 23))
-;; #-Genera (defconstant 1_24 #.(ash 1 24))
-;; #-Genera (defconstant 1_25 #.(ash 1 25))
-;; #-Genera (defconstant 1_26 #.(ash 1 26))
-;; #-Genera (defconstant 1_27 #.(ash 1 27))
-;; #-Genera (defconstant 1_28 #.(ash 1 28))
-;; #-Genera (defconstant 1_29 #.(ash 1 29))
-;; #-Genera (defconstant 1_30 #.(ash 1 30))
-;; #-Genera (defconstant 1_31 #.(ash 1 31))
-
 ;;; These standard code sequence macros are extracted from A-11 Alpha architecture handbook.
 ;;; reg is the register to be loaded.
 ;;; preg is the pointer register.
@@ -216,16 +183,14 @@
   `((passthru ,(format nil "#include ~s~%" name))))
 
 (defmacro define-procedure (name (&rest args) &body body &environment env)
-  (let ((*function-being-processed* name))
+  (let ((*function-being-processed* name)) 
     `((start ,name ,(length args))
       (label ,name)
       ,@(collecting-function-epilogue body env)
       (end ,name))))
 
-;; #+Genera
+;; ;; This is conditioned by #+Genera 
 ;; (zwei:defindentation (define-procedure . indent-define-procedure))
-
-;; #+Genera
 ;; (defun indent-define-procedure (def bp last-paren &rest stuff)
 ;;   (declare (ignore def last-paren stuff))
 ;;   (let* ((line (zwei:bp-line bp))
@@ -372,9 +337,7 @@
 (defmacro load-constant (reg constant &optional comment)
   (declare (ignore comment))
   (check-type constant fixnum)
-  ;; #+Genera (check-type constant fixnum)
-  ;; #-Genera (check-type constant (integer #.(- (expt 2 31)) #.(1- (expt 2 31))))
-  (let* ((low (dpb constant (byte 16 0) (- (ldb (byte 1 15) constant))))
+    (let* ((low (dpb constant (byte 16 0) (- (ldb (byte 1 15) constant))))
 	       (high (%32-bit-difference constant low)))
     (assert (zerop (ldb (byte 16 0) high)) ()
 	          "Don't know how to load ~D" constant)

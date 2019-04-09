@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
@@ -387,7 +386,6 @@ shouldn't happen for that instruction, or a fixnum with the following fields:
 (byte 1 3)   0 if normal, 1 if arithmetic dispatch.
 ||#
 
-;; ---*** OpenMCL fills an array with 0 by default???
 (defvar *instruction-exception-info* (make-array 400 :initial-element nil))
 (defvar *ivory-instruction-opcode-table* (make-hash-table))
 
@@ -720,7 +718,7 @@ shouldn't happen for that instruction, or a fixnum with the following fields:
 		    arity))))
 
 (defun instruction-exception-info (opcode)
-  #+Genera (declare (values arity stack? arithmetic?))
+  (declare (values arity stack? arithmetic?))
   (let ((info (aref *instruction-exception-info* opcode)))
     (if (not (null info))
 	(values (ldb (byte 3 0) info)
