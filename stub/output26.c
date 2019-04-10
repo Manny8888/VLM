@@ -10,13 +10,10 @@
 
 nativeexception:
   if (_trace) printf("nativeexception:\n");
-		/* Load linkage to escape block */
-  t1 = *(u64 *)&(processor->linkage);
-		/* Re-load resumemulator */
-  r0 = *(u64 *)&(processor->resumeema);
-		/* Restore SP (Just in case?) */
-  iSP = *(u64 *)&(processor->restartsp);
-  *(u64 *)&processor->linkage = zero;
+  t1 = *(u64 *)&(processor->linkage);   		// Load linkage to escape block 
+  r0 = *(u64 *)&(processor->resumeema);   		// Re-load resumemulator 
+  iSP = *(u64 *)&(processor->restartsp);   		// Restore SP (Just in case?) 
+  *(u64 *)&processor->linkage = zero;   
   goto *t1; /* ret */
 
 /* end NativeException */
@@ -25,20 +22,14 @@ nativeexception:
 
 padpastaref1:
   if (_trace) printf("padpastaref1:\n");
-		/* Load linkage to escape block */
-  t1 = *(u64 *)&(processor->linkage);
-		/* Re-load resumemulator */
-  r0 = *(u64 *)&(processor->resumeema);
-		/* Restore SP (Just in case?) */
-  iSP = *(u64 *)&(processor->restartsp);
-  *(u64 *)&processor->linkage = zero;
-		/* Load linkage to escape block */
-  t1 = *(u64 *)&(processor->linkage);
-		/* Re-load resumemulator */
-  r0 = *(u64 *)&(processor->resumeema);
-		/* Restore SP (Just in case?) */
-  iSP = *(u64 *)&(processor->restartsp);
-  *(u64 *)&processor->linkage = zero;
+  t1 = *(u64 *)&(processor->linkage);   		// Load linkage to escape block 
+  r0 = *(u64 *)&(processor->resumeema);   		// Re-load resumemulator 
+  iSP = *(u64 *)&(processor->restartsp);   		// Restore SP (Just in case?) 
+  *(u64 *)&processor->linkage = zero;   
+  t1 = *(u64 *)&(processor->linkage);   		// Load linkage to escape block 
+  r0 = *(u64 *)&(processor->resumeema);   		// Re-load resumemulator 
+  iSP = *(u64 *)&(processor->restartsp);   		// Restore SP (Just in case?) 
+  *(u64 *)&processor->linkage = zero;   
   goto *t1; /* ret */
 
 /* end PadPastAref1 */
@@ -48,18 +39,17 @@ padpastaref1:
 carsubroutine:
   if (_trace) printf("carsubroutine:\n");
   sp = sp + -8;   
-  *(u64 *)&processor->linkage = r0;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
+  *(u64 *)&processor->linkage = r0;   
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
   r0 = r0 + 4;
-  *(u64 *)&processor->restartsp = iSP;
-  *(u64 *)sp = r0;
-  r0 = (u64)&&return0670;
+  *(u64 *)&processor->restartsp = iSP;   
+  *(u64 *)sp = r0;   
+  r0 = (u64)&&return0357;
   goto carinternal;
-return0670:
-  r0 = *(u64 *)sp;
-  *(u64 *)&processor->linkage = zero;
+return0357:
+  r0 = *(u64 *)sp;   
+  *(u64 *)&processor->linkage = zero;   
   sp = sp + 8;   
   goto *r0; /* ret */
 
@@ -70,18 +60,17 @@ return0670:
 cdrsubroutine:
   if (_trace) printf("cdrsubroutine:\n");
   sp = sp + -8;   
-  *(u64 *)&processor->linkage = r0;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
+  *(u64 *)&processor->linkage = r0;   
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
   r0 = r0 + 4;
-  *(u64 *)&processor->restartsp = iSP;
-  *(u64 *)sp = r0;
-  r0 = (u64)&&return0671;
+  *(u64 *)&processor->restartsp = iSP;   
+  *(u64 *)sp = r0;   
+  r0 = (u64)&&return0358;
   goto cdrinternal;
-return0671:
-  r0 = *(u64 *)sp;
-  *(u64 *)&processor->linkage = zero;
+return0358:
+  r0 = *(u64 *)sp;   
+  *(u64 *)&processor->linkage = zero;   
   sp = sp + 8;   
   goto *r0; /* ret */
 
@@ -92,18 +81,17 @@ return0671:
 carcdrsubroutine:
   if (_trace) printf("carcdrsubroutine:\n");
   sp = sp + -8;   
-  *(u64 *)&processor->linkage = r0;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
+  *(u64 *)&processor->linkage = r0;   
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
   r0 = r0 + 4;
-  *(u64 *)&processor->restartsp = iSP;
-  *(u64 *)sp = r0;
-  r0 = (u64)&&return0672;
+  *(u64 *)&processor->restartsp = iSP;   
+  *(u64 *)sp = r0;   
+  r0 = (u64)&&return0359;
   goto carcdrinternal;
-return0672:
-  r0 = *(u64 *)sp;
-  *(u64 *)&processor->linkage = zero;
+return0359:
+  r0 = *(u64 *)sp;   
+  *(u64 *)&processor->linkage = zero;   
   sp = sp + 8;   
   goto *r0; /* ret */
 

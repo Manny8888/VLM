@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
@@ -84,57 +83,57 @@
 
 (defmacro alu-function-boolean (alu res op1 op2 temp)
   `((read-alu-boolean-function ,alu ,res)
-    (basic-dispatch ,res ,temp			;+++ efficancy hack pf
+    (basic-dispatch ,res ,temp          ;+++ efficancy hack pf
       (|BooleClear|
-	;; (BIS zero zero ,res)			;Commented out because res IS zero
-	)
+	     ;; (BIS zero zero ,res)			;Commented out because res IS zero
+	     )
       (|BooleAnd|
-	(AND ,op1 ,op2 ,res))
+	     (AND ,op1 ,op2 ,res))
       (|BooleAndC1|
-	(BIC ,op2 ,op1 ,res))
+	     (BIC ,op2 ,op1 ,res))
       (|Boole2|
-	(BIS ,op2 zero ,res))
+	     (BIS ,op2 zero ,res))
       (|BooleAndC2|
-	(BIC ,op1 ,op2 ,res))
+	     (BIC ,op1 ,op2 ,res))
       (|Boole1|
-	(BIS ,op1 zero ,res))
+	     (BIS ,op1 zero ,res))
       (|BooleXor|
-	(XOR ,op1 ,op2 ,res))
+	     (XOR ,op1 ,op2 ,res))
       (|BooleIor|
-	(BIS ,op1 ,op2 ,res))
+	     (BIS ,op1 ,op2 ,res))
       (|BooleNor|
-	(BIS ,op1 ,op2 ,res)
-	(ORNOT zero ,res ,res))
+	     (BIS ,op1 ,op2 ,res)
+	     (ORNOT zero ,res ,res))
       (|BooleEquiv|
-	(XOR ,op1 ,op2 ,res)
-	(ORNOT zero ,res ,res))
+	     (XOR ,op1 ,op2 ,res)
+	     (ORNOT zero ,res ,res))
       (|BooleC1|
-	(ORNOT zero ,op1 ,res))
+	     (ORNOT zero ,op1 ,res))
       (|BooleOrC1|
-	(ORNOT ,op2 ,op1 ,res))
+	     (ORNOT ,op2 ,op1 ,res))
       (|BooleC2|
-	(ORNOT zero ,op2 ,res))
+	     (ORNOT zero ,op2 ,res))
       (|BooleOrC2|
-	(BIC ,op1 ,op2 ,res))
+	     (BIC ,op1 ,op2 ,res))
       (|BooleNand|
-	(AND ,op1 ,op2 ,res))
+	     (AND ,op1 ,op2 ,res))
       (|BooleSet|
-	(ORNOT zero zero ,res)))))
+	     (ORNOT zero zero ,res)))))
 
 (defmacro alu-function-byte (alu op1 op2 res bgnd rot siz temp temp2)
-  (let ((hrl (gensym))
-	(mask temp2))
+  (let ((hrl (gensym "alu-function-byte"))
+	      (mask temp2))
     `((LDQ ,rot PROCESSORSTATE_BYTEROTATE (ivory) "Get rotate")
       (LDQ ,siz PROCESSORSTATE_BYTESIZE (ivory) "Get bytesize")
       (comment "Get background")
       (read-alu-byte-background ,alu ,bgnd)
       (basic-dispatch ,bgnd ,temp
-	(|ALUByteBackgroundOp1|
-	  (BIS ,op1 zero ,bgnd))
-	(|ALUByteBackgroundRotateLatch|
-	  (LDQ ,bgnd PROCESSORSTATE_ROTATELATCH (ivory)))
-	(|ALUByteBackgroundZero|
-	  (BIS zero zero ,bgnd)))
+	      (|ALUByteBackgroundOp1|
+	       (BIS ,op1 zero ,bgnd))
+	      (|ALUByteBackgroundRotateLatch|
+	       (LDQ ,bgnd PROCESSORSTATE_ROTATELATCH (ivory)))
+	      (|ALUByteBackgroundZero|
+	       (BIS zero zero ,bgnd)))
       (read-alu-byte-rotate-latch ,alu ,temp2)
       (SLL ,op2 ,rot ,res)
       (EXTLL ,res 4 ,temp)
@@ -142,36 +141,36 @@
       (BIS ,res ,temp ,res "OP2 rotated")
       (BEQ ,temp2 ,hrl "Don't update rotate latch if not requested")
       (STQ ,res PROCESSORSTATE_ROTATELATCH (ivory))
-    (label ,hrl)
+      (label ,hrl)
       (load-constant ,mask -2)
       (SLL ,mask ,siz ,mask)
       (ORNOT zero ,mask ,mask "Compute mask")
       (comment "Get byte function")
       (read-alu-byte-function ,alu ,temp)
       (basic-dispatch ,temp ,siz
-	(|ALUByteFunctionDpb|
-	  (SLL ,mask ,rot ,mask "Position mask"))
-	(|ALUByteFunctionLdb|))
+	      (|ALUByteFunctionDpb|
+	       (SLL ,mask ,rot ,mask "Position mask"))
+	      (|ALUByteFunctionLdb|))
       (AND ,res ,mask ,res "rotated&mask")
       (BIC ,bgnd ,mask ,bgnd "background&~mask")
       (BIS ,res ,bgnd ,res))))
 
 (defmacro alu-function-adder (alu op1 op2 res op2a carryin temp temp2)
-  (let ((skipcinupdate (gensym)))
+  (let ((skipcinupdate (gensym "alu-function-adder")))
     `((read-alu-adder-op2 ,alu ,temp)
       (read-alu-adder-carry-in ,alu ,carryin)
       (basic-dispatch ,temp ,temp2
-	(|ALUAdderOp2Op2|
-	  (BIS ,op2 zero ,op2a))
-	(|ALUAdderOp2Zero|
-	  (BIS zero zero ,op2a))
-	(|ALUAdderOp2Invert|
-	  (sign-extendq 32 ,op2 ,op2a)
-	  (SUBQ zero ,op2a ,op2a)
-	  (EXTLL ,op2a 0 ,op2a))
-	(|ALUAdderOp2MinusOne|
-	  (ORNOT zero zero ,op2a)
-	  (EXTLL ,op2a 0 ,op2a)))
+	      (|ALUAdderOp2Op2|
+	       (BIS ,op2 zero ,op2a))
+	      (|ALUAdderOp2Zero|
+	       (BIS zero zero ,op2a))
+	      (|ALUAdderOp2Invert|
+	       (sign-extendq 32 ,op2 ,op2a)
+	       (SUBQ zero ,op2a ,op2a)
+	       (EXTLL ,op2a 0 ,op2a))
+	      (|ALUAdderOp2MinusOne|
+	       (ORNOT zero zero ,op2a)
+	       (EXTLL ,op2a 0 ,op2a)))
       (ADDQ ,op1 ,op2a ,res)
       (ADDQ ,res ,carryin ,res)
       (SRL ,res 31 ,temp "Sign bit")
@@ -183,7 +182,7 @@
       (EXTLL ,res 4 ,temp "Get the carry")
       (write-alu-adder-carry-in ,alu ,temp ,temp2)
       (STQ ,alu PROCESSORSTATE_ALUANDROTATECONTROL (ivory))
-    (label ,skipcinupdate)
+      (label ,skipcinupdate)
       (CMPLT ,op1 ,op2a ,temp)
       (STQ ,temp PROCESSORSTATE_ALUBORROW (ivory))
       (sign-extendq 32 ,op1 ,op1)
@@ -196,86 +195,86 @@
   `((UnimplementedInstruction)))
 
 (defmacro alu-compute-condition (alu op1tag op2tag result condition temp temp2 temp3 temp4)
-  (let ((labone (gensym))
-	(labzero (gensym))
-	(done (gensym))
-	(ov temp2)
-	(bo temp3)
-	(lt temp4)
-	)
+  (let ((labone (gensym "alu-compute-condition"))
+	      (labzero (gensym "alu-compute-condition"))
+	      (done (gensym "alu-compute-condition"))
+	      (ov temp2)
+	      (bo temp3)
+	      (lt temp4)
+	      )
     `((read-alu-condition ,alu ,condition)
       (LDQ ,ov PROCESSORSTATE_ALUOVERFLOW (ivory))
       (LDQ ,bo PROCESSORSTATE_ALUBORROW (ivory))
       (LDQ ,lt PROCESSORSTATE_ALULESSTHAN (ivory))
       (basic-dispatch ,condition ,temp
         (|ALUConditionSignedLessThanOrEqual|
-	  (BNE ,lt ,labone)
-	  (BEQ ,result ,labone))
+	       (BNE ,lt ,labone)
+	       (BEQ ,result ,labone))
         (|ALUConditionSignedLessThan|
-	  (BNE ,lt ,labone))
+	       (BNE ,lt ,labone))
         (|ALUConditionNegative|
-	  (BLT ,result ,labone))
+	       (BLT ,result ,labone))
         (|ALUConditionSignedOverflow|
-	  (BNE ,ov ,labone))
+	       (BNE ,ov ,labone))
         (|ALUConditionUnsignedLessThanOrEqual|
-	  (BNE ,bo ,labone)
-	  (BEQ ,result ,labone))
+	       (BNE ,bo ,labone)
+	       (BEQ ,result ,labone))
         (|ALUConditionUnsignedLessThan|
-	  (BNE ,bo ,labone))
+	       (BNE ,bo ,labone))
         (|ALUConditionZero|
-	  (BEQ ,result ,labone))
+	       (BEQ ,result ,labone))
         (|ALUConditionHigh25Zero|
-	  (SRL ,result 7 ,condition)
-	  (BEQ ,condition ,labone))
+	       (SRL ,result 7 ,condition)
+	       (BEQ ,condition ,labone))
         (|ALUConditionEq|
-	  (BNE ,result ,labzero)
-	  (XOR ,op1tag ,op2tag ,temp)
-	  (TagType ,temp ,temp)
-	  (BEQ ,temp ,labone))
+	       (BNE ,result ,labzero)
+	       (XOR ,op1tag ,op2tag ,temp)
+	       (TagType ,temp ,temp)
+	       (BEQ ,temp ,labone))
         (|ALUConditionOp1Ephemeralp|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionResultTypeNil|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionOp2Fixnum|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionFalse|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionResultCdrLow|
-	  (TagCdr ,op1tag ,temp)
-	  (AND ,temp #x01 ,condition)
-	  (BR zero ,done))
+	       (TagCdr ,op1tag ,temp)
+	       (AND ,temp #x01 ,condition)
+	       (BR zero ,done))
         (|ALUConditionCleanupBitsSet|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionAddressInStackCache|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionExtraStackMode|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionFepMode|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionFpCoprocessorPresent|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionOp1Oldspacep|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionPendingSequenceBreakEnabled|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionOp1TypeAcceptable|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionOp1TypeCondition|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionStackCacheOverflow|
-	  (UnimplementedInstruction))		;+++ NYI
+	       (UnimplementedInstruction))		;+++ NYI
         (|ALUConditionOrLogicVariable|
-	  (UnimplementedInstruction))		;+++ NYI
-	(:else
-	  (UnimplementedInstruction))		;+++ NYI
-	)
-    (label ,labzero)
+	       (UnimplementedInstruction))		;+++ NYI
+	      (:else
+	       (UnimplementedInstruction))		;+++ NYI
+	      )
+      (label ,labzero)
       ;; Control arrives here iff the condition tested was false.
       (BIS zero zero ,condition)
       (BR zero ,done)
-    (label ,labone)
+      (label ,labone)
       (BIS zero 1 ,condition)
-    (label ,done)
+      (label ,done)
       ;; CONDITION is now 1 if the condition tested TRUE and 0 if it tested FALSE.
       ;; The condition sense will be 0 if we want to branch on TRUE and 1 to branch on FALSE.
       ;; Therefore, we can XOR the CONDITION and condition sense together to produce

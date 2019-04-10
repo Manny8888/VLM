@@ -1,28 +1,8 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: SYSTEM; Base: 10; Lowercase: Yes -*-
-;;; 
-;;;
 
 (in-package :alpha-axp-internals)
 
-;;(defsubst %32-bit-difference (x y)
-;;  (- x y))
-
 (defun %32-bit-difference (x y)
   (- x y))
-
-;; (export '(%logldb %logdpb %32-bit-difference))
-
-;; (ccl::defsubst %logldb (bytespec integer)
-;; (ldb bytespec integer))
-
-;; (ccl::defsubst %logdpb (value bytespec integer)
-;;   (let ((result (dpb value bytespec integer)))
-;;     (if (zerop (ldb (byte 1 31) result))
-;; 	result
-;;        (- (ldb (byte 31 0) (1+ (lognot result)))))))
-
-;;(ccl::defsubst %32-bit-difference (x y)
-;;  (- x y))
 
 ;; From: http://www.sbcl.org/manual/#Defining-Constants
 (defmacro define-constant (name value &optional doc)
@@ -48,6 +28,52 @@
 (defmacro defsysbyte (name size position)
   `(defsysconstant ,name (byte ,size ,position)))
 
+(defmacro %alu-function-dpb (background rotate-latch)
+  `(%logdpb  %alu-function-op-dpb (byte 3 3)
+	           (%logdpb ,rotate-latch (byte 1 2)
+		                  (%logdpb ,background (byte 2 0)
+			                         0))))
+(export '%alu-function-dpb)
+
+
+;;; Powers of 2 constants
+(define-constant 1_0  #.(ash 1  0))
+(define-constant 1_1  #.(ash 1  1))
+(define-constant 1_2  #.(ash 1  2))
+(define-constant 1_3  #.(ash 1  3))
+(define-constant 1_4  #.(ash 1  4))
+(define-constant 1_5  #.(ash 1  5))
+(define-constant 1_6  #.(ash 1  6))
+(define-constant 1_7  #.(ash 1  7))
+(define-constant 1_8  #.(ash 1  8))
+(define-constant 1_9  #.(ash 1  9))
+(define-constant 1_10 #.(ash 1 10))
+(define-constant 1_11 #.(ash 1 11))
+(define-constant 1_12 #.(ash 1 12))
+(define-constant 1_13 #.(ash 1 13))
+(define-constant 1_14 #.(ash 1 14))
+(define-constant 1_15 #.(ash 1 15))
+(define-constant 1_16 #.(ash 1 16))
+(define-constant 1_17 #.(ash 1 17))
+(define-constant 1_18 #.(ash 1 18))
+(define-constant 1_19 #.(ash 1 19))
+(define-constant 1_20 #.(ash 1 20))
+(define-constant 1_21 #.(ash 1 21))
+(define-constant 1_22 #.(ash 1 22))
+(define-constant 1_23 #.(ash 1 23))
+(define-constant 1_24 #.(ash 1 24))
+(define-constant 1_25 #.(ash 1 25))
+(define-constant 1_26 #.(ash 1 26))
+(define-constant 1_27 #.(ash 1 27))
+(define-constant 1_28 #.(ash 1 28))
+(define-constant 1_29 #.(ash 1 29))
+(define-constant 1_30 #.(ash 1 30))
+(define-constant 1_31 #.(ash 1 31))
+
+
+
+
+
 
 ;;;
 ;;; The following definitions are from SYS:I-SYS;SYSDEF.LISP ...
@@ -67,266 +93,262 @@
 ;;	dbg:*good-data-types* if it is indeed a good data type
 ;;	Send a message to the maintainer of the FEP-resident debugger.
 
-(DEFENUMERATED *DATA-TYPES* (
-   ;; Headers, special markers, and forwarding pointers.
-   DTP-NULL				  ;00 Unbound variable/function, uninitialized storage
-   DTP-MONITOR-FORWARD			  ;01 This cell being monitored
-   DTP-HEADER-P				  ;02 Structure header, with pointer field
-   DTP-HEADER-I				  ;03 Structure header, with immediate bits
-   DTP-EXTERNAL-VALUE-CELL-POINTER	  ;04 Invisible except for binding
-   DTP-ONE-Q-FORWARD			  ;05 Invisible pointer (forwards one cell)
-   DTP-HEADER-FORWARD			  ;06 Invisible pointer (forwards whole structure)
-   DTP-ELEMENT-FORWARD			  ;07 Invisible pointer in element of structure
-   ;; Numeric data types.
-   DTP-FIXNUM				  ;10 Small integer
-   DTP-SMALL-RATIO			  ;11 Ratio with small numerator and denominator
-   DTP-SINGLE-FLOAT			  ;12 Single-precision floating point
-   DTP-DOUBLE-FLOAT			  ;13 Double-precision floating point
-   DTP-BIGNUM				  ;14 Big integer
-   DTP-BIG-RATIO			  ;15 Ratio with big numerator or denominator
-   DTP-COMPLEX				  ;16 Complex number
-   DTP-SPARE-NUMBER			  ;17 A number to the hardware trap mechanism
-   ;; Instance data types.
-   DTP-INSTANCE				  ;20 Ordinary instance
-   DTP-LIST-INSTANCE			  ;21 Instance that masquerades as a cons
-   DTP-ARRAY-INSTANCE			  ;22 Instance that masquerades as an array
-   DTP-STRING-INSTANCE			  ;23 Instance that masquerades as a string
-   ;; Primitive data types.
-   DTP-NIL				  ;24 The symbol NIL
-   DTP-LIST				  ;25 A cons
-   DTP-ARRAY				  ;26 An array that is not a string
-   DTP-STRING				  ;27 A string
-   DTP-SYMBOL				  ;30 A symbol other than NIL
-   DTP-LOCATIVE				  ;31 Locative pointer
-   DTP-LEXICAL-CLOSURE			  ;32 Lexical closure of a function
-   DTP-DYNAMIC-CLOSURE			  ;33 Dynamic closure of a function
-   DTP-COMPILED-FUNCTION		  ;34 Compiled code
-   DTP-GENERIC-FUNCTION			  ;35 Generic function (see later section)
-   DTP-SPARE-POINTER-1			  ;36 Spare
-   DTP-SPARE-POINTER-2			  ;37 Spare
-   DTP-PHYSICAL-ADDRESS			  ;40 Physical address
-   DTP-SPARE-IMMEDIATE-1		  ;41 Spare
-   DTP-BOUND-LOCATION			  ;42 Deep bound marker
-   DTP-CHARACTER			  ;43 Common Lisp character object
-   DTP-LOGIC-VARIABLE			  ;44 Unbound logic variable marker
-   DTP-GC-FORWARD			  ;45 Object-moved flag for garbage collector
-   DTP-EVEN-PC				  ;46 PC at first instruction in word
-   DTP-ODD-PC				  ;47 PC at second instruction in word
-   ;; Full-word instructions.
-   DTP-CALL-COMPILED-EVEN		  ;50 Start call, address is compiled function
-   DTP-CALL-COMPILED-ODD		  ;51 Start call, address is compiled function
-   DTP-CALL-INDIRECT			  ;52 Start call, address is function cell
-   DTP-CALL-GENERIC			  ;53 Start call, address is generic function
-   DTP-CALL-COMPILED-EVEN-PREFETCH	  ;54 Like above, but prefetching is desireable
-   DTP-CALL-COMPILED-ODD-PREFETCH	  ;55 Like above, but prefetching is desireable
-   DTP-CALL-INDIRECT-PREFETCH		  ;56 Like above, but prefetching is desireable
-   DTP-CALL-GENERIC-PREFETCH		  ;57 Like above, but prefetching is desireable
-   ;; Half-word (packed) instructions consume 4 bits of data type field (opcodes 60..77).
-   DTP-PACKED-INSTRUCTION-60 DTP-PACKED-INSTRUCTION-61 DTP-PACKED-INSTRUCTION-62
-   DTP-PACKED-INSTRUCTION-63 DTP-PACKED-INSTRUCTION-64 DTP-PACKED-INSTRUCTION-65
-   DTP-PACKED-INSTRUCTION-66 DTP-PACKED-INSTRUCTION-67 DTP-PACKED-INSTRUCTION-70
-   DTP-PACKED-INSTRUCTION-71 DTP-PACKED-INSTRUCTION-72 DTP-PACKED-INSTRUCTION-73
-   DTP-PACKED-INSTRUCTION-74 DTP-PACKED-INSTRUCTION-75 DTP-PACKED-INSTRUCTION-76
-   DTP-PACKED-INSTRUCTION-77
-   )
+(defenumerated *data-types* 
+    ;; headers, special markers, and forwarding pointers.
+    (dtp-null               ;00 unbound variable/function, uninitialized storage
+     dtp-monitor-forward    ;01 this cell being monitored
+     dtp-header-p           ;02 structure header, with pointer field
+     dtp-header-i           ;03 structure header, with immediate bits
+     dtp-external-value-cell-pointer   ;04 invisible except for binding
+     dtp-one-q-forward                 ;05 invisible pointer (forwards one cell)
+     dtp-header-forward         ;06 invisible pointer (forwards whole structure)
+     dtp-element-forward			  ;07 invisible pointer in element of structure
+
+     ;; numeric data types.
+     dtp-fixnum                   ;10 small integer
+     dtp-small-ratio              ;11 ratio with small numerator and denominator
+     dtp-single-float             ;12 single-precision floating point
+     dtp-double-float             ;13 double-precision floating point
+     dtp-bignum                   ;14 big integer
+     dtp-big-ratio                ;15 ratio with big numerator or denominator
+     dtp-complex                  ;16 complex number
+     dtp-spare-number             ;17 a number to the hardware trap mechanism
+
+     ;; instance data types.
+     dtp-instance                  ;20 ordinary instance
+     dtp-list-instance             ;21 instance that masquerades as a cons
+     dtp-array-instance            ;22 instance that masquerades as an array
+     dtp-string-instance           ;23 instance that masquerades as a string
+
+     ;; primitive data types.
+     dtp-nil                       ;24 the symbol nil
+     dtp-list                      ;25 a cons
+     dtp-array                     ;26 an array that is not a string
+     dtp-string                    ;27 a string
+     dtp-symbol                    ;30 a symbol other than nil
+     dtp-locative                  ;31 locative pointer
+     dtp-lexical-closure           ;32 lexical closure of a function
+     dtp-dynamic-closure           ;33 dynamic closure of a function
+     dtp-compiled-function         ;34 compiled code
+     dtp-generic-function          ;35 generic function (see later section)
+     dtp-spare-pointer-1           ;36 spare
+     dtp-spare-pointer-2           ;37 spare
+     dtp-physical-address          ;40 physical address
+     dtp-spare-immediate-1         ;41 spare
+     dtp-bound-location            ;42 deep bound marker
+     dtp-character                 ;43 common lisp character object
+     dtp-logic-variable            ;44 unbound logic variable marker
+     dtp-gc-forward                ;45 object-moved flag for garbage collector
+     dtp-even-pc                   ;46 pc at first instruction in word
+     dtp-odd-pc                    ;47 pc at second instruction in word
+
+     ;; full-word instructions.
+     dtp-call-compiled-even        ;50 start call, address is compiled function
+     dtp-call-compiled-odd         ;51 start call, address is compiled function
+     dtp-call-indirect             ;52 start call, address is function cell
+     dtp-call-generic              ;53 start call, address is generic function
+     dtp-call-compiled-even-prefetch ;54 like above, but prefetching is desireable
+     dtp-call-compiled-odd-prefetch ;55 like above, but prefetching is desireable
+     dtp-call-indirect-prefetch    ;56 like above, but prefetching is desireable
+     dtp-call-generic-prefetch     ;57 like above, but prefetching is desireable
+
+     ;; half-word (packed) instructions consume 4 bits of data type field (opcodes 60..77).
+     dtp-packed-instruction-60 dtp-packed-instruction-61 dtp-packed-instruction-62
+     dtp-packed-instruction-63 dtp-packed-instruction-64 dtp-packed-instruction-65
+     dtp-packed-instruction-66 dtp-packed-instruction-67 dtp-packed-instruction-70
+     dtp-packed-instruction-71 dtp-packed-instruction-72 dtp-packed-instruction-73
+     dtp-packed-instruction-74 dtp-packed-instruction-75 dtp-packed-instruction-76
+     dtp-packed-instruction-77
+     )
   0 1 #o100)
 
-(DEFENUMERATED *ARRAY-ELEMENT-DATA-TYPES* (
-  ARRAY-ELEMENT-TYPE-FIXNUM
-  ARRAY-ELEMENT-TYPE-CHARACTER
-  ARRAY-ELEMENT-TYPE-BOOLEAN
-  ARRAY-ELEMENT-TYPE-OBJECT
-  ))
+(defenumerated *array-element-data-types*
+    (array-element-type-fixnum
+     array-element-type-character
+     array-element-type-boolean
+     array-element-type-object
+     ))
 
-;;; Control register.
+;;; control register.
 
-(DEFSYSBYTE %%CR.ARGUMENT-SIZE 8. 0)	  ;Number of spread arguments supplied by caller
-(DEFSYSBYTE %%CR.APPLY 1 17.)		  ;1 If caller used APPLY, 0 otherwise
-(DEFSYSBYTE %%CR.VALUE-DISPOSITION 2 18.) ;The value of this function
-(DEFSYSBYTE %%CR.CLEANUP-BITS 3 24.)	  ;All the cleanup bits
-(DEFSYSBYTE %%CR.CLEANUP-CATCH 1 26.)	  ;There are active catch blocks in the current frame
-(DEFSYSBYTE %%CR.CLEANUP-BINDINGS 1 25.)  ;There are active bindings in the current frame
-(DEFSYSBYTE %%CR.TRAP-ON-EXIT-BIT 1 24.)  ;Software trap before exiting this frame
-(DEFSYSBYTE %%CR.TRAP-MODE 2 30.)	  ;1 If we are executing on the "extra stack"
-					  ;Extra stack inhibits sequence breaks and preemption
-					  ;It also allows the "overflow" part of the stack to
-					  ;be used without traps.
-(DEFSYSBYTE %%CR.EXTRA-ARGUMENT 1 8.)	  ;The call instruction supplied an "extra" argument
-(DEFSYSBYTE %%CR.CALLER-FRAME-SIZE 8 9.)  ;The frame size of the Caller
-(DEFSYSBYTE %%CR.CALL-STARTED 1 22.)	  ;Between start-call and finish-call.
-(DEFSYSBYTE %%CR.CLEANUP-IN-PROGRESS 1 23.)
-(DEFSYSBYTE %%CR.INSTRUCTION-TRACE 1 29.)
-(DEFSYSBYTE %%CR.CALL-TRACE 1 28.)
-(DEFSYSBYTE %%CR.TRACE-PENDING 1 27.)
-(DEFSYSBYTE %%CR.TRACE-BITS 3 27.)
+(defsysbyte %%cr.argument-size 8. 0)	  ;number of spread arguments supplied by caller
+(defsysbyte %%cr.apply 1 17.)		  ;1 if caller used apply, 0 otherwise
+(defsysbyte %%cr.value-disposition 2 18.) ;the value of this function
+(defsysbyte %%cr.cleanup-bits 3 24.)	  ;all the cleanup bits
+(defsysbyte %%cr.cleanup-catch 1 26.)	  ;there are active catch blocks in the current frame
+(defsysbyte %%cr.cleanup-bindings 1 25.)  ;there are active bindings in the current frame
+(defsysbyte %%cr.trap-on-exit-bit 1 24.)  ;software trap before exiting this frame
+(defsysbyte %%cr.trap-mode 2 30.)	  ;1 if we are executing on the "extra stack"
+;; extra stack inhibits sequence breaks and preemption
+;; it also allows the "overflow" part of the stack to
+;; be used without traps.
+(defsysbyte %%cr.extra-argument 1 8.)	  ;the call instruction supplied an "extra" argument
+(defsysbyte %%cr.caller-frame-size 8 9.)  ;the frame size of the caller
+(defsysbyte %%cr.call-started 1 22.)	  ;between start-call and finish-call.
+(defsysbyte %%cr.cleanup-in-progress 1 23.)
+(defsysbyte %%cr.instruction-trace 1 29.)
+(defsysbyte %%cr.call-trace 1 28.)
+(defsysbyte %%cr.trace-pending 1 27.)
+(defsysbyte %%cr.trace-bits 3 27.)
 
-(DEFSYSBYTE %%CR.CLEANUP-AND-TRACE-BITS 6 24.)
+(defsysbyte %%cr.cleanup-and-trace-bits 6 24.)
 
-(DEFENUMERATED *VALUE-DISPOSITIONS* (
-  VALUE-DISPOSITION-EFFECT		  ;The callers wants no return values
-  VALUE-DISPOSITION-VALUE		  ;The caller wants a single return value
-  VALUE-DISPOSITION-RETURN		  ;The caller wants to return whatever values are
-					  ;returned by this function
-  VALUE-DISPOSITION-MULTIPLE		  ;The callers wants multiple values
-  ))
+(defenumerated *value-dispositions*
+    (value-disposition-effect           ;the callers wants no return values
+     value-disposition-value            ;the caller wants a single return value
+     value-disposition-return    ;the caller wants to return whatever values are
+                                        ;returned by this function
+     value-disposition-multiple         ;the callers wants multiple values
+     ))
 
-(DEFENUMERATED *TRAP-MODES* (
-  TRAP-MODE-EMULATOR
-  TRAP-MODE-EXTRA-STACK
-  TRAP-MODE-IO
-  TRAP-MODE-FEP))
+(defenumerated *trap-modes*
+    (trap-mode-emulator
+     trap-mode-extra-stack
+     trap-mode-io
+     trap-mode-fep))
 
-(DEFENUMERATED *MEMORY-CYCLE-TYPES* (
-  %MEMORY-DATA-READ
-  %MEMORY-DATA-WRITE
-  %MEMORY-BIND-READ
-  %MEMORY-BIND-WRITE
-  %MEMORY-BIND-READ-NO-MONITOR
-  %MEMORY-BIND-WRITE-NO-MONITOR
-  %MEMORY-HEADER
-  %MEMORY-STRUCTURE-OFFSET
-  %MEMORY-SCAVENGE
-  %MEMORY-CDR
-  %MEMORY-GC-COPY
-  %MEMORY-RAW
-  %MEMORY-RAW-TRANSLATE
-  ))
+(defenumerated *memory-cycle-types*
+    (%memory-data-read
+     %memory-data-write
+     %memory-bind-read
+     %memory-bind-write
+     %memory-bind-read-no-monitor
+     %memory-bind-write-no-monitor
+     %memory-header
+     %memory-structure-offset
+     %memory-scavenge
+     %memory-cdr
+     %memory-gc-copy
+     %memory-raw
+     %memory-raw-translate
+     ))
 
-;;; Internal register definitions
+;;; internal register definitions
 
-;;; %REGISTER-ALU-AND-ROTATE-CONTROL fields (DP-OP in hardware spec)
+;;; %register-alu-and-rotate-control fields (dp-op in hardware spec)
 
-(DEFSYSBYTE %%ALU-BYTE-R	   5  0.)
-(DEFSYSBYTE %%ALU-BYTE-S	   5  5.)
-(DEFSYSBYTE %%ALU-FUNCTION         6 10.)
-(DEFSYSBYTE %%ALU-FUNCTION-CLASS   2 14.)
-(DEFSYSBYTE %%ALU-FUNCTION-BITS    4 10.)
-(DEFSYSBYTE %%ALU-CONDITION	   5 16.)
-(DEFSYSBYTE %%ALU-CONDITION-SENSE  1 21.)
+(defsysbyte %%alu-byte-r	   5  0.)
+(defsysbyte %%alu-byte-s	   5  5.)
+(defsysbyte %%alu-function         6 10.)
+(defsysbyte %%alu-function-class   2 14.)
+(defsysbyte %%alu-function-bits    4 10.)
+(defsysbyte %%alu-condition	   5 16.)
+(defsysbyte %%alu-condition-sense  1 21.)
 
-;; The following are implemented in Rev3 only.
-;; Software forces them to the proper value for compatible operation in Rev1 and Rev2.
-(DEFSYSBYTE %%ALU-OUTPUT-CONDITION 1 22.)
-(DEFSYSBYTE %%ALU-ENABLE-CONDITION-EXCEPTION 1 23.)
-(DEFSYSBYTE %%ALU-ENABLE-LOAD-CIN 1 24.)
+;; the following are implemented in rev3 only.
+;; software forces them to the proper value for compatible operation in rev1 and rev2.
+(defsysbyte %%alu-output-condition 1 22.)
+(defsysbyte %%alu-enable-condition-exception 1 23.)
+(defsysbyte %%alu-enable-load-cin 1 24.)
 
-(DEFENUMERATED *ALU-CONDITION-SENSES*
-  (%ALU-CONDITION-SENSE-TRUE
-   %ALU-CONDITION-SENSE-FALSE))
+(defenumerated *alu-condition-senses*
+  (%alu-condition-sense-true
+   %alu-condition-sense-false))
 
-(DEFENUMERATED *ALU-CONDITIONS*
-  (%ALU-CONDITION-SIGNED-LESS-THAN-OR-EQUAL	  ;00
-   %ALU-CONDITION-SIGNED-LESS-THAN		  ;01
-   %ALU-CONDITION-NEGATIVE			  ;02
-   %ALU-CONDITION-SIGNED-OVERFLOW		  ;03
-   %ALU-CONDITION-UNSIGNED-LESS-THAN-OR-EQUAL	  ;04
-   %ALU-CONDITION-UNSIGNED-LESS-THAN		  ;05
-   %ALU-CONDITION-ZERO				  ;06
-   %ALU-CONDITION-HIGH-25-ZERO			  ;07
-   %ALU-CONDITION-EQ				  ;10
-   %ALU-CONDITION-OP1-EPHEMERALP		  ;11
-   %ALU-CONDITION-OP1-TYPE-ACCEPTABLE		  ;12
-   %ALU-CONDITION-OP1-TYPE-CONDITION		  ;13
-   %ALU-CONDITION-RESULT-TYPE-NIL		  ;14
-   %ALU-CONDITION-OP2-FIXNUM			  ;15
-   %ALU-CONDITION-FALSE				  ;16
-   %ALU-CONDITION-RESULT-CDR-LOW		  ;17
-   %ALU-CONDITION-CLEANUP-BITS-SET		  ;20
-   %ALU-CONDITION-ADDRESS-IN-STACK-CACHE	  ;21
-   %ALU-CONDITION-PENDING-SEQUENCE-BREAK-ENABLED  ;22
-   %ALU-CONDITION-EXTRA-STACK-MODE		  ;23
-   %ALU-CONDITION-FEP-MODE			  ;24
-   %ALU-CONDITION-FP-COPROCESSOR-PRESENT	  ;25
-   %ALU-CONDITION-OP1-OLDSPACEP			  ;26
-   %ALU-CONDITION-STACK-CACHE-OVERFLOW		  ;27
-   %ALU-CONDITION-OR-LOGIC-VARIABLE		  ;30
+(defenumerated *alu-conditions*
+  (%alu-condition-signed-less-than-or-equal	  ;; #o00
+   %alu-condition-signed-less-than		  ;; #o01
+   %alu-condition-negative			  ;; #o02
+   %alu-condition-signed-overflow		  ;; #o03
+   %alu-condition-unsigned-less-than-or-equal	  ;; #o04
+   %alu-condition-unsigned-less-than		  ;; #o05
+   %alu-condition-zero				  ;; #o06
+   %alu-condition-high-25-zero			  ;; #o07
+   %alu-condition-eq				  ;; #o10
+   %alu-condition-op1-ephemeralp		  ;; #o11
+   %alu-condition-op1-type-acceptable		  ;; #o12
+   %alu-condition-op1-type-condition		  ;; #o13
+   %alu-condition-result-type-nil		  ;; #o14
+   %alu-condition-op2-fixnum			  ;; #o15
+   %alu-condition-false				  ;; #o16
+   %alu-condition-result-cdr-low		  ;; #o17
+   %alu-condition-cleanup-bits-set		  ;; #o20
+   %alu-condition-address-in-stack-cache	  ;; #o21
+   %alu-condition-pending-sequence-break-enabled  ;; #o22
+   %alu-condition-extra-stack-mode		  ;; #o23
+   %alu-condition-fep-mode			  ;; #o24
+   %alu-condition-fp-coprocessor-present	  ;; #o25
+   %alu-condition-op1-oldspacep			  ;; #o26
+   %alu-condition-stack-cache-overflow		  ;; #o27
+   %alu-condition-or-logic-variable		  ;; #o30
    ))
 
-(DEFENUMERATED *ALU-FUNCTION-CLASSES*
-  (%ALU-FUNCTION-CLASS-BOOLEAN
-   %ALU-FUNCTION-CLASS-BYTE
-   %ALU-FUNCTION-CLASS-ADDER
-   %ALU-FUNCTION-CLASS-MULTIPLY-DIVIDE))
+(defenumerated *alu-function-classes*
+  (%alu-function-class-boolean
+   %alu-function-class-byte
+   %alu-function-class-adder
+   %alu-function-class-multiply-divide))
 
-(DEFENUMERATED *ALU-FUNCTIONS*
-  (%ALU-FUNCTION-OP-BOOLEAN-0
-   %ALU-FUNCTION-OP-BOOLEAN-1
-   %ALU-FUNCTION-OP-DPB
-   %ALU-FUNCTION-OP-LDB
-   %ALU-FUNCTION-OP-ADD
-   %ALU-FUNCTION-OP-RESERVED
-   %ALU-FUNCTION-OP-MULTIPLY-STEP
-   %ALU-FUNCTION-OP-MULTIPLY-INVERT-STEP
-   %ALU-FUNCTION-OP-DIVIDE-STEP
-   %ALU-FUNCTION-OP-DIVIDE-INVERT-STEP))
+(defenumerated *alu-functions*
+  (%alu-function-op-boolean-0
+   %alu-function-op-boolean-1
+   %alu-function-op-dpb
+   %alu-function-op-ldb
+   %alu-function-op-add
+   %alu-function-op-reserved
+   %alu-function-op-multiply-step
+   %alu-function-op-multiply-invert-step
+   %alu-function-op-divide-step
+   %alu-function-op-divide-invert-step))
 
-(DEFENUMERATED *ALU-BYTE-BACKGROUNDS*
-  (%ALU-BYTE-BACKGROUND-OP1
-   %ALU-BYTE-BACKGROUND-ROTATE-LATCH
-   %ALU-BYTE-BACKGROUND-ZERO))
+(defenumerated *alu-byte-backgrounds*
+  (%alu-byte-background-op1
+   %alu-byte-background-rotate-latch
+   %alu-byte-background-zero))
 
-(DEFENUMERATED *ALU-BYTE-ROTATE-LATCH*
-  (%ALU-BYTE-HOLD-ROTATE-LATCH
-   %ALU-BYTE-SET-ROTATE-LATCH))
+(defenumerated *alu-byte-rotate-latch*
+  (%alu-byte-hold-rotate-latch
+   %alu-byte-set-rotate-latch))
 
-(DEFENUMERATED *ALU-ADD-OP2-ACTIONS*
-  (%ALU-ADD-OP2-PASS
-   %ALU-ADD-OP2-INVERT))
+(defenumerated *alu-add-op2-actions*
+  (%alu-add-op2-pass
+   %alu-add-op2-invert))
 
-(DEFENUMERATED *ALU-ADDER-OPS*
-  (%ALU-ADD-OP2
-   %ALU-ADD-ZERO))
-
-(defmacro %alu-function-dpb (background rotate-latch)
-  `(%logdpb  %alu-function-op-dpb (byte 3 3)
-	     (%logdpb ,rotate-latch (byte 1 2)
-		      (%logdpb ,background (byte 2 0)
-			       0))))
-(export '%alu-function-dpb)
+(defenumerated *alu-adder-ops*
+  (%alu-add-op2
+   %alu-add-zero))
 
 
 ;;;
 ;;; The following definitions are from SYS:I-SYS;SYSDF1.LISP ...
 ;;;
 
-(DEFSYSCONSTANT %ARITHMETIC-INSTRUCTION-EXCEPTION-VECTOR #o0)
-(DEFSYSCONSTANT %INSTRUCTION-EXCEPTION-VECTOR #o4000)
-(DEFSYSCONSTANT %INTERPRETER-FUNCTION-VECTOR #o4400)
-(DEFSYSCONSTANT %GENERIC-DISPATCH-VECTOR #o5000)
+(defsysconstant %arithmetic-instruction-exception-vector #o0)
+(defsysconstant %instruction-exception-vector #o4000)
+(defsysconstant %interpreter-function-vector #o4400)
+(defsysconstant %generic-dispatch-vector #o5000)
 
-(DEFSYSCONSTANT %ERROR-TRAP-VECTOR #o5100)
-(DEFSYSCONSTANT %RESET-TRAP-VECTOR #o5101)
-(DEFSYSCONSTANT %PULL-APPLY-ARGS-TRAP-VECTOR #o5102)
-(DEFSYSCONSTANT %STACK-OVERFLOW-TRAP-VECTOR #o5103)
-(DEFSYSCONSTANT %TRACE-TRAP-VECTOR #o5104)
-(DEFSYSCONSTANT %PREEMPT-REQUEST-TRAP-VECTOR #o5105)
-(DEFSYSCONSTANT %TRANSPORT-TRAP-VECTOR #o5106)
-(DEFSYSCONSTANT %FEP-MODE-TRAP-VECTOR #o5107)
+(defsysconstant %error-trap-vector #o5100)
+(defsysconstant %reset-trap-vector #o5101)
+(defsysconstant %pull-apply-args-trap-vector #o5102)
+(defsysconstant %stack-overflow-trap-vector #o5103)
+(defsysconstant %trace-trap-vector #o5104)
+(defsysconstant %preempt-request-trap-vector #o5105)
+(defsysconstant %transport-trap-vector #o5106)
+(defsysconstant %fep-mode-trap-vector #o5107)
 
-(DEFSYSCONSTANT %LOW-PRIORITY-SEQUENCE-BREAK-TRAP-VECTOR #o5110)
-(DEFSYSCONSTANT %HIGH-PRIORITY-SEQUENCE-BREAK-TRAP-VECTOR #o5111)
-(DEFSYSCONSTANT %MONITOR-TRAP-VECTOR #o5112)
+(defsysconstant %low-priority-sequence-break-trap-vector #o5110)
+(defsysconstant %high-priority-sequence-break-trap-vector #o5111)
+(defsysconstant %monitor-trap-vector #o5112)
 ;;; 5113 reserved for future use
-(DEFSYSCONSTANT %GENERIC-DISPATCH-TRAP-VECTOR #o5114)
+(defsysconstant %generic-dispatch-trap-vector #o5114)
 ;;; 5115 reserved for a fence word
-(DEFSYSCONSTANT %MESSAGE-DISPATCH-TRAP-VECTOR #o5116)
+(defsysconstant %message-dispatch-trap-vector #o5116)
 ;;; 5117 reserved for a fence word
 
-(DEFSYSCONSTANT %PAGE-NOT-RESIDENT-TRAP-VECTOR #o5120)
-(DEFSYSCONSTANT %PAGE-FAULT-REQUEST-TRAP-VECTOR #o5121)
-(DEFSYSCONSTANT %PAGE-WRITE-FAULT-TRAP-VECTOR #o5122)
-(DEFSYSCONSTANT %UNCORRECTABLE-MEMORY-ERROR-TRAP-VECTOR #o5123)
-(DEFSYSCONSTANT %MEMORY-BUS-ERROR-TRAP-VECTOR #o5124)
-(DEFSYSCONSTANT %DB-CACHE-MISS-TRAP-VECTOR #o5125)
-(DEFSYSCONSTANT %DB-UNWIND-FRAME-TRAP-VECTOR #o5126)
-(DEFSYSCONSTANT %DB-UNWIND-CATCH-TRAP-VECTOR 5127)
+(defsysconstant %page-not-resident-trap-vector #o5120)
+(defsysconstant %page-fault-request-trap-vector #o5121)
+(defsysconstant %page-write-fault-trap-vector #o5122)
+(defsysconstant %uncorrectable-memory-error-trap-vector #o5123)
+(defsysconstant %memory-bus-error-trap-vector #o5124)
+(defsysconstant %db-cache-miss-trap-vector #o5125)
+(defsysconstant %db-unwind-frame-trap-vector #o5126)
+(defsysconstant %db-unwind-catch-trap-vector #o5127)
 ;;; 5130 through 5177 reserved for future use
 
 
 ;;;
-;;; The following definitions are from SYS:I-SYS;OPSDEF.LISP ...
+;;; the following definitions are from sys:i-sys;opsdef.lisp ...
 ;;;
 
-;; (in-package "I-LISP-COMPILER")
-
-(DEFCONSTANT *FINISH-CALL-N-OPCODE* #o134)
+(define-constant *finish-call-n-opcode* #o134)

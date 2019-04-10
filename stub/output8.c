@@ -39,18 +39,15 @@ DoSetToCarFP:
 begindosettocar:
   if (_trace) printf("begindosettocar:\n");
   /* arg1 has the operand address. */
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
-		/* Get the operand from the stack. */
-  arg5 = *(s32 *)(arg1 + 4);
-  arg6 = *(s32 *)arg1;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
+  arg5 = *(s32 *)(arg1 + 4);   		// Get the operand from the stack. 
+  arg6 = *(s32 *)arg1;   
   t2 = arg5 & 192;		// Save the old CDR code 
-  r0 = (u64)&&return0617;
+  r0 = (u64)&&return0304;
   goto carinternal;
-return0617:
+return0304:
   /* TagType. */
   arg5 = arg5 & 63;
   arg5 = arg5 | t2;		// Put back the original CDR codes 
@@ -99,18 +96,15 @@ DoSetToCdrFP:
 begindosettocdr:
   if (_trace) printf("begindosettocdr:\n");
   /* arg1 has the operand address. */
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
-		/* Get the operand from the stack. */
-  arg5 = *(s32 *)(arg1 + 4);
-  arg6 = *(s32 *)arg1;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
+  arg5 = *(s32 *)(arg1 + 4);   		// Get the operand from the stack. 
+  arg6 = *(s32 *)arg1;   
   t2 = arg5 & 192;		// Save the old CDR code 
-  r0 = (u64)&&return0618;
+  r0 = (u64)&&return0305;
   goto cdrinternal;
-return0618:
+return0305:
   /* TagType. */
   arg5 = arg5 & 63;
   arg5 = arg5 | t2;		// Put back the original CDR codes 
@@ -137,27 +131,26 @@ settocdrpushcarlocative:
   arg2 = t2;
   /* Memory Read Internal */
 
-g29006:
+vma-memory-read9725:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
-		/* Stack cache offset */
-  t5 = arg2 - t11;
-  t8 = *(u64 *)&(processor->dataread_mask);
+  t5 = arg2 - t11;   		// Stack cache offset 
+  t8 = *(u64 *)&(processor->dataread_mask);   
   t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
-  arg6 = *(s32 *)arg6;
+  arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto g29008;
+    goto vma-memory-read9727;
 
-g29007:
+vma-memory-read9726:
   t7 = zero + 240;   
-  t8 = t8 >> (arg5 & 63);
-  t7 = t7 >> (arg5 & 63);
+  t8 = t8 >> (arg5 & 63);   
+  t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto g29010;
+    goto vma-memory-read9729;
 
-g29017:
+vma-memory-read9736:
   /* TagType. */
   t1 = t1 & 63;
   *(u32 *)(iSP + 8) = arg6;
@@ -170,22 +163,22 @@ g29017:
   *(u32 *)(arg1 + 4) = arg5;
   goto NEXTINSTRUCTION;   
 
-g29010:
-  if (_trace) printf("g29010:\n");
+vma-memory-read9729:
+  if (_trace) printf("vma-memory-read9729:\n");
   if ((t7 & 1) == 0)   
-    goto g29009;
+    goto vma-memory-read9728;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto g29006;   
+  goto vma-memory-read9725;   
 
-g29009:
-  if (_trace) printf("g29009:\n");
+vma-memory-read9728:
+  if (_trace) printf("vma-memory-read9728:\n");
 
-g29008:
-  if (_trace) printf("g29008:\n");
-  r0 = (u64)&&return0619;
+vma-memory-read9727:
+  if (_trace) printf("vma-memory-read9727:\n");
+  r0 = (u64)&&return0306;
   goto memoryreaddatadecode;
-return0619:
-  goto g29017;   
+return0306:
+  goto vma-memory-read9736;   
 
 /* end SetToCdrPushCarLocative */
 /* start DoAssoc */
@@ -203,8 +196,7 @@ DoAssocSP:
   arg1 = arg5;		// Assume SP mode 
   if (arg2 != 0)   
     goto begindoassoc;
-		/* SP-pop, Reload TOS */
-  arg6 = *(u64 *)arg4;
+  arg6 = *(u64 *)arg4;   		// SP-pop, Reload TOS 
   arg1 = iSP;		// SP-pop mode 
   iSP = arg4;		// Adjust SP 
 #ifdef TRACING
@@ -223,92 +215,85 @@ DoAssocFP:
 begindoassoc:
   if (_trace) printf("begindoassoc:\n");
   /* arg1 has the operand address. */
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
   t5 = zero + -2048;   
-  t5 = t5 + ((1) << 16);
+  t5 = t5 + ((1) << 16);   
   arg3 = (u32)(arg6 >> ((4&7)*8));   
   arg4 = (u32)arg6;   
-  t1 = *(s32 *)(arg1 + 4);
-  t2 = *(s32 *)arg1;
+  t1 = *(s32 *)(arg1 + 4);   
+  t2 = *(s32 *)arg1;   
   /* TagType. */
   arg3 = arg3 & 63;		// Get the object type bits 
-		/* Low bit will set iff EQ-NOT-EQL */
-  t5 = t5 >> (arg3 & 63);
+  t5 = t5 >> (arg3 & 63);   		// Low bit will set iff EQ-NOT-EQL 
   /* TagType. */
   t1 = t1 & 63;		// Strip cdr code 
   t2 = (u32)t2;   		// Remove sign-extension 
   if (t5 & 1)   
     goto assocexc;
   t6 = zero;
-  goto g29019;   
+  goto carcdrloop9738;   
 
 assoccdr:
   if (_trace) printf("assoccdr:\n");
-		/* Have we been asked to stop or trap? */
-  t6 = *(u64 *)&(processor->stop_interpreter);
+  t6 = *(u64 *)&(processor->stop_interpreter);   		// Have we been asked to stop or trap? 
   /* Move cdr to car for next carcdr-internal */
   /* TagType. */
   t1 = arg5 & 63;
   t2 = arg6;
 
-g29019:
-  if (_trace) printf("g29019:\n");
-  t5 = t1 - Type_NIL;
+carcdrloop9738:
+  if (_trace) printf("carcdrloop9738:\n");
+  t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto g29018;
+    goto carcdrloop9737;
   if (t5 == 0) 
-    goto g29020;
-  r0 = (u64)&&return0620;
+    goto carcdrloop9739;
+  r0 = (u64)&&return0307;
   goto carcdrinternal;
-return0620:
+return0307:
   t7 = t1 & 63;		// Strip off any CDR code bits. 
   t8 = (t7 == Type_List) ? 1 : 0;   
 
-g29038:
-  if (_trace) printf("g29038:\n");
+force-alignment9757:
+  if (_trace) printf("force-alignment9757:\n");
   if (t8 == 0) 
-    goto g29022;
+    goto basic-dispatch9741;
   /* Here if argument TypeList */
   arg2 = t2;
   t3 = arg5;
   arg1 = arg6;
   /* Memory Read Internal */
 
-g29023:
+vma-memory-read9742:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
-		/* Stack cache offset */
-  t5 = arg2 - t11;
-  t8 = *(u64 *)&(processor->dataread_mask);
+  t5 = arg2 - t11;   		// Stack cache offset 
+  t8 = *(u64 *)&(processor->dataread_mask);   
   t6 = ((u64)t5 < (u64)t12) ? 1 : 0;   		// In range? 
-  arg6 = *(s32 *)arg6;
+  arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto g29025;
+    goto vma-memory-read9744;
 
-g29024:
+vma-memory-read9743:
   t7 = zero + 240;   
-  t8 = t8 >> (arg5 & 63);
-  t7 = t7 >> (arg5 & 63);
+  t8 = t8 >> (arg5 & 63);   
+  t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto g29027;
+    goto vma-memory-read9746;
 
-g29034:
+vma-memory-read9753:
   /* TagType. */
   t5 = arg5 & 63;
   arg5 = t3;
-		/* t6=0 if data same */
-  t6 = (s32)arg4 - (s32)arg6;
+  t6 = (s32)arg4 - (s32)arg6;   		// t6=0 if data same 
   arg6 = arg1;
   if (t6 != 0)   		// J. if different 
     goto assoccdr;
-		/* t5 zero if same tag */
-  t5 = arg3 - t5;
+  t5 = arg3 - t5;   		// t5 zero if same tag 
   if (t5 != 0)   		// J. if tags different 
     goto assoccdr;
   /* we found a match! */
@@ -319,36 +304,34 @@ g29034:
   *(u32 *)(iSP + 4) = t1;
   goto NEXTINSTRUCTION;   
 
-g29022:
-  if (_trace) printf("g29022:\n");
+basic-dispatch9741:
+  if (_trace) printf("basic-dispatch9741:\n");
   t8 = (t7 == Type_NIL) ? 1 : 0;   
 
-g29039:
-  if (_trace) printf("g29039:\n");
+force-alignment9758:
+  if (_trace) printf("force-alignment9758:\n");
   if (t8 == 0) 
-    goto g29035;
+    goto basic-dispatch9754;
   /* Here if argument TypeNIL */
   goto assoccdr;   
 
-g29035:
-  if (_trace) printf("g29035:\n");
+basic-dispatch9754:
+  if (_trace) printf("basic-dispatch9754:\n");
   /* Here for all other cases */
   /* SetTag. */
-  t1 = arg4 << 32;
+  t1 = arg4 << 32;   
   t1 = arg5 | t1;
   arg5 = t1;
   arg2 = 14;
   goto illegaloperand;
 
-g29021:
-  if (_trace) printf("g29021:\n");
+basic-dispatch9740:
+  if (_trace) printf("basic-dispatch9740:\n");
 
-g29020:
-  if (_trace) printf("g29020:\n");
-		/* Return NIL */
-  t1 = *(u64 *)&(processor->niladdress);
-		/* push the data */
-  *(u64 *)iSP = t1;
+carcdrloop9739:
+  if (_trace) printf("carcdrloop9739:\n");
+  t1 = *(u64 *)&(processor->niladdress);   		// Return NIL 
+  *(u64 *)iSP = t1;   		// push the data 
   goto NEXTINSTRUCTION;   
 
 assocexc:
@@ -358,26 +341,26 @@ assocexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-g29027:
-  if (_trace) printf("g29027:\n");
+vma-memory-read9746:
+  if (_trace) printf("vma-memory-read9746:\n");
   if ((t7 & 1) == 0)   
-    goto g29026;
+    goto vma-memory-read9745;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto g29023;   
+  goto vma-memory-read9742;   
 
-g29026:
-  if (_trace) printf("g29026:\n");
+vma-memory-read9745:
+  if (_trace) printf("vma-memory-read9745:\n");
 
-g29025:
-  if (_trace) printf("g29025:\n");
-  r0 = (u64)&&return0621;
+vma-memory-read9744:
+  if (_trace) printf("vma-memory-read9744:\n");
+  r0 = (u64)&&return0308;
   goto memoryreaddatadecode;
-return0621:
-  goto g29034;   
+return0308:
+  goto vma-memory-read9753;   
 
-g29018:
-  if (_trace) printf("g29018:\n");
-  iSP = *(u64 *)&(processor->restartsp);
+carcdrloop9737:
+  if (_trace) printf("carcdrloop9737:\n");
+  iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
 #ifdef TRACING
 #endif
@@ -402,8 +385,7 @@ DoMemberSP:
   arg1 = arg5;		// Assume SP mode 
   if (arg2 != 0)   
     goto begindomember;
-		/* SP-pop, Reload TOS */
-  arg6 = *(u64 *)arg4;
+  arg6 = *(u64 *)arg4;   		// SP-pop, Reload TOS 
   arg1 = iSP;		// SP-pop mode 
   iSP = arg4;		// Adjust SP 
 #ifdef TRACING
@@ -422,59 +404,53 @@ DoMemberFP:
 begindomember:
   if (_trace) printf("begindomember:\n");
   /* arg1 has the operand address. */
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
   t5 = zero + -2048;   
-  t5 = t5 + ((1) << 16);
+  t5 = t5 + ((1) << 16);   
   arg3 = (u32)(arg6 >> ((4&7)*8));   
   arg4 = (u32)arg6;   
-  t1 = *(s32 *)(arg1 + 4);
-  t2 = *(s32 *)arg1;
+  t1 = *(s32 *)(arg1 + 4);   
+  t2 = *(s32 *)arg1;   
   /* TagType. */
   arg3 = arg3 & 63;		// Get the object type bits 
-		/* Low bit will set iff EQ-NOT-EQL */
-  t5 = t5 >> (arg3 & 63);
+  t5 = t5 >> (arg3 & 63);   		// Low bit will set iff EQ-NOT-EQL 
   /* TagType. */
   t1 = t1 & 63;		// Strip cdr code 
   t2 = (u32)t2;   		// Remove sign-extension 
   if (t5 & 1)   
     goto memberexc;
   t6 = zero;
-  goto g29041;   
+  goto carcdrloop9760;   
 
 membercdr:
   if (_trace) printf("membercdr:\n");
-		/* Have we been asked to stop or trap? */
-  t6 = *(u64 *)&(processor->stop_interpreter);
+  t6 = *(u64 *)&(processor->stop_interpreter);   		// Have we been asked to stop or trap? 
   /* Move cdr to car for next carcdr-internal */
   /* TagType. */
   t1 = arg5 & 63;
   t2 = arg6;
 
-g29041:
-  if (_trace) printf("g29041:\n");
+carcdrloop9760:
+  if (_trace) printf("carcdrloop9760:\n");
   /* TagType. */
   t3 = t1 & 63;
   arg1 = t2;
-  t5 = t1 - Type_NIL;
+  t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto g29040;
+    goto carcdrloop9759;
   if (t5 == 0) 
-    goto g29042;
-  r0 = (u64)&&return0622;
+    goto carcdrloop9761;
+  r0 = (u64)&&return0309;
   goto carcdrinternal;
-return0622:
+return0309:
   /* TagType. */
   t5 = t1 & 63;
-		/* t7=0 if data same */
-  t7 = arg4 - t2;
+  t7 = arg4 - t2;   		// t7=0 if data same 
   if (t7 != 0)   		// J. if different 
     goto membercdr;
-		/* t6 zero if same tag */
-  t6 = arg3 - t5;
+  t6 = arg3 - t5;   		// t6 zero if same tag 
   if (t6 != 0)   		// J. if tags different 
     goto membercdr;
   /* we found a match! */
@@ -483,12 +459,10 @@ return0622:
   *(u32 *)(iSP + 4) = t3;
   goto NEXTINSTRUCTION;   
 
-g29042:
-  if (_trace) printf("g29042:\n");
-		/* Return NIL */
-  t1 = *(u64 *)&(processor->niladdress);
-		/* push the data */
-  *(u64 *)iSP = t1;
+carcdrloop9761:
+  if (_trace) printf("carcdrloop9761:\n");
+  t1 = *(u64 *)&(processor->niladdress);   		// Return NIL 
+  *(u64 *)iSP = t1;   		// push the data 
   goto NEXTINSTRUCTION;   
 
 memberexc:
@@ -498,9 +472,9 @@ memberexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-g29040:
-  if (_trace) printf("g29040:\n");
-  iSP = *(u64 *)&(processor->restartsp);
+carcdrloop9759:
+  if (_trace) printf("carcdrloop9759:\n");
+  iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
 #ifdef TRACING
 #endif
@@ -525,8 +499,7 @@ DoRgetfSP:
   arg1 = arg5;		// Assume SP mode 
   if (arg2 != 0)   
     goto begindorgetf;
-		/* SP-pop, Reload TOS */
-  arg6 = *(u64 *)arg4;
+  arg6 = *(u64 *)arg4;   		// SP-pop, Reload TOS 
   arg1 = iSP;		// SP-pop mode 
   iSP = arg4;		// Adjust SP 
 #ifdef TRACING
@@ -545,72 +518,65 @@ DoRgetfFP:
 begindorgetf:
   if (_trace) printf("begindorgetf:\n");
   /* arg1 has the operand address. */
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-  t11 = *(u64 *)&(processor->stackcachebasevma);
-		/* Size of the stack cache (words) */
-  t12 = *(s32 *)&processor->scovlimit;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  t11 = *(u64 *)&(processor->stackcachebasevma);   
+  t12 = *(s32 *)&processor->scovlimit;   		// Size of the stack cache (words) 
   t5 = zero + -2048;   
-  t5 = t5 + ((1) << 16);
+  t5 = t5 + ((1) << 16);   
   arg3 = (u32)(arg6 >> ((4&7)*8));   
   arg4 = (u32)arg6;   
-  t1 = *(s32 *)(arg1 + 4);
-  t2 = *(s32 *)arg1;
+  t1 = *(s32 *)(arg1 + 4);   
+  t2 = *(s32 *)arg1;   
   /* TagType. */
   arg3 = arg3 & 63;		// Get the object type bits 
-		/* Low bit will set iff EQ-NOT-EQL */
-  t5 = t5 >> (arg3 & 63);
+  t5 = t5 >> (arg3 & 63);   		// Low bit will set iff EQ-NOT-EQL 
   /* TagType. */
   t1 = t1 & 63;		// Strip cdr code 
   t2 = (u32)t2;   		// Remove sign-extension 
   if (t5 & 1)   
     goto rgetfexc;
   t6 = zero;
-  goto g29044;   
+  goto carcdrloop9763;   
 
 rgetfcdr:
   if (_trace) printf("rgetfcdr:\n");
-  r0 = (u64)&&return0623;
+  r0 = (u64)&&return0310;
   goto cdrinternal;
-return0623:
-		/* Have we been asked to stop or trap? */
-  t6 = *(u64 *)&(processor->stop_interpreter);
+return0310:
+  t6 = *(u64 *)&(processor->stop_interpreter);   		// Have we been asked to stop or trap? 
   /* Move cdr to car for next carcdr-internal */
   /* TagType. */
   t1 = arg5 & 63;
   t2 = arg6;
 
-g29044:
-  if (_trace) printf("g29044:\n");
-  t5 = t1 - Type_NIL;
+carcdrloop9763:
+  if (_trace) printf("carcdrloop9763:\n");
+  t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto g29043;
+    goto carcdrloop9762;
   if (t5 == 0) 
-    goto g29045;
-  r0 = (u64)&&return0624;
+    goto carcdrloop9764;
+  r0 = (u64)&&return0311;
   goto carcdrinternal;
-return0624:
+return0311:
   /* TagType. */
   t5 = t1 & 63;
-		/* t7=0 if data same */
-  t7 = arg4 - t2;
+  t7 = arg4 - t2;   		// t7=0 if data same 
   if (t7 != 0)   		// J. if different 
     goto rgetfcdr;
-		/* t6 zero if same tag */
-  t6 = arg3 - t5;
+  t6 = arg3 - t5;   		// t6 zero if same tag 
   if (t6 != 0)   		// J. if tags different 
     goto rgetfcdr;
   /* we found a match! */
   /* TagType. */
   t1 = arg5 & 63;		// Strip CDR code 
-		/* t5=0 if end of list */
-  t5 = t1 - Type_NIL;
+  t5 = t1 - Type_NIL;   		// t5=0 if end of list 
   if (t5 == 0) 		// after all this effort we lose! 
     goto rgetfexc;
   t2 = arg6;
-  r0 = (u64)&&return0625;
+  r0 = (u64)&&return0312;
   goto carinternal;
-return0625:
+return0312:
   /* TagType. */
   arg5 = arg5 & 63;		// Strip the CDR code 
   *(u32 *)iSP = arg6;
@@ -624,13 +590,11 @@ return0625:
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-g29045:
-  if (_trace) printf("g29045:\n");
-		/* Return NIL */
-  arg2 = *(u64 *)&(processor->niladdress);
-  *(u64 *)iSP = arg2;
-		/* push the data */
-  *(u64 *)(iSP + 8) = arg2;
+carcdrloop9764:
+  if (_trace) printf("carcdrloop9764:\n");
+  arg2 = *(u64 *)&(processor->niladdress);   		// Return NIL 
+  *(u64 *)iSP = arg2;   
+  *(u64 *)(iSP + 8) = arg2;   		// push the data 
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
@@ -641,9 +605,9 @@ rgetfexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-g29043:
-  if (_trace) printf("g29043:\n");
-  iSP = *(u64 *)&(processor->restartsp);
+carcdrloop9762:
+  if (_trace) printf("carcdrloop9762:\n");
+  iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
 #ifdef TRACING
 #endif

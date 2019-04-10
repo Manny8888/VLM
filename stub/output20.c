@@ -8,9 +8,10 @@
   /* The full word instructions */
 /* start DoIStageError */
 
+  /*  */
+  /*  */
   /* Fullword instruction - DoIStageError */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 doistageerror:
   if (_trace) printf("doistageerror:\n");
@@ -20,11 +21,14 @@ doistageerror:
 
 /* end DoIStageError */
   /* End of Fullword instruction - DoIStageError */
+  /* ============================== */
+  /*  */
 /* start nullfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - nullfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 nullfw:
   if (_trace) printf("nullfw:\n");
@@ -34,11 +38,14 @@ nullfw:
 
 /* end nullfw */
   /* End of Fullword instruction - nullfw */
+  /* ============================== */
+  /*  */
 /* start monitorforwardfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - monitorforwardfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 monitorforwardfw:
   if (_trace) printf("monitorforwardfw:\n");
@@ -48,11 +55,14 @@ monitorforwardfw:
 
 /* end monitorforwardfw */
   /* End of Fullword instruction - monitorforwardfw */
+  /* ============================== */
+  /*  */
 /* start headerpfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - headerpfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 headerpfw:
   if (_trace) printf("headerpfw:\n");
@@ -62,11 +72,14 @@ headerpfw:
 
 /* end headerpfw */
   /* End of Fullword instruction - headerpfw */
+  /* ============================== */
+  /*  */
 /* start headerifw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - headerifw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 headerifw:
   if (_trace) printf("headerifw:\n");
@@ -76,11 +89,14 @@ headerifw:
 
 /* end headerifw */
   /* End of Fullword instruction - headerifw */
+  /* ============================== */
+  /*  */
 /* start oneqforwardfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - oneqforwardfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 oneqforwardfw:
   if (_trace) printf("oneqforwardfw:\n");
@@ -90,11 +106,14 @@ oneqforwardfw:
 
 /* end oneqforwardfw */
   /* End of Fullword instruction - oneqforwardfw */
+  /* ============================== */
+  /*  */
 /* start headerforwardfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - headerforwardfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 headerforwardfw:
   if (_trace) printf("headerforwardfw:\n");
@@ -104,11 +123,14 @@ headerforwardfw:
 
 /* end headerforwardfw */
   /* End of Fullword instruction - headerforwardfw */
+  /* ============================== */
+  /*  */
 /* start elementforwardfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - elementforwardfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 elementforwardfw:
   if (_trace) printf("elementforwardfw:\n");
@@ -118,11 +140,14 @@ elementforwardfw:
 
 /* end elementforwardfw */
   /* End of Fullword instruction - elementforwardfw */
+  /* ============================== */
+  /*  */
 /* start gcforwardfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - gcforwardfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 gcforwardfw:
   if (_trace) printf("gcforwardfw:\n");
@@ -132,11 +157,14 @@ gcforwardfw:
 
 /* end gcforwardfw */
   /* End of Fullword instruction - gcforwardfw */
+  /* ============================== */
+  /*  */
 /* start boundlocationfw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - boundlocationfw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 boundlocationfw:
   if (_trace) printf("boundlocationfw:\n");
@@ -146,11 +174,14 @@ boundlocationfw:
 
 /* end boundlocationfw */
   /* End of Fullword instruction - boundlocationfw */
+  /* ============================== */
+  /*  */
 /* start logicvariablefw */
 
+  /*  */
+  /*  */
   /* Fullword instruction - logicvariablefw */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 logicvariablefw:
   if (_trace) printf("logicvariablefw:\n");
@@ -160,16 +191,18 @@ logicvariablefw:
 
 /* end logicvariablefw */
   /* End of Fullword instruction - logicvariablefw */
+  /* ============================== */
+  /*  */
 /* start pushsparepointer3 */
 
+  /*  */
+  /*  */
   /* Fullword instruction - pushsparepointer3 */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 pushsparepointer3:
   if (_trace) printf("pushsparepointer3:\n");
-		/* Get operand */
-  arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);
+  arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);   		// Get operand 
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
@@ -177,16 +210,18 @@ pushsparepointer3:
 
 /* end pushsparepointer3 */
   /* End of Fullword instruction - pushsparepointer3 */
+  /* ============================== */
+  /*  */
 /* start pushsparepointer4 */
 
+  /*  */
+  /*  */
   /* Fullword instruction - pushsparepointer4 */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 pushsparepointer4:
   if (_trace) printf("pushsparepointer4:\n");
-		/* Get operand */
-  arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);
+  arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);   		// Get operand 
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
@@ -194,11 +229,14 @@ pushsparepointer4:
 
 /* end pushsparepointer4 */
   /* End of Fullword instruction - pushsparepointer4 */
+  /* ============================== */
+  /*  */
 /* start callcompiledodd */
 
+  /*  */
+  /*  */
   /* Fullword instruction - callcompiledodd */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 callcompiledodd:
   if (_trace) printf("callcompiledodd:\n");
@@ -212,11 +250,14 @@ callcompiledoddprefetch:
 
 /* end callcompiledodd */
   /* End of Fullword instruction - callcompiledodd */
+  /* ============================== */
+  /*  */
 /* start nativeinstruction */
 
+  /*  */
+  /*  */
   /* Fullword instruction - nativeinstruction */
-#ifdef TRACING
-#endif
+  /* ======================= */
 
 nativeinstruction:
   if (_trace) printf("nativeinstruction:\n");
@@ -227,15 +268,17 @@ nativeinstruction:
 
 /* end nativeinstruction */
   /* End of Fullword instruction - nativeinstruction */
+  /* ============================== */
+  /*  */
 /* start resumeemulated */
 
 
 resumeemulated:
   if (_trace) printf("resumeemulated:\n");
-  arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-  iPC = (ivory * 4) - arg1;
-  iPC = zero - iPC;
-  iPC = iPC >> 1;
+  arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);   
+  iPC = (ivory * 4) - arg1;   
+  iPC = zero - iPC;   
+  iPC = iPC >> 1;   
   if (arg2 != 0)   
     goto interpretinstructionpredicted;
   goto interpretinstructionforbranch;   

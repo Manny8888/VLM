@@ -14,16 +14,15 @@ ioutofline:
 
 traporsuspendmachine:
   if (_trace) printf("traporsuspendmachine:\n");
-  t4 = *(s32 *)&processor->control;
-		/* Be sure this is up-to-date */
-  *(u64 *)&processor->restartsp = iSP;
+  t4 = *(s32 *)&processor->control;   
+  *(u64 *)&processor->restartsp = iSP;   		// Be sure this is up-to-date 
   r0 = *(u64 *)&(processor->please_stop); /* lock */     		// Has the spy asked us to stop or trap? 
   t5 = zero;
   *(u64 *)&processor->please_stop = t5; /* lock */   
   t5 = 1;
   if (t5 == 0) 
     goto collision;
-  *(u64 *)&processor->stop_interpreter = zero;
+  *(u64 *)&processor->stop_interpreter = zero;   
 
 collision:
   t3 = CMPBGE(r0, HaltReason_IllInstn);  		// t3<0>=1 if we've been asked to stop 
@@ -31,47 +30,45 @@ collision:
     goto SUSPENDMACHINE;
   /* Here when someone wants the emulator to trap. */
   r0 = (u32)(r0 >> ((4&7)*8));   		// Extract PROCESSORSTATE_PLEASE_TRAP (ivory) 
-		/* Isolate current trap mode */
-  t4 = t4 >> 30;
+  t4 = t4 >> 30;   		// Isolate current trap mode 
   t3 = (r0 == TrapReason_HighPrioritySequenceBreak) ? 1 : 0;   
 
-g30687:
-  if (_trace) printf("g30687:\n");
+force-alignment11406:
+  if (_trace) printf("force-alignment11406:\n");
   if (t3 == 0) 
-    goto g30683;
+    goto basic-dispatch11402;
   /* Here if argument TrapReasonHighPrioritySequenceBreak */
   t4 = ((u64)t4 <= (u64)TrapMode_ExtraStack) ? 1 : 0;   		// Only interrupts EXTRA-STACK and EMULATOR 
   if (t4 == 0) 
     goto continuecurrentinstruction;
   goto highprioritysequencebreak;
 
-g30683:
-  if (_trace) printf("g30683:\n");
+basic-dispatch11402:
+  if (_trace) printf("basic-dispatch11402:\n");
   t3 = (r0 == TrapReason_LowPrioritySequenceBreak) ? 1 : 0;   
 
-g30688:
-  if (_trace) printf("g30688:\n");
+force-alignment11407:
+  if (_trace) printf("force-alignment11407:\n");
   if (t3 == 0) 
-    goto g30684;
+    goto basic-dispatch11403;
   /* Here if argument TrapReasonLowPrioritySequenceBreak */
   if (t4 != 0)   		// Only interrupts EMULATOR 
     goto continuecurrentinstruction;
   goto lowprioritysequencebreak;
 
-g30684:
-  if (_trace) printf("g30684:\n");
+basic-dispatch11403:
+  if (_trace) printf("basic-dispatch11403:\n");
   /* Here for all other cases */
   /* Check for preempt-request trap */
-		/* Get the preempt-pending bit */
-  t5 = *(s32 *)&processor->interruptreg;
+  t5 = *(s32 *)&processor->interruptreg;   		// Get the preempt-pending bit 
   if (t4 != 0)   		// Don't take preempt trap unless in emulator mode 
     goto continuecurrentinstruction;
   if ((t5 & 1) == 0)   		// Jump if preempt request not pending 
     goto continuecurrentinstruction;
   goto preemptrequesttrap;
 
-g30682:
-  if (_trace) printf("g30682:\n");
+basic-dispatch11401:
+  if (_trace) printf("basic-dispatch11401:\n");
 
 SUSPENDMACHINE:
   if (_trace) printf("SUSPENDMACHINE:\n");
@@ -103,24 +100,23 @@ stopinterp:
   r0 = t1;		// Return the halt reason 
 		/* Clear the request flag */
   *(u32 *)&processor->please_stop = zero;
-  *(u64 *)&processor->cp = iCP;
-  *(u64 *)&processor->epc = iPC;
-  *(u64 *)&processor->sp = iSP;
-  *(u64 *)&processor->fp = iFP;
-  *(u64 *)&processor->lp = iLP;
-		/* Stop the (emulated) chip */
-  *(u64 *)&processor->runningp = zero;
-  r9 = *(u64 *)&(processor->asrr9);
-  r10 = *(u64 *)&(processor->asrr10);
-  r11 = *(u64 *)&(processor->asrr11);
-  r12 = *(u64 *)&(processor->asrr12);
-  r13 = *(u64 *)&(processor->asrr13);
-  r15 = *(u64 *)&(processor->asrr15);
-  r26 = *(u64 *)&(processor->asrr26);
-  r27 = *(u64 *)&(processor->asrr27);
-  r29 = *(u64 *)&(processor->asrr29);
-  r30 = *(u64 *)&(processor->asrr30);
-  r14 = *(u64 *)&(processor->asrr14);
+  *(u64 *)&processor->cp = iCP;   
+  *(u64 *)&processor->epc = iPC;   
+  *(u64 *)&processor->sp = iSP;   
+  *(u64 *)&processor->fp = iFP;   
+  *(u64 *)&processor->lp = iLP;   
+  *(u64 *)&processor->runningp = zero;   		// Stop the (emulated) chip 
+  r9 = *(u64 *)&(processor->asrr9);   
+  r10 = *(u64 *)&(processor->asrr10);   
+  r11 = *(u64 *)&(processor->asrr11);   
+  r12 = *(u64 *)&(processor->asrr12);   
+  r13 = *(u64 *)&(processor->asrr13);   
+  r15 = *(u64 *)&(processor->asrr15);   
+  r26 = *(u64 *)&(processor->asrr26);   
+  r27 = *(u64 *)&(processor->asrr27);   
+  r29 = *(u64 *)&(processor->asrr29);   
+  r30 = *(u64 *)&(processor->asrr30);   
+  r14 = *(u64 *)&(processor->asrr14);   
   goto *ra; /* ret */
 
 /* end iOutOfLine */

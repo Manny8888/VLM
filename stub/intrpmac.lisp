@@ -1,10 +1,8 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
 (defmacro check-temporaries ((&rest lives) (&rest temps))
   `(check-temporaries-1 (list ,@lives) (list ,@temps)))
-;(defmacro check-temporaries ((&rest lives) (&rest temps)))
 
 (defparameter *memoized-vmdata* nil)
 (defparameter *memoized-vmtags* nil)
@@ -17,17 +15,15 @@
 ;;+++ Is this ever a kludge or what!
 (defparameter *inhibit-alignment-in-memory-read* nil)
 
-;; (eval-when (compile load eval)
 (defun check-temporaries-1 (lives temps)
   (let ((shared (intersection lives temps
  			                        :test #'(lambda (r1 r2)
- 					                              (eql (register-asmname (find-register r1))
- 					                                   (register-asmname (find-register r2)))))))
+                                        (eql (register-asmname (find-register r1))
+                                             (register-asmname (find-register r2)))))))
     (when shared
       (warn "The following registers are used as both live ~ registers and temps in ~A:~%~A"
             *function-being-processed* shared)))
   (when *memoized-vmdata*
-    ;; NOTE: Used to be (stack-let
     (let*
         ((sc-memos (list *memoized-vmdata* *memoized-vmtags* *memoized-base* *memoized-limit*))
  		     (memos (list *memoized-vmdata* *memoized-vmtags*))
@@ -39,7 +35,6 @@
  	    (when shared
  	      (warn "The following memoized registers are being reused in ~A:~%~A"
  	            *function-being-processed* shared)))))
-;; )	;eval-when
 
 (defmacro branch-true (r label &optional comment)
   `((BNE ,r ,label ,@(if comment `(,comment)))))
@@ -48,7 +43,7 @@
   `((BEQ ,r ,label ,@(if comment `(,comment)))))
 
 (defmacro force-alignment ()
-  `((label ,(gensym))))
+  `((label ,(gensym "force-alignment"))))
 
 
 ;;; This macro assumes that the PC is a halfword address where the lsbit
@@ -247,7 +242,7 @@
     (external-branch arrayexception)))
 
 (defmacro maybe-icount (r)
-  (let ((lb (gensym)))
+  (let ((lb (gensym "maybe-icount")))
     `((comment "Update the instruction count.")
       (LDQ ,r PROCESSORSTATE_INSTRUCTION_COUNT (ivory))
       (SUBQ ,r 1 ,r "Decrement the instruction count.")
@@ -268,7 +263,7 @@
     (STL ,temp5 0 (,temp4) "Set current usage data")))
 
 (defmacro maybe-meter-hit (temp temp2 temp3 temp4 temp5 temp6)
-  (let ((done (gensym)))
+  (let ((done (gensym "maybe-meter-hit")))
     `((LDL ,temp2 PROCESSORSTATE_METERCOUNT (ivory) "The number of remaining tokens.")
       (LDQ ,temp PROCESSORSTATE_METERDATABUFF (ivory) "The cache miss meter buffer.")
       (LDL ,temp4 PROCESSORSTATE_METERPOS (ivory) "Position for new data.")
@@ -292,7 +287,7 @@
       (STL ,temp2 PROCESSORSTATE_METERCOUNT (ivory)))))
 
 (defmacro maybe-meter-miss (temp temp2 temp3 temp4 temp5 temp6)
-  (let ((done (gensym)))
+  (let ((done (gensym "maybe-meter-miss")))
     `((LDL ,temp6 PROCESSORSTATE_METERVALUE (ivory))
       (LDL ,temp2 PROCESSORSTATE_METERCOUNT (ivory) "The number of remaining tokens.")
       (LDQ ,temp PROCESSORSTATE_METERDATABUFF (ivory) "The cache miss meter buffer.")
@@ -317,7 +312,7 @@
       (label ,done)
       (STL ,temp2 PROCESSORSTATE_METERCOUNT (ivory)))))
 
-#+Genera
+#+nil
 (defun show-icache-histogram (&optional pathname (stream *standard-output*))
   (declare (special sct:*vlm-destination*))
   (when (null pathname)
@@ -365,11 +360,11 @@
     (STQ ,temp2 0 (,temp) "and store it back")))
 
 (defmacro maybe-trace (temp temp2 temp3 temp4 temp5 temp6 &optional dispatch)
-  (let ((dotrace (gensym))
-	(finishtrace (gensym))
-	(noprint (gensym))
-	(nowrap (gensym))
-	(notrace (gensym)))
+  (let ((dotrace (gensym "maybe-trace"))
+	(finishtrace (gensym "maybe-trace"))
+	(noprint (gensym "maybe-trace"))
+	(nowrap (gensym "maybe-trace"))
+	(notrace (gensym "maybe-trace")))
     `((comment "Trace instructions if requested.")
       (LDQ ,temp PROCESSORSTATE_TRACE_HOOK (ivory))
       (BEQ ,temp ,notrace "J. if not tracing.")
@@ -582,7 +577,7 @@
     (align4k)))
 
 (defmacro define-instruction (name format (&rest options) &body body &environment env)
-  #+Genera (declare (zwei:indentation . indent-define-procedure))
+  ;; (declare (zwei:indentation . indent-define-procedure))
   (let ((*function-being-processed* name))
     `((start ,name)
       ,@(apply #'expand-instruction-procedure-header format name options)
@@ -598,17 +593,22 @@
 ;;; is available via iCP and iPC.
 (defmethod expand-instruction-procedure-header
 		((format (eql :full-word-instruction)) name &key)
-  `((comment ,(format nil "Fullword instruction - ~a" name))
-    (passthru "#ifdef TRACING")
-    (passthru ,(format nil "	.byte 0x80"))
-    (passthru ,(format nil "	.asciiz \"~a\"" name))
-    (passthru "#endif")
+  `((comment ,(format nil ""))
+    (comment ,(format nil ""))
+    (comment ,(format nil "Fullword instruction - ~a" name))
+    (comment ,(format nil "======================="))
+    ;; (passthru "#ifdef TRACING")
+    ;; (passthru ,(format nil "	.byte 0x80"))
+    ;; (passthru ,(format nil "	.asciiz \"~a\"" name))
+    ;; (passthru "#endif")
     (label ,(format nil "~a" name))))
 
 (defmethod expand-instruction-procedure-trailer
 		((format (eql :full-word-instruction)) name &key)
   `((end ,name)
-    (comment ,(format nil "End of Fullword instruction - ~a" name))))
+    (comment ,(format nil "End of Fullword instruction - ~a" name))
+    (comment ,(format nil "=============================="))
+    (comment ,(format nil ""))))
 
 
 ;;; A :operand-from-stack has four entrypoints, FP LP SP and IM, IM is an
@@ -1040,7 +1040,7 @@
 ;;; deals with tags of up to 8 bits only
 (defmacro basic-dispatch (t1 t2 &body clauses &environment env)
   (let* ((expanded ())
-	 (end-label (gensym))
+	 (end-label (gensym "basic-dispatch"))
 	 (else-label (assoc :else-label clauses))
 	 (fall-through nil)
 	 )
@@ -1048,7 +1048,7 @@
       (setq clauses (remove else-label clauses)
 	    else-label (second else-label)))
     (loop for rest-label = nil then label
-	  as label = (gensym)
+	  as label = (gensym "basic-dispatch")
 	  for (clause . rest) on clauses do ;dolist (clause clauses)
       (when (null rest)
 	(if else-label
@@ -1093,7 +1093,7 @@
 		       `((BR zero ,end-label))))
 		   expanded))
 		((listp key)
-		 (let ((matchlabel (gensym)))
+		 (let ((matchlabel (gensym "basic-dispatch")))
 		   (push
 		     `(,@(when rest-label
 			 `((label ,rest-label)))
@@ -1167,9 +1167,9 @@
 			  (incf n (length (car clause)))
 			  (incf n 1)))
 		    n))
-	 (end-label (gensym))
+	 (end-label (gensym "mondo-dispatch"))
 	 (i 0)
-	 (label (gensym)))
+	 (label (gensym "mondo-dispatch")))
     (dolist (clause clauses)
       (cond ((member (car clause) '(:else :otherwise 'else 'otherwise))
 	     (push
@@ -1190,7 +1190,7 @@
 		   (label ,label))
 		 expanded)
 	       (incf i)
-	       (setq label (gensym))))
+	       (setq label (gensym "alignment"))))
 	    (t
 	     (push
 	       `((LDA ,t2 ,(car clause) (zero))
@@ -1202,7 +1202,7 @@
 		 (label ,label))
 	       expanded)))
       (incf i)
-      (setq label (gensym)))
+      (setq label (gensym "mondo-dispatch")))
     `(,@(apply #'nconc (nreverse expanded))
       (label ,end-label))))
 
@@ -1234,10 +1234,10 @@
 	(elseclause nil)
 	(else1clause nil)
 	(else2clause nil)
-	(eclabel (gensym))
-	(ec1label (gensym))
-	(ec2label (gensym))
-	(done (gensym)))
+	(eclabel (gensym "binary-type-dispatch"))
+	(ec1label (gensym "binary-type-dispatch"))
+	(ec2label (gensym "binary-type-dispatch"))
+	(done (gensym "binary-type-dispatch")))
     ;; For each clause, sort into first type, subclauses
     ;; Next make a nested type-dispatch
     (dolist (cl clauses)

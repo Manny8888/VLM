@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 ;(include-header "aihead.s")
 ;(include-header "aistat.s")

@@ -2,6 +2,7 @@
 GRTAGS
 GTAGS
 GPATH
+.idea
 .vscode
 *.fasl
 *.uuid

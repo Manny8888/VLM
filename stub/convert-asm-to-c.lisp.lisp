@@ -13,7 +13,6 @@
 
 (in-package :alpha-axp-internals)
 
-
 (defparameter call-label-count 0)
 (defparameter just-start nil)
 (defparameter global-labels nil)
@@ -45,7 +44,8 @@
     (setf (cdr (last list)) list)
     list))
 
-(defmacro define-integer-register (name reg &rest other))
+(defmacro define-integer-register (name reg &rest other)
+  (declare (ignore name reg other)))
 
 (defun register-asmname (name)
   ;;  (format t "register-asmname: ~S~%" name)
@@ -653,7 +653,7 @@
 
 	              ))))
 
-;;
+
 (defun isconstant (sym)
   (member sym
 	        '(|TypeEvenPC|
@@ -1454,7 +1454,7 @@
 
 	    (FBEQ
 	     (format destination "  if (FLTU64(~A, ~A) == 0.0)   ~A~%    goto ~A;~%"
-		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg3) 
+		           (regnum (fixarg arg1)) (fixarg arg1) (trailing-comment arg3)
 		           (gotolabel arg2)))
 
 	    (FBLT
@@ -1513,34 +1513,32 @@
 	       (t
 	        (format destination "  ~A = (u64)&~A->~A;"
 		              (fixarg arg1) (structptr arg3 arg2) (fixarg arg2))))
-                      (format destination "   ~A~%" (trailing-comment arg4)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDAH
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (or (eq arg3 0) (eq arg3 'zero))
-	         (format destination "  ~A = (~A) << 16;~%"
+	         (format destination "  ~A = (~A) << 16;"
 		               (fixarg arg1) (fixarg arg2))
 	         (if (or (numberp arg2) (isconstant arg2))
-	             (format destination "  ~A = ~A + ((~A) << 16);~%"
+	             (format destination "  ~A = ~A + ((~A) << 16);"
 		                   (fixarg arg1) (fixarg arg3) (fixarg arg2))
-	             (format destination "  ~A = (u64)&~A->~A;~%"
-		                   (fixarg arg1) (structptr arg3 arg2) (fixarg arg2)))))
+	             (format destination "  ~A = (u64)&~A->~A;"
+		                   (fixarg arg1) (structptr arg3 arg2) (fixarg arg2))))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDL
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (numberp arg2)
 	         (if (eq arg2 0)
-		           (format destination "  ~A = *(s32 *)~A;~%"
+		           (format destination "  ~A = *(s32 *)~A;"
 			                 (fixarg arg1) (fixarg arg3))
-	             (format destination "  ~A = *(s32 *)(~A + ~A);~%"
+	             (format destination "  ~A = *(s32 *)(~A + ~A);"
 		                   (fixarg arg1) (fixarg arg3) (fixarg arg2)))
 	         ;; handle ugly x+4 case
-	         (multiple-value-bind (ptr member offset)
-				       (decompose-args arg3 arg2)
+	         (multiple-value-bind (ptr member offset) (decompose-args arg3 arg2)
 		         (if (numberp offset)
 		             (progn
 		               (if (eq (mod offset 4) 0)
@@ -1549,21 +1547,21 @@
 		             (setf offset (format nil "~A/4" offset)))
 		         (cond
 		           ((eq offset 0)
-		            (format destination "  ~A = *(s32 *)&~A->~A;~%"
+		            (format destination "  ~A = *(s32 *)&~A->~A;"
 			                  (fixarg arg1) ptr (fixarg member)))
 		           (t
-		            (format destination "  ~A = *((s32 *)(&~A->~A)+~A);~%"
-			                  (fixarg arg1) ptr (fixarg member) offset))))))
+		            (format destination "  ~A = *((s32 *)(&~A->~A)+~A);"
+			                  (fixarg arg1) ptr (fixarg member) offset)))))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDQ
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (or (numberp arg2) (isconstant arg2))
 	         (if (eq arg2 0)
-		           (format destination "  ~A = *(u64 *)~A;~%"
+		           (format destination "  ~A = *(u64 *)~A;"
 			                 (fixarg arg1) (fixarg arg3))
-	             (format destination "  ~A = *(u64 *)(~A + ~A);~%"
+	             (format destination "  ~A = *(u64 *)(~A + ~A);"
 		                   (fixarg arg1) (fixarg arg3) (fixarg arg2)))
 	         ;; member not number or constant
 	         (let ((ptr (structptr arg3 arg2)))
@@ -1573,15 +1571,14 @@
 		              (equal ptr "((PROCESSORSTATEP)t12)"))
 		             (let ((asmoffset
 			                  (cond
-			                    ((eq arg2 'PROCESSORSTATE_DATAREAD_MASK)
-			                     "PROCESSORSTATE_DATAREAD_MASK")
-			                    ((eq arg2 'PROCESSORSTATE_DATAREAD)
-			                     "PROCESSORSTATE_DATAREAD"))))
-		               (format destination "  ~A = *(u64 *)(~A + ~A);~%"
+			                    ((eq arg2 'PROCESSORSTATE_DATAREAD_MASK) "PROCESSORSTATE_DATAREAD_MASK")
+			                    ((eq arg2 'PROCESSORSTATE_DATAREAD) "PROCESSORSTATE_DATAREAD"))))
+		               (format destination "  ~A = *(u64 *)(~A + ~A);"
 			                     (fixarg arg1) (fixarg arg3) asmoffset))
 	               ;; normal case
-	               (format destination "  ~A = *(u64 *)&(~A->~A);~%"
-		                     (fixarg arg1) ptr (fixarg arg2))))))
+	               (format destination "  ~A = *(u64 *)&(~A->~A);"
+		                     (fixarg arg1) ptr (fixarg arg2)))))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (LDQ_U
 	     (if (listp arg3)
@@ -1656,105 +1653,100 @@
        (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (ADDS
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  ADDS(~A, ~A, ~A, ~A, ~A, ~A); /* adds */~%"
+	     (format destination "  ADDS(~A, ~A, ~A, ~A, ~A, ~A); /* adds */   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (ADDT
 	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  ADDT(~A, ~A, ~A, ~A, ~A, ~A); /* addt */~%"
+	     (format destination "  ADDT(~A, ~A, ~A, ~A, ~A, ~A); /* addt */   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (SUBS
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (not (equal arg3 'zero))
-	         (format destination "  SUBS(~A, ~A, ~A, ~A, ~A, ~A); /* subs */~%"
+	         (format destination "  SUBS(~A, ~A, ~A, ~A, ~A, ~A); /* subs */   ~A~%"
 		               (regnum (fixarg arg3)) (fixarg arg3)
 		               (regnum (fixarg arg1)) (fixarg arg1)
-		               (regnum (fixarg arg2)) (fixarg arg2))))
+		               (regnum (fixarg arg2)) (fixarg arg2)
+                   (trailing-comment arg4))))
 
 	    (SUBT
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  SUBT(~A, ~A, ~A, ~A, ~A, ~A);~%"
+	     (format destination "  SUBT(~A, ~A, ~A, ~A, ~A, ~A);   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (MULS
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  MULS(~A, ~A, ~A, ~A, ~A, ~A); /* muls */~%"
+	     (format destination "  MULS(~A, ~A, ~A, ~A, ~A, ~A); /* muls */   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (MULT
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  MULT(~A, ~A, ~A, ~A, ~A, ~A);~%"
+	     (format destination "  MULT(~A, ~A, ~A, ~A, ~A, ~A);   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (DIVS
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  DIVS(~A, ~A, ~A, ~A, ~A, ~A); /* divs */~%"
+	     (format destination "  DIVS(~A, ~A, ~A, ~A, ~A, ~A); /* divs */   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (DIVT
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
-	     (format destination "  DIVT(~A, ~A, ~A, ~A, ~A, ~A);~%"
+	     (format destination "  DIVT(~A, ~A, ~A, ~A, ~A, ~A);   ~A~%"
 		           (regnum (fixarg arg3)) (fixarg arg3)
 		           (regnum (fixarg arg1)) (fixarg arg1)
-		           (regnum (fixarg arg2)) (fixarg arg2)))
+		           (regnum (fixarg arg2)) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (LOAD-CONSTANT
 	     (if (numberp arg2)
 	         (format destination "  ~A = 0x~X;"
-		               (fixarg arg1)
-		               arg2)
+		               (fixarg arg1) arg2)
 	         (format destination "  ~A = ~A;"
-		               (fixarg arg1)
-		               (fixarg arg2)))
-                       (format destination "   ~A~%" (trailing-comment arg4)))
+		               (fixarg arg1) (fixarg arg2)))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (MSKBL
-	     (check-comment arg4)
-	     (format destination "  ~A = ~A & ~~(0xffL << (~A&7)*8);~%"
-		           (fixarg arg3) (fixarg arg1) (fixarg arg2)))
+	     (format destination "  ~A = ~A & ~~(0xffL << (~A&7)*8);   ~A~%"
+		           (fixarg arg3) (fixarg arg1) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (MULQ
-	     (check-comment arg4)
-	     (format destination "  ~A = ~A * ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg1)
-		           (fixarg arg2)))
+	     (format destination "  ~A = ~A * ~A;   ~A~%"
+		           (fixarg arg3) (fixarg arg1) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (MULL/V
 	     (format destination "  ~A = (s64)((s32)~A * (s64)(s32)~A); /* mull/v */   ~A~%"
-		           (fixarg arg3)
-		           (fixarg arg1)
-		           (fixarg arg2)
+		           (fixarg arg3) (fixarg arg1) (fixarg arg2)
                (trailing-comment arg4))
 	     (format destination "  if (~A >> 32)~%    exception();  // WARNING !!! THIS IS ADJUSTED BY THE DIFF FILE~%"
 		           (fixarg arg3)))
@@ -1774,43 +1766,40 @@
 		           (fixarg arg1)))
 
 	    (SRA
-	     (check-comment arg4)
-	     (format destination "  ~A = (s64)~A >> ~A;~%"
-		           (fixarg arg3)
-               (fixarg arg1)
+	     (format destination "  ~A = (s64)~A >> ~A;   ~A~%"
+		           (fixarg arg3) (fixarg arg1)
 	             (if (numberp arg2)
                    (logand arg2 63)
-		               (format nil "$27(~A & 63)" (fixarg arg2)))))
+		               (format nil "$27(~A & 63)" (fixarg arg2)))
+               (trailing-comment arg4)))
 
 	    (SRL
-	     (check-comment arg4)
-	     (format destination "  ~A = ~A >> ~A;~%"
-		           (fixarg arg3)
-               (fixarg arg1)
+	     (format destination "  ~A = ~A >> ~A;   ~A~%"
+		           (fixarg arg3) (fixarg arg1)
                (if (numberp arg2)
                    (logand arg2 63)
-		               (format nil "(~A & 63)" (fixarg arg2)))))
+		               (format nil "(~A & 63)" (fixarg arg2)))
+               (trailing-comment arg4)))
 
 	    (SLL
-	     (check-comment arg4)
-	     (format destination "  ~A = ~A << ~A;~%"
-		           (fixarg arg3)
-               (fixarg arg1)
+	     (format destination "  ~A = ~A << ~A;   ~A~%"
+		           (fixarg arg3) (fixarg arg1)
                (if (numberp arg2)
                    (logand arg2 63)
-		               (format nil "(~A & 63)" (fixarg arg2)))))
+		               (format nil "(~A & 63)" (fixarg arg2)))
+               (trailing-comment arg4)))
 
 	    (SUBQ
-	     (check-comment arg4)
 	     (if (not (equal arg3 'zero))
-	         (format destination "  ~A = ~A - ~A;~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = ~A - ~A;   ~A~%"
+		               (fixarg arg3) (fixarg arg1) (fixarg arg2)
+                   (trailing-comment arg4))))
 
 	    (SUBL
-	     (check-comment arg4)
 	     (if (not (equal arg3 'zero))
-	         (format destination "  ~A = (s32)~A - (s32)~A;~%"
-		               (fixarg arg3) (fixarg arg1) (fixarg arg2))))
+	         (format destination "  ~A = (s32)~A - (s32)~A;   ~A~%"
+		               (fixarg arg3) (fixarg arg1) (fixarg arg2)
+                   (trailing-comment arg4))))
 
 	    (S4ADDQ
 	     (if (equal arg2 'zero)
@@ -1821,23 +1810,18 @@
        (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (S8ADDQ
-	     (check-comment arg4)
-	     (format destination "  ~A = (~A * 8) + ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg1)
-		           (fixarg arg2)))
+	     (format destination "  ~A = (~A * 8) + ~A;  ~A~%"
+		           (fixarg arg3) (fixarg arg1) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (S4SUBQ
-	     (check-comment arg4)
-	     (format destination "  ~A = (~A * 4) - ~A;~%"
-		           (fixarg arg3)
-		           (fixarg arg1)
-		           (fixarg arg2)))
+	     (format destination "  ~A = (~A * 4) - ~A;   ~A~%"
+		           (fixarg arg3) (fixarg arg1) (fixarg arg2)
+               (trailing-comment arg4)))
 
 	    (S8SUBQ
 	     (format destination "  ~A = (~A * 8) - ~A;   ~A~%"
-		           (fixarg arg3)
-		           (fixarg arg1)
+		           (fixarg arg3) (fixarg arg1)
 		           (fixarg arg2)
                (trailing-comment arg4)))
 
@@ -1869,13 +1853,12 @@
 			                  ptr (fixarg member) offset (fixarg arg1)))))))
 
 	    (STQ
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (numberp arg2)
 	         (if (eq arg2 0)
-		         (format destination "  *(u64 *)~A = ~A;~%" (structptr arg3 arg2) (fixarg arg1))
-	             (format destination "  *(u64 *)(~A + ~A) = ~A;~%" (structptr arg3 arg2) (fixarg arg2) (fixarg arg1)))
+		           (format destination "  *(u64 *)~A = ~A;" (structptr arg3 arg2) (fixarg arg1))
+	             (format destination "  *(u64 *)(~A + ~A) = ~A;" (structptr arg3 arg2) (fixarg arg2) (fixarg arg1)))
 	         ;; handle ugly x+4 case
 	         (multiple-value-bind (ptr member offset) (decompose-args arg3 arg2)
 		         (if (numberp offset)
@@ -1890,17 +1873,17 @@
 		            (if (equal ptr "((PROCESSORSTATEP)arg1)")
 		                (setf ptr "processor"))
 		            ;;
-		            (format destination "  *(u64 *)&~A->~A = ~A;~%"
-			                  ptr (fixarg member) (fixarg arg1)))
+		            (format destination "  *(u64 *)&~A->~A = ~A;"  ptr (fixarg member) (fixarg arg1)))
 		           (t
-		            (format destination "  *((u64 *)(&~A->~A)+~A) = ~A;~%"
-			                  ptr (fixarg member) offset (fixarg arg1)))))))
+		            (format destination "  *((u64 *)(&~A->~A)+~A) = ~A;"
+			                  ptr (fixarg member) offset (fixarg arg1))))))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (STQ_C
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (format destination "  *(u64 *)&~A->~A = ~A; /* lock */   ~A~%"
-		           (structptr arg3) (fixarg arg2) (fixarg arg1) 
+		           (structptr arg3) (fixarg arg2) (fixarg arg1)
                (trailing-comment arg4))
 	     (format destination "  ~A = 1;~%" (fixarg arg1)))
 
@@ -1917,14 +1900,11 @@
        (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (TRAPB
-	     (format destination "  /* trapb ~A */   ~A~%"
-		           (fixarg arg1) (trailing-comment arg1)))
+	     (format destination "  /* trapb ~A */   ~A~%" (fixarg arg1) (trailing-comment arg1)))
 
 	    (XOR
 	     (format destination "  ~A = ~A ^ ~A;   ~A~%"
-		           (fixarg arg3)
-		           (fixarg arg1)
-		           (fixarg arg2)
+		           (fixarg arg3) (fixarg arg1) (fixarg arg2)
                (trailing-comment arg4)))
 
       ;;-------------------------------------
@@ -1941,10 +1921,9 @@
 	         (format t "*** RET w/arg1")))
 
 	    (TAGTYPE
-	     (check-comment arg3)
-	     (format destination "  ~A = ~A & 0x3f;~%"
-		           (fixarg arg2)
-		           (fixarg arg1)))
+	     (format destination "  ~A = ~A & 0x3f;   ~A~%"
+		           (fixarg arg2) (fixarg arg1)
+               (trailing-comment arg4)))
 
 	    (VM-READ
 	     (format destination "  /* vm-read */~%")
@@ -2029,11 +2008,9 @@
   (load "../emulator/errortbl.lisp")
   (load "../emulator/traps.lisp")
   (load "intrpmac.lisp")
-  (load "../alpha-emulator/aistat.lisp")
 
   (dolist (file
-	          '("alphamac"
-              ;; "intrpmac"
+	          '("aistat" "alphamac"
 	            "stacklis"
 	            "memoryem" "imaclist" "fcallmac" "imacbits"
 	            "imacblok" "imaclexi" "imacgene" "imacinst" "imacialu"
@@ -2042,189 +2019,163 @@
     (let ((filename (format nil "../alpha-emulator/~A.lisp" file)))
       (load filename))))
 
-;; Unused
-;; (defun load-macros-old ()
-;;   (load "clisp-support.lisp")
-;;   (load "../emulator/aihead.lisp")
-;;   (load "../emulator/errortbl.lisp")
-;;   (load "intrpmac.lisp")
-;;   (load "../alpha-emulator/aistat.lisp")
-;;   (load "../alpha-emulator/alphamac.lisp")
-;;   (load "../alpha-emulator/stacklis.lisp")
-;;   (load "../alpha-emulator/imacloop.lisp")
-;;   (load "../alpha-emulator/fcallmac.lisp")
-;;   (load "../alpha-emulator/memoryem.lisp")
-;;   (load "../alpha-emulator/imactrap.lisp")
-;;   (load "../alpha-emulator/imacmath.lisp")
-;;   (load "../alpha-emulator/imacsubp.lisp")
-;;   (load "../alpha-emulator/imacblok.lisp")
-;;   (load "../alpha-emulator/imacialu.lisp")
-;;   (load "../alpha-emulator/imacbits.lisp")
-;;   (load "../alpha-emulator/imacpred.lisp")
-;;   (load "../alpha-emulator/imacarra.lisp")
-;;   (load "../alpha-emulator/imacgene.lisp")
-;;   (load "../alpha-emulator/imaclist.lisp")
-;;   (load "../alpha-emulator/imacinst.lisp")
-;;   (load "../alpha-emulator/imacbind.lisp"))
-
 (defun add-missing-global-symbols ()
-  (dolist (sym
-	          '(
-	            |ReadRegisterError|
-	            |ReadRegisterFP|
-	            |ReadRegisterLP|
-	            |ReadRegisterSP|
-	            |ReadRegisterError|
-	            |ReadRegisterStackCacheLowerBound|
-	            |ReadRegisterBARx|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterContinuation|
-	            |ReadRegisterAluAndRotateControl|
-	            |ReadRegisterControlRegister|
-	            |ReadRegisterCRArgumentSize|
-	            |ReadRegisterEphemeralOldspaceRegister|
-	            |ReadRegisterZoneOldspaceRegister|
-	            |ReadRegisterChipRevision|
-	            |ReadRegisterFPCoprocessorPresent|
-	            |ReadRegisterError|
-	            |ReadRegisterPreemptRegister|
-	            |ReadRegisterIcacheControl|
-	            |ReadRegisterPrefetcherControl|
-	            |ReadRegisterMapCacheControl|
-	            |ReadRegisterMemoryControl|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterStackCacheOverflowLimit|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterMicrosecondClock|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterTOS|
-	            |ReadRegisterEventCount|
-	            |ReadRegisterBindingStackPointer|
-	            |ReadRegisterCatchBlockList|
-	            |ReadRegisterControlStackLimit|
-	            |ReadRegisterControlStackExtraLimit|
-	            |ReadRegisterBindingStackLimit|
-	            |ReadRegisterPHTBase|
-	            |ReadRegisterPHTMask|
-	            |ReadRegisterCountMapReloads|
-	            |ReadRegisterListCacheArea|
-	            |ReadRegisterListCacheAddress|
-	            |ReadRegisterListCacheLength|
-	            |ReadRegisterStructureCacheArea|
-	            |ReadRegisterStructureCacheAddress|
-	            |ReadRegisterStructureCacheLength|
-	            |ReadRegisterDynamicBindingCacheBase|
-	            |ReadRegisterDynamicBindingCacheMask|
-	            |ReadRegisterChoicePointer|
-	            |ReadRegisterStructureStackChoicePointer|
-	            |ReadRegisterFEPModeTrapVectorAddress|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterStackFrameMaximumSize|
-	            |ReadRegisterStackCacheDumpQuantum|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterError|
-	            |ReadRegisterConstantNIL|
-	            |ReadRegisterConstantT|
-	            |WriteRegisterError|
-	            |WriteRegisterFP|
-	            |WriteRegisterLP|
-	            |WriteRegisterSP|
-	            |WriteRegisterError|
-	            |WriteRegisterStackCacheLowerBound|
-	            |WriteRegisterBARx|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterContinuation|
-	            |WriteRegisterAluAndRotateControl|
-	            |WriteRegisterControlRegister|
-	            |WriteRegisterError|
-	            |WriteRegisterEphemeralOldspaceRegister|
-	            |WriteRegisterZoneOldspaceRegister|
-	            |WriteRegisterError|
-	            |WriteRegisterFPCoprocessorPresent|
-	            |WriteRegisterError|
-	            |WriteRegisterPreemptRegister|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterStackCacheOverflowLimit|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterTOS|
-	            |WriteRegisterEventCount|
-	            |WriteRegisterBindingStackPointer|
-	            |WriteRegisterCatchBlockList|
-	            |WriteRegisterControlStackLimit|
-	            |WriteRegisterControlStackExtraLimit|
-	            |WriteRegisterBindingStackLimit|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterListCacheArea|
-	            |WriteRegisterListCacheAddress|
-	            |WriteRegisterListCacheLength|
-	            |WriteRegisterStructureCacheArea|
-	            |WriteRegisterStructureCacheAddress|
-	            |WriteRegisterStructureCacheLength|
-	            |WriteRegisterDynamicBindingCacheBase|
-	            |WriteRegisterDynamicBindingCacheMask|
-	            |WriteRegisterChoicePointer|
-	            |WriteRegisterStructureStackChoicePointer|
-	            |WriteRegisterFEPModeTrapVectorAddress|
-	            |WriteRegisterError|
-	            |WriteRegisterMappingTableCache|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            |WriteRegisterError|
-	            ))
+  (dolist
+      (sym '(|ReadRegisterError|
+	           |ReadRegisterFP|
+	           |ReadRegisterLP|
+	           |ReadRegisterSP|
+	           |ReadRegisterError|
+	           |ReadRegisterStackCacheLowerBound|
+	           |ReadRegisterBARx|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterContinuation|
+	           |ReadRegisterAluAndRotateControl|
+	           |ReadRegisterControlRegister|
+	           |ReadRegisterCRArgumentSize|
+	           |ReadRegisterEphemeralOldspaceRegister|
+	           |ReadRegisterZoneOldspaceRegister|
+	           |ReadRegisterChipRevision|
+	           |ReadRegisterFPCoprocessorPresent|
+	           |ReadRegisterError|
+	           |ReadRegisterPreemptRegister|
+	           |ReadRegisterIcacheControl|
+	           |ReadRegisterPrefetcherControl|
+	           |ReadRegisterMapCacheControl|
+	           |ReadRegisterMemoryControl|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterStackCacheOverflowLimit|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterMicrosecondClock|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterTOS|
+	           |ReadRegisterEventCount|
+	           |ReadRegisterBindingStackPointer|
+	           |ReadRegisterCatchBlockList|
+	           |ReadRegisterControlStackLimit|
+	           |ReadRegisterControlStackExtraLimit|
+	           |ReadRegisterBindingStackLimit|
+	           |ReadRegisterPHTBase|
+	           |ReadRegisterPHTMask|
+	           |ReadRegisterCountMapReloads|
+	           |ReadRegisterListCacheArea|
+	           |ReadRegisterListCacheAddress|
+	           |ReadRegisterListCacheLength|
+	           |ReadRegisterStructureCacheArea|
+	           |ReadRegisterStructureCacheAddress|
+	           |ReadRegisterStructureCacheLength|
+	           |ReadRegisterDynamicBindingCacheBase|
+	           |ReadRegisterDynamicBindingCacheMask|
+	           |ReadRegisterChoicePointer|
+	           |ReadRegisterStructureStackChoicePointer|
+	           |ReadRegisterFEPModeTrapVectorAddress|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterStackFrameMaximumSize|
+	           |ReadRegisterStackCacheDumpQuantum|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterError|
+	           |ReadRegisterConstantNIL|
+	           |ReadRegisterConstantT|
+	           |WriteRegisterError|
+	           |WriteRegisterFP|
+	           |WriteRegisterLP|
+	           |WriteRegisterSP|
+	           |WriteRegisterError|
+	           |WriteRegisterStackCacheLowerBound|
+	           |WriteRegisterBARx|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterContinuation|
+	           |WriteRegisterAluAndRotateControl|
+	           |WriteRegisterControlRegister|
+	           |WriteRegisterError|
+	           |WriteRegisterEphemeralOldspaceRegister|
+	           |WriteRegisterZoneOldspaceRegister|
+	           |WriteRegisterError|
+	           |WriteRegisterFPCoprocessorPresent|
+	           |WriteRegisterError|
+	           |WriteRegisterPreemptRegister|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterStackCacheOverflowLimit|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterTOS|
+	           |WriteRegisterEventCount|
+	           |WriteRegisterBindingStackPointer|
+	           |WriteRegisterCatchBlockList|
+	           |WriteRegisterControlStackLimit|
+	           |WriteRegisterControlStackExtraLimit|
+	           |WriteRegisterBindingStackLimit|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterListCacheArea|
+	           |WriteRegisterListCacheAddress|
+	           |WriteRegisterListCacheLength|
+	           |WriteRegisterStructureCacheArea|
+	           |WriteRegisterStructureCacheAddress|
+	           |WriteRegisterStructureCacheLength|
+	           |WriteRegisterDynamicBindingCacheBase|
+	           |WriteRegisterDynamicBindingCacheMask|
+	           |WriteRegisterChoicePointer|
+	           |WriteRegisterStructureStackChoicePointer|
+	           |WriteRegisterFEPModeTrapVectorAddress|
+	           |WriteRegisterError|
+	           |WriteRegisterMappingTableCache|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           |WriteRegisterError|
+	           ))
     (add-global-label-symbol sym)))
 
 

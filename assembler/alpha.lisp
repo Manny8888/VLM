@@ -1,10 +1,9 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: Yes -*-
 
 (in-package "ALPHA-AXP-INTERNALS")
 
 ;;; ALPHA Instructions From Instruction Encodings - Appendix C AARM
 (eval-when (compile load eval)
- 
+
 (defvar *instruction-database* (make-hash-table))
 (defvar *register-database* (make-hash-table))
 
@@ -18,7 +17,7 @@
 
 ;;; Instructions
 
-(clos:defclass instruction () 
+(clos:defclass instruction ()
     ((name :initarg :name :reader instruction-name)))
 
 (clos:defmethod clos:initialize-instance :after ((inst instruction) &key &allow-other-keys)
@@ -104,7 +103,7 @@
 
 ;;; Instruction classes
 
-(defvar *instruction-class-names* 
+(defvar *instruction-class-names*
 	'(LD JSR IADDLOG SHIFTCM ICMP IMULL IMULQ FPOP FDIVS FDIVT))
 
 ;; First element of each entry is the consumer, and the rest of
@@ -139,7 +138,7 @@
 
 ;; Memory format, LD (load) class
 (loop for (name code) in '((LDG #x21) (LDQ #x29) (LDS #x22)
-			   (LDL #x28) (LDQ_L #x2B) (LDT #x23) 
+			   (LDL #x28) (LDQ_L #x2B) (LDT #x23)
 			   (LDF #x20) (LDL_L #x2A) (LDQ_U #x0B))
       do (clos:make-instance 'memory-format-instruction
 	   :name name :code code :class 'LD))
@@ -151,7 +150,7 @@
 
 ;; Memory format, ST (store) class
 ;; If you change these, you must update dual-issue-p
-(loop for (name code) in '((STG #x25) (STQ #x2D) (STS #x26) 
+(loop for (name code) in '((STG #x25) (STQ #x2D) (STS #x26)
 			   (STL #x2C) (STQ_C #x2F) (STT #x27)
 			   (STF #x24) (STL_C #x2E) (STQ_U #x0F))
       do (clos:make-instance 'memory-format-instruction
@@ -212,11 +211,11 @@
 ;; Class ICMP:  integer comparison
 (loop for (name code function) in
 	  '((CMPBGE #x10 #x0F) (CMPEQ #x10 #x2D)
-	    (CMPLE #x10 #x6D)  (CMPLT #x10 #x4D) 
+	    (CMPLE #x10 #x6D)  (CMPLT #x10 #x4D)
 	    (CMPULE #x10 #x3D) (CMPULT #x10 #x1D))
       do (clos:make-instance 'operate-format-instruction
 	   :name name :code code :function-code function :class 'ICMP))
-						       
+
 ;; Class IMULL:  Integer multiply
 (loop for (name code function) in '((MULL #x13 #x00) (MULL/V #x13 #x40))
       do (clos:make-instance 'operate-format-instruction
@@ -232,10 +231,10 @@
 	  '((CPYS #x020) (CPYSE #x022) (CPYSN #x021)  (FCMOVEQ #x02A)
 	    (FCMOVGE #x02D) (FCMOVGT #x02F) (FCMOVLE #x02E) (FCMOVLT #x02C)
 	    (FCMOVNE #x02B) (MF_FPCR #x025) (MT_FPCR #x024))
-      do (clos:make-instance 'FP-operate-format-instruction 
+      do (clos:make-instance 'FP-operate-format-instruction
 	   :name name :function-code function :class 'UNKNOWN))
 
-(loop for (name function) in 
+(loop for (name function) in
 	  '((ADDS   #x080) (ADDS/C #x000)  (ADDS/M #x040)  (ADDS/D #x0c0)
 	    (ADDS/U #x180) (ADDS/UC #x100) (ADDS/UM #x140) (ADDS/UD #x1C0)
 	    (ADDT   #x0A0) (ADDT/C #x020)  (ADDT/M #x060)  (ADDT/D #x0E0)
@@ -282,7 +281,7 @@
       do (clos:make-instance 'IEEE-FP2-instruction
 	   :name name :function-code function :class 'FPOP))
 
-(loop for (name function) in 
+(loop for (name function) in
 	  '((DIVS   #x083) (DIVS/C #x003)  (DIVS/M #x043)  (DIVS/D #x0C3)
 	    (DIVS/U #x183) (DIVS/UC #x103) (DIVS/UM #x143) (DIVS/UD #x1C3)
 	    (DIVS/SU   #x583) (DIVS/SUC #x503)  (DIVS/SUM #x543)  (DIVS/SUD #x5C3)
@@ -290,7 +289,7 @@
       do (clos:make-instance 'IEEE-FP-instruction
 	   :name name :function-code function  :class 'FDIVS))
 
-(loop for (name function) in 
+(loop for (name function) in
 	  '((DIVT   #x0A3) (DIVT/C #x023)  (DIVT/M #x063)  (DIVT/D #x0E3)
 	    (DIVT/U #x1A3) (DIVT/UC #x123) (DIVT/UM #x163) (DIVT/UD #x1E3)
 	    (DIVT/SU   #x5A3) (DIVT/SUC #x523)  (DIVT/SUM #x563)  (DIVT/SUD #x5E3)
@@ -325,12 +324,12 @@
 ;; Miscellaneous instructions
 ;; These appear to be in the LD class for issue/latency
 (loop for (name code) in '((RC #xE000) (RPCC #xC000) (MB #x4000) (RS #xF000))
-      do (clos:make-instance 'miscellaneous-instruction 
+      do (clos:make-instance 'miscellaneous-instruction
 	   :name name :code code :class 'LD))
 
 ;; The theory is that this is like a ST-class for  issue/latency
 (loop for (name code) in '((TRAPB #x0000))	;--- EXCB?
-      do (clos:make-instance 'miscellaneous-instruction 
+      do (clos:make-instance 'miscellaneous-instruction
 	   :name name :code code :class 'ST))
 
 ;; These appear to be in the LD class, but poor info...
@@ -340,13 +339,13 @@
 
 (loop for (name code) in '((AMOVRM #x00A1) (AMOVRR #x00A0) (BPT #x0080) (BUGCHK #x0081)
 			   (CHME #x0082) (CHMK #x0083) (CHMS #x0084) (CHMU #x0085)
-			   (GENTRAP #x00AA) (IMB #x0086) 
+			   (GENTRAP #x00AA) (IMB #x0086)
 			   (INSQHIL #x0087)  (INSQHILR #x00A2)
 			   (INSQHIQ #x0089)  (INSQHIQR #x00A4)  (INSQTIL #x0088)
 			   (INSQTILR #x00A3) (INSQTIQ #x008A)   (INSQTIQR #x00A5)
 			   (INSQUEL #x008B)  (INSQUEL/D #x008D) (INSQUEQ #x008C)
 			   (INSQUQ/D #x008E) (PROBER #x008F) (PROBEW #x0090) (RD_PS #x0091)
-			   (READ_UNQ #x009E) (REI #x0092) 
+			   (READ_UNQ #x009E) (REI #x0092)
 			   (REMQHIL #x0093)  (REMQHILR #x00A6)
 			   (REMQHIQ #x0095)  (REMQHIQR #x00A8)  (REMQTIL #x0094)
 			   (REMQTILR #x00A7) (REMQTIQ #x0096)   (REMQTIQR #x00A9)
@@ -406,7 +405,7 @@
 
 ;;; Registers
 
-(clos:defclass register () 
+(clos:defclass register ()
     ((name :initarg :name :reader register-name)
      (code :initarg :code :reader register-code)
      (asmname :initarg :asmname :reader register-asmname)))
@@ -421,18 +420,18 @@
 (clos:defclass integer-alpha-register (alpha-register) ())
 
 (clos:defclass FP-alpha-register (alpha-register) ())
-    
+
 (clos:defmethod clos:initialize-instance :after ((reg register) &key &allow-other-keys)
   (clos:with-slots (name) reg
     (setf (gethash name *register-database*) reg)))
 
-(loop for (name code aname) in 
-	  '((r0 0 $0) (r1 1 $1) (r2 2 $2) (r3 3 $3) (r4 4 $4) (r5 5 $5) (r6 6 $6) (r7 7 $7) 
-	    (r8 8 $8) (r9 9 $9) (r10 10 $10) (r11 11 $11) (r12 12 $12) (r13 13 $13) 
+(loop for (name code aname) in
+	  '((r0 0 $0) (r1 1 $1) (r2 2 $2) (r3 3 $3) (r4 4 $4) (r5 5 $5) (r6 6 $6) (r7 7 $7)
+	    (r8 8 $8) (r9 9 $9) (r10 10 $10) (r11 11 $11) (r12 12 $12) (r13 13 $13)
 	    (r14 14 $14) (r15 15 $15)
-	    (r16 16 $16) (r17 17 $17) (r18 18 $18) (r19 19 $19) (r20 20 $20) (r21 21 $21) 
+	    (r16 16 $16) (r17 17 $17) (r18 18 $18) (r19 19 $19) (r20 20 $20) (r21 21 $21)
 	    (r22 22 $22) (r23 23 $23)
-	    (r24 24 $24) (r25 25 $25) (r26 26 $26) (r27 27 $27) (r28 28 $28) (r29 29 $29) 
+	    (r24 24 $24) (r25 25 $25) (r26 26 $26) (r27 27 $27) (r28 28 $28) (r29 29 $29)
 	    (r30 30 $30) (r31 31 $31)
 	    (at 28 |$at|) (gp 29 |$gp|) (sp 30 |$sp|) (zero 31 $31))
       do (clos:make-instance 'integer-alpha-register :name name :code code :asmname aname))
@@ -443,7 +442,7 @@
 	((consp reg) (register-code (find-register (car reg))))
 	(:otherwise (error "~a is not a valid register designator."))))
 
-(defmacro define-integer-register 
+(defmacro define-integer-register
 	  (name reg &optional (printas (intern (format nil "$~a"
 						 (register-number reg)
 						 (find-package "ALPHA-AXP-INTERNALS")))))
@@ -452,9 +451,9 @@
      :code ,(register-number reg)
      :asmname ',printas))
 
-(loop for (name code aname) in 
+(loop for (name code aname) in
 	  '((f0 0 |$f0|) (f1 1 |$f1|) (f2 2 |$f2|) (f3 3 |$f3|) (f4 4 |$f4|) (f5 5 |$f5|)
-	    (f6 6 |$f6|) (f7 7 |$f7|) 
+	    (f6 6 |$f6|) (f7 7 |$f7|)
 	    (f8 8 |$f8|) (f9 9 |$f9|) (f10 10 |$f10|) (f11 11 |$f11|) (f12 12 |$f12|)
 	    (f13 13 |$f13|) (f14 14 |$f14|) (f15 15 |$f15|)
 	    (f16 16 |$f16|) (f17 17 |$f17|) (f18 18 |$f18|) (f19 19 |$f19|) (f20 20 |$f20|)
@@ -468,7 +467,7 @@
 
 ;;; Pseudo operations
 
-(loop for name in '(start end mark 
+(loop for name in '(start end mark
 		    label unlikely-label external-branch call-subroutine
 		    comment include passthru)
       do (clos:make-instance 'pseudo-instruction :name name))
@@ -485,8 +484,8 @@
 (defvar *block-name* nil)
 
 ;;; emit-operation takes an operation and emits the representation of the operation if any.
-;;; the operation may be a pseudo operation and so may not emit anything at all, or may 
-;;; emit a lot.  It may emit instructions asembler directives comments or any combination 
+;;; the operation may be a pseudo operation and so may not emit anything at all, or may
+;;; emit a lot.  It may emit instructions asembler directives comments or any combination
 ;;; thereof.
 
 (clos:defgeneric emit-operation (operation &optional destination args))
@@ -518,7 +517,7 @@
 ;; The idea here is that we have to spend at least one cycle on the current
 ;; instruction (unless is was dual-issued), plus zero or more latent cycles
 ;; if there a register dependencies or instruction class dependencies.
-(clos:defmethod compute-cycle-count 
+(clos:defmethod compute-cycle-count
 		((operation alpha-instruction) reads writes &optional indexreg)
   #+Genera (declare (values cycles dual-issue))
   ;; ST class instructions take a 2-cycle stall if the index was
@@ -553,7 +552,7 @@
 		       (if data-dependent
 			   (setq latency (first latency))
 			   (setq latency (second latency))))
-		   (when (lisp:and (zerop i) 
+		   (when (lisp:and (zerop i)
 				   (if indexreg
 				       (not (member indexreg pwrites))
 				       (lisp:and
@@ -599,13 +598,13 @@
 		       (or (member class2 '(LD IBR FPOP FDIVS FDIVT JSR PAL))
 			   ;; Only integer stores in instruction 2
 			   (member name2 '(STL STQ STL_C STQ_C STQ_U)))
-		       (not (or (lisp:and (member class1 '(LD ST JSR)) 
+		       (not (or (lisp:and (member class1 '(LD ST JSR))
 					  (member class2 '(LD ST JSR)))
-				(lisp:and (member class1 '(JSR IBR FBR)) 
+				(lisp:and (member class1 '(JSR IBR FBR))
 					  (member class2 '(JSR IBR FBR))))))))
       (or (dual-issue op1-name op1-class op2-name op2-class)
 	  (dual-issue op2-name op2-class op1-name op1-class)))))
-    
+
 (defparameter *for-vms* nil)
 (defun instruction-pname (name)
   (if *for-vms*
@@ -718,7 +717,7 @@
       (let* ((thereg (coerce-to-register reg1))
 	     (theop2 (coerce-to-register-or-literal op2))
 	     (thedest (coerce-to-register destreg))
-	     (reads (list thereg theop2)) 
+	     (reads (list thereg theop2))
 	     (writes (list thedest)))
 	(multiple-value-bind (cycles dual-issue)
 	    (compute-cycle-count operation reads writes)
@@ -737,7 +736,7 @@
       (let* ((thereg (coerce-to-register reg1))
 	     (theop2 (coerce-to-register-or-literal op2))
 	     (thedest (coerce-to-register destreg))
-	     (reads (list thereg theop2)) 
+	     (reads (list thereg theop2))
 	     (writes (list thedest)))
 	(multiple-value-bind (cycles dual-issue)
 	    (compute-cycle-count operation reads writes)
@@ -845,7 +844,7 @@
       (call-subroutine
 	(destructuring-bind (linkage labelname &optional comment) args
 	  (format destination "~&	bsr	~A, ~A"
-		  (coerce-to-register linkage)		  
+		  (coerce-to-register linkage)
 		  labelname)
 	  (unless (null comment) (format destination "	# ~a" comment))))
       (comment
@@ -861,7 +860,7 @@
       (otherwise
 	(error "Unimplemented pseudo operation ~a." name)))
     0))
-	      
+
 (clos:defgeneric coerce-to-register (register))
 
 (clos:defmethod coerce-to-register ((register symbol))
@@ -934,7 +933,7 @@
 	(asm-header tfs sourcefilename)
 	(do ((form (read sfs nil :eof) (read sfs nil :eof)))
 	    ((eq form :eof) nil)
-	  (when (consp form) 
+	  (when (consp form)
 	    (process-asm-form form tfs)))
 	(asm-trailer tfs sourcefilename)))))
 
@@ -995,16 +994,16 @@ With a numeric argument, inserts the typeout into the buffer" ()
 		(axpi::*block-name* nil))
 	    (do ((form (cl:read input-stream nil :eof) (cl:read input-stream nil :eof)))
 		((eq form :eof) nil)
-	      (when (cl:consp form) 
+	      (when (cl:consp form)
 		(incf ncycles
-		      (axpi::process-asm-form 
+		      (axpi::process-asm-form
 			form (if *numeric-arg-p*
 				 (if (plusp *numeric-arg*) output-stream 'sys:null-stream)
 			         cl:*standard-output*)))))
 	    (dolist (form axpi::*function-epilogue*)
-	      (when (cl:consp form) 
+	      (when (cl:consp form)
 		(incf ncycles
-		      (axpi::process-asm-form 
+		      (axpi::process-asm-form
 			form (if *numeric-arg-p*
 				 (if (plusp *numeric-arg*) output-stream 'sys:null-stream)
 			         cl:*standard-output*)))))
@@ -1083,8 +1082,8 @@ With a numeric argument, inserts the typeout into the buffer" ()
 (defconstant %%alpha-inst-branch-disp (byte 21 0))
 
 ;;; assemble-operation takes an operation and emits the bit pattern of the operation if any.
-;;; the operation may be a pseudo operation and so may not emit anything at all, or may 
-;;; emit a lot.  
+;;; the operation may be a pseudo operation and so may not emit anything at all, or may
+;;; emit a lot.
 
 (clos:defgeneric assemble-operation (operation &optional destination args))
 
@@ -1105,7 +1104,7 @@ With a numeric argument, inserts the typeout into the buffer" ()
 			(dpb thereg %%alpha-inst-ra
 			     (dpb indexreg %%alpha-inst-rb
 				  (dpb disp %%alpha-inst-memory-disp 0))))))
-	(if destination (emit-alphabits destination bits))	
+	(if destination (emit-alphabits destination bits))
 	bits))))
 
 (clos:defmethod assemble-operation ((operation memory-format-branch-instruction)
@@ -1155,7 +1154,7 @@ With a numeric argument, inserts the typeout into the buffer" ()
 		       (dpb code %%alpha-inst-opcode
 			    (dpb thereg %%alpha-inst-ra
 				 (dpb theop2 %%alpha-inst-literal
-				      (dpb 1 %%alpha-inst-litp 
+				      (dpb 1 %%alpha-inst-litp
 					   (dpb function-code %%alpha-inst-function
 						(dpb thedest %%alpha-inst-rc 0)))))))))
 	(if destination (emit-alphabits destination bits))
@@ -1176,7 +1175,7 @@ With a numeric argument, inserts the typeout into the buffer" ()
 				       (dpb thedest %%alpha-inst-rc 0)))))))
 	(if destination (emit-alphabits destination bits))
 	bits))))
-  
+
 (clos:defmethod assemble-operation ((operation IEEE-FP-instruction)
 				&optional (destination nil) (args nil))
   (clos:with-slots (code function-code) operation
@@ -1240,7 +1239,7 @@ With a numeric argument, inserts the typeout into the buffer" ()
 	  (declare (ignore comment))
 	  ;; Unlikely labels stay unaligned
 	  (setlabel destination labelname)))
-      
+
       (comment
 	)
       ))
@@ -1273,7 +1272,7 @@ With a numeric argument, inserts the typeout into the buffer" ()
 ;;; (testemit '(LDL R2 112345 R3         "Load the next PC from the cache"))
 ;;; (testemit '(LDL R2 112345 R31        "Load the next PC from the cache"))
 ;;; test branch format instructions
-;;; (testemit '(BR R31 foo123456            "Jump to 123456")) 
+;;; (testemit '(BR R31 foo123456            "Jump to 123456"))
 ;;; test Operate format instructions
 ;;; (testemit '(ADDL R3 R4 R5            "R3+R4->R5"))
 ;;; test Floating point operate format instructions

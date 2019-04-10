@@ -1,12 +1,11 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
 ;;; Macros in support of logical instructions.  These are mostly in ifunbits.as
 
 (defmacro ilogical (name operator)
-  (let ((tag1notfix (gensym))
-	(tag2notfix (gensym)))
+  (let ((tag1notfix (gensym "ilogical"))
+	      (tag2notfix (gensym "ilogical")))
     `((LDL t3 4 (iSP) "Get tag from ARG1")
       (LDL t4 0 (iSP) "Grab data for ARG1")
       (EXTBL arg1 4 t1 "Get tag from ARG2")
@@ -17,16 +16,16 @@
       (GetNextPCandCP)
       (NOP)
       ,@(when (not (eq name 'AND))
-	  `((EXTLL t4 0 t4 "Strip high bits")))
+	        `((EXTLL t4 0 t4 "Strip high bits")))
       (stack-write-ir |TypeFixnum| t4 t1 "Push result")
       (ContinueToNextInstruction-NoStall)
-    (label ,tag1notfix "Here if ARG1 not fixnum")
+      (label ,tag1notfix "Here if ARG1 not fixnum")
       (NumericTypeException t3 ,name arg1)
-    (label ,tag2notfix "Here if ARG2 not fixnum")
+      (label ,tag2notfix "Here if ARG2 not fixnum")
       (NumericTypeException t1 ,name arg1))))
 
 (defmacro ilogical-immediate (name operator)
-  (let ((tag1notfix (gensym)))
+  (let ((tag1notfix (gensym "ilogical-immediate")))
     `((LDL t3 4 (iSP) "Get tag from ARG1")
       (SLL arg2 #.(- 64 8) arg2)
       (LDL t4 0 (iSP) "Grab data for ARG1")
@@ -37,10 +36,10 @@
       (GetNextPCandCP)
       (NOP)
       ,@(when (not (eq name 'AND))
-	  `((EXTLL t4 0 t4 "Strip high bits")))
+	        `((EXTLL t4 0 t4 "Strip high bits")))
       (stack-write-ir |TypeFixnum| t4 t1 "Push result")
       (ContinueToNextInstruction-NoStall)
-    (label ,tag1notfix "Here if ARG1 not fixnum")
+      (label ,tag1notfix "Here if ARG1 not fixnum")
       (BIS zero |TypeFixnum| arg1)
       (EXTLL arg2 0 arg2)
       (SetTag arg1 arg2 t1)

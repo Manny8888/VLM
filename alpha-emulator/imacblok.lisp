@@ -1,9 +1,7 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
 ;;; Macros in support of block instructions.  These are mostly in ifunblok.as
-
 
 (assert (common-lisp:and (< (integer-length processorstate$q-bar0) 15)
 		                     (< (integer-length processorstate$q-bar1) 15)
@@ -22,9 +20,9 @@
 
 (defmacro i%block-n-read (bar op vma tag data cycle temp3 temp4 temp5 temp6 temp9 temp10 temp11 temp12)
   (check-temporaries (bar op) (cycle vma temp3 temp4 temp5 temp6 data tag temp9 temp10 temp11 temp12))
-  (let ((fntest (gensym))
-	      (nofntest (gensym))
-	      (ielab (gensym)))
+  (let ((fntest (gensym "i%block-n-read"))
+	      (nofntest (gensym "i%block-n-read"))
+	      (ielab (gensym "i%block-n-read")))
     (push
      `((label ,fntest)
 	     (CheckDataType ,tag |TypeFixnum| ,ielab ,temp9)
@@ -67,10 +65,10 @@
 
 (defmacro i%block-n-read-shift (bar op temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
   (check-temporaries (bar op) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12))
-  (let ((nofntest (gensym))
-	      (noincp (gensym))
-	      (noclrcdr (gensym))
-	      (ielab (gensym)))
+  (let ((nofntest (gensym "i%block-n-read-shift"))
+	      (noincp (gensym "i%block-n-read-shift"))
+	      (noclrcdr (gensym "i%block-n-read-shift"))
+	      (ielab (gensym "i%block-n-read-shift")))
     `((LDL ,temp2 0 (,bar) "Get the vma")
       (SRL ,op 6 ,temp "cycle type")
       (AND ,op 4 ,temp4 "=no-incrementp")
@@ -102,8 +100,8 @@
 
 (defmacro i%block-n-read-alu (bar addr temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
   (check-temporaries (bar addr) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12))
-  (let ((ielab2 (gensym))
-	(ielab1 (gensym))
+  (let ((ielab2 (gensym "i%block-n-read-alu"))
+	(ielab1 (gensym "i%block-n-read-alu"))
 	(op1tag temp2)
 	(op1data temp3)
 	(op2tag temp4)
@@ -149,12 +147,12 @@
                                temp7 temp8 temp9 temp10 temp11 temp12)
   (check-temporaries (bar op) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8
                                     temp9 temp10 temp11 temp12))
-  (let ((nofntest (gensym))
-	      (noincp (gensym))
-	      (noclrcdr (gensym))
-	      (ielab1 (gensym))
-	      (ielab2 (gensym))
-	      (taken (gensym))
+  (let ((nofntest (gensym "i%block-n-read-test"))
+	      (noincp (gensym "i%block-n-read-test"))
+	      (noclrcdr (gensym "i%block-n-read-test"))
+	      (ielab1 (gensym "i%block-n-read-test"))
+	      (ielab2 (gensym "i%block-n-read-test"))
+	      (taken (gensym "i%block-n-read-test"))
 	      (op1tag temp2 )
 	      (op1data temp3)
 	      (op2tag temp4)

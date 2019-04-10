@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
@@ -431,7 +430,7 @@
 	  ((vma tag data cycle temp temp2 temp3 temp4)
 	   (vmdata vmtags base limit))
   (declare (values subr args linkage))
-  `(stack-let ((args (list ,vma ,tag ,data))
+  `(let ((args (list ,vma ,tag ,data))
 	             (temps (list ,temp ,temp2 ,temp3 ,temp4))
 	             (caches (list ,vmdata ,vmtags ,base ,limit)))
      (funcall 'find-memory-subr-internal args ,cycle temps caches)))
@@ -473,9 +472,9 @@
 ;;; --- Someday make store-contents and store-conditional have another
 ;;; temp so temp4 is available (currently, the code is poorer without
 ;;; temp4)
-(defun memory-read-internal (vma tag data cycle temp temp2 temp3 &optional temp4 done-label signedp inlinep &aux subr args linkage)
-  "Cycle is either a constant cycle type or a register containing the
-  cycle number."
+(defun memory-read-internal (vma tag data cycle temp temp2 temp3
+                             &optional temp4 done-label signedp inlinep &aux subr args linkage)
+  "Cycle is either a constant cycle type or a register containing the cycle number."
   #+memory-inline (setq inlinep t)
   (if temp4
       (check-temporaries (vma tag data) (temp temp2 temp3 temp4))
@@ -504,7 +503,7 @@
 			                    (check-temporaries (cycle) (vma tag data temp temp2 temp3))
 			                    (shiftf cycle :general))))
 	       (cycle-mask (unless (eq cycle :general)
-		                   (intern (concatenate 'string (string cycle) "_MASK"))))
+                       (intern (concatenate 'string (string cycle) "_MASK"))))
 
          (canindirect (not (member cycle '(processorstate_scavenge
 					                                 processorstate_gccopy
@@ -519,21 +518,22 @@
 	       (canlookup (member cycle '(:general
 				                            processorstate_dataread
 				                            processorstate_datawrite)))
-	       (top (gensym))
-	       (wasincache (gensym))
-	       (incache (gensym))
-	       (notindirect (gensym))
-	       (decodeaction (gensym))
+	       (top (gensym "vma-memory-read"))
+	       (wasincache (gensym "vma-memory-read"))
+	       (incache (gensym "vma-memory-read"))
+	       (notindirect (gensym "vma-memory-read"))
+	       (decodeaction (gensym "vma-memory-read"))
 	       (decodecommontail (if #-memory-inline inlinep #+memory-inline nil
 			                         (intern (concatenate 'string (string *function-being-processed*)
 						                                        "DECODE"))
-			                         (gensym)))
-	       (doaction (gensym))
-	       (checklookup (if canlookup (gensym) doaction))
-	       (checktransform (if cantransform (gensym) checklookup))
-	       (checkindirect (if canindirect (gensym) checktransform))
-	       (dbcachemiss (gensym))
-	       (done (or done-label (gensym)))
+			                         (gensym "vma-memory-read")
+                               ))
+	       (doaction (gensym "vma-memory-read"))
+	       (checklookup (if canlookup (gensym "vma-memory-read") doaction))
+	       (checktransform (if cantransform (gensym "vma-memory-read") checklookup))
+	       (checkindirect (if canindirect (gensym "vma-memory-read") checktransform))
+	       (dbcachemiss (gensym "vma-memory-read"))
+	       (done (or done-label (gensym "vma-memory-read")))
 	       ;; readability
 	       (temp1 temp)
 	       (action-memoized (common-lisp:and *memoized-action* (eq *memoized-action-cycle* cycle)))
@@ -627,12 +627,10 @@
 			                 *function-epilogue*))
 		              (main-expansion)
 		              ))
-	            #+debug
-	            (format *trace-output* "~&In ~A Couldn't use ~A ~A->~A"
-		                  *function-being-processed* subr args `(,vma ,tag ,data)))))
-      #+debug
-      (format *trace-output* "~&In ~A VMA=~A TAG=~A DATA=~A CYCLE=~A"
-	            *function-being-processed* vma tag data cycle)
+	            #+debug (format *trace-output* "~&In ~A Couldn't use ~A ~A->~A"
+		                          *function-being-processed* subr args `(,vma ,tag ,data)))))
+      #+debug (format *trace-output* "~&In ~A VMA=~A TAG=~A DATA=~A CYCLE=~A"
+	                    *function-being-processed* vma tag data cycle)
       ;; Unlikely expansion
       (progn
 	      (unless (eq cycle 'processorstate_raw)
@@ -674,37 +672,37 @@
 		             ;; safeguarded (hence implying it is scavenged at flip
 		             ;; time).  Minima does this.
 		             `(
-		               (passthru "#ifndef MINIMA")
+		               ;; (passthru "#ifndef MINIMA")
 		               (unlikely-label ,checklookup)
-		               (passthru "#endif")
-		               (passthru "#ifdef MINIMA")
-		               (label ,checklookup)
-		               (AND ,action |MemoryActionBinding| ,temp3)
-		               (LDQ ,temp2 PROCESSORSTATE_DBCMASK (ivory))
-		               (BEQ ,temp3 ,doaction)
-		               (SLL ,vma 1 ,temp1)
-		               ;; --- Could save LDQ/S4ADDQ below by storing DBCBASE
-		               ;; as an index into Ivory VM data rather than a vma
-		               (LDQ ,temp3 PROCESSORSTATE_DBCBASE (ivory))
-		               (AND ,temp1 ,temp2 ,temp1 "Hash index")
-		               ;; Don't need tag, inline: (VM-Read ,vma ,temp1 ,temp2 ,temp3 ,tag)
-		               (BIS zero 1 ,temp2)
-		               (SLL ,temp2 |IvoryMemoryData| ,temp2)
-		               ;; --- Why is ADDQ not sufficient instead of next two?
-		               (ADDL ,temp1 ,temp3 ,temp1)
-		               (EXTLL ,temp1 0 ,temp1 "Clear sign-extension")
-		               (S4ADDQ ,temp1 ,temp2 ,temp2)
-		               (LDL ,temp1 0 (,temp2) "Fetch the key")
-		               ;; Get the vma from next location and indirect
-		               ;; Don't need tag, inline: (VM-Read ,vma ,tag ,data ,temp2 ,temp3)
-		               (LDL ,data 4 (,temp2) "Fetch value")
-		               (SUBL ,vma ,temp1 ,temp3 "Compare")
-		               (BNE ,temp3 ,dbcachemiss "Trap on miss")
-		               (EXTLL ,data 0 ,vma "Extract the pointer, and indirect")
-		               (BR zero ,top "This is another memory read tailcall.")
-		               (label ,dbcachemiss)
-		               (external-branch DBCACHEMISSTRAP)
-		               (passthru "#endif")
+		               ;; (passthru "#endif")
+		               ;; (passthru "#ifdef MINIMA")
+		               ;; (label ,checklookup)
+		               ;; (AND ,action |MemoryActionBinding| ,temp3)
+		               ;; (LDQ ,temp2 PROCESSORSTATE_DBCMASK (ivory))
+		               ;; (BEQ ,temp3 ,doaction)
+		               ;; (SLL ,vma 1 ,temp1)
+		               ;; ;; --- Could save LDQ/S4ADDQ below by storing DBCBASE
+		               ;; ;; as an index into Ivory VM data rather than a vma
+		               ;; (LDQ ,temp3 PROCESSORSTATE_DBCBASE (ivory))
+		               ;; (AND ,temp1 ,temp2 ,temp1 "Hash index")
+		               ;; ;; Don't need tag, inline: (VM-Read ,vma ,temp1 ,temp2 ,temp3 ,tag)
+		               ;; (BIS zero 1 ,temp2)
+		               ;; (SLL ,temp2 |IvoryMemoryData| ,temp2)
+		               ;; ;; --- Why is ADDQ not sufficient instead of next two?
+		               ;; (ADDL ,temp1 ,temp3 ,temp1)
+		               ;; (EXTLL ,temp1 0 ,temp1 "Clear sign-extension")
+		               ;; (S4ADDQ ,temp1 ,temp2 ,temp2)
+		               ;; (LDL ,temp1 0 (,temp2) "Fetch the key")
+		               ;; ;; Get the vma from next location and indirect
+		               ;; ;; Don't need tag, inline: (VM-Read ,vma ,tag ,data ,temp2 ,temp3)
+		               ;; (LDL ,data 4 (,temp2) "Fetch value")
+		               ;; (SUBL ,vma ,temp1 ,temp3 "Compare")
+		               ;; (BNE ,temp3 ,dbcachemiss "Trap on miss")
+		               ;; (EXTLL ,data 0 ,vma "Extract the pointer, and indirect")
+		               ;; (BR zero ,top "This is another memory read tailcall.")
+		               ;; (label ,dbcachemiss)
+		               ;; (external-branch DBCACHEMISSTRAP)
+		               ;; (passthru "#endif")
 		               ))
 	           (unlikely-label ,doaction)
 	           (memory-action ,action ,cycle-number))
@@ -728,19 +726,22 @@
 
 ;;; External interfaces
 
-(defmacro memory-read (vma tag data cycle temp temp2 temp3 temp4 &optional done-label signedp inlinep)
+(defmacro memory-read (vma tag data cycle temp temp2 temp3 temp4
+                       &optional done-label signedp inlinep)
   (check-temporaries (vma) (tag data temp temp temp2 temp3 temp4))
   (assert (common-lisp:and (not (eql tag 'zero)) (not (eql data 'zero))))
   `(,@(memory-read-internal vma tag data cycle temp temp2 temp3 temp4 done-label signedp inlinep)))
 
-(defmacro memory-write (vma tag data cycle temp temp2 temp3 temp4 &optional temp5 done-label)
+(defmacro memory-write (vma tag data cycle temp temp2 temp3 temp4
+                        &optional temp5 done-label)
   (if temp5
       (check-temporaries (vma tag data) (temp temp2 temp3 temp4 temp5))
       (check-temporaries (vma tag data) (temp temp2 temp3 temp4)))
-  (assert (common-lisp:and (not (eql tag 'zero)) (not (eql data 'zero))))
+  (assert (common-lisp:and (not (eql tag 'zero))
+                           (not (eql data 'zero))))
   (assert (eq cycle 'PROCESSORSTATE_RAW) () "You probably meant STORE-CONTENTS")
-  (let ((done (or done-label (gensym)))
-	      (incache (gensym)))
+  (let ((done (or done-label (gensym "vma-memory-write")))
+	      (incache (gensym "vma-memory-write")))
     (unless *cant-be-in-cache-p*
       (push
 	     `((label ,incache)

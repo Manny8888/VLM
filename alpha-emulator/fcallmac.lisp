@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
@@ -40,7 +39,7 @@
     (LDL ,temp PROCESSORSTATE_CONTROL (ivory))
     (BIS zero |TypeFixnum+0xC0| ,temp5)
     (LDL ,temp3 PROCESSORSTATE_CONTINUATION (ivory))
-    (load-constant ,temp4 1_22 "cr.call-started")
+    (load-constant ,temp4 #.1_22 "cr.call-started")
     (BIS ,temp2 #xC0 ,temp2 "Set CDR code 3")
     (stack-write2-disp iSP -8 ,temp2 ,temp3 "push continuation")
     (BIS ,temp ,temp4 ,temp3 "Set call started bit in CR")
@@ -54,7 +53,8 @@
     (comment "End of push-frame")))
 
 ;; This, and all of the start-call macros, don't return
-(defmacro start-call-dispatch (tag data extra-tag extra-data indirect temp temp2 temp3 temp6 temp7 temp8 temp9 startcallcompiledlabel startcallindirectlabel)
+(defmacro start-call-dispatch (tag data extra-tag extra-data indirect temp temp2 temp3 temp6 temp7 temp8 temp9
+                               startcallcompiledlabel startcallindirectlabel)
   "Smashes tag and data, which is okay, since it never returns.
   Startcallcompiledlabel is a label that can be branched to once tag and
   data are set to even or odd pc, and extra-tag/extra-data set if
@@ -68,88 +68,89 @@
   ;; The various flavors of start-call are all expanded in-line here, so
   ;; that there are only two "tails" for the cases of pushing a frame
   ;; with and without an extra argument
-  (let ((interp (gensym))
-	(notpc (gensym))
-	(again (gensym))
-	(call (gensym))
-	(call-extra (gensym))
-	(push-extra (gensym))
-	(hardway (gensym)))
+  (let ((interp (gensym "start-call-dispatch"))
+	      (notpc (gensym "start-call-dispatch"))
+	      (again (gensym "start-call-dispatch"))
+	      (call (gensym "start-call-dispatch"))
+	      (call-extra (gensym "start-call-dispatch"))
+	      (push-extra (gensym "start-call-dispatch"))
+	      ;; (hardway (gensym "start-call-dispatch"))
+        )
     `((label ,again)
       ;; Constant shared by several branches
       (LDQ ,temp PROCESSORSTATE_TRAPVECBASE (ivory))
       (type-dispatch ,tag ,temp2 ,temp3
-	(|TypeCompiledFunction|
-	  (label ,call)
-	  (BIS zero zero ,extra-tag "No extra argument")
-	  (label ,call-extra)
-	  (BIS zero |TypeEvenPC| ,tag)
-	  (label ,startcallcompiledlabel)
-	  ;; (start-call-compiled |TypeEvenPC| tag data temp3 temp8 temp9 temp6 temp7)
-	  (push-frame ,temp3 ,temp8 ,temp9 ,temp6 ,temp7)
-	  (GetNextPCandCP)
-	  (set-continuation2r ,tag ,data)
-	  (STQ zero PROCESSORSTATE_CONTINUATIONCP (Ivory))
-	  (BNE ,extra-tag ,push-extra)
-	  (ContinueToNextInstruction-NoStall)
-	  (label ,push-extra)
-	  (LDL ,temp PROCESSORSTATE_CONTROL (ivory))
-	  (load-constant ,temp2 #.1_8 "cr.extra-argument")
-	  (stack-push2 ,extra-tag ,extra-data ,temp3 "Push the extra arg.")
-	  (BIS ,temp ,temp2 ,temp "Set the extra arg bit")
-	  (STL ,temp PROCESSORSTATE_CONTROL (Ivory) "Save control with new state")
-	  (ContinueToNextInstruction-NoStall))
-	(|TypeGenericFunction|
-	  ;; Build the constant PC for generic dispatch
-	  (BIS ,tag zero ,extra-tag)
-	  (EXTLL ,data 0 ,extra-data)
-	  (LDA ,data #.%generic-dispatch-trap-vector ,temp)
-	  (BR zero ,call-extra))
-	(|TypeInstance|
-	  ;; Build the constant PC for message dispatch
-	  (BIS ,tag zero ,extra-tag)
-	  (EXTLL ,data 0 ,extra-data)
-	  (LDA ,data #.%message-dispatch-trap-vector ,temp)
-	  (BR zero ,call-extra))
-	(|TypeSymbol|
-	  ;; We don't know what might be in the function-cell of a
-	  ;; symbol, so do the full dispatch
-	  (EXTLL ,data 0 ,data)
-	  (BIS zero zero ,extra-tag "No extra argument")
-	  (ADDQ ,data 2 ,indirect "Get to the function cell")
-	  (BR zero ,startcallindirectlabel))
-	(|TypeLexicalClosure|
-	  ;; (start-call-lexical-closure tag data interp extra-data extra-tag temp2 temp temp6 temp7 temp8 temp9 indirect)
-	  (EXTLL ,data 0 ,indirect)
-	  #+ignore
-	  (
-	   ;;Most lexicals are stack-consed, we assume no funny types in them
-	   (VMAtoSCAmaybe ,indirect ,temp6 ,hardway ,temp7 ,temp8)
-	   (stack-read2 ,temp6 ,extra-tag ,extra-data)
-	   (stack-read2-disp ,temp6 8 ,tag ,data)
-	   (CheckDataType ,tag |TypeCompiledFunction| ,again ,temp6)
-	   (BR zero ,call-extra)
-	   (label ,hardway))
-	  (memory-read ,indirect ,tag ,data PROCESSORSTATE_DATAREAD ,temp6 ,temp7 ,temp8 ,temp9 nil t)
-	  (BIS ,tag zero ,extra-tag)
-	  (BIS ,data zero ,extra-data)
-	  (ADDQ ,indirect 1 ,indirect)
-	  (label ,startcallindirectlabel)
-	  (memory-read ,indirect ,tag ,data PROCESSORSTATE_DATAREAD ,temp6 ,temp7 ,temp8 ,temp9 nil t)
-	  (CheckDataType ,tag |TypeCompiledFunction| ,again ,temp6)
-	  (BR zero ,call-extra))
-	(:else
-	  (label ,interp)
-	  ;; (start-call-escape tag data notpc temp temp2 temp3 extra-tag extra-data temp6 temp7 temp8)
-	  (BIS ,tag zero ,extra-tag)
-	  (BIS ,data zero ,extra-data)
-	  (LDA ,temp3 #.%interpreter-function-vector ,temp)
-	  (TagType ,tag ,tag)
-	  (ADDQ ,tag ,temp3 ,indirect)
-	  (memory-read ,indirect ,tag ,data PROCESSORSTATE_DATAREAD ,temp6 ,temp7 ,temp8 ,temp9 nil t)
-	  ;; There aren't any odd ones, so we just disallow them!
-	  (CheckAdjacentDataTypes ,tag |TypeEvenPC| 1 ,notpc ,temp3)
-	  (BR zero ,call-extra)))
+	      (|TypeCompiledFunction|
+	       (label ,call)
+	       (BIS zero zero ,extra-tag "No extra argument")
+	       (label ,call-extra)
+	       (BIS zero |TypeEvenPC| ,tag)
+	       (label ,startcallcompiledlabel)
+	       ;; (start-call-compiled |TypeEvenPC| tag data temp3 temp8 temp9 temp6 temp7)
+	       (push-frame ,temp3 ,temp8 ,temp9 ,temp6 ,temp7)
+	       (GetNextPCandCP)
+	       (set-continuation2r ,tag ,data)
+	       (STQ zero PROCESSORSTATE_CONTINUATIONCP (Ivory))
+	       (BNE ,extra-tag ,push-extra)
+	       (ContinueToNextInstruction-NoStall)
+	       (label ,push-extra)
+	       (LDL ,temp PROCESSORSTATE_CONTROL (ivory))
+	       (load-constant ,temp2 #.1_8 "cr.extra-argument")
+	       (stack-push2 ,extra-tag ,extra-data ,temp3 "Push the extra arg.")
+	       (BIS ,temp ,temp2 ,temp "Set the extra arg bit")
+	       (STL ,temp PROCESSORSTATE_CONTROL (Ivory) "Save control with new state")
+	       (ContinueToNextInstruction-NoStall))
+	      (|TypeGenericFunction|
+	       ;; Build the constant PC for generic dispatch
+	       (BIS ,tag zero ,extra-tag)
+	       (EXTLL ,data 0 ,extra-data)
+	       (LDA ,data #.%generic-dispatch-trap-vector ,temp)
+	       (BR zero ,call-extra))
+	      (|TypeInstance|
+	       ;; Build the constant PC for message dispatch
+	       (BIS ,tag zero ,extra-tag)
+	       (EXTLL ,data 0 ,extra-data)
+	       (LDA ,data #.%message-dispatch-trap-vector ,temp)
+	       (BR zero ,call-extra))
+	      (|TypeSymbol|
+	       ;; We don't know what might be in the function-cell of a
+	       ;; symbol, so do the full dispatch
+	       (EXTLL ,data 0 ,data)
+	       (BIS zero zero ,extra-tag "No extra argument")
+	       (ADDQ ,data 2 ,indirect "Get to the function cell")
+	       (BR zero ,startcallindirectlabel))
+	      (|TypeLexicalClosure|
+	       ;; (start-call-lexical-closure tag data interp extra-data extra-tag temp2 temp temp6 temp7 temp8 temp9 indirect)
+	       (EXTLL ,data 0 ,indirect)
+	       #+ignore
+	       (
+	        ;;Most lexicals are stack-consed, we assume no funny types in them
+	        (VMAtoSCAmaybe ,indirect ,temp6 ,hardway ,temp7 ,temp8)
+	        (stack-read2 ,temp6 ,extra-tag ,extra-data)
+	        (stack-read2-disp ,temp6 8 ,tag ,data)
+	        (CheckDataType ,tag |TypeCompiledFunction| ,again ,temp6)
+	        (BR zero ,call-extra)
+	        (label ,hardway))
+	       (memory-read ,indirect ,tag ,data PROCESSORSTATE_DATAREAD ,temp6 ,temp7 ,temp8 ,temp9 nil t)
+	       (BIS ,tag zero ,extra-tag)
+	       (BIS ,data zero ,extra-data)
+	       (ADDQ ,indirect 1 ,indirect)
+	       (label ,startcallindirectlabel)
+	       (memory-read ,indirect ,tag ,data PROCESSORSTATE_DATAREAD ,temp6 ,temp7 ,temp8 ,temp9 nil t)
+	       (CheckDataType ,tag |TypeCompiledFunction| ,again ,temp6)
+	       (BR zero ,call-extra))
+	      (:else
+	       (label ,interp)
+	       ;; (start-call-escape tag data notpc temp temp2 temp3 extra-tag extra-data temp6 temp7 temp8)
+	       (BIS ,tag zero ,extra-tag)
+	       (BIS ,data zero ,extra-data)
+	       (LDA ,temp3 #.%interpreter-function-vector ,temp)
+	       (TagType ,tag ,tag)
+	       (ADDQ ,tag ,temp3 ,indirect)
+	       (memory-read ,indirect ,tag ,data PROCESSORSTATE_DATAREAD ,temp6 ,temp7 ,temp8 ,temp9 nil t)
+	       ;; There aren't any odd ones, so we just disallow them!
+	       (CheckAdjacentDataTypes ,tag |TypeEvenPC| 1 ,notpc ,temp3)
+	       (BR zero ,call-extra)))
       (label ,notpc)
       ;; Blech!  we "know" the VMA will be in temp (from start-call-escape)
       (illegal-operand interpreter-table-contents-not-pc ,temp "Bad type for start-call"))))
@@ -255,28 +256,28 @@
   (if cr
       (check-temporaries (cr) (temp temp2 temp3))
       (check-temporaries () (temp temp2 temp3)))
-  (let ((apply (gensym))
-	(done (gensym)))
+  (let ((apply (gensym "b-apply-argument-supplied"))
+	      (done (gensym "b-apply-argument-supplied")))
     ;; If you are going to pull args, you are on the slow path
     (push  `((label ,apply)
-	     (AND ,temp3 #x3F ,temp3)
-	     (SUBQ ,temp3 |TypeNIL| ,temp3)
-	     (BNE ,temp3 ,suppt "J. if apply args supplied not nil.")
-	     (AND ,temp2 1 ,temp2 "keep just the apply bit!")
-	     (SLL ,temp2 17 ,temp2 "reposition the apply bit")
-	     (SUBQ iSP 8 iSP "Pop off the null applied arg.")
-	     (BIC ,(or cr temp) ,temp2 ,(or cr temp) "Blast the apply arg bit away")
-	     (set-control-register ,(or cr temp) "Reset the stored cr bit")
-	     (BR zero ,done))
-	   *function-epilogue*)
+	           (AND ,temp3 #x3F ,temp3)
+	           (SUBQ ,temp3 |TypeNIL| ,temp3)
+	           (BNE ,temp3 ,suppt "J. if apply args supplied not nil.")
+	           (AND ,temp2 1 ,temp2 "keep just the apply bit!")
+	           (SLL ,temp2 17 ,temp2 "reposition the apply bit")
+	           (SUBQ iSP 8 iSP "Pop off the null applied arg.")
+	           (BIC ,(or cr temp) ,temp2 ,(or cr temp) "Blast the apply arg bit away")
+	           (set-control-register ,(or cr temp) "Reset the stored cr bit")
+	           (BR zero ,done))
+	         *function-epilogue*)
     `(,@(unless cr
-	  `((get-control-register ,temp "Get the control register")))
-      (SRL ,(or cr temp) 17 ,temp2)
-      (stack-read-tag iSP ,temp3 "Get the tag of the stack top.")
-      (force-alignment)
-      (BLBS ,temp2 ,apply "J. if apply args")
-      (unlikely-label ,done)
-      )))
+	        `((get-control-register ,temp "Get the control register")))
+        (SRL ,(or cr temp) 17 ,temp2)
+        (stack-read-tag iSP ,temp3 "Get the tag of the stack top.")
+        (force-alignment)
+        (BLBS ,temp2 ,apply "J. if apply args")
+        (unlikely-label ,done)
+        )))
 
 ;;; INDEX is an entry with an entry index in it.
 ;;; Branches back to the instruction interpreter when done.
@@ -296,9 +297,9 @@
   (if cr
       (check-temporaries (min max cr) (temp temp2 temp3))
       (check-temporaries (min max) (temp temp2 temp3)))
-  (let ((l1 (gensym))
-	(ent (gensym)))
-    `((stack-set-cdr-code iSP 1 ,temp)		;cdr-nil
+  (let ((l1 (gensym "push-apply-args"))
+	      (ent (gensym "push-apply-args")))
+    `((stack-set-cdr-code iSP 1 ,temp)  ;cdr-nil
       (b-apply-argument-supplied ,l1 ,temp ,temp2 ,temp3 ,cr)
       (S8ADDQ ,max iFP ,temp)
       (SCAtoVMA ,temp ,temp2 ,temp3)
@@ -312,7 +313,7 @@
       (stack-push-ir |TypeList| ,temp2 ,temp)
       (ADDQ iLP 8 iLP)
       ,@(unless cr
-	  `((get-control-register  ,temp3 "Get the control register")))
+	        `((get-control-register  ,temp3 "Get the control register")))
       (ADDQ ,(or cr temp3) 1 ,(or cr temp3))
       (set-control-register ,(or cr temp3))
       (label ,ent)
@@ -330,137 +331,137 @@
     (ADDQ ,temp ,n ,temp)
     (ADDQ ,temp ,cr ,cr "Update the arg size")
     ,@(when turn-off-apply
-	`((load-constant ,temp #.1_17 "cr.apply")
-	  (BIC ,cr ,temp ,cr "turn off cr.apply")))
+	      `((load-constant ,temp #.1_17 "cr.apply")
+	        (BIC ,cr ,temp ,cr "turn off cr.apply")))
     (set-control-register ,cr)))
 
 (defmacro pull-apply-args (n tag data done-label
-			   temp temp2 temp3 temp4 temp5 temp6 temp7 temp8)
+			                     temp temp2 temp3 temp4 temp5 temp6 temp7 temp8)
   (check-temporaries (n tag data) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8))
-  (let ((done (or done-label (gensym)))
-	(notincache (gensym)))
+  (let ((done (or done-label (gensym "pull-apply-args")))
+	      (notincache (gensym "pull-apply-args")))
     `((stack-top2 ,tag ,data)
       (type-dispatch ,tag ,temp ,temp2
-	(|TypeList|
-	  (VMAtoSCAMaybe ,data ,temp ,notincache ,temp2 ,temp3)
-	  (pull-apply-args-quickly
-	    ,n ,temp ,done ,temp2 ,temp3 ,temp4 ,temp5 ,temp6 ,temp7 ,temp8))
-	(|TypeNIL|
-	  (get-control-register ,temp3 "Get the control register")
-	  (load-constant ,temp4 #.1_17 "cr.apply")
-	  (SUBQ iSP 8 iSP "Discard that silly nil")
-	  (BIC ,temp3 ,temp4 ,temp3 "Blast away the apply arg bit.")
-	  (set-control-register ,temp3)
-	  ,@(when done-label
-	      `((BR zero ,done-label))))
-	(:else
-	  ;; Pull-apply has no illegal operands, always takes exception
-	  (BIS zero ,n arg1 "Pull apply args trap needs nargs in ARG1")
-	  (external-branch |PULLAPPLYARGSTRAP|)
-	 (label ,notincache)
-	  (BIS zero ,n arg1)
-	  (external-branch |PullApplyArgsSlowly|)))
+	      (|TypeList|
+	       (VMAtoSCAMaybe ,data ,temp ,notincache ,temp2 ,temp3)
+	       (pull-apply-args-quickly
+	        ,n ,temp ,done ,temp2 ,temp3 ,temp4 ,temp5 ,temp6 ,temp7 ,temp8))
+	      (|TypeNIL|
+	       (get-control-register ,temp3 "Get the control register")
+	       (load-constant ,temp4 #.1_17 "cr.apply")
+	       (SUBQ iSP 8 iSP "Discard that silly nil")
+	       (BIC ,temp3 ,temp4 ,temp3 "Blast away the apply arg bit.")
+	       (set-control-register ,temp3)
+	       ,@(when done-label
+	           `((BR zero ,done-label))))
+	      (:else
+	       ;; Pull-apply has no illegal operands, always takes exception
+	       (BIS zero ,n arg1 "Pull apply args trap needs nargs in ARG1")
+	       (external-branch |PULLAPPLYARGSTRAP|)
+	       (label ,notincache)
+	       (BIS zero ,n arg1)
+	       (external-branch |PullApplyArgsSlowly|)))
       ;; At this point, PROCESSORSTATE_RESTARTSP does *not* reflect the
       ;; real state of iSP.  If you have any code that can fault after
       ;; calling this, you better store iSP!  See VERIFY-GENERIC-ARITY, e.g.
       ,@(unless done-label
-	  `((label ,done))))))
+	        `((label ,done))))))
 
 ;; Number of args in NARGS, rest arg is on top of stack
 ;; The idea is that we pull a single argument, update the state of the world,
 ;; and then re-execute the same instruction.
 (defmacro pull-apply-args-quickly (n rest done-label
-				   temp temp2 temp3 temp4 temp5 temp6 temp7)
+				                           temp temp2 temp3 temp4 temp5 temp6 temp7)
   "Expects rest-arg has been popped and its SCA is rest"
   (check-temporaries (n rest) (temp temp2 temp3 temp4 temp5 temp6 temp7))
-  (let ((top (gensym))
-	(done (or done-label (gensym)))
-	(endloop (gensym))
-	(notincache (gensym))
-	(ranout (gensym))
-	(maybedone (gensym))
-	(loopentry (gensym))
-	;; readability
-	(count temp3)
-	(argtag temp4)
-	(argdata temp5)
-	;; could share with argxxx
-	(listtag temp6)
-	(listdata temp7))
+  (let ((top (gensym "pull-apply-args-quickly"))
+	      (done (or done-label (gensym "pull-apply-args-quickly")))
+	      (endloop (gensym "pull-apply-args-quickly"))
+	      (notincache (gensym "pull-apply-args-quickly"))
+	      (ranout (gensym "pull-apply-args-quickly"))
+	      (maybedone (gensym "pull-apply-args-quickly"))
+	      (loopentry (gensym "pull-apply-args-quickly"))
+	      ;; readability
+	      (count temp3)
+	      (argtag temp4)
+	      (argdata temp5)
+	      ;; could share with argxxx
+	      (listtag temp6)
+	      (listdata temp7))
     `((BIS zero zero ,count)
       (stack-cache-overflow-check ,temp ,temp2 ,temp4 ,temp6 ,temp7 iSP ,n)
       (SUBQ iSP 8 iSP "Pop Stack.")
       (BR zero ,loopentry)
-     (label ,top)
+      (label ,top)
       (stack-read2 ,rest ,argtag ,argdata)
       ;; Assume we'll push this
       (ADDQ ,count 1 ,count)
       (ADDQ ,rest 8 ,rest)
       (cdr-code-dispatch ,argtag ,temp ,temp2
         (|CdrNext|
-	  (stack-push2 ,argtag ,argdata ,temp)
-	  ;; Fast case, test and branch back
-	  (CMPEQ ,count ,n ,temp)
-	  (branch-false ,temp ,top)
-	  (BR zero ,endloop))
-	(|CdrNil|
-	  (stack-push2 ,argtag ,argdata ,temp)
-	 (label ,ranout)
-	  ;; Turn off apply
-	  (note-additional-spread-args ,count ,temp ,temp2 t)
-	  (S8ADDQ ,count iLP iLP)
-	  (BR zero ,done))
-	(|CdrNormal|
-	  (stack-push2 ,argtag ,argdata ,temp)
-	  (stack-read2 ,rest ,listtag ,listdata)
-	  (type-dispatch ,listtag ,temp ,temp2
-	    (|TypeList|
-	      (VMAtoSCAmaybe ,listdata ,rest ,notincache ,temp ,temp2)
-	      (BR zero ,loopentry))
-	    (|TypeNIL|
-	      (BR zero ,ranout))
-	    (:else
-	     (label ,notincache)
-	      (stack-push2 ,listtag ,listdata ,temp)
-	      (BR zero ,maybedone))))
-	(:else
-	  (SUBQ ,count 1 ,count)		;didn't push
-	  (SUBQ ,rest 8 ,rest)
-	  (BR zero ,endloop)))
-     (unlikely-label ,loopentry)
+	       (stack-push2 ,argtag ,argdata ,temp)
+	       ;; Fast case, test and branch back
+	       (CMPEQ ,count ,n ,temp)
+	       (branch-false ,temp ,top)
+	       (BR zero ,endloop))
+	      (|CdrNil|
+	       (stack-push2 ,argtag ,argdata ,temp)
+	       (label ,ranout)
+	       ;; Turn off apply
+	       (note-additional-spread-args ,count ,temp ,temp2 t)
+	       (S8ADDQ ,count iLP iLP)
+	       (BR zero ,done))
+	      (|CdrNormal|
+	       (stack-push2 ,argtag ,argdata ,temp)
+	       (stack-read2 ,rest ,listtag ,listdata)
+	       (type-dispatch ,listtag ,temp ,temp2
+	         (|TypeList|
+	          (VMAtoSCAmaybe ,listdata ,rest ,notincache ,temp ,temp2)
+	          (BR zero ,loopentry))
+	         (|TypeNIL|
+	          (BR zero ,ranout))
+	         (:else
+	          (label ,notincache)
+	          (stack-push2 ,listtag ,listdata ,temp)
+	          (BR zero ,maybedone))))
+	      (:else
+	       (SUBQ ,count 1 ,count)         ;didn't push
+	       (SUBQ ,rest 8 ,rest)
+	       (BR zero ,endloop)))
+      (unlikely-label ,loopentry)
       (CMPEQ ,count ,n ,temp)
       (branch-false ,temp ,top)
-     (label ,endloop)
+      (label ,endloop)
       (comment "Here if count=n, or bad cdr")
       (SCAtoVMA ,rest ,argdata ,temp)
       (stack-push-ir |TypeList| ,argdata ,temp)
-     (label ,maybedone)
+      (label ,maybedone)
       (note-additional-spread-args ,count ,temp ,temp2)
       (S8ADDQ ,count iLP iLP)
-      (SUBQ ,n ,count arg1)			;exception handler wants ARG1 = args to pull
+      (SUBQ ,n ,count arg1)         ;exception handler wants ARG1 = args to pull
       ;; If we're going to lose, we might as well do it via the slow arg
       ;; puller, because we'll either manage to pull an argument more quickly
       ;; than we would if we trapped or end up in the debugger, in which case
       ;; the slight slowdown is of no consequence.
       ,@(if done-label
-	    `((BLE arg1 ,done)
-	      (external-branch |PullApplyArgsSlowly|))
-	    `((BGT arg1 |PullApplyArgsSlowly|)
-	      (label ,done))))))
+	          `((BLE arg1 ,done)
+	            (external-branch |PullApplyArgsSlowly|))
+	          `((BGT arg1 |PullApplyArgsSlowly|)
+	            (label ,done))))))
 
 ;; Handle the case where we are pulling a cdr-coded rest arg entirely from
 ;; the stack cache.  The idea is to pull a single argument, push it onto
 ;; the stack, replace the new rest arg on the stack, fix up the control
 ;; register, and then restart the instruction.
 (defmacro pull-apply-args-slowly (nargs  cr atag adata rtag rdata
-				  temp temp2 temp3 temp4 temp5 temp6)
+				                          temp temp2 temp3 temp4 temp5 temp6)
   `((stack-top2 ,atag ,adata "Get the rest arg")
     ;; Get the arg to push in atag/adata, and the new rest arg in rtag/rdata.
     ;; Any exception doing this forces a pull-apply-args trap
     (carcdr-internal ,atag ,adata ,rtag ,rdata
-		     ((BIS zero ,nargs arg1)	;really need to trap now
-		      (external-branch |PULLAPPLYARGSTRAP|))
-		     ,temp2 ,temp3 ,temp4 ,temp5 ,temp6)
+		                 ((BIS zero ,nargs arg1) ;really need to trap now
+		                  (external-branch |PULLAPPLYARGSTRAP|))
+		                 ,temp2 ,temp3 ,temp4 ,temp5 ,temp6)
     ;; Push the new spread arg on the stack and update the rest arg.
     ;; It's OK if we push null rest arg, because restarting the
     ;; instruction will clean it up in a moment)
@@ -474,25 +475,25 @@
     (ContinueToInterpretInstruction)))
 
 (defmacro cleanup-frame (cr done-label
-			 temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
+			                   temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
   (check-temporaries (cr) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12))
-  (let ((reallydone (or done-label (gensym)))
-	(done (gensym))
-	(almostdone (gensym))
-	(top (gensym))
-	(more (gensym))
-	(cfuwp 'HANDLEUNWINDPROTECT)
-	(cfdbt 'DBUNWINDFRAMETRAP))
+  (let ((reallydone (or done-label (gensym "cleanup-frame")))
+	      (done (gensym "cleanup-frame"))
+	      (almostdone (gensym "cleanup-frame"))
+	      (top (gensym "cleanup-frame"))
+	      (more (gensym "cleanup-frame"))
+	      (cfuwp 'HANDLEUNWINDPROTECT)
+	      (cfdbt 'DBUNWINDFRAMETRAP))
     `(
-    (label ,top)
+      (label ,top)
       (load-constant ,temp #.1_26 "cr.cleanup-catch")
       (LDL ,temp4 PROCESSORSTATE_CATCHBLOCK (ivory))
       (EXTLL ,temp4 0 ,temp4)
       (AND ,temp ,cr ,temp2)
       (BEQ ,temp2 ,almostdone "J. if cr.cleanup-catch is 0")
       (VMAtoSCA ,temp4 ,temp3 ,temp2)
-      (stack-read2-disp ,temp3 16 ,temp5 ,temp6)	;temp5=cb-cleanup, temp6=cb-previous
-      (stack-read2-disp ,temp3 8 ,temp ,temp2)		;temp=tag temp2=binding-stack-level
+      (stack-read2-disp ,temp3 16 ,temp5 ,temp6) ;temp5=cb-cleanup, temp6=cb-previous
+      (stack-read2-disp ,temp3 8 ,temp ,temp2) ;temp=tag temp2=binding-stack-level
       (AND ,temp #x40 ,temp12)
       (BNE ,temp12 ,cfuwp "J. if catch block is UWP variety.")
       (load-constant ,temp3 #.1_26 "cr.cleanup-catch")
@@ -506,17 +507,17 @@
       (BIS ,temp6 ,temp5 ,temp6)
       (STQ ,temp6 PROCESSORSTATE_CATCHBLOCK (ivory))
       (BR zero ,top)
-    (label ,almostdone)
+      (label ,almostdone)
       (load-constant ,temp #.1_25 "cr.cleanup-bindings")
       (AND ,temp ,cr ,temp2)
       (LDQ ,temp PROCESSORSTATE_BINDINGSTACKPOINTER (ivory))
       (BEQ ,temp2 ,done "J. if cr.cleanup-bindings is 0.")
-      (passthru "#ifdef MINIMA")
-      (comment "BSP not a locative -> Deep-bound")
-      (SRL ,temp 32 ,temp4)
-      (CheckDataType ,temp4 |TypeLocative| ,cfdbt ,temp3)
-      (passthru "#endif")
-    (label ,more)
+      ;; (passthru "#ifdef MINIMA")
+      ;; (comment "BSP not a locative -> Deep-bound")
+      ;; (SRL ,temp 32 ,temp4)
+      ;; (CheckDataType ,temp4 |TypeLocative| ,cfdbt ,temp3)
+      ;; (passthru "#endif")
+      (label ,more)
       (unbind ,temp ,temp2 ,temp3 ,temp4 ,temp5 ,temp6 ,temp7 ,temp8 ,temp9 ,temp10 ,temp11 ,temp12)
       (get-control-register ,cr)
       (load-constant ,temp #.1_25 "cr.cleanup-bindings")
@@ -524,55 +525,55 @@
       (BNE ,temp2 ,more "J. if cr.cleanup-bindings is 0.")
       ;; After we've unbound everything, check for a preempt request
       (check-preempt-request nil ,temp2 ,temp3)
-    (label ,done)
+      (label ,done)
       (load-constant ,temp3 #.1_24 "cr.trap-on-exit-bit")
       (AND ,temp3 ,cr ,temp2)
       (BEQ ,temp2 ,reallydone)
       (illegal-operand trap-on-exit zero)
 
-;    (label ,cfuwp)
-;      (external-branch HANDLEUNWINDPROTECT "Tail call to handle UNWIND-PROTECT")
-;
-;      (passthru "#ifdef MINIMA")
-;    (label ,cfdbt)
-;      (external-branch DBUNWINDFRAMETRAP "Tail call for deep-bound trap")
-;      (passthru "#endif")
+      ;;    (label ,cfuwp)
+      ;;      (external-branch HANDLEUNWINDPROTECT "Tail call to handle UNWIND-PROTECT")
+      ;;
+      ;;      (passthru "#ifdef MINIMA")
+      ;;    (label ,cfdbt)
+      ;;      (external-branch DBUNWINDFRAMETRAP "Tail call for deep-bound trap")
+      ;;      (passthru "#endif")
 
       ,@(unless done-label
-	  `((label ,reallydone))))))
+	        `((label ,reallydone))))))
 
 ;; This is branched to from cleanup-frame when an unwind-protect is
 ;; encountered.  It does not need to be inlined, since the unwind
 ;; handler deals with retrying the instruction when it exits
 (defmacro do-unwind-protect (cr temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
-  (let ((pushpc (gensym))
-	(restorebindings (gensym))
-	(dupdbt 'DBUNWINDFRAMETRAP))
+  (let ((pushpc (gensym "do-unwind-protect"))
+	      (restorebindings (gensym "do-unwind-protect"))
+	      (dupdbt 'DBUNWINDFRAMETRAP))
     `((LDL ,temp4 PROCESSORSTATE_CATCHBLOCK (ivory))
       (EXTLL ,temp4 0 ,temp4)
       (VMAtoSCA ,temp4 ,temp3 ,temp2)
-      (stack-read2-disp ,temp3 16 ,temp5 ,temp6)	;temp5=cb-cleanup, temp6=cb-previous
-      (stack-read2-disp ,temp3 8 ,temp ,temp2)		;temp=tag temp2=binding-stack-level
+      (stack-read2-disp ,temp3 16 ,temp5 ,temp6) ;temp5=cb-cleanup, temp6=cb-previous
+      (stack-read2-disp ,temp3 8 ,temp ,temp2) ;temp=tag temp2=binding-stack-level
       (LDQ iSP PROCESSORSTATE_RESTARTSP (ivory) "Restore SP")
       ;; Restore binding stack. temp2=bindingstacklevel
       (LDQ ,temp PROCESSORSTATE_BINDINGSTACKPOINTER (ivory))
-      (passthru "#ifdef MINIMA")
-      (SRL ,temp 32 ,temp4)
-      (passthru "#endif")
+      ;; (passthru "#ifdef MINIMA")
+      ;; (SRL ,temp 32 ,temp4)
+      ;; (passthru "#endif")
       (SUBL ,temp ,temp2 ,temp3)
       (BEQ ,temp3 ,pushpc "J. if binding level= binding stack")
-      (passthru "#ifdef MINIMA")
-      (comment "BSP not a locative -> Deep-bound")
-      (CheckDataType ,temp4 |TypeLocative| ,dupdbt ,temp3)
-      (passthru "#endif")
-    (label ,restorebindings)
+      ;; (passthru "#ifdef MINIMA")
+      ;; (comment "BSP not a locative -> Deep-bound")
+      ;; (CheckDataType ,temp4 |TypeLocative| ,dupdbt ,temp3)
+      ;; (passthru "#endif")
+      (label ,restorebindings)
       (unbind ,temp ,cr ,temp3 ,temp4 ,temp5 ,temp6 ,temp7 ,temp8 ,temp9 ,temp10 ,temp11 ,temp12)
       (LDQ ,temp PROCESSORSTATE_BINDINGSTACKPOINTER (ivory))
       (SUBL ,temp ,temp2 ,temp3)
       (BNE ,temp3 ,restorebindings "J. if binding level/= binding stack")
       ;; After we've unbound everything, check for a preempt request
       (check-preempt-request ,pushpc ,temp2 ,temp3)
-    (label ,pushpc "Push PC with cleanup bits in CDR")
+      (label ,pushpc "Push PC with cleanup bits in CDR")
       (convert-pc-to-continuation iPC ,temp3 ,temp ,temp2)
       (get-control-register ,cr)
       (SRL ,cr ,(- 23 6) ,temp2)
@@ -585,7 +586,7 @@
       (LDL ,temp4 PROCESSORSTATE_CATCHBLOCK (ivory))
       (EXTLL ,temp4 0 ,temp4)
       (VMAtoSCA ,temp4 ,temp3 ,temp2)
-      (stack-read2 ,temp3 ,temp5 ,temp6)	;catch block PC
+      (stack-read2 ,temp3 ,temp5 ,temp6) ;catch block PC
       (convert-continuation-to-pc ,temp5 ,temp6 iPC ,temp)
       ;; set cleanup handling bit
       (load-constant ,temp #.1_23 "cr.cleanup-in-progress")
@@ -605,69 +606,68 @@
       (BIS ,temp5 ,temp10 ,temp5)
       (STQ ,temp5 PROCESSORSTATE_CATCHBLOCK (ivory))
       (ContinueToInterpretInstruction-ValidateCache "Execute cleanup")
-      (passthru "#ifdef MINIMA")
-    (label ,dupdbt)
-      (external-branch DBUNWINDFRAMETRAP "Tail call for deep-bound trap")
-      (passthru "#endif")
+      ;; (passthru "#ifdef MINIMA")
+      ;; (label ,dupdbt)
+      ;; (external-branch DBUNWINDFRAMETRAP "Tail call for deep-bound trap")
+      ;; (passthru "#endif")
       )))
 
 
-(defmacro abandon-frame-simple
-	  (restorepctest cr cleanuplabel temp temp2 temp3 temp4 temp5 temp6 next-cp)
+(defmacro abandon-frame-simple (restorepctest cr cleanuplabel temp temp2 temp3 temp4 temp5 temp6 next-cp)
   "If the pc is restored, you must go to InterpretInstructionForBranch to update the CP"
   (check-temporaries (cr) (temp temp2 temp3 temp4 temp5 temp6 next-cp))
-  (let ((afexc (gensym))
-	(afgo (gensym))
-	(norestore (gensym))
-	(saved-control-data temp6))
+  (let ((afexc (gensym "abandon-frame-simple"))
+	      ;; (afgo (gensym "abandon-frame-simple"))
+	      (norestore (gensym "abandon-frame-simple"))
+	      (saved-control-data temp6))
     `((Comment "Restore machine state from frame header.")
       ,@(let ((saved-continuation-tag temp2)
-	      (saved-continuation-data temp3)
-	      (continuation-tag temp4)
-	      (continuation-data temp5))
-	  ;; Interleave:
-	  ;; (get-continuation2 ,continuation-tag ,continuation-data)
-	  ;; (stack-read-2 ,saved-continuation-tag ,saved-continuation-data)
-	  ;; and check for cleanup
-	  `((LDL ,saved-continuation-data 0 (iFP))
-	    (load-constant ,temp #.(* 7 1_24) "cleanup bits")
-	    (LDL ,continuation-data PROCESSORSTATE_CONTINUATION (ivory))
-	    (AND ,cr ,temp ,temp "Mask")
-	    (LDL ,saved-continuation-tag 4 (iFP))
-	    (BIS iCP zero ,next-cp)
-	    (BNE ,temp ,cleanuplabel "Need to cleanup frame first")
-	    (EXTLL ,saved-continuation-data 0 ,saved-continuation-data)
-	    (LDL ,continuation-tag |PROCESSORSTATE_CONTINUATION+4| (ivory))
-	    (EXTLL ,continuation-data 0 ,continuation-data)
+	            (saved-continuation-data temp3)
+	            (continuation-tag temp4)
+	            (continuation-data temp5))
+	        ;; Interleave:
+	        ;; (get-continuation2 ,continuation-tag ,continuation-data)
+	        ;; (stack-read-2 ,saved-continuation-tag ,saved-continuation-data)
+	        ;; and check for cleanup
+	        `((LDL ,saved-continuation-data 0 (iFP))
+	          (load-constant ,temp #.(* 7 1_24) "cleanup bits")
+	          (LDL ,continuation-data PROCESSORSTATE_CONTINUATION (ivory))
+	          (AND ,cr ,temp ,temp "Mask")
+	          (LDL ,saved-continuation-tag 4 (iFP))
+	          (BIS iCP zero ,next-cp)
+	          (BNE ,temp ,cleanuplabel "Need to cleanup frame first")
+	          (EXTLL ,saved-continuation-data 0 ,saved-continuation-data)
+	          (LDL ,continuation-tag |PROCESSORSTATE_CONTINUATION+4| (ivory))
+	          (EXTLL ,continuation-data 0 ,continuation-data)
 
-	    (passthru "#ifdef IVERIFY")
-	    (comment "check for instruction verification suite end-of-test")
-	    (SUBL ,saved-continuation-tag |TypeNIL| ,saved-control-data "check for end of run")
-	    (BEQ ,saved-control-data ,afexc)
-	    (passthru "#endif")
+	          (passthru "#ifdef IVERIFY")
+	          (comment "check for instruction verification suite end-of-test")
+	          (SUBL ,saved-continuation-tag |TypeNIL| ,saved-control-data "check for end of run")
+	          (BEQ ,saved-control-data ,afexc)
+	          (passthru "#endif")
 
-	    (stack-read-data-disp iFP 8 ,saved-control-data "Get saved control register" :signed t)
-	    (TagType ,saved-continuation-tag ,saved-continuation-tag)
-	    (comment "Restore the PC.")
-	    ,@(when restorepctest
-		`(,@(cond ((atom restorepctest) `())
-			  ((eq (first restorepctest) 'not)
-			   `((branch-false ,(second restorepctest) ,norestore)))
-			  (t
-			    `((branch-true ,(first restorepctest) ,norestore))))
-		  ;; inline (convert-continuation-to-pc continuation-tag
-		  ;; continuation-data iPC temp) with load of continuationcp
-		  (SLL ,continuation-data 1 iPC "Assume even PC")
-		  (AND ,continuation-tag 1 ,temp)
-		  (LDQ ,next-cp PROCESSORSTATE_CONTINUATIONCP (Ivory))
-		  (ADDQ iPC ,temp iPC)))
-	  (label ,norestore)
-	    ;; (set-continuation2 ,saved-continuation-tag ,saved-continuation-data)
-	    (comment "Restore the saved continuation")
-	    (STL ,saved-continuation-tag |PROCESSORSTATE_CONTINUATION+4| (ivory))
-	    (SRL ,cr 9 ,temp "Get the caller frame size into place")	;+++ magic#
-	    (STL ,saved-continuation-data PROCESSORSTATE_CONTINUATION (ivory))
-	    ))
+	          (stack-read-data-disp iFP 8 ,saved-control-data "Get saved control register" :signed t)
+	          (TagType ,saved-continuation-tag ,saved-continuation-tag)
+	          (comment "Restore the PC.")
+	          ,@(when restorepctest
+		            `(,@(cond ((atom restorepctest) `())
+			                    ((eq (first restorepctest) 'not)
+			                     `((branch-false ,(second restorepctest) ,norestore)))
+			                    (t
+			                     `((branch-true ,(first restorepctest) ,norestore))))
+		                ;; inline (convert-continuation-to-pc continuation-tag
+		                ;; continuation-data iPC temp) with load of continuationcp
+		                (SLL ,continuation-data 1 iPC "Assume even PC")
+		                (AND ,continuation-tag 1 ,temp)
+		                (LDQ ,next-cp PROCESSORSTATE_CONTINUATIONCP (Ivory))
+		                (ADDQ iPC ,temp iPC)))
+	          (label ,norestore)
+	          ;; (set-continuation2 ,saved-continuation-tag ,saved-continuation-data)
+	          (comment "Restore the saved continuation")
+	          (STL ,saved-continuation-tag |PROCESSORSTATE_CONTINUATION+4| (ivory))
+	          (SRL ,cr 9 ,temp "Get the caller frame size into place") ;+++ magic#
+	          (STL ,saved-continuation-data PROCESSORSTATE_CONTINUATION (ivory))
+	          ))
       (SUBQ iFP 8 iSP "Restore the stack pointer.")
       (STQ zero PROCESSORSTATE_CONTINUATIONCP (Ivory))
       (AND ,temp #xFF ,temp "Mask just the caller frame size.")
@@ -686,10 +686,10 @@
       (BIS ,temp4 ,temp3 ,temp3)
       (STQ ,temp3 PROCESSORSTATE_STOP_INTERPRETER (ivory))
       (S8ADDQ ,temp iFP iLP "Restore the local pointer.")
-;      (passthru "#ifdef IVERIFY")
-;      (BR zero ,afgo)
-;    (label ,afexc)
-;      (halt-machine)
-;    (label ,afgo)
-;      (passthru "#endif")
+      ;;      (passthru "#ifdef IVERIFY")
+      ;;      (BR zero ,afgo)
+      ;;    (label ,afexc)
+      ;;      (halt-machine)
+      ;;    (label ,afgo)
+      ;;      (passthru "#endif")
       )))

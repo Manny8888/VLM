@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
@@ -406,7 +405,7 @@
 ;;;   Destroys the value in CR ...
 (defmacro stack-overflow-p (cr no-overflow temp temp2 &optional overflow)
   (let ((limit temp)
-	(sp cr))
+	      (sp cr))
     `((SRL ,cr 30 ,cr "Isolate trap mode")
       (LDL ,limit PROCESSORSTATE_CSLIMIT (ivory) "Limit for emulator mode")
       (LDL ,temp2 PROCESSORSTATE_CSEXTRALIMIT (ivory) "Limit for extra stack and higher modes")
@@ -415,19 +414,19 @@
       (SCAtoVMA iSP ,sp ,temp2)
       (CMPLT ,sp ,limit ,temp2 "Check for overflow")
       ,@(if no-overflow
-	    `((branch-true ,temp2 ,no-overflow "Jump if no overflow"))
-	    `((branch-false ,temp2 ,overflow "Jump if overflow"))))))
+	          `((branch-true ,temp2 ,no-overflow "Jump if no overflow"))
+	          `((branch-false ,temp2 ,overflow "Jump if overflow"))))))
 
 (defmacro stack-overflow-check (cr done-label temp temp2)
   `((comment "Check for stack overflow")
     (stack-overflow-p ,cr ,done-label ,temp ,temp2 STACKOVERFLOW)
     ,@(when done-label
-	`((external-branch STACKOVERFLOW "Take the trap")))))
+	      `((external-branch STACKOVERFLOW "Take the trap")))))
 
 (defmacro stack-fill (VMA SCA count temp temp2 temp3 temp4)
   (check-temporaries (VMA SCA count) (temp temp2))
-  (let ((l1 (gensym))
-        (l2 (gensym)))
+  (let ((l1 (gensym "stack-fill"))
+        (l2 (gensym "stack-fill")))
     `((VM-Read ,vma ,temp ,temp2 ,temp3 ,temp4 t) ; read and prefetch
       (BR zero ,l1)
       (label ,l2)
@@ -441,10 +440,10 @@
 
 ;; ARG indicates which stack pointer to look at -- generally iFP
 (defmacro stack-cache-underflow-check (arg done-label underflow-routine
-				       from to count stack-pointer
-				       &rest regs-to-adjust)
+				                               from to count stack-pointer
+				                               &rest regs-to-adjust)
   (declare (ignore to regs-to-adjust))
-  (let ((done (or done-label (gensym))))
+  (let ((done (or done-label (gensym "stack-cache-underflow-check"))))
     `((LDQ ,from PROCESSORSTATE_STACKCACHEDATA (ivory))
       (LDQ ,stack-pointer PROCESSORSTATE_RESTARTSP (ivory) "Preserve through instruction's original SP")
       (SUBQ ,from ,arg ,count "Number of words*8 to fill iff positive")
@@ -454,15 +453,15 @@
       (BLE ,count ,done "in case only low three bits nonzero")
       (BSR R0 ,underflow-routine)
       ,(if done-label
-	   `(BR zero ,done)
-	   `(label ,done)))))
+	         `(BR zero ,done)
+	         `(label ,done)))))
 
 (defmacro stack-cache-underflow-body (from to count stack-pointer
-				      temp2 temp6 temp7 &rest regs-to-adjust)
+				                              temp2 temp6 temp7 &rest regs-to-adjust)
   (let ((temp stack-pointer)
-	(temp3 from)
-	(temp4 to)
-	(temp5 count))
+	      (temp3 from)
+	      (temp4 to)
+	      (temp5 count))
     `((S8ADDQ ,count ,from ,to "Compute target address for shift")
       (SUBQ ,stack-pointer ,from ,temp2 "Compute number of elements to preserve")
       (SRA ,temp2 3 ,temp2 "Convert to word count")
@@ -475,7 +474,7 @@
       (S8ADDQ ,count iLP iLP)
       (S8ADDQ ,count ,temp ,temp)
       ,@(loop for reg in regs-to-adjust
-	      collect `(S8ADDQ ,count ,reg ,reg))
+	         collect `(S8ADDQ ,count ,reg ,reg))
       (comment "Fill freshly opened slots of stack cache from memory")
       (LDQ ,from PROCESSORSTATE_STACKCACHEBASEVMA (ivory))
       (LDQ ,to PROCESSORSTATE_STACKCACHEDATA (ivory))
@@ -496,10 +495,10 @@
 ;;; --- s/b in memoryem, so all memory code is in one place!
 (defmacro stack-dump (VMA SCA count temp temp2)
   (check-temporaries (VMA SCA count) (temp temp2))
-  (let ((datal1 (gensym))
-        (datal2 (gensym))
-	(tagl1 (gensym))
-	(tagl2 (gensym)))
+  (let ((datal1 (gensym "stack-dump"))
+        (datal2 (gensym "stack-dump"))
+	      (tagl1 (gensym "stack-dump"))
+	      (tagl2 (gensym "stack-dump")))
     `((STL ,count PROCESSORSTATE_SCOVDUMPCOUNT (ivory) "Will be destructively modified")
       (ADDQ ,vma Ivory ,temp2 "Starting address of tags")
       (S4ADDQ ,temp2 zero ,vma "Starting address of data")
@@ -538,50 +537,46 @@
       )))
 
 (defmacro stack-cache-overflow-check (temp temp2 temp3 temp4 temp5
-				      &optional
-				      (sp 'iSP)
-				      (nwords 0)
-				      &aux
-				      (handler '|StackCacheOverflowHandler|)
-				      (handler-arg 'arg2))
+				                              &optional (sp 'iSP) (nwords 0)
+				                              &aux (handler '|StackCacheOverflowHandler|) (handler-arg 'arg2))
   ;; don't need temp3, temp5
   (assert (eq sp 'iSP) () "That won't work")
   (check-temporaries (sp handler-arg) (temp temp2 temp3 temp4 temp5))
   (let ((newSCA temp)
-	(oldSCA temp2)
-	(not-done (gensym)))
+	      (oldSCA temp2)
+	      (not-done (gensym "stack-cache-overflow-check")))
     (unless (eq nwords handler-arg)
       (push
-	`((label ,not-done)
-	  (BIS zero ,nwords ,handler-arg)
-	  (BR zero ,handler))
-	*function-epilogue*))
+	     `((label ,not-done)
+	       (BIS zero ,nwords ,handler-arg)
+	       (BR zero ,handler))
+	     *function-epilogue*))
     `(,@(unless *memoized-limit*
-	  `((LDL ,temp4 PROCESSORSTATE_SCOVLIMIT (ivory) "Current stack cache limit (words)")))
-      (load-constant ,newSCA ,(eval |stack$K-cachemargin|) "Must always have this much room")
-      (LDQ ,oldSCA PROCESSORSTATE_STACKCACHEDATA (ivory) "Alpha base of stack cache")
-      ,@(unless (eql nwords 0)
-	  `((ADDQ ,newSCA ,nwords ,newSCA "Account for what we're about to push")))
-      (S8ADDQ ,newSCA ,sp ,newSCA "SCA of desired end of cache")
-      (S8ADDQ ,(or *memoized-limit* temp4) ,oldSCA ,oldSCA "SCA of current end of cache")
-      (CMPLE ,newSCA ,oldSCA ,temp4)
-      ,@(if (eq nwords handler-arg)
-	    `((branch-false ,temp4 ,handler "We're done if new SCA is within bounds"))
-	    `((branch-false ,temp4 ,not-done "We're done if new SCA is within bounds")))
-      )))
+	        `((LDL ,temp4 PROCESSORSTATE_SCOVLIMIT (ivory) "Current stack cache limit (words)")))
+        (load-constant ,newSCA ,(eval |stack$K-cachemargin|) "Must always have this much room")
+        (LDQ ,oldSCA PROCESSORSTATE_STACKCACHEDATA (ivory) "Alpha base of stack cache")
+        ,@(unless (eql nwords 0)
+	          `((ADDQ ,newSCA ,nwords ,newSCA "Account for what we're about to push")))
+        (S8ADDQ ,newSCA ,sp ,newSCA "SCA of desired end of cache")
+        (S8ADDQ ,(or *memoized-limit* temp4) ,oldSCA ,oldSCA "SCA of current end of cache")
+        (CMPLE ,newSCA ,oldSCA ,temp4)
+        ,@(if (eq nwords handler-arg)
+	            `((branch-false ,temp4 ,handler "We're done if new SCA is within bounds"))
+	            `((branch-false ,temp4 ,not-done "We're done if new SCA is within bounds")))
+        )))
 
 (defmacro stack-cache-overflow-handler (temp temp2 temp3 temp4 temp5
-					&aux (sp 'iSP) (nwords 'arg2))
+					                              &aux (sp 'iSP) (nwords 'arg2))
   (check-temporaries (sp nwords) (temp temp2 temp3 temp4 temp5))
   (let ((pagemissing  'PAGENOTRESIDENT)
-	(faultrequest 'PAGEFAULTREQUESTHANDLER)
-	(writefault   'PAGEWRITEFAULT)
-	;; retry the instruction
-	(done 'INTERPRETINSTRUCTION)
-	(newsca temp)
-	(count temp)
-	(from temp2)
-	(to temp3))
+	      (faultrequest 'PAGEFAULTREQUESTHANDLER)
+	      (writefault   'PAGEWRITEFAULT)
+	      ;; retry the instruction
+	      (done 'INTERPRETINSTRUCTION)
+	      (newsca temp)
+	      (count temp)
+	      (from temp2)
+	      (to temp3))
     `((comment "Stack cache overflow detected")
       ;; We add another margin (effectively scrolling) to avoid
       ;; immediately overflowing again
@@ -634,29 +629,29 @@
 ;;; This macro destructively advances count, from and to registers.
 (defmacro stack-block-copy (from to count ccp upp temp temp2)
   (check-temporaries (from to count) (temp temp2))
-  (let ((l1 (gensym))
-        (l2 (gensym)))
+  (let ((l1 (gensym "stack-block-copy"))
+        (l2 (gensym "stack-block-copy")))
     `(,@(when ccp
-	  `((LDQ ,temp PROCESSORSTATE_CDRCODEMASK (ivory) "mask for CDR codes")))
-      ,@(when upp
-	  `((S8ADDQ ,count ,from ,from "Adjust to end of source block")
-	    (S8ADDQ ,count ,to ,to "Adjust to end of target block")))
-      (BR zero ,l1)
-      (label ,l2)
-      ,@(when upp
-	  `((SUBQ ,from 8 ,from "advance from position")))
-      (SUBQ ,count 1 ,count)
-      (stack-read ,from ,temp2 "Get a word from source")
-      ,@(when (not upp)
-	  `((ADDQ ,from 8 ,from "advance from position")))
-      ,@(when upp
-	  `((SUBQ ,to 8 ,to "advance to position")))
-      ,@(when ccp
-	  `((BIC ,temp2 ,temp ,temp2 "Strip off CDR code")))
-      (stack-write ,to ,temp2 "Put word in destination")
-      ,@(when (not upp)
-	  `((ADDQ ,to 8 ,to "advance to position")))
-      (unlikely-label ,l1)
-      (BGT ,count ,l2))))
+	        `((LDQ ,temp PROCESSORSTATE_CDRCODEMASK (ivory) "mask for CDR codes")))
+        ,@(when upp
+	          `((S8ADDQ ,count ,from ,from "Adjust to end of source block")
+	            (S8ADDQ ,count ,to ,to "Adjust to end of target block")))
+        (BR zero ,l1)
+        (label ,l2)
+        ,@(when upp
+	          `((SUBQ ,from 8 ,from "advance from position")))
+        (SUBQ ,count 1 ,count)
+        (stack-read ,from ,temp2 "Get a word from source")
+        ,@(when (not upp)
+	          `((ADDQ ,from 8 ,from "advance from position")))
+        ,@(when upp
+	          `((SUBQ ,to 8 ,to "advance to position")))
+        ,@(when ccp
+	          `((BIC ,temp2 ,temp ,temp2 "Strip off CDR code")))
+        (stack-write ,to ,temp2 "Put word in destination")
+        ,@(when (not upp)
+	          `((ADDQ ,to 8 ,to "advance to position")))
+        (unlikely-label ,l1)
+        (BGT ,count ,l2))))
 
 ;;; Fin.

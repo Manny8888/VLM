@@ -38,18 +38,15 @@ DoPushNNilsFP:
 
 headdopushnnils:
   if (_trace) printf("headdopushnnils:\n");
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-		/* Get the operand */
-  arg1 = *(u64 *)arg1;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  arg1 = *(u64 *)arg1;   		// Get the operand 
 
 begindopushnnils:
   if (_trace) printf("begindopushnnils:\n");
   /* arg1 has the operand, not sign extended if immediate. */
   arg2 = (u32)arg1;   		// Get the data 
-		/* and the tag */
-  t1 = arg1 >> 32;
-  t5 = t1 - Type_Fixnum;
+  t1 = arg1 >> 32;   		// and the tag 
+  t5 = t1 - Type_Fixnum;   
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
     goto pushnnbadop;
@@ -59,28 +56,23 @@ begindopushnnils:
 
 DoPushNNilsIM:
   if (_trace) printf("DoPushNNilsIM:\n");
-		/* Current stack cache limit (words) */
-  t4 = *(s32 *)&processor->scovlimit;
+  t4 = *(s32 *)&processor->scovlimit;   		// Current stack cache limit (words) 
   t1 = zero + 128;   
-		/* Alpha base of stack cache */
-  t2 = *(u64 *)&(processor->stackcachedata);
+  t2 = *(u64 *)&(processor->stackcachedata);   		// Alpha base of stack cache 
   t1 = t1 + arg2;		// Account for what we're about to push 
-		/* SCA of desired end of cache */
-  t1 = (t1 * 8) + iSP;
-		/* SCA of current end of cache */
-  t2 = (t4 * 8) + t2;
+  t1 = (t1 * 8) + iSP;  		// SCA of desired end of cache 
+  t2 = (t4 * 8) + t2;  		// SCA of current end of cache 
   t4 = ((s64)t1 <= (s64)t2) ? 1 : 0;   
   if (t4 == 0) 		// We're done if new SCA is within bounds 
     goto stackcacheoverflowhandler;
-  arg6 = *(u64 *)&(processor->niladdress);
+  arg6 = *(u64 *)&(processor->niladdress);   
   goto pushnnilsl2;   
 
 pushnnilsl1:
   if (_trace) printf("pushnnilsl1:\n");
-		/* Push NIL */
-  *(u64 *)(iSP + 8) = arg6;
+  *(u64 *)(iSP + 8) = arg6;   		// Push NIL 
   iSP = iSP + 8;
-  arg2 = arg2 - 1;
+  arg2 = arg2 - 1;   
 
 pushnnilsl2:
   if ((s64)arg2 > 0)   
@@ -109,7 +101,7 @@ DoPushAddressSpRelativeIM:
   if (_trace) printf("DoPushAddressSpRelativeIM:\n");
   /* This sequence is lukewarm */
   *(u32 *)&processor->immediate_arg = arg2;
-  arg1 = *(u64 *)&(processor->immediate_arg);
+  arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindopushaddresssprelative;   
 #ifdef TRACING
 #endif
@@ -136,40 +128,32 @@ DoPushAddressSpRelativeFP:
 
 headdopushaddresssprelative:
   if (_trace) printf("headdopushaddresssprelative:\n");
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-		/* Get the operand */
-  arg1 = *(u64 *)arg1;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  arg1 = *(u64 *)arg1;   		// Get the operand 
 
 begindopushaddresssprelative:
   if (_trace) printf("begindopushaddresssprelative:\n");
   /* arg1 has the operand, not sign extended if immediate. */
-		/* SP before any popping */
-  t4 = *(u64 *)&(processor->restartsp);
-  t1 = arg1 >> 32;
+  t4 = *(u64 *)&(processor->restartsp);   		// SP before any popping 
+  t1 = arg1 >> 32;   
   arg1 = (u32)arg1;   
-		/* Base of the stack cache */
-  t6 = *(u64 *)&(processor->stackcachebasevma);
-		/* THe stack cache data block */
-  t7 = *(u64 *)&(processor->stackcachedata);
+  t6 = *(u64 *)&(processor->stackcachebasevma);   		// Base of the stack cache 
+  t7 = *(u64 *)&(processor->stackcachedata);   		// THe stack cache data block 
   t2 = t1 & 63;		// Strip off any CDR code bits. 
   t3 = (t2 == Type_Fixnum) ? 1 : 0;   
 
-g29802:
-  if (_trace) printf("g29802:\n");
+force-alignment10521:
+  if (_trace) printf("force-alignment10521:\n");
   if (t3 == 0) 
-    goto g29799;
+    goto basic-dispatch10518;
   /* Here if argument TypeFixnum */
-  arg1 = (arg1 * 8) + 8;
-		/* Compute stack relative pointer */
-  t5 = t4 - arg1;
-		/* Index into stack data */
-  t5 = t5 - t7;
-		/* Convert to word index */
-  t5 = t5 >> 3;
+  arg1 = (arg1 * 8) + 8;  
+  t5 = t4 - arg1;   		// Compute stack relative pointer 
+  t5 = t5 - t7;   		// Index into stack data 
+  t5 = t5 >> 3;   		// Convert to word index 
   t5 = t6 + t5;		// Convert to an ivory word address 
-  iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-  iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+  iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
+  iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
   t6 = Type_Locative;
   *(u32 *)(iSP + 8) = t5;
 		/* write the stack cache */
@@ -177,15 +161,15 @@ g29802:
   iSP = iSP + 8;
   goto cachevalid;   
 
-g29799:
-  if (_trace) printf("g29799:\n");
+basic-dispatch10518:
+  if (_trace) printf("basic-dispatch10518:\n");
   /* Here for all other cases */
   arg5 = 0;
   arg2 = 63;
   goto illegaloperand;
 
-g29798:
-  if (_trace) printf("g29798:\n");
+basic-dispatch10517:
+  if (_trace) printf("basic-dispatch10517:\n");
 
 /* end DoPushAddressSpRelative */
   /* End of Halfword operand from stack instruction - DoPushAddressSpRelative */
@@ -203,7 +187,7 @@ DoStackBltIM:
   if (_trace) printf("DoStackBltIM:\n");
   /* This sequence is lukewarm */
   *(u32 *)&processor->immediate_arg = arg2;
-  arg1 = *(u64 *)&(processor->immediate_arg);
+  arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindostackblt;   
 #ifdef TRACING
 #endif
@@ -230,45 +214,32 @@ DoStackBltFP:
 
 headdostackblt:
   if (_trace) printf("headdostackblt:\n");
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-		/* Get the operand */
-  arg1 = *(u64 *)arg1;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  arg1 = *(u64 *)arg1;   		// Get the operand 
 
 begindostackblt:
   if (_trace) printf("begindostackblt:\n");
   /* arg1 has the operand, not sign extended if immediate. */
-		/* Destination locative */
-  t3 = *(s32 *)iSP;
-		/* Destination locative */
-  t2 = *(s32 *)(iSP + 4);
-		/* Pop Stack. */
-  iSP = iSP - 8;
+  t3 = *(s32 *)iSP;   		// Destination locative 
+  t2 = *(s32 *)(iSP + 4);   		// Destination locative 
+  iSP = iSP - 8;   		// Pop Stack. 
   t3 = (u32)t3;   
   t1 = (u32)arg1;   
   /* Convert VMA to stack cache address */
-  t4 = *(u64 *)&(processor->stackcachebasevma);
-  arg1 = *(u64 *)&(processor->stackcachedata);
-		/* stack cache base relative offset */
-  t4 = t1 - t4;
-		/* reconstruct SCA */
-  arg1 = (t4 * 8) + arg1;
-		/* Base of the stack cache */
-  t4 = *(u64 *)&(processor->stackcachebasevma);
-		/* End ofthe stack cache */
-  t5 = *(u64 *)&(processor->stackcachetopvma);
-		/* THe stack cache data block */
-  t1 = *(u64 *)&(processor->stackcachedata);
-		/* BAse of Stack Cache. */
-  t6 = t3 - t4;
-		/* Top of Stack Cache. */
-  t7 = t3 - t5;
+  t4 = *(u64 *)&(processor->stackcachebasevma);   
+  arg1 = *(u64 *)&(processor->stackcachedata);   
+  t4 = t1 - t4;   		// stack cache base relative offset 
+  arg1 = (t4 * 8) + arg1;  		// reconstruct SCA 
+  t4 = *(u64 *)&(processor->stackcachebasevma);   		// Base of the stack cache 
+  t5 = *(u64 *)&(processor->stackcachetopvma);   		// End ofthe stack cache 
+  t1 = *(u64 *)&(processor->stackcachedata);   		// THe stack cache data block 
+  t6 = t3 - t4;   		// BAse of Stack Cache. 
+  t7 = t3 - t5;   		// Top of Stack Cache. 
   if ((s64)t6 < 0)   		// J. if vma below stack cache 
     goto stkbltexc;
   if ((s64)t7 >= 0)   		// J. if vma above stack cache 
     goto stkbltexc;
-		/* Compute the stackcache address */
-  t6 = (t6 * 8) + t1;
+  t6 = (t6 * 8) + t1;  		// Compute the stackcache address 
   goto stkbltloopend;   
 
 stkbltloop:
@@ -277,11 +248,9 @@ stkbltloop:
   t6 = t6 + 8;		// Advance destination 
 
 stkbltloopend:
-		/* Read a word from the source */
-  t1 = *(u64 *)arg1;
-  t4 = arg1 - iSP;
-		/* copy the word */
-  *(u64 *)t6 = t1;
+  t1 = *(u64 *)arg1;   		// Read a word from the source 
+  t4 = arg1 - iSP;   
+  *(u64 *)t6 = t1;   		// copy the word 
   if (t4 != 0)   		// J. if sourse not stack top 
     goto stkbltloop;
   iSP = t6;		// Update the SP to point at the last written location 
@@ -328,31 +297,21 @@ DoStackBltAddressFP:
 begindostackbltaddress:
   if (_trace) printf("begindostackbltaddress:\n");
   /* arg1 has the operand address. */
-		/* Compute operand address */
-  arg1 = (arg2 * 8) + arg1;
-		/* Destination locative */
-  t3 = *(s32 *)iSP;
-		/* Destination locative */
-  t2 = *(s32 *)(iSP + 4);
-		/* Pop Stack. */
-  iSP = iSP - 8;
+  arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
+  t3 = *(s32 *)iSP;   		// Destination locative 
+  t2 = *(s32 *)(iSP + 4);   		// Destination locative 
+  iSP = iSP - 8;   		// Pop Stack. 
   t3 = (u32)t3;   
-		/* Base of the stack cache */
-  t4 = *(u64 *)&(processor->stackcachebasevma);
-		/* End ofthe stack cache */
-  t5 = *(u64 *)&(processor->stackcachetopvma);
-		/* THe stack cache data block */
-  t1 = *(u64 *)&(processor->stackcachedata);
-		/* Base of Stack Cache. */
-  t6 = t3 - t4;
-		/* Top of Stack Cache. */
-  t7 = t3 - t5;
+  t4 = *(u64 *)&(processor->stackcachebasevma);   		// Base of the stack cache 
+  t5 = *(u64 *)&(processor->stackcachetopvma);   		// End ofthe stack cache 
+  t1 = *(u64 *)&(processor->stackcachedata);   		// THe stack cache data block 
+  t6 = t3 - t4;   		// Base of Stack Cache. 
+  t7 = t3 - t5;   		// Top of Stack Cache. 
   if ((s64)t6 < 0)   		// J. if vma below stack cache 
     goto stkbltadrexc;
   if ((s64)t7 >= 0)   		// J. if vma above stack cache 
     goto stkbltadrexc;
-		/* Compute the stackcache address */
-  t6 = (t6 * 8) + t1;
+  t6 = (t6 * 8) + t1;  		// Compute the stackcache address 
   goto stkbltaddloopend;   
 
 stkbltaddloop:
@@ -361,11 +320,9 @@ stkbltaddloop:
   t6 = t6 + 8;		// Advance destination 
 
 stkbltaddloopend:
-		/* Read a word from the source */
-  t1 = *(u64 *)arg1;
-  t4 = arg1 - iSP;
-		/* copy the word */
-  *(u64 *)t6 = t1;
+  t1 = *(u64 *)arg1;   		// Read a word from the source 
+  t4 = arg1 - iSP;   
+  *(u64 *)t6 = t1;   		// copy the word 
   if (t4 != 0)   		// J. if sourse not stack top 
     goto stkbltaddloop;
   iSP = t6;		// Update the SP to point at the last written location 

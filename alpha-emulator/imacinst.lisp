@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (in-package :alpha-axp-internals)
 
@@ -13,9 +12,9 @@
 (defmacro locate-instance-variable-mapped (n vma mapiop selfiop indexiop iex
 					                                 tag data temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8)
   (check-temporaries (n vma) (tag data temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8))
-  (let ((done (gensym))
-	      (doit (gensym))
-	      (update (gensym)))
+  (let ((done (gensym "locate-instance0variable-mapped"))
+	      (doit (gensym "locate-instance0variable-mapped"))
+	      (update (gensym "locate-instance0variable-mapped")))
     (push `((label ,update)
 	          (BIS ,vma zero ,temp3)
 	          ;; We know the m-m-r is active when we are called
