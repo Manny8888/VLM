@@ -13,8 +13,6 @@
 
 dosettocar:
   if (_trace) printf("dosettocar:\n");
-#ifdef TRACING
-#endif
 
 DoSetToCarSP:
   if (_trace) printf("DoSetToCarSP:\n");
@@ -23,15 +21,9 @@ DoSetToCarSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto begindosettocar;   
-#endif
 
 DoSetToCarLP:
   if (_trace) printf("DoSetToCarLP:\n");
-#ifdef TRACING
-  goto begindosettocar;   
-#endif
 
 DoSetToCarFP:
   if (_trace) printf("DoSetToCarFP:\n");
@@ -45,9 +37,9 @@ begindosettocar:
   arg5 = *(s32 *)(arg1 + 4);   		// Get the operand from the stack. 
   arg6 = *(s32 *)arg1;   
   t2 = arg5 & 192;		// Save the old CDR code 
-  r0 = (u64)&&return0304;
+  r0 = (u64)&&return0400;
   goto carinternal;
-return0304:
+return0400:
   /* TagType. */
   arg5 = arg5 & 63;
   arg5 = arg5 | t2;		// Put back the original CDR codes 
@@ -55,8 +47,6 @@ return0304:
 		/* write the stack cache */
   *(u32 *)(arg1 + 4) = arg5;
   goto NEXTINSTRUCTION;   
-#ifdef TRACING
-#endif
 
 DoSetToCarIM:
   goto doistageerror;
@@ -70,8 +60,6 @@ DoSetToCarIM:
 
 dosettocdr:
   if (_trace) printf("dosettocdr:\n");
-#ifdef TRACING
-#endif
 
 DoSetToCdrSP:
   if (_trace) printf("DoSetToCdrSP:\n");
@@ -80,15 +68,9 @@ DoSetToCdrSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto begindosettocdr;   
-#endif
 
 DoSetToCdrLP:
   if (_trace) printf("DoSetToCdrLP:\n");
-#ifdef TRACING
-  goto begindosettocdr;   
-#endif
 
 DoSetToCdrFP:
   if (_trace) printf("DoSetToCdrFP:\n");
@@ -102,9 +84,9 @@ begindosettocdr:
   arg5 = *(s32 *)(arg1 + 4);   		// Get the operand from the stack. 
   arg6 = *(s32 *)arg1;   
   t2 = arg5 & 192;		// Save the old CDR code 
-  r0 = (u64)&&return0305;
+  r0 = (u64)&&return0401;
   goto cdrinternal;
-return0305:
+return0401:
   /* TagType. */
   arg5 = arg5 & 63;
   arg5 = arg5 | t2;		// Put back the original CDR codes 
@@ -112,8 +94,6 @@ return0305:
 		/* write the stack cache */
   *(u32 *)(arg1 + 4) = arg5;
   goto NEXTINSTRUCTION;   
-#ifdef TRACING
-#endif
 
 DoSetToCdrIM:
   goto doistageerror;
@@ -131,7 +111,7 @@ settocdrpushcarlocative:
   arg2 = t2;
   /* Memory Read Internal */
 
-vma-memory-read9725:
+vma-memory-read12423:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -141,16 +121,16 @@ vma-memory-read9725:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read9727;
+    goto vma-memory-read12425;
 
-vma-memory-read9726:
+vma-memory-read12424:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read9729;
+    goto vma-memory-read12427;
 
-vma-memory-read9736:
+vma-memory-read12434:
   /* TagType. */
   t1 = t1 & 63;
   *(u32 *)(iSP + 8) = arg6;
@@ -163,22 +143,22 @@ vma-memory-read9736:
   *(u32 *)(arg1 + 4) = arg5;
   goto NEXTINSTRUCTION;   
 
-vma-memory-read9729:
-  if (_trace) printf("vma-memory-read9729:\n");
+vma-memory-read12427:
+  if (_trace) printf("vma-memory-read12427:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read9728;
+    goto vma-memory-read12426;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read9725;   
+  goto vma-memory-read12423;   
 
-vma-memory-read9728:
-  if (_trace) printf("vma-memory-read9728:\n");
+vma-memory-read12426:
+  if (_trace) printf("vma-memory-read12426:\n");
 
-vma-memory-read9727:
-  if (_trace) printf("vma-memory-read9727:\n");
-  r0 = (u64)&&return0306;
+vma-memory-read12425:
+  if (_trace) printf("vma-memory-read12425:\n");
+  r0 = (u64)&&return0402;
   goto memoryreaddatadecode;
-return0306:
-  goto vma-memory-read9736;   
+return0402:
+  goto vma-memory-read12434;   
 
 /* end SetToCdrPushCarLocative */
 /* start DoAssoc */
@@ -188,8 +168,6 @@ return0306:
 
 doassoc:
   if (_trace) printf("doassoc:\n");
-#ifdef TRACING
-#endif
 
 DoAssocSP:
   if (_trace) printf("DoAssocSP:\n");
@@ -199,15 +177,9 @@ DoAssocSP:
   arg6 = *(u64 *)arg4;   		// SP-pop, Reload TOS 
   arg1 = iSP;		// SP-pop mode 
   iSP = arg4;		// Adjust SP 
-#ifdef TRACING
-  goto begindoassoc;   
-#endif
 
 DoAssocLP:
   if (_trace) printf("DoAssocLP:\n");
-#ifdef TRACING
-  goto begindoassoc;   
-#endif
 
 DoAssocFP:
   if (_trace) printf("DoAssocFP:\n");
@@ -233,7 +205,7 @@ begindoassoc:
   if (t5 & 1)   
     goto assocexc;
   t6 = zero;
-  goto carcdrloop9738;   
+  goto carcdrloop12436;   
 
 assoccdr:
   if (_trace) printf("assoccdr:\n");
@@ -243,30 +215,30 @@ assoccdr:
   t1 = arg5 & 63;
   t2 = arg6;
 
-carcdrloop9738:
-  if (_trace) printf("carcdrloop9738:\n");
+carcdrloop12436:
+  if (_trace) printf("carcdrloop12436:\n");
   t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto carcdrloop9737;
+    goto carcdrloop12435;
   if (t5 == 0) 
-    goto carcdrloop9739;
-  r0 = (u64)&&return0307;
+    goto carcdrloop12437;
+  r0 = (u64)&&return0403;
   goto carcdrinternal;
-return0307:
+return0403:
   t7 = t1 & 63;		// Strip off any CDR code bits. 
   t8 = (t7 == Type_List) ? 1 : 0;   
 
-force-alignment9757:
-  if (_trace) printf("force-alignment9757:\n");
+force-alignment12455:
+  if (_trace) printf("force-alignment12455:\n");
   if (t8 == 0) 
-    goto basic-dispatch9741;
+    goto basic-dispatch12439;
   /* Here if argument TypeList */
   arg2 = t2;
   t3 = arg5;
   arg1 = arg6;
   /* Memory Read Internal */
 
-vma-memory-read9742:
+vma-memory-read12440:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -276,16 +248,16 @@ vma-memory-read9742:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read9744;
+    goto vma-memory-read12442;
 
-vma-memory-read9743:
+vma-memory-read12441:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read9746;
+    goto vma-memory-read12444;
 
-vma-memory-read9753:
+vma-memory-read12451:
   /* TagType. */
   t5 = arg5 & 63;
   arg5 = t3;
@@ -304,19 +276,19 @@ vma-memory-read9753:
   *(u32 *)(iSP + 4) = t1;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch9741:
-  if (_trace) printf("basic-dispatch9741:\n");
+basic-dispatch12439:
+  if (_trace) printf("basic-dispatch12439:\n");
   t8 = (t7 == Type_NIL) ? 1 : 0;   
 
-force-alignment9758:
-  if (_trace) printf("force-alignment9758:\n");
+force-alignment12456:
+  if (_trace) printf("force-alignment12456:\n");
   if (t8 == 0) 
-    goto basic-dispatch9754;
+    goto basic-dispatch12452;
   /* Here if argument TypeNIL */
   goto assoccdr;   
 
-basic-dispatch9754:
-  if (_trace) printf("basic-dispatch9754:\n");
+basic-dispatch12452:
+  if (_trace) printf("basic-dispatch12452:\n");
   /* Here for all other cases */
   /* SetTag. */
   t1 = arg4 << 32;   
@@ -325,11 +297,11 @@ basic-dispatch9754:
   arg2 = 14;
   goto illegaloperand;
 
-basic-dispatch9740:
-  if (_trace) printf("basic-dispatch9740:\n");
+basic-dispatch12438:
+  if (_trace) printf("basic-dispatch12438:\n");
 
-carcdrloop9739:
-  if (_trace) printf("carcdrloop9739:\n");
+carcdrloop12437:
+  if (_trace) printf("carcdrloop12437:\n");
   t1 = *(u64 *)&(processor->niladdress);   		// Return NIL 
   *(u64 *)iSP = t1;   		// push the data 
   goto NEXTINSTRUCTION;   
@@ -341,29 +313,27 @@ assocexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-vma-memory-read9746:
-  if (_trace) printf("vma-memory-read9746:\n");
+vma-memory-read12444:
+  if (_trace) printf("vma-memory-read12444:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read9745;
+    goto vma-memory-read12443;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read9742;   
+  goto vma-memory-read12440;   
 
-vma-memory-read9745:
-  if (_trace) printf("vma-memory-read9745:\n");
+vma-memory-read12443:
+  if (_trace) printf("vma-memory-read12443:\n");
 
-vma-memory-read9744:
-  if (_trace) printf("vma-memory-read9744:\n");
-  r0 = (u64)&&return0308;
+vma-memory-read12442:
+  if (_trace) printf("vma-memory-read12442:\n");
+  r0 = (u64)&&return0404;
   goto memoryreaddatadecode;
-return0308:
-  goto vma-memory-read9753;   
+return0404:
+  goto vma-memory-read12451;   
 
-carcdrloop9737:
-  if (_trace) printf("carcdrloop9737:\n");
+carcdrloop12435:
+  if (_trace) printf("carcdrloop12435:\n");
   iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
-#ifdef TRACING
-#endif
 
 DoAssocIM:
   goto doistageerror;
@@ -377,8 +347,6 @@ DoAssocIM:
 
 domember:
   if (_trace) printf("domember:\n");
-#ifdef TRACING
-#endif
 
 DoMemberSP:
   if (_trace) printf("DoMemberSP:\n");
@@ -388,15 +356,9 @@ DoMemberSP:
   arg6 = *(u64 *)arg4;   		// SP-pop, Reload TOS 
   arg1 = iSP;		// SP-pop mode 
   iSP = arg4;		// Adjust SP 
-#ifdef TRACING
-  goto begindomember;   
-#endif
 
 DoMemberLP:
   if (_trace) printf("DoMemberLP:\n");
-#ifdef TRACING
-  goto begindomember;   
-#endif
 
 DoMemberFP:
   if (_trace) printf("DoMemberFP:\n");
@@ -422,7 +384,7 @@ begindomember:
   if (t5 & 1)   
     goto memberexc;
   t6 = zero;
-  goto carcdrloop9760;   
+  goto carcdrloop12458;   
 
 membercdr:
   if (_trace) printf("membercdr:\n");
@@ -432,19 +394,19 @@ membercdr:
   t1 = arg5 & 63;
   t2 = arg6;
 
-carcdrloop9760:
-  if (_trace) printf("carcdrloop9760:\n");
+carcdrloop12458:
+  if (_trace) printf("carcdrloop12458:\n");
   /* TagType. */
   t3 = t1 & 63;
   arg1 = t2;
   t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto carcdrloop9759;
+    goto carcdrloop12457;
   if (t5 == 0) 
-    goto carcdrloop9761;
-  r0 = (u64)&&return0309;
+    goto carcdrloop12459;
+  r0 = (u64)&&return0405;
   goto carcdrinternal;
-return0309:
+return0405:
   /* TagType. */
   t5 = t1 & 63;
   t7 = arg4 - t2;   		// t7=0 if data same 
@@ -459,8 +421,8 @@ return0309:
   *(u32 *)(iSP + 4) = t3;
   goto NEXTINSTRUCTION;   
 
-carcdrloop9761:
-  if (_trace) printf("carcdrloop9761:\n");
+carcdrloop12459:
+  if (_trace) printf("carcdrloop12459:\n");
   t1 = *(u64 *)&(processor->niladdress);   		// Return NIL 
   *(u64 *)iSP = t1;   		// push the data 
   goto NEXTINSTRUCTION;   
@@ -472,12 +434,10 @@ memberexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-carcdrloop9759:
-  if (_trace) printf("carcdrloop9759:\n");
+carcdrloop12457:
+  if (_trace) printf("carcdrloop12457:\n");
   iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
-#ifdef TRACING
-#endif
 
 DoMemberIM:
   goto doistageerror;
@@ -491,8 +451,6 @@ DoMemberIM:
 
 dorgetf:
   if (_trace) printf("dorgetf:\n");
-#ifdef TRACING
-#endif
 
 DoRgetfSP:
   if (_trace) printf("DoRgetfSP:\n");
@@ -502,15 +460,9 @@ DoRgetfSP:
   arg6 = *(u64 *)arg4;   		// SP-pop, Reload TOS 
   arg1 = iSP;		// SP-pop mode 
   iSP = arg4;		// Adjust SP 
-#ifdef TRACING
-  goto begindorgetf;   
-#endif
 
 DoRgetfLP:
   if (_trace) printf("DoRgetfLP:\n");
-#ifdef TRACING
-  goto begindorgetf;   
-#endif
 
 DoRgetfFP:
   if (_trace) printf("DoRgetfFP:\n");
@@ -536,29 +488,29 @@ begindorgetf:
   if (t5 & 1)   
     goto rgetfexc;
   t6 = zero;
-  goto carcdrloop9763;   
+  goto carcdrloop12461;   
 
 rgetfcdr:
   if (_trace) printf("rgetfcdr:\n");
-  r0 = (u64)&&return0310;
+  r0 = (u64)&&return0406;
   goto cdrinternal;
-return0310:
+return0406:
   t6 = *(u64 *)&(processor->stop_interpreter);   		// Have we been asked to stop or trap? 
   /* Move cdr to car for next carcdr-internal */
   /* TagType. */
   t1 = arg5 & 63;
   t2 = arg6;
 
-carcdrloop9763:
-  if (_trace) printf("carcdrloop9763:\n");
+carcdrloop12461:
+  if (_trace) printf("carcdrloop12461:\n");
   t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto carcdrloop9762;
+    goto carcdrloop12460;
   if (t5 == 0) 
-    goto carcdrloop9764;
-  r0 = (u64)&&return0311;
+    goto carcdrloop12462;
+  r0 = (u64)&&return0407;
   goto carcdrinternal;
-return0311:
+return0407:
   /* TagType. */
   t5 = t1 & 63;
   t7 = arg4 - t2;   		// t7=0 if data same 
@@ -574,9 +526,9 @@ return0311:
   if (t5 == 0) 		// after all this effort we lose! 
     goto rgetfexc;
   t2 = arg6;
-  r0 = (u64)&&return0312;
+  r0 = (u64)&&return0408;
   goto carinternal;
-return0312:
+return0408:
   /* TagType. */
   arg5 = arg5 & 63;		// Strip the CDR code 
   *(u32 *)iSP = arg6;
@@ -590,8 +542,8 @@ return0312:
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-carcdrloop9764:
-  if (_trace) printf("carcdrloop9764:\n");
+carcdrloop12462:
+  if (_trace) printf("carcdrloop12462:\n");
   arg2 = *(u64 *)&(processor->niladdress);   		// Return NIL 
   *(u64 *)iSP = arg2;   
   *(u64 *)(iSP + 8) = arg2;   		// push the data 
@@ -605,12 +557,10 @@ rgetfexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-carcdrloop9762:
-  if (_trace) printf("carcdrloop9762:\n");
+carcdrloop12460:
+  if (_trace) printf("carcdrloop12460:\n");
   iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
-#ifdef TRACING
-#endif
 
 DoRgetfIM:
   goto doistageerror;

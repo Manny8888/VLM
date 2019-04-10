@@ -484,10 +484,7 @@
       (STQ ,from PROCESSORSTATE_STACKCACHEBASEVMA (ivory))
       (SUBQ ,temp ,count ,temp "Adjust top of cache")
       (STQ ,temp PROCESSORSTATE_STACKCACHETOPVMA (ivory))
-      (stack-fill ,from ,to ,count ,temp ,temp2 ,temp6 ,temp7)
-      (passthru "#ifdef TRACING")
-      (maybe-trace ,temp ,temp2 ,temp3 ,temp4 ,temp5 ,temp6)
-      (passthru "#endif"))))
+      (stack-fill ,from ,to ,count ,temp ,temp2 ,temp6 ,temp7))))
 
 ;;; Hand coded versions of stack-read2 and VM-Write to use fewer registers.
 ;;; We don't have to worry about the data cache as we're dumping from the

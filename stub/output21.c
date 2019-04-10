@@ -13,8 +13,6 @@
 
 doaddbignumstep:
   if (_trace) printf("doaddbignumstep:\n");
-#ifdef TRACING
-#endif
 
 DoAddBignumStepIM:
   if (_trace) printf("DoAddBignumStepIM:\n");
@@ -22,8 +20,6 @@ DoAddBignumStepIM:
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindoaddbignumstep;   
-#ifdef TRACING
-#endif
 
 DoAddBignumStepSP:
   if (_trace) printf("DoAddBignumStepSP:\n");
@@ -32,15 +28,9 @@ DoAddBignumStepSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdoaddbignumstep;   
-#endif
 
 DoAddBignumStepLP:
   if (_trace) printf("DoAddBignumStepLP:\n");
-#ifdef TRACING
-  goto headdoaddbignumstep;   
-#endif
 
 DoAddBignumStepFP:
   if (_trace) printf("DoAddBignumStepFP:\n");
@@ -103,8 +93,6 @@ addbignumsteplose:
 
 dosubbignumstep:
   if (_trace) printf("dosubbignumstep:\n");
-#ifdef TRACING
-#endif
 
 DoSubBignumStepIM:
   if (_trace) printf("DoSubBignumStepIM:\n");
@@ -112,8 +100,6 @@ DoSubBignumStepIM:
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindosubbignumstep;   
-#ifdef TRACING
-#endif
 
 DoSubBignumStepSP:
   if (_trace) printf("DoSubBignumStepSP:\n");
@@ -122,15 +108,9 @@ DoSubBignumStepSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdosubbignumstep;   
-#endif
 
 DoSubBignumStepLP:
   if (_trace) printf("DoSubBignumStepLP:\n");
-#ifdef TRACING
-  goto headdosubbignumstep;   
-#endif
 
 DoSubBignumStepFP:
   if (_trace) printf("DoSubBignumStepFP:\n");
@@ -196,8 +176,6 @@ subbignumsteplose:
 
 domultiplybignumstep:
   if (_trace) printf("domultiplybignumstep:\n");
-#ifdef TRACING
-#endif
 
 DoMultiplyBignumStepIM:
   if (_trace) printf("DoMultiplyBignumStepIM:\n");
@@ -205,8 +183,6 @@ DoMultiplyBignumStepIM:
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindomultiplybignumstep;   
-#ifdef TRACING
-#endif
 
 DoMultiplyBignumStepSP:
   if (_trace) printf("DoMultiplyBignumStepSP:\n");
@@ -215,15 +191,9 @@ DoMultiplyBignumStepSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdomultiplybignumstep;   
-#endif
 
 DoMultiplyBignumStepLP:
   if (_trace) printf("DoMultiplyBignumStepLP:\n");
-#ifdef TRACING
-  goto headdomultiplybignumstep;   
-#endif
 
 DoMultiplyBignumStepFP:
   if (_trace) printf("DoMultiplyBignumStepFP:\n");
@@ -279,8 +249,6 @@ multbignumsteplose:
 
 dodividebignumstep:
   if (_trace) printf("dodividebignumstep:\n");
-#ifdef TRACING
-#endif
 
 DoDivideBignumStepIM:
   if (_trace) printf("DoDivideBignumStepIM:\n");
@@ -288,8 +256,6 @@ DoDivideBignumStepIM:
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindodividebignumstep;   
-#ifdef TRACING
-#endif
 
 DoDivideBignumStepSP:
   if (_trace) printf("DoDivideBignumStepSP:\n");
@@ -298,15 +264,9 @@ DoDivideBignumStepSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdodividebignumstep;   
-#endif
 
 DoDivideBignumStepLP:
   if (_trace) printf("DoDivideBignumStepLP:\n");
-#ifdef TRACING
-  goto headdodividebignumstep;   
-#endif
 
 DoDivideBignumStepFP:
   if (_trace) printf("DoDivideBignumStepFP:\n");
@@ -373,22 +333,18 @@ divbignumsteplose2:
 dolshcbignumstep:
   if (_trace) printf("dolshcbignumstep:\n");
   /* arg2 has the preloaded 8 bit operand. */
-#ifdef TRACING
-#endif
 
 DoLshcBignumStepIM:
   if (_trace) printf("DoLshcBignumStepIM:\n");
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force-alignment11273:
-  if (_trace) printf("force-alignment11273:\n");
+force-alignment13971:
+  if (_trace) printf("force-alignment13971:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindolshcbignumstep;   
-#ifdef TRACING
-#endif
 
 DoLshcBignumStepSP:
   if (_trace) printf("DoLshcBignumStepSP:\n");
@@ -397,15 +353,9 @@ DoLshcBignumStepSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdolshcbignumstep;   
-#endif
 
 DoLshcBignumStepLP:
   if (_trace) printf("DoLshcBignumStepLP:\n");
-#ifdef TRACING
-  goto headdolshcbignumstep;   
-#endif
 
 DoLshcBignumStepFP:
   if (_trace) printf("DoLshcBignumStepFP:\n");

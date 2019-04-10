@@ -13,8 +13,6 @@
 
 dopushnnils:
   if (_trace) printf("dopushnnils:\n");
-#ifdef TRACING
-#endif
 
 DoPushNNilsSP:
   if (_trace) printf("DoPushNNilsSP:\n");
@@ -23,15 +21,9 @@ DoPushNNilsSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdopushnnils;   
-#endif
 
 DoPushNNilsLP:
   if (_trace) printf("DoPushNNilsLP:\n");
-#ifdef TRACING
-  goto headdopushnnils;   
-#endif
 
 DoPushNNilsFP:
   if (_trace) printf("DoPushNNilsFP:\n");
@@ -50,9 +42,6 @@ begindopushnnils:
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
     goto pushnnbadop;
-#ifdef TRACING
-  goto DoPushNNilsIM;   
-#endif
 
 DoPushNNilsIM:
   if (_trace) printf("DoPushNNilsIM:\n");
@@ -94,8 +83,6 @@ pushnnbadop:
 
 dopushaddresssprelative:
   if (_trace) printf("dopushaddresssprelative:\n");
-#ifdef TRACING
-#endif
 
 DoPushAddressSpRelativeIM:
   if (_trace) printf("DoPushAddressSpRelativeIM:\n");
@@ -103,8 +90,6 @@ DoPushAddressSpRelativeIM:
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindopushaddresssprelative;   
-#ifdef TRACING
-#endif
 
 DoPushAddressSpRelativeSP:
   if (_trace) printf("DoPushAddressSpRelativeSP:\n");
@@ -113,15 +98,9 @@ DoPushAddressSpRelativeSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdopushaddresssprelative;   
-#endif
 
 DoPushAddressSpRelativeLP:
   if (_trace) printf("DoPushAddressSpRelativeLP:\n");
-#ifdef TRACING
-  goto headdopushaddresssprelative;   
-#endif
 
 DoPushAddressSpRelativeFP:
   if (_trace) printf("DoPushAddressSpRelativeFP:\n");
@@ -142,10 +121,10 @@ begindopushaddresssprelative:
   t2 = t1 & 63;		// Strip off any CDR code bits. 
   t3 = (t2 == Type_Fixnum) ? 1 : 0;   
 
-force-alignment10521:
-  if (_trace) printf("force-alignment10521:\n");
+force-alignment13219:
+  if (_trace) printf("force-alignment13219:\n");
   if (t3 == 0) 
-    goto basic-dispatch10518;
+    goto basic-dispatch13216;
   /* Here if argument TypeFixnum */
   arg1 = (arg1 * 8) + 8;  
   t5 = t4 - arg1;   		// Compute stack relative pointer 
@@ -161,15 +140,15 @@ force-alignment10521:
   iSP = iSP + 8;
   goto cachevalid;   
 
-basic-dispatch10518:
-  if (_trace) printf("basic-dispatch10518:\n");
+basic-dispatch13216:
+  if (_trace) printf("basic-dispatch13216:\n");
   /* Here for all other cases */
   arg5 = 0;
   arg2 = 63;
   goto illegaloperand;
 
-basic-dispatch10517:
-  if (_trace) printf("basic-dispatch10517:\n");
+basic-dispatch13215:
+  if (_trace) printf("basic-dispatch13215:\n");
 
 /* end DoPushAddressSpRelative */
   /* End of Halfword operand from stack instruction - DoPushAddressSpRelative */
@@ -180,8 +159,6 @@ basic-dispatch10517:
 
 dostackblt:
   if (_trace) printf("dostackblt:\n");
-#ifdef TRACING
-#endif
 
 DoStackBltIM:
   if (_trace) printf("DoStackBltIM:\n");
@@ -189,8 +166,6 @@ DoStackBltIM:
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindostackblt;   
-#ifdef TRACING
-#endif
 
 DoStackBltSP:
   if (_trace) printf("DoStackBltSP:\n");
@@ -199,15 +174,9 @@ DoStackBltSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdostackblt;   
-#endif
 
 DoStackBltLP:
   if (_trace) printf("DoStackBltLP:\n");
-#ifdef TRACING
-  goto headdostackblt;   
-#endif
 
 DoStackBltFP:
   if (_trace) printf("DoStackBltFP:\n");
@@ -271,8 +240,6 @@ stkbltexc:
 
 dostackbltaddress:
   if (_trace) printf("dostackbltaddress:\n");
-#ifdef TRACING
-#endif
 
 DoStackBltAddressSP:
   if (_trace) printf("DoStackBltAddressSP:\n");
@@ -281,15 +248,9 @@ DoStackBltAddressSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto begindostackbltaddress;   
-#endif
 
 DoStackBltAddressLP:
   if (_trace) printf("DoStackBltAddressLP:\n");
-#ifdef TRACING
-  goto begindostackbltaddress;   
-#endif
 
 DoStackBltAddressFP:
   if (_trace) printf("DoStackBltAddressFP:\n");
@@ -333,8 +294,6 @@ stkbltadrexc:
   arg5 = 0;
   arg2 = 73;
   goto illegaloperand;
-#ifdef TRACING
-#endif
 
 DoStackBltAddressIM:
   goto doistageerror;

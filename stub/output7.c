@@ -13,8 +13,6 @@
 dobranchtrueelsenopop:
   if (_trace) printf("dobranchtrueelsenopop:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoBranchTrueElseNoPopIM:
   if (_trace) printf("DoBranchTrueElseNoPopIM:\n");
@@ -57,8 +55,6 @@ DoBranchTrueElseNoPopFP:
 dobranchtrueelseextrapop:
   if (_trace) printf("dobranchtrueelseextrapop:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoBranchTrueElseExtraPopIM:
   if (_trace) printf("DoBranchTrueElseExtraPopIM:\n");
@@ -109,8 +105,6 @@ dobrelsepopextrapop:
 dobranchfalseelseextrapop:
   if (_trace) printf("dobranchfalseelseextrapop:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoBranchFalseElseExtraPopIM:
   if (_trace) printf("DoBranchFalseElseExtraPopIM:\n");
@@ -161,8 +155,6 @@ dobrnelsepopextrapop:
 dobranchfalseextrapop:
   if (_trace) printf("dobranchfalseextrapop:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoBranchFalseExtraPopIM:
   if (_trace) printf("DoBranchFalseExtraPopIM:\n");
@@ -213,8 +205,6 @@ dobrnpopelsepopextrapop:
 doloopdecrementtos:
   if (_trace) printf("doloopdecrementtos:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoLoopDecrementTosIM:
   if (_trace) printf("DoLoopDecrementTosIM:\n");
@@ -237,11 +227,11 @@ DoLoopDecrementTosFP:
   t3 = t1 - Type_Fixnum;   
   t3 = t3 & 63;		// Strip CDR code 
   if (t3 != 0)   
-    goto iloop-decrement-tos9717;
+    goto iloop-decrement-tos12415;
   t3 = (s32)t2 - (s32)1;   
   t4 = ((s64)t3 < (s64)t2) ? 1 : 0;   
   if (t4 == 0) 
-    goto iloop-decrement-tos9719;
+    goto iloop-decrement-tos12417;
   t6 = Type_Fixnum;
   *(u32 *)iSP = t3;
 		/* write the stack cache */
@@ -256,23 +246,23 @@ DoLoopDecrementTosFP:
 #endif
   goto interpretinstructionforbranch;   
 
-iloop-decrement-tos9717:
-  if (_trace) printf("iloop-decrement-tos9717:\n");
+iloop-decrement-tos12415:
+  if (_trace) printf("iloop-decrement-tos12415:\n");
   t3 = t1 - Type_Fixnum;   
   t3 = t3 & 56;		// Strip CDR code, low bits 
   if (t3 != 0)   
-    goto iloop-decrement-tos9718;
+    goto iloop-decrement-tos12416;
 
-iloop-decrement-tos9719:
-  if (_trace) printf("iloop-decrement-tos9719:\n");
+iloop-decrement-tos12417:
+  if (_trace) printf("iloop-decrement-tos12417:\n");
   arg5 = iPC + arg1;		// Compute next-pc 
   arg3 = 1;		// arg3 = stackp 
   arg1 = 1;		// arg1 = instruction arity 
   arg4 = 0;		// arg4 = arithmeticp 
   goto loopexception;
 
-iloop-decrement-tos9718:
-  if (_trace) printf("iloop-decrement-tos9718:\n");
+iloop-decrement-tos12416:
+  if (_trace) printf("iloop-decrement-tos12416:\n");
   arg5 = 0;
   arg2 = 81;
   goto illegaloperand;
@@ -286,8 +276,6 @@ iloop-decrement-tos9718:
 doloopincrementtoslessthan:
   if (_trace) printf("doloopincrementtoslessthan:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoLoopIncrementTosLessThanIM:
   if (_trace) printf("DoLoopIncrementTosLessThanIM:\n");
@@ -310,18 +298,18 @@ DoLoopIncrementTosLessThanFP:
   t5 = t1 - Type_Fixnum;   
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
-    goto iloop-increment-tos-less-than9720;
+    goto iloop-increment-tos-less-than12418;
   t4 = *(s32 *)(iSP + -8);   		// Get arg1. 
   t3 = *(s32 *)(iSP + -4);   
   t4 = (u32)t4;   
   t5 = t3 - Type_Fixnum;   
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
-    goto iloop-increment-tos-less-than9721;
+    goto iloop-increment-tos-less-than12419;
   t5 = (s32)t2 + (s32)1;
   t6 = ((s64)t2 <= (s64)t5) ? 1 : 0;   
   if (t6 == 0) 
-    goto iloop-increment-tos-less-than9722;
+    goto iloop-increment-tos-less-than12420;
   t6 = Type_Fixnum;
   *(u32 *)iSP = t5;
 		/* write the stack cache */
@@ -331,8 +319,8 @@ DoLoopIncrementTosLessThanFP:
     goto NEXTINSTRUCTION;
   /* Here if branch taken. */
 
-force-alignment9724:
-  if (_trace) printf("force-alignment9724:\n");
+force-alignment12422:
+  if (_trace) printf("force-alignment12422:\n");
   iPC = iPC + arg1;		// Update the PC in halfwords 
 #ifndef CACHEMETERING
   if (arg2 != 0)   
@@ -340,30 +328,30 @@ force-alignment9724:
 #endif
   goto interpretinstructionforbranch;   
 
-iloop-increment-tos-less-than9720:
-  if (_trace) printf("iloop-increment-tos-less-than9720:\n");
+iloop-increment-tos-less-than12418:
+  if (_trace) printf("iloop-increment-tos-less-than12418:\n");
   t5 = t1 - Type_Fixnum;   
   t5 = t5 & 56;		// Strip CDR code, low bits 
   if (t5 != 0)   
-    goto iloop-increment-tos-less-than9723;
+    goto iloop-increment-tos-less-than12421;
 
-iloop-increment-tos-less-than9721:
-  if (_trace) printf("iloop-increment-tos-less-than9721:\n");
+iloop-increment-tos-less-than12419:
+  if (_trace) printf("iloop-increment-tos-less-than12419:\n");
   t5 = t3 - Type_Fixnum;   
   t5 = t5 & 56;		// Strip CDR code, low bits 
   if (t5 != 0)   
-    goto iloop-increment-tos-less-than9723;
+    goto iloop-increment-tos-less-than12421;
 
-iloop-increment-tos-less-than9722:
-  if (_trace) printf("iloop-increment-tos-less-than9722:\n");
+iloop-increment-tos-less-than12420:
+  if (_trace) printf("iloop-increment-tos-less-than12420:\n");
   arg5 = iPC + arg1;		// Compute next-pc 
   arg3 = 1;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 0;		// arg4 = arithmeticp 
   goto loopexception;
 
-iloop-increment-tos-less-than9723:
-  if (_trace) printf("iloop-increment-tos-less-than9723:\n");
+iloop-increment-tos-less-than12421:
+  if (_trace) printf("iloop-increment-tos-less-than12421:\n");
   arg5 = 0;
   arg2 = 16;
   goto illegaloperand;
@@ -377,8 +365,6 @@ iloop-increment-tos-less-than9723:
 dobranchtrueextrapop:
   if (_trace) printf("dobranchtrueextrapop:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoBranchTrueExtraPopIM:
   if (_trace) printf("DoBranchTrueExtraPopIM:\n");
@@ -429,8 +415,6 @@ dobrpopelsepopextrapop:
 dobranchtrueandnopopelsenopopextrapop:
   if (_trace) printf("dobranchtrueandnopopelsenopopextrapop:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoBranchTrueAndNoPopElseNoPopExtraPopIM:
   if (_trace) printf("DoBranchTrueAndNoPopElseNoPopExtraPopIM:\n");
@@ -481,8 +465,6 @@ dobrextrapop:
 dobranchfalseandnopopelsenopopextrapop:
   if (_trace) printf("dobranchfalseandnopopelsenopopextrapop:\n");
   /* Actually only one entry point, but simulate others for dispatch */
-#ifdef TRACING
-#endif
 
 DoBranchFalseAndNoPopElseNoPopExtraPopIM:
   if (_trace) printf("DoBranchFalseAndNoPopElseNoPopExtraPopIM:\n");

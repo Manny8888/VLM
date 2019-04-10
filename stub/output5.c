@@ -13,8 +13,6 @@
 
 domessagedispatch:
   if (_trace) printf("domessagedispatch:\n");
-#ifdef TRACING
-#endif
 
 DoMessageDispatchSP:
   if (_trace) printf("DoMessageDispatchSP:\n");
@@ -23,15 +21,9 @@ DoMessageDispatchSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto begindomessagedispatch;   
-#endif
 
 DoMessageDispatchLP:
   if (_trace) printf("DoMessageDispatchLP:\n");
-#ifdef TRACING
-  goto begindomessagedispatch;   
-#endif
 
 DoMessageDispatchFP:
   if (_trace) printf("DoMessageDispatchFP:\n");
@@ -51,32 +43,32 @@ begindomessagedispatch:
     goto verifygenericarity;
   t1 = (u32)t1;   
   arg4 = (u32)arg4;   
-  r0 = (u64)&&return0299;
+  r0 = (u64)&&return0395;
   goto lookuphandler;
-return0299:
+return0395:
   arg4 = *(u64 *)(iFP + 16);   		// clobbered by |LookupHandler| 
   t3 = t4 - Type_EvenPC;   
   t3 = t3 & 62;		// Strip CDR code, low bits 
   if (t3 != 0)   
-    goto message-dispatch9510;
+    goto message-dispatch12213;
   t3 = t6 & 63;		// Strip CDR code 
   t3 = t3 - Type_NIL;   
   if (t3 == 0) 
-    goto message-dispatch9508;
+    goto message-dispatch12211;
   *(u32 *)(iFP + 16) = t7;
 		/* write the stack cache */
   *(u32 *)(iFP + 20) = t6;
-  goto message-dispatch9509;   
+  goto message-dispatch12212;   
 
-message-dispatch9508:
-  if (_trace) printf("message-dispatch9508:\n");
+message-dispatch12211:
+  if (_trace) printf("message-dispatch12211:\n");
 		/* swap message/instance in the frame */
   *(u32 *)(iFP + 16) = t1;
 		/* write the stack cache */
   *(u32 *)(iFP + 20) = arg1;
 
-message-dispatch9509:
-  if (_trace) printf("message-dispatch9509:\n");
+message-dispatch12212:
+  if (_trace) printf("message-dispatch12212:\n");
   *(u64 *)(iFP + 24) = arg4;   
   /* Convert real continuation to PC. */
   iPC = t4 & 1;
@@ -84,8 +76,8 @@ message-dispatch9509:
   iPC = t9 + iPC;
   goto interpretinstructionforjump;   
 
-message-dispatch9510:
-  if (_trace) printf("message-dispatch9510:\n");
+message-dispatch12213:
+  if (_trace) printf("message-dispatch12213:\n");
   /* Convert stack cache address to VMA */
   t2 = *(u64 *)&(processor->stackcachedata);   
   t3 = *(u64 *)&(processor->stackcachebasevma);   
@@ -95,8 +87,6 @@ message-dispatch9510:
   arg5 = t3;
   arg2 = 37;
   goto illegaloperand;
-#ifdef TRACING
-#endif
 
 DoMessageDispatchIM:
   goto doistageerror;

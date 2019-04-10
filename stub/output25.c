@@ -13,22 +13,18 @@
 dodereference:
   if (_trace) printf("dodereference:\n");
   /* arg2 has the preloaded 8 bit operand. */
-#ifdef TRACING
-#endif
 
 DoDereferenceIM:
   if (_trace) printf("DoDereferenceIM:\n");
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force-alignment11465:
-  if (_trace) printf("force-alignment11465:\n");
+force-alignment14163:
+  if (_trace) printf("force-alignment14163:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindodereference;   
-#ifdef TRACING
-#endif
 
 DoDereferenceSP:
   if (_trace) printf("DoDereferenceSP:\n");
@@ -37,15 +33,9 @@ DoDereferenceSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdodereference;   
-#endif
 
 DoDereferenceLP:
   if (_trace) printf("DoDereferenceLP:\n");
-#ifdef TRACING
-  goto headdodereference;   
-#endif
 
 DoDereferenceFP:
   if (_trace) printf("DoDereferenceFP:\n");
@@ -63,36 +53,36 @@ begindodereference:
   t1 = arg2 & 63;		// Strip off any CDR code bits. 
   t2 = (t1 == Type_OneQForward) ? 1 : 0;   
 
-force-alignment11460:
-  if (_trace) printf("force-alignment11460:\n");
+force-alignment14158:
+  if (_trace) printf("force-alignment14158:\n");
   if (t2 != 0)   
-    goto basic-dispatch11456;
+    goto basic-dispatch14154;
   t2 = (t1 == Type_ElementForward) ? 1 : 0;   
 
-force-alignment11461:
-  if (_trace) printf("force-alignment11461:\n");
+force-alignment14159:
+  if (_trace) printf("force-alignment14159:\n");
   if (t2 != 0)   
-    goto basic-dispatch11456;
+    goto basic-dispatch14154;
   t2 = (t1 == Type_HeaderForward) ? 1 : 0;   
 
-force-alignment11462:
-  if (_trace) printf("force-alignment11462:\n");
+force-alignment14160:
+  if (_trace) printf("force-alignment14160:\n");
   if (t2 != 0)   
-    goto basic-dispatch11456;
+    goto basic-dispatch14154;
   t2 = (t1 == Type_ExternalValueCellPointer) ? 1 : 0;   
 
-force-alignment11463:
-  if (_trace) printf("force-alignment11463:\n");
+force-alignment14161:
+  if (_trace) printf("force-alignment14161:\n");
   if (t2 == 0) 
-    goto basic-dispatch11443;
+    goto basic-dispatch14141;
 
-basic-dispatch11456:
-  if (_trace) printf("basic-dispatch11456:\n");
+basic-dispatch14154:
+  if (_trace) printf("basic-dispatch14154:\n");
   /* Here if argument (TypeOneQForward TypeElementForward TypeHeaderForward
                   TypeExternalValueCellPointer) */
   /* Memory Read Internal */
 
-vma-memory-read11444:
+vma-memory-read14142:
   t5 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t7 = arg1 + ivory;
   t6 = *(s32 *)&processor->scovlimit;   
@@ -104,16 +94,16 @@ vma-memory-read11444:
   t3 = *(s32 *)t3;   
   t4 = (u8)(t4 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read11446;
+    goto vma-memory-read14144;
 
-vma-memory-read11445:
+vma-memory-read14143:
   t7 = zero + 240;   
   t8 = t8 >> (t4 & 63);   
   t7 = t7 >> (t4 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read11448;
+    goto vma-memory-read14146;
 
-vma-memory-read11455:
+vma-memory-read14153:
   t5 = t4 & 63;		// set CDR-NEXT 
   *(u32 *)(iSP + 8) = t3;
 		/* write the stack cache */
@@ -121,14 +111,14 @@ vma-memory-read11455:
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch11443:
-  if (_trace) printf("basic-dispatch11443:\n");
+basic-dispatch14141:
+  if (_trace) printf("basic-dispatch14141:\n");
   t2 = (t1 == Type_LogicVariable) ? 1 : 0;   
 
-force-alignment11464:
-  if (_trace) printf("force-alignment11464:\n");
+force-alignment14162:
+  if (_trace) printf("force-alignment14162:\n");
   if (t2 == 0) 
-    goto basic-dispatch11457;
+    goto basic-dispatch14155;
   /* Here if argument TypeLogicVariable */
   t5 = Type_ExternalValueCellPointer;
   *(u32 *)(iSP + 8) = arg1;
@@ -137,8 +127,8 @@ force-alignment11464:
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch11457:
-  if (_trace) printf("basic-dispatch11457:\n");
+basic-dispatch14155:
+  if (_trace) printf("basic-dispatch14155:\n");
   /* Here for all other cases */
   t5 = arg2 & 63;		// set CDR-NEXT 
   *(u32 *)(iSP + 8) = arg1;
@@ -147,26 +137,26 @@ basic-dispatch11457:
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch11442:
-  if (_trace) printf("basic-dispatch11442:\n");
+basic-dispatch14140:
+  if (_trace) printf("basic-dispatch14140:\n");
 
-vma-memory-read11446:
-  if (_trace) printf("vma-memory-read11446:\n");
+vma-memory-read14144:
+  if (_trace) printf("vma-memory-read14144:\n");
   t6 = *(u64 *)&(processor->stackcachedata);   
   t5 = (t5 * 8) + t6;  		// reconstruct SCA 
   t3 = *(s32 *)t5;   
   t4 = *(s32 *)(t5 + 4);   		// Read from stack cache 
-  goto vma-memory-read11445;   
+  goto vma-memory-read14143;   
 
-vma-memory-read11448:
-  if (_trace) printf("vma-memory-read11448:\n");
+vma-memory-read14146:
+  if (_trace) printf("vma-memory-read14146:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read11447;
+    goto vma-memory-read14145;
   arg1 = (u32)t3;   		// Do the indirect thing 
-  goto vma-memory-read11444;   
+  goto vma-memory-read14142;   
 
-vma-memory-read11447:
-  if (_trace) printf("vma-memory-read11447:\n");
+vma-memory-read14145:
+  if (_trace) printf("vma-memory-read14145:\n");
   t8 = *(u64 *)&(processor->dataread);   		// Load the memory action table for cycle 
   /* TagType. */
   t7 = t4 & 63;		// Discard the CDR code 
@@ -174,18 +164,18 @@ vma-memory-read11447:
   t7 = (t7 * 4) + t8;   		// Adjust for a longword load 
   t8 = *(s32 *)t7;   		// Get the memory action 
 
-vma-memory-read11452:
-  if (_trace) printf("vma-memory-read11452:\n");
+vma-memory-read14150:
+  if (_trace) printf("vma-memory-read14150:\n");
   t7 = t8 & MemoryActionTransform;
   if (t7 == 0) 
-    goto vma-memory-read11451;
+    goto vma-memory-read14149;
   t4 = t4 & ~63L;
   t4 = t4 | Type_ExternalValueCellPointer;
-  goto vma-memory-read11455;   
+  goto vma-memory-read14153;   
 
-vma-memory-read11451:
+vma-memory-read14149:
 
-vma-memory-read11450:
+vma-memory-read14148:
   /* Perform memory action */
   arg1 = t8;
   arg2 = 0;
@@ -200,22 +190,18 @@ vma-memory-read11450:
 dounify:
   if (_trace) printf("dounify:\n");
   /* arg2 has the preloaded 8 bit operand. */
-#ifdef TRACING
-#endif
 
 DoUnifyIM:
   if (_trace) printf("DoUnifyIM:\n");
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force-alignment11466:
-  if (_trace) printf("force-alignment11466:\n");
+force-alignment14164:
+  if (_trace) printf("force-alignment14164:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindounify;   
-#ifdef TRACING
-#endif
 
 DoUnifySP:
   if (_trace) printf("DoUnifySP:\n");
@@ -224,15 +210,9 @@ DoUnifySP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdounify;   
-#endif
 
 DoUnifyLP:
   if (_trace) printf("DoUnifyLP:\n");
-#ifdef TRACING
-  goto headdounify;   
-#endif
 
 DoUnifyFP:
   if (_trace) printf("DoUnifyFP:\n");
@@ -260,8 +240,6 @@ begindounify:
 
 dopushlocallogicvariables:
   if (_trace) printf("dopushlocallogicvariables:\n");
-#ifdef TRACING
-#endif
 
 DoPushLocalLogicVariablesIM:
   if (_trace) printf("DoPushLocalLogicVariablesIM:\n");
@@ -269,8 +247,6 @@ DoPushLocalLogicVariablesIM:
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindopushlocallogicvariables;   
-#ifdef TRACING
-#endif
 
 DoPushLocalLogicVariablesSP:
   if (_trace) printf("DoPushLocalLogicVariablesSP:\n");
@@ -279,15 +255,9 @@ DoPushLocalLogicVariablesSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdopushlocallogicvariables;   
-#endif
 
 DoPushLocalLogicVariablesLP:
   if (_trace) printf("DoPushLocalLogicVariablesLP:\n");
-#ifdef TRACING
-  goto headdopushlocallogicvariables;   
-#endif
 
 DoPushLocalLogicVariablesFP:
   if (_trace) printf("DoPushLocalLogicVariablesFP:\n");
@@ -347,22 +317,18 @@ pllvillop:
 dopushgloballogicvariable:
   if (_trace) printf("dopushgloballogicvariable:\n");
   /* arg2 has the preloaded 8 bit operand. */
-#ifdef TRACING
-#endif
 
 DoPushGlobalLogicVariableIM:
   if (_trace) printf("DoPushGlobalLogicVariableIM:\n");
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force-alignment11483:
-  if (_trace) printf("force-alignment11483:\n");
+force-alignment14181:
+  if (_trace) printf("force-alignment14181:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindopushgloballogicvariable;   
-#ifdef TRACING
-#endif
 
 DoPushGlobalLogicVariableSP:
   if (_trace) printf("DoPushGlobalLogicVariableSP:\n");
@@ -371,15 +337,9 @@ DoPushGlobalLogicVariableSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdopushgloballogicvariable;   
-#endif
 
 DoPushGlobalLogicVariableLP:
   if (_trace) printf("DoPushGlobalLogicVariableLP:\n");
-#ifdef TRACING
-  goto headdopushgloballogicvariable;   
-#endif
 
 DoPushGlobalLogicVariableFP:
   if (_trace) printf("DoPushGlobalLogicVariableFP:\n");
@@ -400,7 +360,7 @@ begindopushgloballogicvariable:
   iSP = iSP + 8;
   /* Memory Read Internal */
 
-vma-memory-read11468:
+vma-memory-read14166:
   t6 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t8 = t1 + ivory;
   t7 = *(s32 *)&processor->scovlimit;   
@@ -412,16 +372,16 @@ vma-memory-read11468:
   t5 = *(s32 *)t5;   
   t4 = (u8)(t4 >> ((t8&7)*8));   
   if (t7 != 0)   
-    goto vma-memory-read11470;
+    goto vma-memory-read14168;
 
-vma-memory-read11469:
+vma-memory-read14167:
   t8 = zero + 240;   
   t9 = t9 >> (t4 & 63);   
   t8 = t8 >> (t4 & 63);   
   if (t9 & 1)   
-    goto vma-memory-read11472;
+    goto vma-memory-read14170;
 
-vma-memory-read11478:
+vma-memory-read14176:
   /* Merge cdr-code */
   t5 = t3 & 63;
   t4 = t4 & 192;
@@ -436,26 +396,26 @@ vma-memory-read11478:
   t7 = (t4 & 0xff) << ((t6&7)*8);   
   t8 = t8 & ~(0xffL << (t6&7)*8);   
 
-force-alignment11481:
-  if (_trace) printf("force-alignment11481:\n");
+force-alignment14179:
+  if (_trace) printf("force-alignment14179:\n");
   t8 = t8 | t7;
   STQ_U(t6, t8);   
   *(u32 *)t5 = t1;
   if (t9 != 0)   		// J. if in cache 
-    goto vma-memory-write11480;
+    goto vma-memory-write14178;
 
-vma-memory-write11479:
+vma-memory-write14177:
   t2 = t1 + 1;		// Increment the structure-stack-pointer 
 		/* Set the structure stack pointer */
   *(u32 *)&processor->bar2 = t2;
   goto NEXTINSTRUCTION;   
 
-vma-memory-write11480:
-  if (_trace) printf("vma-memory-write11480:\n");
+vma-memory-write14178:
+  if (_trace) printf("vma-memory-write14178:\n");
   t7 = *(u64 *)&(processor->stackcachebasevma);   
 
-force-alignment11482:
-  if (_trace) printf("force-alignment11482:\n");
+force-alignment14180:
+  if (_trace) printf("force-alignment14180:\n");
   t6 = *(u64 *)&(processor->stackcachedata);   
   t7 = t1 - t7;   		// Stack cache offset 
   t6 = (t7 * 8) + t6;  		// reconstruct SCA 
@@ -463,25 +423,25 @@ force-alignment11482:
   *(u32 *)t6 = t1;
 		/* write the stack cache */
   *(u32 *)(t6 + 4) = t4;
-  goto vma-memory-write11479;   
+  goto vma-memory-write14177;   
 
-vma-memory-read11470:
-  if (_trace) printf("vma-memory-read11470:\n");
+vma-memory-read14168:
+  if (_trace) printf("vma-memory-read14168:\n");
   t7 = *(u64 *)&(processor->stackcachedata);   
   t6 = (t6 * 8) + t7;  		// reconstruct SCA 
   t5 = *(s32 *)t6;   
   t4 = *(s32 *)(t6 + 4);   		// Read from stack cache 
-  goto vma-memory-read11469;   
+  goto vma-memory-read14167;   
 
-vma-memory-read11472:
-  if (_trace) printf("vma-memory-read11472:\n");
+vma-memory-read14170:
+  if (_trace) printf("vma-memory-read14170:\n");
   if ((t8 & 1) == 0)   
-    goto vma-memory-read11471;
+    goto vma-memory-read14169;
   t1 = (u32)t5;   		// Do the indirect thing 
-  goto vma-memory-read11468;   
+  goto vma-memory-read14166;   
 
-vma-memory-read11471:
-  if (_trace) printf("vma-memory-read11471:\n");
+vma-memory-read14169:
+  if (_trace) printf("vma-memory-read14169:\n");
   t9 = *(u64 *)&(processor->datawrite);   		// Load the memory action table for cycle 
   /* TagType. */
   t8 = t4 & 63;		// Discard the CDR code 
@@ -489,9 +449,9 @@ vma-memory-read11471:
   t8 = (t8 * 4) + t9;   		// Adjust for a longword load 
   t9 = *(s32 *)t8;   		// Get the memory action 
 
-vma-memory-read11475:
+vma-memory-read14173:
 
-vma-memory-read11474:
+vma-memory-read14172:
   /* Perform memory action */
   arg1 = t9;
   arg2 = 1;
@@ -506,22 +466,18 @@ vma-memory-read11474:
 dologictailtest:
   if (_trace) printf("dologictailtest:\n");
   /* arg2 has the preloaded 8 bit operand. */
-#ifdef TRACING
-#endif
 
 DoLogicTailTestIM:
   if (_trace) printf("DoLogicTailTestIM:\n");
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force-alignment11493:
-  if (_trace) printf("force-alignment11493:\n");
+force-alignment14191:
+  if (_trace) printf("force-alignment14191:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindologictailtest;   
-#ifdef TRACING
-#endif
 
 DoLogicTailTestSP:
   if (_trace) printf("DoLogicTailTestSP:\n");
@@ -530,15 +486,9 @@ DoLogicTailTestSP:
     arg1 = iSP;
   if (arg2 == 0)   		// Adjust SP if SP-pop mode 
     iSP = arg4;
-#ifdef TRACING
-  goto headdologictailtest;   
-#endif
 
 DoLogicTailTestLP:
   if (_trace) printf("DoLogicTailTestLP:\n");
-#ifdef TRACING
-  goto headdologictailtest;   
-#endif
 
 DoLogicTailTestFP:
   if (_trace) printf("DoLogicTailTestFP:\n");
@@ -555,46 +505,46 @@ begindologictailtest:
   t1 = arg2 & 63;		// Strip off any CDR code bits. 
   t2 = (t1 == Type_List) ? 1 : 0;   
 
-force-alignment11490:
-  if (_trace) printf("force-alignment11490:\n");
+force-alignment14188:
+  if (_trace) printf("force-alignment14188:\n");
   if (t2 == 0) 
-    goto basic-dispatch11485;
+    goto basic-dispatch14183;
   /* Here if argument TypeList */
   t3 = *(u64 *)&(processor->niladdress);   
   *(u64 *)(iSP + 8) = t3;   		// push the data 
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch11485:
-  if (_trace) printf("basic-dispatch11485:\n");
+basic-dispatch14183:
+  if (_trace) printf("basic-dispatch14183:\n");
   t2 = (t1 == Type_ExternalValueCellPointer) ? 1 : 0;   
 
-force-alignment11491:
-  if (_trace) printf("force-alignment11491:\n");
+force-alignment14189:
+  if (_trace) printf("force-alignment14189:\n");
   if (t2 == 0) 
-    goto basic-dispatch11486;
+    goto basic-dispatch14184;
   /* Here if argument TypeExternalValueCellPointer */
   t3 = *(u64 *)&(processor->taddress);   
   *(u64 *)(iSP + 8) = t3;   		// push the data 
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch11486:
-  if (_trace) printf("basic-dispatch11486:\n");
+basic-dispatch14184:
+  if (_trace) printf("basic-dispatch14184:\n");
   t2 = (t1 == Type_ListInstance) ? 1 : 0;   
 
-force-alignment11492:
-  if (_trace) printf("force-alignment11492:\n");
+force-alignment14190:
+  if (_trace) printf("force-alignment14190:\n");
   if (t2 == 0) 
-    goto basic-dispatch11487;
+    goto basic-dispatch14185;
   /* Here if argument TypeListInstance */
   t3 = *(u64 *)&(processor->niladdress);   
   *(u64 *)(iSP + 8) = t3;   		// push the data 
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch11487:
-  if (_trace) printf("basic-dispatch11487:\n");
+basic-dispatch14185:
+  if (_trace) printf("basic-dispatch14185:\n");
   /* Here for all other cases */
   arg6 = t2;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
@@ -602,8 +552,8 @@ basic-dispatch11487:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-basic-dispatch11484:
-  if (_trace) printf("basic-dispatch11484:\n");
+basic-dispatch14182:
+  if (_trace) printf("basic-dispatch14182:\n");
 
 /* end DoLogicTailTest */
   /* End of Halfword operand from stack instruction - DoLogicTailTest */

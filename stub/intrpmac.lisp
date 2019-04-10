@@ -597,10 +597,6 @@
     (comment ,(format nil ""))
     (comment ,(format nil "Fullword instruction - ~a" name))
     (comment ,(format nil "======================="))
-    ;; (passthru "#ifdef TRACING")
-    ;; (passthru ,(format nil "	.byte 0x80"))
-    ;; (passthru ,(format nil "	.asciiz \"~a\"" name))
-    ;; (passthru "#endif")
     (label ,(format nil "~a" name))))
 
 (defmethod expand-instruction-procedure-trailer
@@ -638,12 +634,6 @@
 
       ,@(when provide-immediate
 	        `((comment "arg2 has the preloaded 8 bit operand.")
-	          (passthru "#ifdef TRACING")
-	          ,@(if signed-immediate
-		              `((passthru ,(format nil "	.byte 0x83")))
-		              `((passthru ,(format nil "	.byte 0x82"))))
-	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	          (passthru "#endif")
 	          (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
 	          ,@(if signed-immediate
 		              `((comment "This sequence only sucks a moderate amount")
@@ -660,10 +650,6 @@
 		                (BIS zero zero arg2)))
 	          (BR zero ,bodyname)))
 
-      (passthru "#ifdef TRACING")
-      (passthru ,(format nil "	.byte 0x88"))
-      (passthru ,(format nil "	.asciiz \"~a\"" spname))
-      (passthru "#endif")
       (label ,(format nil "~a" spname) "Entry point for SP relative")
       (BIS arg5 zero arg1                "Assume SP mode")
       ,@(if needs-tos
@@ -678,20 +664,8 @@
 	          `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
 	            (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
 
-      (passthru "#ifdef TRACING")
-      (BR zero ,bodyname)
-      (passthru ,(format nil "	.byte 0x90"))
-      (passthru ,(format nil "	.asciiz \"~a\"" lpname))
-      (passthru "#endif")
       (label ,(format nil "~a" lpname) "Entry point for LP relative")
-
-      (passthru "#ifdef TRACING")
-      (BR zero ,bodyname)
-      (passthru ,(format nil "	.byte 0x84"))
-      (passthru ,(format nil "	.asciiz \"~a\"" fpname))
-      (passthru "#endif")
       (label ,(format nil "~a" fpname) "Entry point for FP relative")
-
       (label ,bodyname)
       (comment "arg1 has the operand address.")
       (S8ADDQ arg2 arg1 arg1         "Compute operand address")
@@ -702,11 +676,7 @@
   (let ((imname (format nil "~aIM" name)))
     `(;; put this here for lack of a better spot
       ,@(unless (or own-immediate provide-immediate)
-	        `((passthru "#ifdef TRACING")
-	          (passthru ,(format nil "	.byte 0x82"))
-	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	          (passthru "#endif")
-	          (unlikely-label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
+	        `((unlikely-label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
 	          (external-branch |DoIStageError| ,(format nil "IMMEDIATE mode not legal in ~a."
 						                                          name))))
       (end ,name)
@@ -729,20 +699,12 @@
       (passthru ,(format nil  "	.globl ~a" imname))
       (label ,(format nil "~a" name))
       ,@(unless own-immediate
-	        `((passthru "#ifdef TRACING")
-            (passthru ,(format nil "	.byte 0x82"))
-	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	          (passthru "#endif")
-	          (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
+	        `((label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
 	          (comment "This sequence is lukewarm")
 	          (STL arg2 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
 	          (LDQ arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
 	          (BR zero ,realbodyname)))
 
-      (passthru "#ifdef TRACING")
-      (passthru ,(format nil "	.byte 0x88"))
-      (passthru ,(format nil "	.asciiz \"~a\"" spname))
-      (passthru "#endif")
       (label ,(format nil "~a" spname) "Entry point for SP relative")
       (BIS arg5 zero arg1                "Assume SP mode")
       ,@(if needs-tos
@@ -758,18 +720,7 @@
 	          `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
 	            (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
 
-      (passthru "#ifdef TRACING")
-      (BR zero ,bodyname)
-      (passthru ,(format nil "	.byte 0x90"))
-      (passthru ,(format nil "	.asciiz \"~a\"" lpname))
-      (passthru "#endif")
       (label ,(format nil "~a" lpname) "Entry point for LP relative")
-
-      (passthru "#ifdef TRACING")
-      (BR zero ,bodyname)
-      (passthru ,(format nil "	.byte 0x84"))
-      (passthru ,(format nil "	.asciiz \"~a\"" fpname))
-      (passthru "#endif")
       (label ,(format nil "~a" fpname) "Entry point for FP relative")
 
       (label ,bodyname)
@@ -786,12 +737,7 @@
 
 (defmacro immediate-handler (name)
   (let ((imname (format nil "~aIM" name)))
-    `((passthru "#ifdef TRACING")
-      (BR zero ,imname)
-      (passthru ,(format nil "	.byte 0x82"))
-      (passthru ,(format nil "	.asciiz \"~aIM\"" name))
-      (passthru "#endif")
-      (passthru ,(format nil ".align ~D" *function-alignment*))
+    `((passthru ,(format nil ".align ~D" *function-alignment*))
       (label ,imname "Entry point for IMMEDIATE mode"))))
 
 
@@ -811,10 +757,6 @@
       (label ,(format nil "~a" name))
       ,@(unless own-immediate
 	        `((comment "arg2 has the preloaded 8 bit operand.")
-	          (passthru "#ifdef TRACING")
-	          (passthru ,(format nil "	.byte 0x83"))
-	          (passthru ,(format nil "	.asciiz \"~a\"" imname))
-	          (passthru "#endif")
 	          (label ,(format nil "~a" imname) "Entry point for IMMEDIATE mode")
 	          (comment "This sequence only sucks a moderate amount")
 	          (SLL arg2 #.(- 64 8) arg2 "sign extend the byte argument.")
@@ -824,10 +766,6 @@
 	          (LDQ arg1 PROCESSORSTATE_IMMEDIATE_ARG (Ivory))
 	          (BR zero ,realbodyname)))
 
-      (passthru "#ifdef TRACING")
-      (passthru ,(format nil "	.byte 0x88"))
-      (passthru ,(format nil "	.asciiz \"~a\"" spname))
-      (passthru "#endif")
       (label ,(format nil "~a" spname) "Entry point for SP relative")
       (BIS arg5 zero arg1                "Assume SP mode")
       ,@(if needs-tos
@@ -843,18 +781,7 @@
 	          `((CMOVEQ arg2 iSP arg1             "SP-pop mode")
 	            (CMOVEQ arg2 arg4 iSP             "Adjust SP if SP-pop mode")))
 
-      (passthru "#ifdef TRACING")
-      (BR zero ,bodyname)
-      (passthru ,(format nil "	.byte 0x90"))
-      (passthru ,(format nil "	.asciiz \"~a\"" lpname))
-      (passthru "#endif")
       (label ,(format nil "~a" lpname) "Entry point for LP relative")
-
-      (passthru "#ifdef TRACING")
-      (BR zero ,bodyname)
-      (passthru ,(format nil "	.byte 0x84"))
-      (passthru ,(format nil "	.asciiz \"~a\"" fpname))
-      (passthru "#endif")
       (label ,(format nil "~a" fpname) "Entry point for FP relative")
 
       (label ,bodyname)
@@ -883,10 +810,6 @@
       (passthru ,(format nil  "	.globl ~a" imname))
       (label ,(format nil "~a" name))
       (comment "Actually only one entry point, but simulate others for dispatch")
-      (passthru "#ifdef TRACING")
-      (passthru ,(format nil "	.byte 0xA0"))
-      (passthru ,(format nil "	.asciiz \"~a\"" name))
-      (passthru "#endif")
       (label ,(format nil "~a" imname))
       (label ,(format nil "~a" spname))
       (label ,(format nil "~a" lpname))
@@ -915,10 +838,6 @@
       (passthru ,(format nil  "	.globl ~a" imname))
       (label ,(format nil "~a" name))
       (comment "Actually only one entry point, but simulate others for dispatch")
-      (passthru "#ifdef TRACING")
-      (passthru ,(format nil "	.byte 0xA1"))
-      (passthru ,(format nil "	.asciiz \"~a\"" name))
-      (passthru "#endif")
       (label ,(format nil "~a" imname))
       (label ,(format nil "~a" spname))
       (label ,(format nil "~a" lpname))
@@ -950,10 +869,6 @@
       (passthru ,(format nil  "	.globl ~a" imname))
       (label ,(format nil "~a" name))
       (comment "Actually only one entry point, but simulate others for dispatch")
-      (passthru "#ifdef TRACING")
-      (passthru ,(format nil "	.byte 0xA0"))
-      (passthru ,(format nil "	.asciiz \"~a\"" name))
-      (passthru "#endif")
       (label ,(format nil "~a" imname))
       (label ,(format nil "~a" spname))
       (label ,(format nil "~a" lpname))
@@ -992,10 +907,6 @@
       (passthru ,(format nil  "	.globl ~a" imname))
       (label ,(format nil "~a" name))
       (comment "Actually only one entry point, but simulate others for dispatch")
-      (passthru "#ifdef TRACING")
-      (passthru ,(format nil "	.byte 0xB0"))
-      (passthru ,(format nil "	.asciiz \"~a\"" name))
-      (passthru "#endif")
       (label ,(format nil "~a" imname))
       (label ,(format nil "~a" spname))
       (label ,(format nil "~a" lpname))
