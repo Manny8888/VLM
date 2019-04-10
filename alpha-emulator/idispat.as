@@ -153,11 +153,6 @@
     (STQ arg4 CACHELINE_INSTRUCTION (ocp) "Save the odd instruction")
     (SLL iword #.(- 64 10) t11       "First phase of even operand sign extension.")
     (AND iword hwopmask t12         "even operand+2bits")
-    ;; Cache metering steals ANNOTATION from us
-    (passthru "#ifndef CACHEMETERING")
-    ;; Clear the annotation field (used for branch-taken cache)
-    (STQ zero CACHELINE_ANNOTATION (ocp))
-    (passthru "#endif")
     (AND t10 hwopmask t10           "even opcode")
     (SRA t11 #.(- 64 10 16) t11     "Second phase of even operand sign extension.")
     #-fill-past-call (SUBQ t10 #.*FINISH-CALL-N-OPCODE* arg2)
@@ -293,11 +288,6 @@
     (ADDQ t5 arg2 arg2 "cpos=base+cpos*48")
     ;; We come here if the branch has previously cached the hash, with
     ;; the arg2 in arg2
-    ;; Cache metering steals ANNOTATION from us
-    (passthru "#ifndef CACHEMETERING")
-    ;; Save the computed branch-taken CP in ANNOTATION
-    (STQ arg2 CACHELINE_ANNOTATION (iCP))
-    (passthru "#endif")
     ;; See above (label interpretInstructionPredicted)
     (FETCH 0 (arg2))
     (BIS arg2 zero iCP)

@@ -1772,7 +1772,7 @@
 		         (fixarg arg3) (fixarg arg1)
 	           (if (numberp arg2)
                  (logand arg2 63)
-		             (format nil "$27(~A & 63)" (fixarg arg2)))
+		             (format nil "(~A & 63)" (fixarg arg2)))
              (trailing-comment arg4)))
 
 	  (SRL

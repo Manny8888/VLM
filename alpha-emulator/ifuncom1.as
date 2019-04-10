@@ -312,9 +312,9 @@
     (CheckAdjacentDataTypes arg3 |TypeArray| 2  ReallyAref1Exc t1)
     (CMPEQ arg4 t8 t8 "t8==1 iff cached array is ours.")
     (branch-false t8 |Aref1Regset| "Go and setup the array register.")
-    (passthru "#ifdef SLOWARRAYS")
-    (BR zero |Aref1Regset|)
-    (passthru "#endif")
+    ;; (passthru "#ifdef SLOWARRAYS")
+    ;; (BR zero |Aref1Regset|)
+    ;; (passthru "#endif")
     ;; Get control register, base, and length.  Don't need any data types
     ;; since we checked all that when we set up the array register.
     (LDQ arg6 ARRAYCACHE_ARWORD (t7))
@@ -481,15 +481,7 @@
 ;;; From IFUNLOOP.AS
 
 (define-instruction |DoBranch| :10-bit-signed-immediate ()
-    ;; Cache metering steals ANNOTATION from us
-    (passthru "#ifndef CACHEMETERING")
-    (LDQ arg2 CACHELINE_ANNOTATION (iCP))
-    (passthru "#endif")
     (ADDQ iPC arg1 iPC "Update the PC in halfwords")
-    ;; Cache metering steals ANNOTATION from us
-    (passthru "#ifndef CACHEMETERING")
-    (BNE arg2 interpretInstructionPredicted)
-    (passthru "#endif")
     (BR zero interpretInstructionForBranch))
 
 

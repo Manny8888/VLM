@@ -189,3 +189,5 @@ iverify: main.o $(OBJS) $(OTHEROBJS)
 
 clean:
 	rm -f main.o byteswap_world.o $(OBJS)
+	rm -f genera 
+

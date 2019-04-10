@@ -209,11 +209,11 @@ DoLoopDecrementTosFP:
   t3 = t1 - Type_Fixnum;   
   t3 = t3 & 63;		// Strip CDR code 
   if (t3 != 0)   
-    goto iloop_decrement_tos31303;
+    goto iloop_decrement_tos44748;
   t3 = (s32)t2 - (s32)1;   
   t4 = ((s64)t3 < (s64)t2) ? 1 : 0;   
   if (t4 == 0) 
-    goto iloop_decrement_tos31305;
+    goto iloop_decrement_tos44750;
   t6 = Type_Fixnum;
   *(u32 *)iSP = t3;   
   *(u32 *)(iSP + 4) = t6;   		// write the stack cache 
@@ -225,23 +225,23 @@ DoLoopDecrementTosFP:
     goto interpretinstructionpredicted;
   goto interpretinstructionforbranch;   
 
-iloop_decrement_tos31303:
-  if (_trace) printf("iloop_decrement_tos31303:\n");
+iloop_decrement_tos44748:
+  if (_trace) printf("iloop_decrement_tos44748:\n");
   t3 = t1 - Type_Fixnum;   
   t3 = t3 & 56;		// Strip CDR code, low bits 
   if (t3 != 0)   
-    goto iloop_decrement_tos31304;
+    goto iloop_decrement_tos44749;
 
-iloop_decrement_tos31305:
-  if (_trace) printf("iloop_decrement_tos31305:\n");
+iloop_decrement_tos44750:
+  if (_trace) printf("iloop_decrement_tos44750:\n");
   arg5 = iPC + arg1;		// Compute next-pc 
   arg3 = 1;		// arg3 = stackp 
   arg1 = 1;		// arg1 = instruction arity 
   arg4 = 0;		// arg4 = arithmeticp 
   goto loopexception;
 
-iloop_decrement_tos31304:
-  if (_trace) printf("iloop_decrement_tos31304:\n");
+iloop_decrement_tos44749:
+  if (_trace) printf("iloop_decrement_tos44749:\n");
   arg5 = 0;
   arg2 = 81;
   goto illegaloperand;
@@ -275,18 +275,18 @@ DoLoopIncrementTosLessThanFP:
   t5 = t1 - Type_Fixnum;   
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
-    goto iloop_increment_tos_less_than31306;
+    goto iloop_increment_tos_less_than44751;
   t4 = *(s32 *)(iSP + -8);   		// Get arg1. 
   t3 = *(s32 *)(iSP + -4);   
   t4 = (u32)t4;   
   t5 = t3 - Type_Fixnum;   
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
-    goto iloop_increment_tos_less_than31307;
+    goto iloop_increment_tos_less_than44752;
   t5 = (s32)t2 + (s32)1;
   t6 = ((s64)t2 <= (s64)t5) ? 1 : 0;   
   if (t6 == 0) 
-    goto iloop_increment_tos_less_than31308;
+    goto iloop_increment_tos_less_than44753;
   t6 = Type_Fixnum;
   *(u32 *)iSP = t5;   
   *(u32 *)(iSP + 4) = t6;   		// write the stack cache 
@@ -295,37 +295,37 @@ DoLoopIncrementTosLessThanFP:
     goto NEXTINSTRUCTION;
   /* Here if branch taken. */
 
-force_alignment31310:
-  if (_trace) printf("force_alignment31310:\n");
+force_alignment44755:
+  if (_trace) printf("force_alignment44755:\n");
   iPC = iPC + arg1;		// Update the PC in halfwords 
   if (arg2 != 0)   
     goto interpretinstructionpredicted;
   goto interpretinstructionforbranch;   
 
-iloop_increment_tos_less_than31306:
-  if (_trace) printf("iloop_increment_tos_less_than31306:\n");
+iloop_increment_tos_less_than44751:
+  if (_trace) printf("iloop_increment_tos_less_than44751:\n");
   t5 = t1 - Type_Fixnum;   
   t5 = t5 & 56;		// Strip CDR code, low bits 
   if (t5 != 0)   
-    goto iloop_increment_tos_less_than31309;
+    goto iloop_increment_tos_less_than44754;
 
-iloop_increment_tos_less_than31307:
-  if (_trace) printf("iloop_increment_tos_less_than31307:\n");
+iloop_increment_tos_less_than44752:
+  if (_trace) printf("iloop_increment_tos_less_than44752:\n");
   t5 = t3 - Type_Fixnum;   
   t5 = t5 & 56;		// Strip CDR code, low bits 
   if (t5 != 0)   
-    goto iloop_increment_tos_less_than31309;
+    goto iloop_increment_tos_less_than44754;
 
-iloop_increment_tos_less_than31308:
-  if (_trace) printf("iloop_increment_tos_less_than31308:\n");
+iloop_increment_tos_less_than44753:
+  if (_trace) printf("iloop_increment_tos_less_than44753:\n");
   arg5 = iPC + arg1;		// Compute next-pc 
   arg3 = 1;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 0;		// arg4 = arithmeticp 
   goto loopexception;
 
-iloop_increment_tos_less_than31309:
-  if (_trace) printf("iloop_increment_tos_less_than31309:\n");
+iloop_increment_tos_less_than44754:
+  if (_trace) printf("iloop_increment_tos_less_than44754:\n");
   arg5 = 0;
   arg2 = 16;
   goto illegaloperand;

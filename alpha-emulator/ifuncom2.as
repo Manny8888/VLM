@@ -67,9 +67,6 @@
     (CheckAdjacentDataTypes arg3 |TypeArray| 2  ReallyAset1Exc t1)
     (CMPEQ arg4 t8 t8 "t8==1 iff cached array is ours.")
     (branch-false t8 |Aset1Regset| "Go and setup the array register.")
-    (passthru "#ifdef SLOWARRAYS")
-    (BR zero |Aset1Regset|)
-    (passthru "#endif")
     ;; Get control register, base, and length.  Don't need any data types
     ;; since we checked all that when we set up the array register.
     (LDQ arg6 ARRAYCACHE_ARWORD (t7))

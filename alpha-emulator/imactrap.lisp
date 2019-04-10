@@ -256,8 +256,7 @@
     (take-pre-trap-2 |TrapVectorTrace| t1 t2 t3 t4 t5 t6 t7 t8 t9 t10)))
 
 (defmacro preempt-request-trap-handler ()
-  `((passthru "#endif")
-    (take-pre-trap-1 |TrapVectorPreemptRequest| t1 t2 t3 t4 t5 t6 t7 t8 t9 t10)
+  `((take-pre-trap-1 |TrapVectorPreemptRequest| t1 t2 t3 t4 t5 t6 t7 t8 t9 t10)
     (take-pre-trap-2 |TrapVectorPreemptRequest| t1 t2 t3 t4 t5 t6 t7 t8 t9 t10)))
 
 (defmacro high-priority-sequence-break-handler ()
