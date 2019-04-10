@@ -17,7 +17,7 @@ doaddbignumstep:
 DoAddBignumStepIM:
   if (_trace) printf("DoAddBignumStepIM:\n");
   /* This sequence is lukewarm */
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindoaddbignumstep;   
 
@@ -68,14 +68,10 @@ begindoaddbignumstep:
   arg6 = arg5 >> 32;   		// Shift the carry into arg6 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
-		/* Store fixnum result */
-  *(u32 *)(iSP + -8) = arg5;
-		/* write the stack cache */
-  *(u32 *)(iSP + -4) = t1;
-		/* Store the carry if any */
-  *(u32 *)iSP = arg6;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)(iSP + -8) = arg5;   		// Store fixnum result 
+  *(u32 *)(iSP + -4) = t1;   		// write the stack cache 
+  *(u32 *)iSP = arg6;   		// Store the carry if any 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
 addbignumsteplose:
@@ -97,7 +93,7 @@ dosubbignumstep:
 DoSubBignumStepIM:
   if (_trace) printf("DoSubBignumStepIM:\n");
   /* This sequence is lukewarm */
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindosubbignumstep;   
 
@@ -150,15 +146,11 @@ begindosubbignumstep:
   t6 = ((s64)arg5 < (s64)zero) ? 1 : 0;   		// t6=1 if we borrowed in 2nd step 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
-		/* Store fixnum result */
-  *(u32 *)(iSP + -8) = arg5;
-		/* write the stack cache */
-  *(u32 *)(iSP + -4) = t1;
+  *(u32 *)(iSP + -8) = arg5;   		// Store fixnum result 
+  *(u32 *)(iSP + -4) = t1;   		// write the stack cache 
   arg6 = arg6 + t6;		// Compute borrow 
-		/* Store the borrow if any */
-  *(u32 *)iSP = arg6;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = arg6;   		// Store the borrow if any 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
 subbignumsteplose:
@@ -180,7 +172,7 @@ domultiplybignumstep:
 DoMultiplyBignumStepIM:
   if (_trace) printf("DoMultiplyBignumStepIM:\n");
   /* This sequence is lukewarm */
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindomultiplybignumstep;   
 
@@ -223,14 +215,10 @@ begindomultiplybignumstep:
   arg6 = (u32)(arg3 >> ((4&7)*8));   		// arg6=high order word 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
-		/* Store fixnum result ls word */
-  *(u32 *)iSP = arg3;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
-		/* Store ms word */
-  *(u32 *)(iSP + 8) = arg6;
-		/* write the stack cache */
-  *(u32 *)(iSP + 12) = t1;
+  *(u32 *)iSP = arg3;   		// Store fixnum result ls word 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
+  *(u32 *)(iSP + 8) = arg6;   		// Store ms word 
+  *(u32 *)(iSP + 12) = t1;   		// write the stack cache 
   iSP = iSP + 8;
   goto cachevalid;   
 
@@ -253,7 +241,7 @@ dodividebignumstep:
 DoDivideBignumStepIM:
   if (_trace) printf("DoDivideBignumStepIM:\n");
   /* This sequence is lukewarm */
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindodividebignumstep;   
 
@@ -306,10 +294,8 @@ begindodividebignumstep:
   t1 = arg4 / arg1;   		// t1 is now the quotient 
   t2 = t1 * arg1;   
   t2 = arg4 - t2;   		// t2 is now the remainder 
-		/* store quotient (already fixnum) */
-  *(u32 *)(iSP + -8) = t1;
-		/* store remainder (already fixnum) */
-  *(u32 *)iSP = t2;
+  *(u32 *)(iSP + -8) = t1;   		// store quotient (already fixnum) 
+  *(u32 *)iSP = t2;   		// store remainder (already fixnum) 
   goto NEXTINSTRUCTION;   
 
 divbignumsteplose1:
@@ -339,10 +325,10 @@ DoLshcBignumStepIM:
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force_alignment30164:
-  if (_trace) printf("force_alignment30164:\n");
+force_alignment32859:
+  if (_trace) printf("force_alignment32859:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindolshcbignumstep;   
 
@@ -395,10 +381,8 @@ begindolshcbignumstep:
   arg6 = (s64)arg5 >> 32;   		// Extract the result 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
-		/* Store the result as a fixnum */
-  *(u32 *)iSP = arg6;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = arg6;   		// Store the result as a fixnum 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
 lshcbignumsteplose:

@@ -42,11 +42,11 @@ begindologand:
   t6 = t3 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical29745;
+    goto ilogical32440;
   t6 = t1 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical29746;
+    goto ilogical32441;
   /* Here we know that both args are fixnums! */
   t4 = t4 & arg1;		// Do the operation 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
@@ -54,22 +54,20 @@ begindologand:
   r31 = r31 | r31;
   t4 = (u32)t4;   		// Strip high bits 
   t1 = Type_Fixnum;
-		/* Push result */
-  *(u32 *)iSP = t4;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = t4;   		// Push result 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
-ilogical29745:
-  if (_trace) printf("ilogical29745:\n");
+ilogical32440:
+  if (_trace) printf("ilogical32440:\n");
   arg6 = t3;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-ilogical29746:
-  if (_trace) printf("ilogical29746:\n");
+ilogical32441:
+  if (_trace) printf("ilogical32441:\n");
   arg6 = t1;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
@@ -85,7 +83,7 @@ DoLogandIM:
   t6 = t3 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical_immediate29747;
+    goto ilogical_immediate32442;
   /* Here we know that both args are fixnums! */
   t4 = t4 & arg2;		// Do the operation 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
@@ -93,14 +91,12 @@ DoLogandIM:
   r31 = r31 | r31;
   t4 = (u32)t4;   		// Strip high bits 
   t1 = Type_Fixnum;
-		/* Push result */
-  *(u32 *)iSP = t4;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = t4;   		// Push result 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
-ilogical_immediate29747:
-  if (_trace) printf("ilogical_immediate29747:\n");
+ilogical_immediate32442:
+  if (_trace) printf("ilogical_immediate32442:\n");
   arg1 = Type_Fixnum;
   arg2 = (u32)arg2;   
   /* SetTag. */
@@ -150,11 +146,11 @@ begindologior:
   t6 = t3 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical29748;
+    goto ilogical32443;
   t6 = t1 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical29749;
+    goto ilogical32444;
   /* Here we know that both args are fixnums! */
   t4 = t4 | arg1;		// Do the operation 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
@@ -162,22 +158,20 @@ begindologior:
   r31 = r31 | r31;
   t4 = (u32)t4;   		// Strip high bits 
   t1 = Type_Fixnum;
-		/* Push result */
-  *(u32 *)iSP = t4;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = t4;   		// Push result 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
-ilogical29748:
-  if (_trace) printf("ilogical29748:\n");
+ilogical32443:
+  if (_trace) printf("ilogical32443:\n");
   arg6 = t3;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-ilogical29749:
-  if (_trace) printf("ilogical29749:\n");
+ilogical32444:
+  if (_trace) printf("ilogical32444:\n");
   arg6 = t1;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
@@ -193,7 +187,7 @@ DoLogiorIM:
   t6 = t3 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical_immediate29750;
+    goto ilogical_immediate32445;
   /* Here we know that both args are fixnums! */
   t4 = t4 | arg2;		// Do the operation 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
@@ -201,14 +195,12 @@ DoLogiorIM:
   r31 = r31 | r31;
   t4 = (u32)t4;   		// Strip high bits 
   t1 = Type_Fixnum;
-		/* Push result */
-  *(u32 *)iSP = t4;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = t4;   		// Push result 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
-ilogical_immediate29750:
-  if (_trace) printf("ilogical_immediate29750:\n");
+ilogical_immediate32445:
+  if (_trace) printf("ilogical_immediate32445:\n");
   arg1 = Type_Fixnum;
   arg2 = (u32)arg2;   
   /* SetTag. */
@@ -258,11 +250,11 @@ begindologxor:
   t6 = t3 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical29751;
+    goto ilogical32446;
   t6 = t1 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical29752;
+    goto ilogical32447;
   /* Here we know that both args are fixnums! */
   t4 = t4 ^ arg1;   		// Do the operation 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
@@ -270,22 +262,20 @@ begindologxor:
   r31 = r31 | r31;
   t4 = (u32)t4;   		// Strip high bits 
   t1 = Type_Fixnum;
-		/* Push result */
-  *(u32 *)iSP = t4;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = t4;   		// Push result 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
-ilogical29751:
-  if (_trace) printf("ilogical29751:\n");
+ilogical32446:
+  if (_trace) printf("ilogical32446:\n");
   arg6 = t3;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-ilogical29752:
-  if (_trace) printf("ilogical29752:\n");
+ilogical32447:
+  if (_trace) printf("ilogical32447:\n");
   arg6 = t1;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
@@ -301,7 +291,7 @@ DoLogxorIM:
   t6 = t3 - Type_Fixnum;   
   t6 = t6 & 63;		// Strip CDR code 
   if (t6 != 0)   
-    goto ilogical_immediate29753;
+    goto ilogical_immediate32448;
   /* Here we know that both args are fixnums! */
   t4 = t4 ^ arg2;   		// Do the operation 
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
@@ -309,14 +299,12 @@ DoLogxorIM:
   r31 = r31 | r31;
   t4 = (u32)t4;   		// Strip high bits 
   t1 = Type_Fixnum;
-		/* Push result */
-  *(u32 *)iSP = t4;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = t1;
+  *(u32 *)iSP = t4;   		// Push result 
+  *(u32 *)(iSP + 4) = t1;   		// write the stack cache 
   goto cachevalid;   
 
-ilogical_immediate29753:
-  if (_trace) printf("ilogical_immediate29753:\n");
+ilogical_immediate32448:
+  if (_trace) printf("ilogical_immediate32448:\n");
   arg1 = Type_Fixnum;
   arg2 = (u32)arg2;   
   /* SetTag. */
@@ -343,10 +331,10 @@ DoAshIM:
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force_alignment29767:
-  if (_trace) printf("force_alignment29767:\n");
+force_alignment32462:
+  if (_trace) printf("force_alignment32462:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindoash;   
 
@@ -381,17 +369,17 @@ begindoash:
   t3 = arg3 & 63;		// Strip off any CDR code bits. 
   t2 = (t1 == Type_Fixnum) ? 1 : 0;   
 
-force_alignment29766:
-  if (_trace) printf("force_alignment29766:\n");
+force_alignment32461:
+  if (_trace) printf("force_alignment32461:\n");
   if (t2 == 0) 
-    goto basic_dispatch29759;
+    goto basic_dispatch32454;
   /* Here if argument TypeFixnum */
   t4 = (t3 == Type_Fixnum) ? 1 : 0;   
 
-force_alignment29763:
-  if (_trace) printf("force_alignment29763:\n");
+force_alignment32458:
+  if (_trace) printf("force_alignment32458:\n");
   if (t4 == 0) 
-    goto binary_type_dispatch29756;
+    goto binary_type_dispatch32451;
   /* Here if argument TypeFixnum */
   if (arg4 == 0) 		// B. if ash of zero -- trivial case 
     goto zerash;
@@ -408,9 +396,8 @@ force_alignment29763:
   arg2 = arg2 & 63;
   if (arg6 != 0)   		// J. if overflow 
     goto ashovexc;
-  *(u32 *)iSP = arg5;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = arg2;
+  *(u32 *)iSP = arg5;   
+  *(u32 *)(iSP + 4) = arg2;   		// write the stack cache 
   goto NEXTINSTRUCTION;   
 
 negash:
@@ -420,28 +407,26 @@ negash:
   arg5 = (s64)arg4 >> $27(arg1 & 63);   		// Shift Right 
   /* TagType. */
   arg2 = arg2 & 63;
-  *(u32 *)iSP = arg5;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = arg2;
+  *(u32 *)iSP = arg5;   
+  *(u32 *)(iSP + 4) = arg2;   		// write the stack cache 
   goto NEXTINSTRUCTION;   
 
 zerash:
   if (_trace) printf("zerash:\n");
   arg5 = Type_Fixnum;
-  *(u32 *)iSP = arg4;
-		/* write the stack cache */
-  *(u32 *)(iSP + 4) = arg5;
+  *(u32 *)iSP = arg4;   
+  *(u32 *)(iSP + 4) = arg5;   		// write the stack cache 
   goto NEXTINSTRUCTION;   
 
-basic_dispatch29760:
-  if (_trace) printf("basic_dispatch29760:\n");
+basic_dispatch32455:
+  if (_trace) printf("basic_dispatch32455:\n");
 
-basic_dispatch29759:
-  if (_trace) printf("basic_dispatch29759:\n");
+basic_dispatch32454:
+  if (_trace) printf("basic_dispatch32454:\n");
   /* Here for all other cases */
 
-binary_type_dispatch29755:
-  if (_trace) printf("binary_type_dispatch29755:\n");
+binary_type_dispatch32450:
+  if (_trace) printf("binary_type_dispatch32450:\n");
   arg1 = (u32)arg1;   
   /* SetTag. */
   t2 = arg2 << 32;   
@@ -451,10 +436,10 @@ binary_type_dispatch29755:
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
-  goto binary_type_dispatch29757;   
+  goto binary_type_dispatch32452;   
 
-binary_type_dispatch29756:
-  if (_trace) printf("binary_type_dispatch29756:\n");
+binary_type_dispatch32451:
+  if (_trace) printf("binary_type_dispatch32451:\n");
   arg1 = (u32)arg1;   
   /* SetTag. */
   t2 = arg2 << 32;   
@@ -465,11 +450,11 @@ binary_type_dispatch29756:
   arg4 = 1;		// arg4 = arithmeticp 
   goto numericexception;
 
-binary_type_dispatch29757:
-  if (_trace) printf("binary_type_dispatch29757:\n");
+binary_type_dispatch32452:
+  if (_trace) printf("binary_type_dispatch32452:\n");
 
-basic_dispatch29758:
-  if (_trace) printf("basic_dispatch29758:\n");
+basic_dispatch32453:
+  if (_trace) printf("basic_dispatch32453:\n");
 
 ashovexc:
   if (_trace) printf("ashovexc:\n");
@@ -513,8 +498,8 @@ begindorot:
   /* arg1 has the operand address. */
   arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
 
-with_simple_binary_fixnum_operation29769:
-  if (_trace) printf("with_simple_binary_fixnum_operation29769:\n");
+with_simple_binary_fixnum_operation32464:
+  if (_trace) printf("with_simple_binary_fixnum_operation32464:\n");
   t4 = (u32)(arg6 >> ((4&7)*8));   		// Arg1 on the stack 
   t7 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   t1 = (u32)arg6;   		// Arg1 on the stack 
@@ -525,35 +510,34 @@ with_simple_binary_fixnum_operation29769:
   t8 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
   t5 = t5 & 63;		// Strip CDR code if any. 
   if (t4 != 0)   
-    goto with_simple_binary_fixnum_operation29768;
+    goto with_simple_binary_fixnum_operation32463;
   t2 = (u32)t2;   
   t5 = t5 - Type_Fixnum;   
 
-force_alignment29770:
-  if (_trace) printf("force_alignment29770:\n");
+force_alignment32465:
+  if (_trace) printf("force_alignment32465:\n");
   if (t5 != 0)   
-    goto with_simple_binary_fixnum_operation29768;
+    goto with_simple_binary_fixnum_operation32463;
   t2 = t2 & 31;		// Get low 5 bits of the rotation 
   t3 = t1 << (t2 & 63);   		// Shift left to get new high bits 
   t6 = (u32)(t3 >> ((4&7)*8));   		// Get new low bits 
   t3 = t3 | t6;		// Glue two parts of shifted operand together 
 
-force_alignment29771:
-  if (_trace) printf("force_alignment29771:\n");
+force_alignment32466:
+  if (_trace) printf("force_alignment32466:\n");
   iPC = t7;
-		/* Put the result back on the stack */
-  *(u32 *)iSP = t3;
+  *(u32 *)iSP = t3;   		// Put the result back on the stack 
   iCP = t8;
   goto cachevalid;   
 
 DoRotIM:
   if (_trace) printf("DoRotIM:\n");
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = (u64)&processor->immediate_arg;   
-  goto with_simple_binary_fixnum_operation29769;   
+  goto with_simple_binary_fixnum_operation32464;   
 
-with_simple_binary_fixnum_operation29768:
-  if (_trace) printf("with_simple_binary_fixnum_operation29768:\n");
+with_simple_binary_fixnum_operation32463:
+  if (_trace) printf("with_simple_binary_fixnum_operation32463:\n");
   arg5 = 0;
   arg2 = 80;
   goto illegaloperand;
@@ -588,8 +572,8 @@ begindolsh:
   /* arg1 has the operand address. */
   arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
 
-with_simple_binary_fixnum_operation29773:
-  if (_trace) printf("with_simple_binary_fixnum_operation29773:\n");
+with_simple_binary_fixnum_operation32468:
+  if (_trace) printf("with_simple_binary_fixnum_operation32468:\n");
   t4 = (u32)(arg6 >> ((4&7)*8));   		// Arg1 on the stack 
   t7 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   t1 = (u32)arg6;   		// Arg1 on the stack 
@@ -600,13 +584,13 @@ with_simple_binary_fixnum_operation29773:
   t8 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
   t5 = t5 & 63;		// Strip CDR code if any. 
   if (t4 != 0)   
-    goto with_simple_binary_fixnum_operation29772;
+    goto with_simple_binary_fixnum_operation32467;
   t5 = t5 - Type_Fixnum;   
 
-force_alignment29774:
-  if (_trace) printf("force_alignment29774:\n");
+force_alignment32469:
+  if (_trace) printf("force_alignment32469:\n");
   if (t5 != 0)   
-    goto with_simple_binary_fixnum_operation29772;
+    goto with_simple_binary_fixnum_operation32467;
   if ((s64)t2 < 0)   		// B. if negative lsh. 
     goto neglsh;
   t3 = t2 - 32;   
@@ -631,11 +615,10 @@ returnzero:
 lshdone:
   if (_trace) printf("lshdone:\n");
 
-force_alignment29775:
-  if (_trace) printf("force_alignment29775:\n");
+force_alignment32470:
+  if (_trace) printf("force_alignment32470:\n");
   iPC = t7;
-		/* Put the result back on the stack */
-  *(u32 *)iSP = t3;
+  *(u32 *)iSP = t3;   		// Put the result back on the stack 
   iCP = t8;
   goto cachevalid;   
 
@@ -643,15 +626,15 @@ DoLshIM:
   if (_trace) printf("DoLshIM:\n");
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force_alignment29776:
-  if (_trace) printf("force_alignment29776:\n");
+force_alignment32471:
+  if (_trace) printf("force_alignment32471:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = (u64)&processor->immediate_arg;   
-  goto with_simple_binary_fixnum_operation29773;   
+  goto with_simple_binary_fixnum_operation32468;   
 
-with_simple_binary_fixnum_operation29772:
-  if (_trace) printf("with_simple_binary_fixnum_operation29772:\n");
+with_simple_binary_fixnum_operation32467:
+  if (_trace) printf("with_simple_binary_fixnum_operation32467:\n");
   arg5 = 0;
   arg2 = 80;
   goto illegaloperand;
@@ -686,8 +669,8 @@ begindo32bitplus:
   /* arg1 has the operand address. */
   arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
 
-with_simple_binary_fixnum_operation29778:
-  if (_trace) printf("with_simple_binary_fixnum_operation29778:\n");
+with_simple_binary_fixnum_operation32473:
+  if (_trace) printf("with_simple_binary_fixnum_operation32473:\n");
   t4 = (u32)(arg6 >> ((4&7)*8));   		// Arg1 on the stack 
   t7 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   t1 = (u32)arg6;   		// Arg1 on the stack 
@@ -698,32 +681,31 @@ with_simple_binary_fixnum_operation29778:
   t8 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
   t5 = t5 & 63;		// Strip CDR code if any. 
   if (t4 != 0)   
-    goto with_simple_binary_fixnum_operation29777;
+    goto with_simple_binary_fixnum_operation32472;
   t2 = (u32)t2;   
   t5 = t5 - Type_Fixnum;   
 
-force_alignment29779:
-  if (_trace) printf("force_alignment29779:\n");
+force_alignment32474:
+  if (_trace) printf("force_alignment32474:\n");
   if (t5 != 0)   
-    goto with_simple_binary_fixnum_operation29777;
+    goto with_simple_binary_fixnum_operation32472;
   t3 = t1 + t2;		// Perform the 32 bit Add. 
 
-force_alignment29780:
-  if (_trace) printf("force_alignment29780:\n");
+force_alignment32475:
+  if (_trace) printf("force_alignment32475:\n");
   iPC = t7;
-		/* Put the result back on the stack */
-  *(u32 *)iSP = t3;
+  *(u32 *)iSP = t3;   		// Put the result back on the stack 
   iCP = t8;
   goto cachevalid;   
 
 Do32BitPlusIM:
   if (_trace) printf("Do32BitPlusIM:\n");
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = (u64)&processor->immediate_arg;   
-  goto with_simple_binary_fixnum_operation29778;   
+  goto with_simple_binary_fixnum_operation32473;   
 
-with_simple_binary_fixnum_operation29777:
-  if (_trace) printf("with_simple_binary_fixnum_operation29777:\n");
+with_simple_binary_fixnum_operation32472:
+  if (_trace) printf("with_simple_binary_fixnum_operation32472:\n");
   arg5 = 0;
   arg2 = 80;
   goto illegaloperand;
@@ -758,8 +740,8 @@ begindo32bitdifference:
   /* arg1 has the operand address. */
   arg1 = (arg2 * 8) + arg1;  		// Compute operand address 
 
-with_simple_binary_fixnum_operation29782:
-  if (_trace) printf("with_simple_binary_fixnum_operation29782:\n");
+with_simple_binary_fixnum_operation32477:
+  if (_trace) printf("with_simple_binary_fixnum_operation32477:\n");
   t4 = (u32)(arg6 >> ((4&7)*8));   		// Arg1 on the stack 
   t7 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   t1 = (u32)arg6;   		// Arg1 on the stack 
@@ -770,32 +752,31 @@ with_simple_binary_fixnum_operation29782:
   t8 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
   t5 = t5 & 63;		// Strip CDR code if any. 
   if (t4 != 0)   
-    goto with_simple_binary_fixnum_operation29781;
+    goto with_simple_binary_fixnum_operation32476;
   t2 = (u32)t2;   
   t5 = t5 - Type_Fixnum;   
 
-force_alignment29783:
-  if (_trace) printf("force_alignment29783:\n");
+force_alignment32478:
+  if (_trace) printf("force_alignment32478:\n");
   if (t5 != 0)   
-    goto with_simple_binary_fixnum_operation29781;
+    goto with_simple_binary_fixnum_operation32476;
   t3 = t1 - t2;   		// Perform the 32 bit Difference. 
 
-force_alignment29784:
-  if (_trace) printf("force_alignment29784:\n");
+force_alignment32479:
+  if (_trace) printf("force_alignment32479:\n");
   iPC = t7;
-		/* Put the result back on the stack */
-  *(u32 *)iSP = t3;
+  *(u32 *)iSP = t3;   		// Put the result back on the stack 
   iCP = t8;
   goto cachevalid;   
 
 Do32BitDifferenceIM:
   if (_trace) printf("Do32BitDifferenceIM:\n");
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = (u64)&processor->immediate_arg;   
-  goto with_simple_binary_fixnum_operation29782;   
+  goto with_simple_binary_fixnum_operation32477;   
 
-with_simple_binary_fixnum_operation29781:
-  if (_trace) printf("with_simple_binary_fixnum_operation29781:\n");
+with_simple_binary_fixnum_operation32476:
+  if (_trace) printf("with_simple_binary_fixnum_operation32476:\n");
   arg5 = 0;
   arg2 = 80;
   goto illegaloperand;

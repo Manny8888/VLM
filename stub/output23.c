@@ -33,31 +33,31 @@ collision:
   t4 = t4 >> 30;   		// Isolate current trap mode 
   t3 = (r0 == TrapReason_HighPrioritySequenceBreak) ? 1 : 0;   
 
-force_alignment30297:
-  if (_trace) printf("force_alignment30297:\n");
+force_alignment32992:
+  if (_trace) printf("force_alignment32992:\n");
   if (t3 == 0) 
-    goto basic_dispatch30293;
+    goto basic_dispatch32988;
   /* Here if argument TrapReasonHighPrioritySequenceBreak */
   t4 = ((u64)t4 <= (u64)TrapMode_ExtraStack) ? 1 : 0;   		// Only interrupts EXTRA-STACK and EMULATOR 
   if (t4 == 0) 
     goto continuecurrentinstruction;
   goto highprioritysequencebreak;
 
-basic_dispatch30293:
-  if (_trace) printf("basic_dispatch30293:\n");
+basic_dispatch32988:
+  if (_trace) printf("basic_dispatch32988:\n");
   t3 = (r0 == TrapReason_LowPrioritySequenceBreak) ? 1 : 0;   
 
-force_alignment30298:
-  if (_trace) printf("force_alignment30298:\n");
+force_alignment32993:
+  if (_trace) printf("force_alignment32993:\n");
   if (t3 == 0) 
-    goto basic_dispatch30294;
+    goto basic_dispatch32989;
   /* Here if argument TrapReasonLowPrioritySequenceBreak */
   if (t4 != 0)   		// Only interrupts EMULATOR 
     goto continuecurrentinstruction;
   goto lowprioritysequencebreak;
 
-basic_dispatch30294:
-  if (_trace) printf("basic_dispatch30294:\n");
+basic_dispatch32989:
+  if (_trace) printf("basic_dispatch32989:\n");
   /* Here for all other cases */
   /* Check for preempt-request trap */
   t5 = *(s32 *)&processor->interruptreg;   		// Get the preempt-pending bit 
@@ -67,8 +67,8 @@ basic_dispatch30294:
     goto continuecurrentinstruction;
   goto preemptrequesttrap;
 
-basic_dispatch30292:
-  if (_trace) printf("basic_dispatch30292:\n");
+basic_dispatch32987:
+  if (_trace) printf("basic_dispatch32987:\n");
 
 SUSPENDMACHINE:
   if (_trace) printf("SUSPENDMACHINE:\n");
@@ -98,8 +98,7 @@ illegaltrapvector:
 stopinterp:
   if (_trace) printf("stopinterp:\n");
   r0 = t1;		// Return the halt reason 
-		/* Clear the request flag */
-  *(u32 *)&processor->please_stop = zero;
+  *(u32 *)&processor->please_stop = zero;   		// Clear the request flag 
   *(u64 *)&processor->cp = iCP;   
   *(u64 *)&processor->epc = iPC;   
   *(u64 *)&processor->sp = iSP;   

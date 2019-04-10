@@ -120,7 +120,8 @@
 	(check-preempt-request NextInstruction t3 t4)
 	(ContinueToNextInstruction))
   (label restorebsiop)
-    (illegal-operand operand-locative-type-error))
+    (illegal-operand operand-locative-type-error)
+    )
 
 
 (comment "Fin.")

@@ -87,7 +87,7 @@ dopushaddresssprelative:
 DoPushAddressSpRelativeIM:
   if (_trace) printf("DoPushAddressSpRelativeIM:\n");
   /* This sequence is lukewarm */
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindopushaddresssprelative;   
 
@@ -121,10 +121,10 @@ begindopushaddresssprelative:
   t2 = t1 & 63;		// Strip off any CDR code bits. 
   t3 = (t2 == Type_Fixnum) ? 1 : 0;   
 
-force_alignment29412:
-  if (_trace) printf("force_alignment29412:\n");
+force_alignment32107:
+  if (_trace) printf("force_alignment32107:\n");
   if (t3 == 0) 
-    goto basic_dispatch29409;
+    goto basic_dispatch32104;
   /* Here if argument TypeFixnum */
   arg1 = (arg1 * 8) + 8;  
   t5 = t4 - arg1;   		// Compute stack relative pointer 
@@ -134,21 +134,20 @@ force_alignment29412:
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
   t6 = Type_Locative;
-  *(u32 *)(iSP + 8) = t5;
-		/* write the stack cache */
-  *(u32 *)(iSP + 12) = t6;
+  *(u32 *)(iSP + 8) = t5;   
+  *(u32 *)(iSP + 12) = t6;   		// write the stack cache 
   iSP = iSP + 8;
   goto cachevalid;   
 
-basic_dispatch29409:
-  if (_trace) printf("basic_dispatch29409:\n");
+basic_dispatch32104:
+  if (_trace) printf("basic_dispatch32104:\n");
   /* Here for all other cases */
   arg5 = 0;
   arg2 = 63;
   goto illegaloperand;
 
-basic_dispatch29408:
-  if (_trace) printf("basic_dispatch29408:\n");
+basic_dispatch32103:
+  if (_trace) printf("basic_dispatch32103:\n");
 
 /* end DoPushAddressSpRelative */
   /* End of Halfword operand from stack instruction - DoPushAddressSpRelative */
@@ -163,7 +162,7 @@ dostackblt:
 DoStackBltIM:
   if (_trace) printf("DoStackBltIM:\n");
   /* This sequence is lukewarm */
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindostackblt;   
 

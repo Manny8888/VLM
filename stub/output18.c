@@ -45,10 +45,10 @@ DoBlock0WriteIM:
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force_alignment29785:
-  if (_trace) printf("force_alignment29785:\n");
+force_alignment32480:
+  if (_trace) printf("force_alignment32480:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
-  *(u32 *)&processor->immediate_arg = arg2;
+  *(u32 *)&processor->immediate_arg = arg2;   
   arg1 = *(u64 *)&(processor->immediate_arg);   
   goto begindoblock0write;   
 
@@ -193,7 +193,7 @@ blockreadshift:
   t2 = (u32)t2;   
   /* Memory Read Internal */
 
-vma_memory_read29790:
+vma_memory_read32485:
   t11 = t2 + ivory;
   t12 = (t1 * 4);   		// Cycle-number -> table offset 
   t8 = LDQ_U(t11);   
@@ -205,38 +205,37 @@ vma_memory_read29790:
   t7 = *(s32 *)t7;   
   t8 = (u8)(t8 >> ((t11&7)*8));   
   if (t10 != 0)   
-    goto vma_memory_read29792;
+    goto vma_memory_read32487;
 
-vma_memory_read29791:
+vma_memory_read32486:
   t12 = t12 >> (t8 & 63);   
   t7 = (u32)t7;   
   if (t12 & 1)   
-    goto vma_memory_read29794;
+    goto vma_memory_read32489;
 
-vma_memory_read29801:
+vma_memory_read32496:
   if (t6 == 0) 		// J. if we don't have to test for fixnump. 
-    goto i_block_n_read_shift29786;
+    goto i_block_n_read_shift32481;
   t9 = t8 - Type_Fixnum;   
   t9 = t9 & 63;		// Strip CDR code 
   if (t9 != 0)   
-    goto i_block_n_read_shift29789;
+    goto i_block_n_read_shift32484;
 
-i_block_n_read_shift29786:
-  if (_trace) printf("i_block_n_read_shift29786:\n");
+i_block_n_read_shift32481:
+  if (_trace) printf("i_block_n_read_shift32481:\n");
   if (t4 != 0)   		// J. if we don't have to increment the address. 
-    goto i_block_n_read_shift29787;
+    goto i_block_n_read_shift32482;
   t2 = t2 + 1;		// Increment the address 
 
-i_block_n_read_shift29787:
-  if (_trace) printf("i_block_n_read_shift29787:\n");
-		/* Store updated vma in BAR */
-  *(u32 *)arg2 = t2;
+i_block_n_read_shift32482:
+  if (_trace) printf("i_block_n_read_shift32482:\n");
+  *(u32 *)arg2 = t2;   		// Store updated vma in BAR 
   if (t5 == 0) 		// J. if we don't have to clear CDR codes. 
-    goto i_block_n_read_shift29788;
+    goto i_block_n_read_shift32483;
   t8 = t8 & 63;
 
-i_block_n_read_shift29788:
-  if (_trace) printf("i_block_n_read_shift29788:\n");
+i_block_n_read_shift32483:
+  if (_trace) printf("i_block_n_read_shift32483:\n");
   t1 = zero + 21504;   
   t3 = *(u64 *)&(processor->byterotate);   		// Get rotate 
   t4 = *(u64 *)&(processor->bytesize);   		// Get bytesize 
@@ -245,15 +244,15 @@ i_block_n_read_shift29788:
   t2 = t2 & 3;		// Extract the byte background 
   t5 = (t2 == ALUByteBackground_Op1) ? 1 : 0;   
 
-force_alignment29808:
-  if (_trace) printf("force_alignment29808:\n");
+force_alignment32503:
+  if (_trace) printf("force_alignment32503:\n");
   if (t5 == 0) 
-    goto basic_dispatch29804;
+    goto basic_dispatch32499;
   /* Here if argument ALUByteBackgroundOp1 */
   t2 = t1;
 
-basic_dispatch29803:
-  if (_trace) printf("basic_dispatch29803:\n");
+basic_dispatch32498:
+  if (_trace) printf("basic_dispatch32498:\n");
   t6 = t1 >> 12;   
   t6 = t6 & 1;		// Extractthe byte rotate latch 
   t7 = t7 << (t3 & 63);   
@@ -261,11 +260,11 @@ basic_dispatch29803:
   t7 = (u32)t7;   
   t7 = t7 | t5;		// OP2 rotated 
   if (t6 == 0) 		// Don't update rotate latch if not requested 
-    goto alu_function_byte29802;
+    goto alu_function_byte32497;
   *(u64 *)&processor->rotatelatch = t7;   
 
-alu_function_byte29802:
-  if (_trace) printf("alu_function_byte29802:\n");
+alu_function_byte32497:
+  if (_trace) printf("alu_function_byte32497:\n");
   t6 = zero + -2;   
   t6 = t6 << (t4 & 63);   
   t6 = ~t6;   		// Compute mask 
@@ -274,79 +273,78 @@ alu_function_byte29802:
   t5 = t5 & 1;
   t4 = (t5 == ALUByteFunction_Dpb) ? 1 : 0;   
 
-force_alignment29813:
-  if (_trace) printf("force_alignment29813:\n");
+force_alignment32508:
+  if (_trace) printf("force_alignment32508:\n");
   if (t4 == 0) 
-    goto basic_dispatch29810;
+    goto basic_dispatch32505;
   /* Here if argument ALUByteFunctionDpb */
   t6 = t6 << (t3 & 63);   		// Position mask 
 
-basic_dispatch29809:
-  if (_trace) printf("basic_dispatch29809:\n");
+basic_dispatch32504:
+  if (_trace) printf("basic_dispatch32504:\n");
   t7 = t7 & t6;		// rotated&mask 
   t2 = t2 & ~t6;		// background&~mask 
   t7 = t7 | t2;
   iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);   
   iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);   
-  *(u32 *)(iSP + 8) = t7;
-		/* write the stack cache */
-  *(u32 *)(iSP + 12) = t8;
+  *(u32 *)(iSP + 8) = t7;   
+  *(u32 *)(iSP + 12) = t8;   		// write the stack cache 
   iSP = iSP + 8;
   goto cachevalid;   
 
-i_block_n_read_shift29789:
-  if (_trace) printf("i_block_n_read_shift29789:\n");
+i_block_n_read_shift32484:
+  if (_trace) printf("i_block_n_read_shift32484:\n");
   arg5 = t2;
   arg2 = 23;
   goto illegaloperand;
 
-basic_dispatch29810:
-  if (_trace) printf("basic_dispatch29810:\n");
+basic_dispatch32505:
+  if (_trace) printf("basic_dispatch32505:\n");
   t4 = (t5 == ALUByteFunction_Ldb) ? 1 : 0;   
 
-force_alignment29814:
-  if (_trace) printf("force_alignment29814:\n");
+force_alignment32509:
+  if (_trace) printf("force_alignment32509:\n");
   if (t4 != 0)   
-    goto basic_dispatch29809;
-  goto basic_dispatch29809;   
+    goto basic_dispatch32504;
+  goto basic_dispatch32504;   
 
-basic_dispatch29804:
-  if (_trace) printf("basic_dispatch29804:\n");
+basic_dispatch32499:
+  if (_trace) printf("basic_dispatch32499:\n");
   t5 = (t2 == ALUByteBackground_RotateLatch) ? 1 : 0;   
 
-force_alignment29815:
-  if (_trace) printf("force_alignment29815:\n");
+force_alignment32510:
+  if (_trace) printf("force_alignment32510:\n");
   if (t5 == 0) 
-    goto basic_dispatch29805;
+    goto basic_dispatch32500;
   /* Here if argument ALUByteBackgroundRotateLatch */
   t2 = *(u64 *)&(processor->rotatelatch);   
-  goto basic_dispatch29803;   
+  goto basic_dispatch32498;   
 
-basic_dispatch29805:
-  if (_trace) printf("basic_dispatch29805:\n");
+basic_dispatch32500:
+  if (_trace) printf("basic_dispatch32500:\n");
   t5 = (t2 == ALUByteBackground_Zero) ? 1 : 0;   
 
-force_alignment29816:
-  if (_trace) printf("force_alignment29816:\n");
+force_alignment32511:
+  if (_trace) printf("force_alignment32511:\n");
   if (t5 == 0) 
-    goto basic_dispatch29803;
+    goto basic_dispatch32498;
   /* Here if argument ALUByteBackgroundZero */
   t2 = zero;
-  goto basic_dispatch29803;   
+  goto basic_dispatch32498;   
 
-vma_memory_read29792:
-  if (_trace) printf("vma_memory_read29792:\n");
+vma_memory_read32487:
+  if (_trace) printf("vma_memory_read32487:\n");
   t10 = *(u64 *)&(processor->stackcachedata);   
   t9 = (t9 * 8) + t10;  		// reconstruct SCA 
   t7 = *(s32 *)t9;   
   t8 = *(s32 *)(t9 + 4);   		// Read from stack cache 
-  goto vma_memory_read29791;   
+  goto vma_memory_read32486;   
 
-vma_memory_read29794:
-  if (_trace) printf("vma_memory_read29794:\n");
+vma_memory_read32489:
+  if (_trace) printf("vma_memory_read32489:\n");
 
-vma_memory_read29793:
-  if (_trace) printf("vma_memory_read29793:\n");
+vma_memory_read32488:
+  if (_trace) printf("vma_memory_read32488:\n");
   t12 = (t1 * 4);   		// Cycle-number -> table offset 
   t12 = (t12 * 4) + ivory;   
   t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD);   
@@ -356,26 +354,26 @@ vma_memory_read29793:
   t11 = (t11 * 4) + t12;   		// Adjust for a longword load 
   t12 = *(s32 *)t11;   		// Get the memory action 
 
-vma_memory_read29799:
-  if (_trace) printf("vma_memory_read29799:\n");
+vma_memory_read32494:
+  if (_trace) printf("vma_memory_read32494:\n");
   t10 = t12 & MemoryActionIndirect;
   if (t10 == 0) 
-    goto vma_memory_read29798;
+    goto vma_memory_read32493;
   t2 = (u32)t7;   		// Do the indirect thing 
-  goto vma_memory_read29790;   
+  goto vma_memory_read32485;   
 
-vma_memory_read29798:
-  if (_trace) printf("vma_memory_read29798:\n");
+vma_memory_read32493:
+  if (_trace) printf("vma_memory_read32493:\n");
   t11 = t12 & MemoryActionTransform;
   if (t11 == 0) 
-    goto vma_memory_read29797;
+    goto vma_memory_read32492;
   t8 = t8 & ~63L;
   t8 = t8 | Type_ExternalValueCellPointer;
-  goto vma_memory_read29801;   
+  goto vma_memory_read32496;   
 
-vma_memory_read29797:
+vma_memory_read32492:
 
-vma_memory_read29796:
+vma_memory_read32491:
   /* Perform memory action */
   arg1 = t12;
   arg2 = t1;
@@ -524,11 +522,11 @@ blockreadalu:
   t9 = t4 - Type_Fixnum;   
   t9 = t9 & 63;		// Strip CDR code 
   if (t9 != 0)   
-    goto i_block_n_read_alu29817;
+    goto i_block_n_read_alu32512;
   t1 = (u32)t1;   
   /* Memory Read Internal */
 
-vma_memory_read29819:
+vma_memory_read32514:
   t11 = t1 + ivory;
   t3 = (t11 * 4);   
   t2 = LDQ_U(t11);   
@@ -538,237 +536,236 @@ vma_memory_read29819:
   t3 = *(s32 *)t3;   
   t2 = (u8)(t2 >> ((t11&7)*8));   
   if (t10 != 0)   
-    goto vma_memory_read29821;
+    goto vma_memory_read32516;
 
-vma_memory_read29820:
+vma_memory_read32515:
   t11 = zero + 240;   
   t12 = t12 >> (t2 & 63);   
   t11 = t11 >> (t2 & 63);   
   t3 = (u32)t3;   
   if (t12 & 1)   
-    goto vma_memory_read29823;
+    goto vma_memory_read32518;
 
-vma_memory_read29830:
+vma_memory_read32525:
   t9 = t2 - Type_Fixnum;   
   t9 = t9 & 63;		// Strip CDR code 
   if (t9 != 0)   
-    goto i_block_n_read_alu29818;
+    goto i_block_n_read_alu32513;
   t1 = t1 + 1;		// Increment the address 
-		/* Store updated vma in BAR */
-  *(u32 *)arg2 = t1;
+  *(u32 *)arg2 = t1;   		// Store updated vma in BAR 
   t6 = *(u64 *)&(processor->aluop);   
   *(u64 *)&processor->aluoverflow = zero;   
   t7 = *(u64 *)&(processor->aluandrotatecontrol);   
   t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;   
 
-force_alignment29891:
-  if (_trace) printf("force_alignment29891:\n");
+force_alignment32586:
+  if (_trace) printf("force_alignment32586:\n");
   if (t1 == 0) 
-    goto basic_dispatch29832;
+    goto basic_dispatch32527;
   /* Here if argument ALUFunctionBoolean */
   t8 = t7 >> 10;   
   t8 = t8 & 15;		// Extract the ALU boolean function 
   t1 = (t8 == Boole_Clear) ? 1 : 0;   
 
-force_alignment29851:
-  if (_trace) printf("force_alignment29851:\n");
+force_alignment32546:
+  if (_trace) printf("force_alignment32546:\n");
   if (t1 != 0)   
-    goto basic_dispatch29833;
+    goto basic_dispatch32528;
 
-basic_dispatch29834:
-  if (_trace) printf("basic_dispatch29834:\n");
+basic_dispatch32529:
+  if (_trace) printf("basic_dispatch32529:\n");
   t1 = (t8 == Boole_And) ? 1 : 0;   
 
-force_alignment29852:
-  if (_trace) printf("force_alignment29852:\n");
+force_alignment32547:
+  if (_trace) printf("force_alignment32547:\n");
   if (t1 == 0) 
-    goto basic_dispatch29835;
+    goto basic_dispatch32530;
   /* Here if argument BooleAnd */
   t8 = t3 & t5;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29835:
-  if (_trace) printf("basic_dispatch29835:\n");
+basic_dispatch32530:
+  if (_trace) printf("basic_dispatch32530:\n");
   t1 = (t8 == Boole_AndC1) ? 1 : 0;   
 
-force_alignment29853:
-  if (_trace) printf("force_alignment29853:\n");
+force_alignment32548:
+  if (_trace) printf("force_alignment32548:\n");
   if (t1 == 0) 
-    goto basic_dispatch29836;
+    goto basic_dispatch32531;
   /* Here if argument BooleAndC1 */
   t8 = t5 & ~t3;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29836:
-  if (_trace) printf("basic_dispatch29836:\n");
+basic_dispatch32531:
+  if (_trace) printf("basic_dispatch32531:\n");
   t1 = (t8 == Boole_2) ? 1 : 0;   
 
-force_alignment29854:
-  if (_trace) printf("force_alignment29854:\n");
+force_alignment32549:
+  if (_trace) printf("force_alignment32549:\n");
   if (t1 == 0) 
-    goto basic_dispatch29837;
+    goto basic_dispatch32532;
   /* Here if argument Boole2 */
   t8 = t5;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29837:
-  if (_trace) printf("basic_dispatch29837:\n");
+basic_dispatch32532:
+  if (_trace) printf("basic_dispatch32532:\n");
   t1 = (t8 == Boole_AndC2) ? 1 : 0;   
 
-force_alignment29855:
-  if (_trace) printf("force_alignment29855:\n");
+force_alignment32550:
+  if (_trace) printf("force_alignment32550:\n");
   if (t1 == 0) 
-    goto basic_dispatch29838;
+    goto basic_dispatch32533;
   /* Here if argument BooleAndC2 */
   t8 = t3 & ~t5;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29838:
-  if (_trace) printf("basic_dispatch29838:\n");
+basic_dispatch32533:
+  if (_trace) printf("basic_dispatch32533:\n");
   t1 = (t8 == Boole_1) ? 1 : 0;   
 
-force_alignment29856:
-  if (_trace) printf("force_alignment29856:\n");
+force_alignment32551:
+  if (_trace) printf("force_alignment32551:\n");
   if (t1 == 0) 
-    goto basic_dispatch29839;
+    goto basic_dispatch32534;
   /* Here if argument Boole1 */
   t8 = t3;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29839:
-  if (_trace) printf("basic_dispatch29839:\n");
+basic_dispatch32534:
+  if (_trace) printf("basic_dispatch32534:\n");
   t1 = (t8 == Boole_Xor) ? 1 : 0;   
 
-force_alignment29857:
-  if (_trace) printf("force_alignment29857:\n");
+force_alignment32552:
+  if (_trace) printf("force_alignment32552:\n");
   if (t1 == 0) 
-    goto basic_dispatch29840;
+    goto basic_dispatch32535;
   /* Here if argument BooleXor */
   t8 = t3 ^ t5;   
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29840:
-  if (_trace) printf("basic_dispatch29840:\n");
+basic_dispatch32535:
+  if (_trace) printf("basic_dispatch32535:\n");
   t1 = (t8 == Boole_Ior) ? 1 : 0;   
 
-force_alignment29858:
-  if (_trace) printf("force_alignment29858:\n");
+force_alignment32553:
+  if (_trace) printf("force_alignment32553:\n");
   if (t1 == 0) 
-    goto basic_dispatch29841;
+    goto basic_dispatch32536;
   /* Here if argument BooleIor */
   t8 = t3 | t5;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29841:
-  if (_trace) printf("basic_dispatch29841:\n");
+basic_dispatch32536:
+  if (_trace) printf("basic_dispatch32536:\n");
   t1 = (t8 == Boole_Nor) ? 1 : 0;   
 
-force_alignment29859:
-  if (_trace) printf("force_alignment29859:\n");
+force_alignment32554:
+  if (_trace) printf("force_alignment32554:\n");
   if (t1 == 0) 
-    goto basic_dispatch29842;
+    goto basic_dispatch32537;
   /* Here if argument BooleNor */
   t8 = t3 | t5;
   t8 = ~t8;   
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29842:
-  if (_trace) printf("basic_dispatch29842:\n");
+basic_dispatch32537:
+  if (_trace) printf("basic_dispatch32537:\n");
   t1 = (t8 == Boole_Equiv) ? 1 : 0;   
 
-force_alignment29860:
-  if (_trace) printf("force_alignment29860:\n");
+force_alignment32555:
+  if (_trace) printf("force_alignment32555:\n");
   if (t1 == 0) 
-    goto basic_dispatch29843;
+    goto basic_dispatch32538;
   /* Here if argument BooleEquiv */
   t8 = t3 ^ t5;   
   t8 = ~t8;   
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29843:
-  if (_trace) printf("basic_dispatch29843:\n");
+basic_dispatch32538:
+  if (_trace) printf("basic_dispatch32538:\n");
   t1 = (t8 == Boole_C1) ? 1 : 0;   
 
-force_alignment29861:
-  if (_trace) printf("force_alignment29861:\n");
+force_alignment32556:
+  if (_trace) printf("force_alignment32556:\n");
   if (t1 == 0) 
-    goto basic_dispatch29844;
+    goto basic_dispatch32539;
   /* Here if argument BooleC1 */
   t8 = ~t3;   
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29844:
-  if (_trace) printf("basic_dispatch29844:\n");
+basic_dispatch32539:
+  if (_trace) printf("basic_dispatch32539:\n");
   t1 = (t8 == Boole_OrC1) ? 1 : 0;   
 
-force_alignment29862:
-  if (_trace) printf("force_alignment29862:\n");
+force_alignment32557:
+  if (_trace) printf("force_alignment32557:\n");
   if (t1 == 0) 
-    goto basic_dispatch29845;
+    goto basic_dispatch32540;
   /* Here if argument BooleOrC1 */
   t8 = t5 | ~(t3);   
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29845:
-  if (_trace) printf("basic_dispatch29845:\n");
+basic_dispatch32540:
+  if (_trace) printf("basic_dispatch32540:\n");
   t1 = (t8 == Boole_C2) ? 1 : 0;   
 
-force_alignment29863:
-  if (_trace) printf("force_alignment29863:\n");
+force_alignment32558:
+  if (_trace) printf("force_alignment32558:\n");
   if (t1 == 0) 
-    goto basic_dispatch29846;
+    goto basic_dispatch32541;
   /* Here if argument BooleC2 */
   t8 = ~t5;   
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29846:
-  if (_trace) printf("basic_dispatch29846:\n");
+basic_dispatch32541:
+  if (_trace) printf("basic_dispatch32541:\n");
   t1 = (t8 == Boole_OrC2) ? 1 : 0;   
 
-force_alignment29864:
-  if (_trace) printf("force_alignment29864:\n");
+force_alignment32559:
+  if (_trace) printf("force_alignment32559:\n");
   if (t1 == 0) 
-    goto basic_dispatch29847;
+    goto basic_dispatch32542;
   /* Here if argument BooleOrC2 */
   t8 = t3 & ~t5;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29847:
-  if (_trace) printf("basic_dispatch29847:\n");
+basic_dispatch32542:
+  if (_trace) printf("basic_dispatch32542:\n");
   t1 = (t8 == Boole_Nand) ? 1 : 0;   
 
-force_alignment29865:
-  if (_trace) printf("force_alignment29865:\n");
+force_alignment32560:
+  if (_trace) printf("force_alignment32560:\n");
   if (t1 == 0) 
-    goto basic_dispatch29848;
+    goto basic_dispatch32543;
   /* Here if argument BooleNand */
   t8 = t3 & t5;
-  goto basic_dispatch29833;   
+  goto basic_dispatch32528;   
 
-basic_dispatch29848:
-  if (_trace) printf("basic_dispatch29848:\n");
+basic_dispatch32543:
+  if (_trace) printf("basic_dispatch32543:\n");
   t1 = (t8 == Boole_Set) ? 1 : 0;   
 
-force_alignment29866:
-  if (_trace) printf("force_alignment29866:\n");
+force_alignment32561:
+  if (_trace) printf("force_alignment32561:\n");
   if (t1 == 0) 
-    goto basic_dispatch29833;
+    goto basic_dispatch32528;
   /* Here if argument BooleSet */
   t8 = ~zero;   
 
-basic_dispatch29833:
-  if (_trace) printf("basic_dispatch29833:\n");
-  *(u32 *)arg1 = t8;
+basic_dispatch32528:
+  if (_trace) printf("basic_dispatch32528:\n");
+  *(u32 *)arg1 = t8;   
   goto NEXTINSTRUCTION;   
 
-basic_dispatch29832:
-  if (_trace) printf("basic_dispatch29832:\n");
+basic_dispatch32527:
+  if (_trace) printf("basic_dispatch32527:\n");
   t1 = (t6 == ALUFunction_Byte) ? 1 : 0;   
 
-force_alignment29892:
-  if (_trace) printf("force_alignment29892:\n");
+force_alignment32587:
+  if (_trace) printf("force_alignment32587:\n");
   if (t1 == 0) 
-    goto basic_dispatch29867;
+    goto basic_dispatch32562;
   /* Here if argument ALUFunctionByte */
   t9 = *(u64 *)&(processor->byterotate);   		// Get rotate 
   t10 = *(u64 *)&(processor->bytesize);   		// Get bytesize 
@@ -777,15 +774,15 @@ force_alignment29892:
   t1 = t1 & 3;		// Extract the byte background 
   t11 = (t1 == ALUByteBackground_Op1) ? 1 : 0;   
 
-force_alignment29874:
-  if (_trace) printf("force_alignment29874:\n");
+force_alignment32569:
+  if (_trace) printf("force_alignment32569:\n");
   if (t11 == 0) 
-    goto basic_dispatch29870;
+    goto basic_dispatch32565;
   /* Here if argument ALUByteBackgroundOp1 */
   t1 = t3;
 
-basic_dispatch29869:
-  if (_trace) printf("basic_dispatch29869:\n");
+basic_dispatch32564:
+  if (_trace) printf("basic_dispatch32564:\n");
   t12 = t7 >> 12;   
   t12 = t12 & 1;		// Extractthe byte rotate latch 
   t8 = t5 << (t9 & 63);   
@@ -793,11 +790,11 @@ basic_dispatch29869:
   t8 = (u32)t8;   
   t8 = t8 | t11;		// OP2 rotated 
   if (t12 == 0) 		// Don't update rotate latch if not requested 
-    goto alu_function_byte29868;
+    goto alu_function_byte32563;
   *(u64 *)&processor->rotatelatch = t8;   
 
-alu_function_byte29868:
-  if (_trace) printf("alu_function_byte29868:\n");
+alu_function_byte32563:
+  if (_trace) printf("alu_function_byte32563:\n");
   t12 = zero + -2;   
   t12 = t12 << (t10 & 63);   
   t12 = ~t12;   		// Compute mask 
@@ -806,29 +803,29 @@ alu_function_byte29868:
   t11 = t11 & 1;
   t10 = (t11 == ALUByteFunction_Dpb) ? 1 : 0;   
 
-force_alignment29879:
-  if (_trace) printf("force_alignment29879:\n");
+force_alignment32574:
+  if (_trace) printf("force_alignment32574:\n");
   if (t10 == 0) 
-    goto basic_dispatch29876;
+    goto basic_dispatch32571;
   /* Here if argument ALUByteFunctionDpb */
   t12 = t12 << (t9 & 63);   		// Position mask 
 
-basic_dispatch29875:
-  if (_trace) printf("basic_dispatch29875:\n");
+basic_dispatch32570:
+  if (_trace) printf("basic_dispatch32570:\n");
   t8 = t8 & t12;		// rotated&mask 
   t1 = t1 & ~t12;		// background&~mask 
   t8 = t8 | t1;
-  *(u32 *)arg1 = t8;
+  *(u32 *)arg1 = t8;   
   goto NEXTINSTRUCTION;   
 
-basic_dispatch29867:
-  if (_trace) printf("basic_dispatch29867:\n");
+basic_dispatch32562:
+  if (_trace) printf("basic_dispatch32562:\n");
   t1 = (t6 == ALUFunction_Adder) ? 1 : 0;   
 
-force_alignment29893:
-  if (_trace) printf("force_alignment29893:\n");
+force_alignment32588:
+  if (_trace) printf("force_alignment32588:\n");
   if (t1 == 0) 
-    goto basic_dispatch29880;
+    goto basic_dispatch32575;
   /* Here if argument ALUFunctionAdder */
   t10 = t7 >> 11;   
   t10 = t10 & 3;		// Extract the op2 
@@ -836,15 +833,15 @@ force_alignment29893:
   t9 = t9 & 1;		// Extract the adder carry in 
   t11 = (t10 == ALUAdderOp2_Op2) ? 1 : 0;   
 
-force_alignment29888:
-  if (_trace) printf("force_alignment29888:\n");
+force_alignment32583:
+  if (_trace) printf("force_alignment32583:\n");
   if (t11 == 0) 
-    goto basic_dispatch29883;
+    goto basic_dispatch32578;
   /* Here if argument ALUAdderOp2Op2 */
   t1 = t5;
 
-basic_dispatch29882:
-  if (_trace) printf("basic_dispatch29882:\n");
+basic_dispatch32577:
+  if (_trace) printf("basic_dispatch32577:\n");
   t8 = t3 + t1;
   t8 = t8 + t9;
   t10 = t8 >> 31;   		// Sign bit 
@@ -853,7 +850,7 @@ basic_dispatch29882:
   t11 = t7 >> 24;   		// Get the load-carry-in bit 
   *(u64 *)&processor->aluoverflow = t10;   
   if ((t11 & 1) == 0)   
-    goto alu_function_adder29881;
+    goto alu_function_adder32576;
   t10 = (u32)(t8 >> ((4&7)*8));   		// Get the carry 
   t11 = zero + 1024;   
   t7 = t7 & ~t11;
@@ -862,38 +859,38 @@ basic_dispatch29882:
   t7 = t7 | t11;		// Set the adder carry in 
   *(u64 *)&processor->aluandrotatecontrol = t7;   
 
-alu_function_adder29881:
-  if (_trace) printf("alu_function_adder29881:\n");
+alu_function_adder32576:
+  if (_trace) printf("alu_function_adder32576:\n");
   t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->aluborrow = t10;   
   t3 = (s32)t3;
   t5 = (s32)t5;
   t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->alulessthan = t10;   
-  *(u32 *)arg1 = t8;
+  *(u32 *)arg1 = t8;   
   goto NEXTINSTRUCTION;   
 
-basic_dispatch29880:
-  if (_trace) printf("basic_dispatch29880:\n");
+basic_dispatch32575:
+  if (_trace) printf("basic_dispatch32575:\n");
   t1 = (t6 == ALUFunction_MultiplyDivide) ? 1 : 0;   
 
-force_alignment29894:
-  if (_trace) printf("force_alignment29894:\n");
+force_alignment32589:
+  if (_trace) printf("force_alignment32589:\n");
   if (t1 == 0) 
-    goto basic_dispatch29831;
+    goto basic_dispatch32526;
   /* Here if argument ALUFunctionMultiplyDivide */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
-  *(u32 *)arg1 = t8;
+  *(u32 *)arg1 = t8;   
   goto NEXTINSTRUCTION;   
 
-basic_dispatch29831:
-  if (_trace) printf("basic_dispatch29831:\n");
+basic_dispatch32526:
+  if (_trace) printf("basic_dispatch32526:\n");
 
-i_block_n_read_alu29817:
-  if (_trace) printf("i_block_n_read_alu29817:\n");
+i_block_n_read_alu32512:
+  if (_trace) printf("i_block_n_read_alu32512:\n");
   /* Convert stack cache address to VMA */
   t9 = *(u64 *)&(processor->stackcachedata);   
   t9 = arg1 - t9;   		// stack cache base relative offset 
@@ -903,102 +900,102 @@ i_block_n_read_alu29817:
   arg2 = 23;
   goto illegaloperand;
 
-i_block_n_read_alu29818:
-  if (_trace) printf("i_block_n_read_alu29818:\n");
+i_block_n_read_alu32513:
+  if (_trace) printf("i_block_n_read_alu32513:\n");
   arg5 = t1;
   arg2 = 23;
   goto illegaloperand;
 
-basic_dispatch29883:
-  if (_trace) printf("basic_dispatch29883:\n");
+basic_dispatch32578:
+  if (_trace) printf("basic_dispatch32578:\n");
   t11 = (t10 == ALUAdderOp2_Zero) ? 1 : 0;   
 
-force_alignment29895:
-  if (_trace) printf("force_alignment29895:\n");
+force_alignment32590:
+  if (_trace) printf("force_alignment32590:\n");
   if (t11 == 0) 
-    goto basic_dispatch29884;
+    goto basic_dispatch32579;
   /* Here if argument ALUAdderOp2Zero */
   t1 = zero;
-  goto basic_dispatch29882;   
+  goto basic_dispatch32577;   
 
-basic_dispatch29884:
-  if (_trace) printf("basic_dispatch29884:\n");
+basic_dispatch32579:
+  if (_trace) printf("basic_dispatch32579:\n");
   t11 = (t10 == ALUAdderOp2_Invert) ? 1 : 0;   
 
-force_alignment29896:
-  if (_trace) printf("force_alignment29896:\n");
+force_alignment32591:
+  if (_trace) printf("force_alignment32591:\n");
   if (t11 == 0) 
-    goto basic_dispatch29885;
+    goto basic_dispatch32580;
   /* Here if argument ALUAdderOp2Invert */
   t1 = (s32)t5;
   t1 = zero - t1;   
   t1 = (u32)t1;   
-  goto basic_dispatch29882;   
+  goto basic_dispatch32577;   
 
-basic_dispatch29885:
-  if (_trace) printf("basic_dispatch29885:\n");
+basic_dispatch32580:
+  if (_trace) printf("basic_dispatch32580:\n");
   t11 = (t10 == ALUAdderOp2_MinusOne) ? 1 : 0;   
 
-force_alignment29897:
-  if (_trace) printf("force_alignment29897:\n");
+force_alignment32592:
+  if (_trace) printf("force_alignment32592:\n");
   if (t11 == 0) 
-    goto basic_dispatch29882;
+    goto basic_dispatch32577;
   /* Here if argument ALUAdderOp2MinusOne */
   t1 = ~zero;   
   t1 = (u32)t1;   
-  goto basic_dispatch29882;   
+  goto basic_dispatch32577;   
 
-basic_dispatch29876:
-  if (_trace) printf("basic_dispatch29876:\n");
+basic_dispatch32571:
+  if (_trace) printf("basic_dispatch32571:\n");
   t10 = (t11 == ALUByteFunction_Ldb) ? 1 : 0;   
 
-force_alignment29898:
-  if (_trace) printf("force_alignment29898:\n");
+force_alignment32593:
+  if (_trace) printf("force_alignment32593:\n");
   if (t10 != 0)   
-    goto basic_dispatch29875;
-  goto basic_dispatch29875;   
+    goto basic_dispatch32570;
+  goto basic_dispatch32570;   
 
-basic_dispatch29870:
-  if (_trace) printf("basic_dispatch29870:\n");
+basic_dispatch32565:
+  if (_trace) printf("basic_dispatch32565:\n");
   t11 = (t1 == ALUByteBackground_RotateLatch) ? 1 : 0;   
 
-force_alignment29899:
-  if (_trace) printf("force_alignment29899:\n");
+force_alignment32594:
+  if (_trace) printf("force_alignment32594:\n");
   if (t11 == 0) 
-    goto basic_dispatch29871;
+    goto basic_dispatch32566;
   /* Here if argument ALUByteBackgroundRotateLatch */
   t1 = *(u64 *)&(processor->rotatelatch);   
-  goto basic_dispatch29869;   
+  goto basic_dispatch32564;   
 
-basic_dispatch29871:
-  if (_trace) printf("basic_dispatch29871:\n");
+basic_dispatch32566:
+  if (_trace) printf("basic_dispatch32566:\n");
   t11 = (t1 == ALUByteBackground_Zero) ? 1 : 0;   
 
-force_alignment29900:
-  if (_trace) printf("force_alignment29900:\n");
+force_alignment32595:
+  if (_trace) printf("force_alignment32595:\n");
   if (t11 == 0) 
-    goto basic_dispatch29869;
+    goto basic_dispatch32564;
   /* Here if argument ALUByteBackgroundZero */
   t1 = zero;
-  goto basic_dispatch29869;   
+  goto basic_dispatch32564;   
 
-vma_memory_read29821:
-  if (_trace) printf("vma_memory_read29821:\n");
+vma_memory_read32516:
+  if (_trace) printf("vma_memory_read32516:\n");
   t10 = *(u64 *)&(processor->stackcachedata);   
   t9 = (t9 * 8) + t10;  		// reconstruct SCA 
   t3 = *(s32 *)t9;   
   t2 = *(s32 *)(t9 + 4);   		// Read from stack cache 
-  goto vma_memory_read29820;   
+  goto vma_memory_read32515;   
 
-vma_memory_read29823:
-  if (_trace) printf("vma_memory_read29823:\n");
+vma_memory_read32518:
+  if (_trace) printf("vma_memory_read32518:\n");
   if ((t11 & 1) == 0)   
-    goto vma_memory_read29822;
+    goto vma_memory_read32517;
   t1 = (u32)t3;   		// Do the indirect thing 
-  goto vma_memory_read29819;   
+  goto vma_memory_read32514;   
 
-vma_memory_read29822:
-  if (_trace) printf("vma_memory_read29822:\n");
+vma_memory_read32517:
+  if (_trace) printf("vma_memory_read32517:\n");
   t12 = *(u64 *)&(processor->dataread);   		// Load the memory action table for cycle 
   /* TagType. */
   t11 = t2 & 63;		// Discard the CDR code 
@@ -1006,18 +1003,18 @@ vma_memory_read29822:
   t11 = (t11 * 4) + t12;   		// Adjust for a longword load 
   t12 = *(s32 *)t11;   		// Get the memory action 
 
-vma_memory_read29827:
-  if (_trace) printf("vma_memory_read29827:\n");
+vma_memory_read32522:
+  if (_trace) printf("vma_memory_read32522:\n");
   t11 = t12 & MemoryActionTransform;
   if (t11 == 0) 
-    goto vma_memory_read29826;
+    goto vma_memory_read32521;
   t2 = t2 & ~63L;
   t2 = t2 | Type_ExternalValueCellPointer;
-  goto vma_memory_read29830;   
+  goto vma_memory_read32525;   
 
-vma_memory_read29826:
+vma_memory_read32521:
 
-vma_memory_read29825:
+vma_memory_read32520:
   /* Perform memory action */
   arg1 = t12;
   arg2 = 0;
@@ -1139,7 +1136,7 @@ blockreadtest:
   arg3 = (u32)arg3;   
   /* Memory Read Internal */
 
-vma_memory_read29907:
+vma_memory_read32602:
   t9 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t11 = arg3 + ivory;
   t10 = *(s32 *)&processor->scovlimit;   
@@ -1153,242 +1150,242 @@ vma_memory_read29907:
   t3 = *(s32 *)t3;   
   t2 = (u8)(t2 >> ((t11&7)*8));   
   if (t10 != 0)   
-    goto vma_memory_read29909;
+    goto vma_memory_read32604;
 
-vma_memory_read29908:
+vma_memory_read32603:
   t12 = t12 >> (t2 & 63);   
   t3 = (u32)t3;   
   if (t12 & 1)   
-    goto vma_memory_read29911;
+    goto vma_memory_read32606;
 
-vma_memory_read29918:
+vma_memory_read32613:
   t1 = arg1 & 32;		// =fixnum onlyp 
   if (t1 == 0) 		// J. if we don't have to test for fixnump. 
-    goto i_block_n_read_test29901;
+    goto i_block_n_read_test32596;
   t9 = t2 - Type_Fixnum;   
   t9 = t9 & 63;		// Strip CDR code 
   if (t9 != 0)   
-    goto i_block_n_read_test29904;
+    goto i_block_n_read_test32599;
   t9 = t4 - Type_Fixnum;   
   t9 = t9 & 63;		// Strip CDR code 
   if (t9 != 0)   
-    goto i_block_n_read_test29905;
+    goto i_block_n_read_test32600;
 
-i_block_n_read_test29901:
-  if (_trace) printf("i_block_n_read_test29901:\n");
+i_block_n_read_test32596:
+  if (_trace) printf("i_block_n_read_test32596:\n");
   t1 = arg1 & 16;		// =cdr-code-nextp 
   if (t1 == 0) 		// J. if we don't have to clear CDR codes. 
-    goto i_block_n_read_test29903;
+    goto i_block_n_read_test32598;
   /* TagType. */
   t2 = t2 & 63;
 
-i_block_n_read_test29903:
-  if (_trace) printf("i_block_n_read_test29903:\n");
+i_block_n_read_test32598:
+  if (_trace) printf("i_block_n_read_test32598:\n");
   t6 = *(u64 *)&(processor->aluop);   
   *(u64 *)&processor->aluoverflow = zero;   
   t7 = *(u64 *)&(processor->aluandrotatecontrol);   
   t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;   
 
-force_alignment29979:
-  if (_trace) printf("force_alignment29979:\n");
+force_alignment32674:
+  if (_trace) printf("force_alignment32674:\n");
   if (t1 == 0) 
-    goto basic_dispatch29920;
+    goto basic_dispatch32615;
   /* Here if argument ALUFunctionBoolean */
   t8 = t7 >> 10;   
   t8 = t8 & 15;		// Extract the ALU boolean function 
   t1 = (t8 == Boole_Clear) ? 1 : 0;   
 
-force_alignment29939:
-  if (_trace) printf("force_alignment29939:\n");
+force_alignment32634:
+  if (_trace) printf("force_alignment32634:\n");
   if (t1 != 0)   
-    goto basic_dispatch29921;
+    goto basic_dispatch32616;
 
-basic_dispatch29922:
-  if (_trace) printf("basic_dispatch29922:\n");
+basic_dispatch32617:
+  if (_trace) printf("basic_dispatch32617:\n");
   t1 = (t8 == Boole_And) ? 1 : 0;   
 
-force_alignment29940:
-  if (_trace) printf("force_alignment29940:\n");
+force_alignment32635:
+  if (_trace) printf("force_alignment32635:\n");
   if (t1 == 0) 
-    goto basic_dispatch29923;
+    goto basic_dispatch32618;
   /* Here if argument BooleAnd */
   t8 = t3 & t5;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29923:
-  if (_trace) printf("basic_dispatch29923:\n");
+basic_dispatch32618:
+  if (_trace) printf("basic_dispatch32618:\n");
   t1 = (t8 == Boole_AndC1) ? 1 : 0;   
 
-force_alignment29941:
-  if (_trace) printf("force_alignment29941:\n");
+force_alignment32636:
+  if (_trace) printf("force_alignment32636:\n");
   if (t1 == 0) 
-    goto basic_dispatch29924;
+    goto basic_dispatch32619;
   /* Here if argument BooleAndC1 */
   t8 = t5 & ~t3;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29924:
-  if (_trace) printf("basic_dispatch29924:\n");
+basic_dispatch32619:
+  if (_trace) printf("basic_dispatch32619:\n");
   t1 = (t8 == Boole_2) ? 1 : 0;   
 
-force_alignment29942:
-  if (_trace) printf("force_alignment29942:\n");
+force_alignment32637:
+  if (_trace) printf("force_alignment32637:\n");
   if (t1 == 0) 
-    goto basic_dispatch29925;
+    goto basic_dispatch32620;
   /* Here if argument Boole2 */
   t8 = t5;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29925:
-  if (_trace) printf("basic_dispatch29925:\n");
+basic_dispatch32620:
+  if (_trace) printf("basic_dispatch32620:\n");
   t1 = (t8 == Boole_AndC2) ? 1 : 0;   
 
-force_alignment29943:
-  if (_trace) printf("force_alignment29943:\n");
+force_alignment32638:
+  if (_trace) printf("force_alignment32638:\n");
   if (t1 == 0) 
-    goto basic_dispatch29926;
+    goto basic_dispatch32621;
   /* Here if argument BooleAndC2 */
   t8 = t3 & ~t5;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29926:
-  if (_trace) printf("basic_dispatch29926:\n");
+basic_dispatch32621:
+  if (_trace) printf("basic_dispatch32621:\n");
   t1 = (t8 == Boole_1) ? 1 : 0;   
 
-force_alignment29944:
-  if (_trace) printf("force_alignment29944:\n");
+force_alignment32639:
+  if (_trace) printf("force_alignment32639:\n");
   if (t1 == 0) 
-    goto basic_dispatch29927;
+    goto basic_dispatch32622;
   /* Here if argument Boole1 */
   t8 = t3;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29927:
-  if (_trace) printf("basic_dispatch29927:\n");
+basic_dispatch32622:
+  if (_trace) printf("basic_dispatch32622:\n");
   t1 = (t8 == Boole_Xor) ? 1 : 0;   
 
-force_alignment29945:
-  if (_trace) printf("force_alignment29945:\n");
+force_alignment32640:
+  if (_trace) printf("force_alignment32640:\n");
   if (t1 == 0) 
-    goto basic_dispatch29928;
+    goto basic_dispatch32623;
   /* Here if argument BooleXor */
   t8 = t3 ^ t5;   
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29928:
-  if (_trace) printf("basic_dispatch29928:\n");
+basic_dispatch32623:
+  if (_trace) printf("basic_dispatch32623:\n");
   t1 = (t8 == Boole_Ior) ? 1 : 0;   
 
-force_alignment29946:
-  if (_trace) printf("force_alignment29946:\n");
+force_alignment32641:
+  if (_trace) printf("force_alignment32641:\n");
   if (t1 == 0) 
-    goto basic_dispatch29929;
+    goto basic_dispatch32624;
   /* Here if argument BooleIor */
   t8 = t3 | t5;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29929:
-  if (_trace) printf("basic_dispatch29929:\n");
+basic_dispatch32624:
+  if (_trace) printf("basic_dispatch32624:\n");
   t1 = (t8 == Boole_Nor) ? 1 : 0;   
 
-force_alignment29947:
-  if (_trace) printf("force_alignment29947:\n");
+force_alignment32642:
+  if (_trace) printf("force_alignment32642:\n");
   if (t1 == 0) 
-    goto basic_dispatch29930;
+    goto basic_dispatch32625;
   /* Here if argument BooleNor */
   t8 = t3 | t5;
   t8 = ~t8;   
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29930:
-  if (_trace) printf("basic_dispatch29930:\n");
+basic_dispatch32625:
+  if (_trace) printf("basic_dispatch32625:\n");
   t1 = (t8 == Boole_Equiv) ? 1 : 0;   
 
-force_alignment29948:
-  if (_trace) printf("force_alignment29948:\n");
+force_alignment32643:
+  if (_trace) printf("force_alignment32643:\n");
   if (t1 == 0) 
-    goto basic_dispatch29931;
+    goto basic_dispatch32626;
   /* Here if argument BooleEquiv */
   t8 = t3 ^ t5;   
   t8 = ~t8;   
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29931:
-  if (_trace) printf("basic_dispatch29931:\n");
+basic_dispatch32626:
+  if (_trace) printf("basic_dispatch32626:\n");
   t1 = (t8 == Boole_C1) ? 1 : 0;   
 
-force_alignment29949:
-  if (_trace) printf("force_alignment29949:\n");
+force_alignment32644:
+  if (_trace) printf("force_alignment32644:\n");
   if (t1 == 0) 
-    goto basic_dispatch29932;
+    goto basic_dispatch32627;
   /* Here if argument BooleC1 */
   t8 = ~t3;   
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29932:
-  if (_trace) printf("basic_dispatch29932:\n");
+basic_dispatch32627:
+  if (_trace) printf("basic_dispatch32627:\n");
   t1 = (t8 == Boole_OrC1) ? 1 : 0;   
 
-force_alignment29950:
-  if (_trace) printf("force_alignment29950:\n");
+force_alignment32645:
+  if (_trace) printf("force_alignment32645:\n");
   if (t1 == 0) 
-    goto basic_dispatch29933;
+    goto basic_dispatch32628;
   /* Here if argument BooleOrC1 */
   t8 = t5 | ~(t3);   
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29933:
-  if (_trace) printf("basic_dispatch29933:\n");
+basic_dispatch32628:
+  if (_trace) printf("basic_dispatch32628:\n");
   t1 = (t8 == Boole_C2) ? 1 : 0;   
 
-force_alignment29951:
-  if (_trace) printf("force_alignment29951:\n");
+force_alignment32646:
+  if (_trace) printf("force_alignment32646:\n");
   if (t1 == 0) 
-    goto basic_dispatch29934;
+    goto basic_dispatch32629;
   /* Here if argument BooleC2 */
   t8 = ~t5;   
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29934:
-  if (_trace) printf("basic_dispatch29934:\n");
+basic_dispatch32629:
+  if (_trace) printf("basic_dispatch32629:\n");
   t1 = (t8 == Boole_OrC2) ? 1 : 0;   
 
-force_alignment29952:
-  if (_trace) printf("force_alignment29952:\n");
+force_alignment32647:
+  if (_trace) printf("force_alignment32647:\n");
   if (t1 == 0) 
-    goto basic_dispatch29935;
+    goto basic_dispatch32630;
   /* Here if argument BooleOrC2 */
   t8 = t3 & ~t5;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29935:
-  if (_trace) printf("basic_dispatch29935:\n");
+basic_dispatch32630:
+  if (_trace) printf("basic_dispatch32630:\n");
   t1 = (t8 == Boole_Nand) ? 1 : 0;   
 
-force_alignment29953:
-  if (_trace) printf("force_alignment29953:\n");
+force_alignment32648:
+  if (_trace) printf("force_alignment32648:\n");
   if (t1 == 0) 
-    goto basic_dispatch29936;
+    goto basic_dispatch32631;
   /* Here if argument BooleNand */
   t8 = t3 & t5;
-  goto basic_dispatch29921;   
+  goto basic_dispatch32616;   
 
-basic_dispatch29936:
-  if (_trace) printf("basic_dispatch29936:\n");
+basic_dispatch32631:
+  if (_trace) printf("basic_dispatch32631:\n");
   t1 = (t8 == Boole_Set) ? 1 : 0;   
 
-force_alignment29954:
-  if (_trace) printf("force_alignment29954:\n");
+force_alignment32649:
+  if (_trace) printf("force_alignment32649:\n");
   if (t1 == 0) 
-    goto basic_dispatch29921;
+    goto basic_dispatch32616;
   /* Here if argument BooleSet */
   t8 = ~zero;   
 
-basic_dispatch29921:
-  if (_trace) printf("basic_dispatch29921:\n");
+basic_dispatch32616:
+  if (_trace) printf("basic_dispatch32616:\n");
 
-basic_dispatch29919:
-  if (_trace) printf("basic_dispatch29919:\n");
+basic_dispatch32614:
+  if (_trace) printf("basic_dispatch32614:\n");
   t1 = t7 >> 16;   
   t1 = t1 & 31;		// Extract ALU condition 
   t10 = *(u64 *)&(processor->aluoverflow);   
@@ -1396,48 +1393,47 @@ basic_dispatch29919:
   t12 = *(u64 *)&(processor->alulessthan);   
   t9 = (t1 == ALUCondition_SignedLessThanOrEqual) ? 1 : 0;   
 
-force_alignment30011:
-  if (_trace) printf("force_alignment30011:\n");
+force_alignment32706:
+  if (_trace) printf("force_alignment32706:\n");
   if (t9 == 0) 
-    goto basic_dispatch29984;
+    goto basic_dispatch32679;
   /* Here if argument ALUConditionSignedLessThanOrEqual */
   if (t12 != 0)   
-    goto alu_compute_condition29980;
+    goto alu_compute_condition32675;
   if (t8 == 0) 
-    goto alu_compute_condition29980;
+    goto alu_compute_condition32675;
 
-basic_dispatch29983:
-  if (_trace) printf("basic_dispatch29983:\n");
+basic_dispatch32678:
+  if (_trace) printf("basic_dispatch32678:\n");
 
-alu_compute_condition29981:
-  if (_trace) printf("alu_compute_condition29981:\n");
+alu_compute_condition32676:
+  if (_trace) printf("alu_compute_condition32676:\n");
   t1 = zero;
-  goto alu_compute_condition29982;   
+  goto alu_compute_condition32677;   
 
-alu_compute_condition29980:
-  if (_trace) printf("alu_compute_condition29980:\n");
+alu_compute_condition32675:
+  if (_trace) printf("alu_compute_condition32675:\n");
   t1 = 1;
 
-alu_compute_condition29982:
-  if (_trace) printf("alu_compute_condition29982:\n");
+alu_compute_condition32677:
+  if (_trace) printf("alu_compute_condition32677:\n");
   t9 = t7 >> 21;   
   t9 = t9 & 1;		// Extract the condition sense 
   t1 = t1 ^ t9;   
   if (t1 != 0)   
-    goto i_block_n_read_test29906;
+    goto i_block_n_read_test32601;
   t1 = arg1 & 4;		// =no-incrementp 
   if (t1 != 0)   		// J. if we don't have to increment the address. 
-    goto i_block_n_read_test29902;
+    goto i_block_n_read_test32597;
   arg3 = arg3 + 1;		// Increment the address 
 
-i_block_n_read_test29902:
-  if (_trace) printf("i_block_n_read_test29902:\n");
-		/* Store updated vma in BAR */
-  *(u32 *)arg2 = arg3;
+i_block_n_read_test32597:
+  if (_trace) printf("i_block_n_read_test32597:\n");
+  *(u32 *)arg2 = arg3;   		// Store updated vma in BAR 
   goto NEXTINSTRUCTION;   
 
-i_block_n_read_test29906:
-  if (_trace) printf("i_block_n_read_test29906:\n");
+i_block_n_read_test32601:
+  if (_trace) printf("i_block_n_read_test32601:\n");
   t10 = *(s32 *)(iSP + -8);   
   t9 = *(s32 *)(iSP + -4);   
   t10 = (u32)t10;   
@@ -1446,8 +1442,8 @@ i_block_n_read_test29906:
   iPC = iPC + t10;
   goto interpretinstructionforjump;   
 
-i_block_n_read_test29905:
-  if (_trace) printf("i_block_n_read_test29905:\n");
+i_block_n_read_test32600:
+  if (_trace) printf("i_block_n_read_test32600:\n");
   /* Convert stack cache address to VMA */
   t9 = *(u64 *)&(processor->stackcachedata);   
   arg3 = *(u64 *)&(processor->stackcachebasevma);   
@@ -1458,364 +1454,364 @@ i_block_n_read_test29905:
   arg2 = 23;
   goto illegaloperand;
 
-i_block_n_read_test29904:
-  if (_trace) printf("i_block_n_read_test29904:\n");
+i_block_n_read_test32599:
+  if (_trace) printf("i_block_n_read_test32599:\n");
   arg5 = arg3;
   arg2 = 23;
   goto illegaloperand;
 
-basic_dispatch29984:
-  if (_trace) printf("basic_dispatch29984:\n");
+basic_dispatch32679:
+  if (_trace) printf("basic_dispatch32679:\n");
   t9 = (t1 == ALUCondition_SignedLessThan) ? 1 : 0;   
 
-force_alignment30012:
-  if (_trace) printf("force_alignment30012:\n");
+force_alignment32707:
+  if (_trace) printf("force_alignment32707:\n");
   if (t9 == 0) 
-    goto basic_dispatch29985;
+    goto basic_dispatch32680;
   /* Here if argument ALUConditionSignedLessThan */
   if (t12 != 0)   
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29985:
-  if (_trace) printf("basic_dispatch29985:\n");
+basic_dispatch32680:
+  if (_trace) printf("basic_dispatch32680:\n");
   t9 = (t1 == ALUCondition_Negative) ? 1 : 0;   
 
-force_alignment30013:
-  if (_trace) printf("force_alignment30013:\n");
+force_alignment32708:
+  if (_trace) printf("force_alignment32708:\n");
   if (t9 == 0) 
-    goto basic_dispatch29986;
+    goto basic_dispatch32681;
   /* Here if argument ALUConditionNegative */
   if ((s64)t8 < 0)   
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29986:
-  if (_trace) printf("basic_dispatch29986:\n");
+basic_dispatch32681:
+  if (_trace) printf("basic_dispatch32681:\n");
   t9 = (t1 == ALUCondition_SignedOverflow) ? 1 : 0;   
 
-force_alignment30014:
-  if (_trace) printf("force_alignment30014:\n");
+force_alignment32709:
+  if (_trace) printf("force_alignment32709:\n");
   if (t9 == 0) 
-    goto basic_dispatch29987;
+    goto basic_dispatch32682;
   /* Here if argument ALUConditionSignedOverflow */
   if (t10 != 0)   
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29987:
-  if (_trace) printf("basic_dispatch29987:\n");
+basic_dispatch32682:
+  if (_trace) printf("basic_dispatch32682:\n");
   t9 = (t1 == ALUCondition_UnsignedLessThanOrEqual) ? 1 : 0;   
 
-force_alignment30015:
-  if (_trace) printf("force_alignment30015:\n");
+force_alignment32710:
+  if (_trace) printf("force_alignment32710:\n");
   if (t9 == 0) 
-    goto basic_dispatch29988;
+    goto basic_dispatch32683;
   /* Here if argument ALUConditionUnsignedLessThanOrEqual */
   if (t11 != 0)   
-    goto alu_compute_condition29980;
+    goto alu_compute_condition32675;
   if (t8 == 0) 
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29988:
-  if (_trace) printf("basic_dispatch29988:\n");
+basic_dispatch32683:
+  if (_trace) printf("basic_dispatch32683:\n");
   t9 = (t1 == ALUCondition_UnsignedLessThan) ? 1 : 0;   
 
-force_alignment30016:
-  if (_trace) printf("force_alignment30016:\n");
+force_alignment32711:
+  if (_trace) printf("force_alignment32711:\n");
   if (t9 == 0) 
-    goto basic_dispatch29989;
+    goto basic_dispatch32684;
   /* Here if argument ALUConditionUnsignedLessThan */
   if (t11 != 0)   
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29989:
-  if (_trace) printf("basic_dispatch29989:\n");
+basic_dispatch32684:
+  if (_trace) printf("basic_dispatch32684:\n");
   t9 = (t1 == ALUCondition_Zero) ? 1 : 0;   
 
-force_alignment30017:
-  if (_trace) printf("force_alignment30017:\n");
+force_alignment32712:
+  if (_trace) printf("force_alignment32712:\n");
   if (t9 == 0) 
-    goto basic_dispatch29990;
+    goto basic_dispatch32685;
   /* Here if argument ALUConditionZero */
   if (t8 == 0) 
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29990:
-  if (_trace) printf("basic_dispatch29990:\n");
+basic_dispatch32685:
+  if (_trace) printf("basic_dispatch32685:\n");
   t9 = (t1 == ALUCondition_High25Zero) ? 1 : 0;   
 
-force_alignment30018:
-  if (_trace) printf("force_alignment30018:\n");
+force_alignment32713:
+  if (_trace) printf("force_alignment32713:\n");
   if (t9 == 0) 
-    goto basic_dispatch29991;
+    goto basic_dispatch32686;
   /* Here if argument ALUConditionHigh25Zero */
   t1 = t8 >> 7;   
   if (t1 == 0) 
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29991:
-  if (_trace) printf("basic_dispatch29991:\n");
+basic_dispatch32686:
+  if (_trace) printf("basic_dispatch32686:\n");
   t9 = (t1 == ALUCondition_Eq) ? 1 : 0;   
 
-force_alignment30019:
-  if (_trace) printf("force_alignment30019:\n");
+force_alignment32714:
+  if (_trace) printf("force_alignment32714:\n");
   if (t9 == 0) 
-    goto basic_dispatch29992;
+    goto basic_dispatch32687;
   /* Here if argument ALUConditionEq */
   if (t8 != 0)   
-    goto alu_compute_condition29981;
+    goto alu_compute_condition32676;
   t9 = t2 ^ t4;   
   /* TagType. */
   t9 = t9 & 63;
   if (t9 == 0) 
-    goto alu_compute_condition29980;
-  goto basic_dispatch29983;   
+    goto alu_compute_condition32675;
+  goto basic_dispatch32678;   
 
-basic_dispatch29992:
-  if (_trace) printf("basic_dispatch29992:\n");
+basic_dispatch32687:
+  if (_trace) printf("basic_dispatch32687:\n");
   t9 = (t1 == ALUCondition_Op1Ephemeralp) ? 1 : 0;   
 
-force_alignment30020:
-  if (_trace) printf("force_alignment30020:\n");
+force_alignment32715:
+  if (_trace) printf("force_alignment32715:\n");
   if (t9 == 0) 
-    goto basic_dispatch29993;
+    goto basic_dispatch32688;
   /* Here if argument ALUConditionOp1Ephemeralp */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29993:
-  if (_trace) printf("basic_dispatch29993:\n");
+basic_dispatch32688:
+  if (_trace) printf("basic_dispatch32688:\n");
   t9 = (t1 == ALUCondition_ResultTypeNil) ? 1 : 0;   
 
-force_alignment30021:
-  if (_trace) printf("force_alignment30021:\n");
+force_alignment32716:
+  if (_trace) printf("force_alignment32716:\n");
   if (t9 == 0) 
-    goto basic_dispatch29994;
+    goto basic_dispatch32689;
   /* Here if argument ALUConditionResultTypeNil */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29994:
-  if (_trace) printf("basic_dispatch29994:\n");
+basic_dispatch32689:
+  if (_trace) printf("basic_dispatch32689:\n");
   t9 = (t1 == ALUCondition_Op2Fixnum) ? 1 : 0;   
 
-force_alignment30022:
-  if (_trace) printf("force_alignment30022:\n");
+force_alignment32717:
+  if (_trace) printf("force_alignment32717:\n");
   if (t9 == 0) 
-    goto basic_dispatch29995;
+    goto basic_dispatch32690;
   /* Here if argument ALUConditionOp2Fixnum */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29995:
-  if (_trace) printf("basic_dispatch29995:\n");
+basic_dispatch32690:
+  if (_trace) printf("basic_dispatch32690:\n");
   t9 = (t1 == ALUCondition_False) ? 1 : 0;   
 
-force_alignment30023:
-  if (_trace) printf("force_alignment30023:\n");
+force_alignment32718:
+  if (_trace) printf("force_alignment32718:\n");
   if (t9 == 0) 
-    goto basic_dispatch29996;
+    goto basic_dispatch32691;
   /* Here if argument ALUConditionFalse */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29996:
-  if (_trace) printf("basic_dispatch29996:\n");
+basic_dispatch32691:
+  if (_trace) printf("basic_dispatch32691:\n");
   t9 = (t1 == ALUCondition_ResultCdrLow) ? 1 : 0;   
 
-force_alignment30024:
-  if (_trace) printf("force_alignment30024:\n");
+force_alignment32719:
+  if (_trace) printf("force_alignment32719:\n");
   if (t9 == 0) 
-    goto basic_dispatch29997;
+    goto basic_dispatch32692;
   /* Here if argument ALUConditionResultCdrLow */
   /* TagCdr. */
   t9 = t2 >> 6;   
   t1 = t9 & 1;
-  goto alu_compute_condition29982;   
+  goto alu_compute_condition32677;   
 
-basic_dispatch29997:
-  if (_trace) printf("basic_dispatch29997:\n");
+basic_dispatch32692:
+  if (_trace) printf("basic_dispatch32692:\n");
   t9 = (t1 == ALUCondition_CleanupBitsSet) ? 1 : 0;   
 
-force_alignment30025:
-  if (_trace) printf("force_alignment30025:\n");
+force_alignment32720:
+  if (_trace) printf("force_alignment32720:\n");
   if (t9 == 0) 
-    goto basic_dispatch29998;
+    goto basic_dispatch32693;
   /* Here if argument ALUConditionCleanupBitsSet */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29998:
-  if (_trace) printf("basic_dispatch29998:\n");
+basic_dispatch32693:
+  if (_trace) printf("basic_dispatch32693:\n");
   t9 = (t1 == ALUCondition_AddressInStackCache) ? 1 : 0;   
 
-force_alignment30026:
-  if (_trace) printf("force_alignment30026:\n");
+force_alignment32721:
+  if (_trace) printf("force_alignment32721:\n");
   if (t9 == 0) 
-    goto basic_dispatch29999;
+    goto basic_dispatch32694;
   /* Here if argument ALUConditionAddressInStackCache */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29999:
-  if (_trace) printf("basic_dispatch29999:\n");
+basic_dispatch32694:
+  if (_trace) printf("basic_dispatch32694:\n");
   t9 = (t1 == ALUCondition_ExtraStackMode) ? 1 : 0;   
 
-force_alignment30027:
-  if (_trace) printf("force_alignment30027:\n");
+force_alignment32722:
+  if (_trace) printf("force_alignment32722:\n");
   if (t9 == 0) 
-    goto basic_dispatch30000;
+    goto basic_dispatch32695;
   /* Here if argument ALUConditionExtraStackMode */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30000:
-  if (_trace) printf("basic_dispatch30000:\n");
+basic_dispatch32695:
+  if (_trace) printf("basic_dispatch32695:\n");
   t9 = (t1 == ALUCondition_FepMode) ? 1 : 0;   
 
-force_alignment30028:
-  if (_trace) printf("force_alignment30028:\n");
+force_alignment32723:
+  if (_trace) printf("force_alignment32723:\n");
   if (t9 == 0) 
-    goto basic_dispatch30001;
+    goto basic_dispatch32696;
   /* Here if argument ALUConditionFepMode */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30001:
-  if (_trace) printf("basic_dispatch30001:\n");
+basic_dispatch32696:
+  if (_trace) printf("basic_dispatch32696:\n");
   t9 = (t1 == ALUCondition_FpCoprocessorPresent) ? 1 : 0;   
 
-force_alignment30029:
-  if (_trace) printf("force_alignment30029:\n");
+force_alignment32724:
+  if (_trace) printf("force_alignment32724:\n");
   if (t9 == 0) 
-    goto basic_dispatch30002;
+    goto basic_dispatch32697;
   /* Here if argument ALUConditionFpCoprocessorPresent */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30002:
-  if (_trace) printf("basic_dispatch30002:\n");
+basic_dispatch32697:
+  if (_trace) printf("basic_dispatch32697:\n");
   t9 = (t1 == ALUCondition_Op1Oldspacep) ? 1 : 0;   
 
-force_alignment30030:
-  if (_trace) printf("force_alignment30030:\n");
+force_alignment32725:
+  if (_trace) printf("force_alignment32725:\n");
   if (t9 == 0) 
-    goto basic_dispatch30003;
+    goto basic_dispatch32698;
   /* Here if argument ALUConditionOp1Oldspacep */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30003:
-  if (_trace) printf("basic_dispatch30003:\n");
+basic_dispatch32698:
+  if (_trace) printf("basic_dispatch32698:\n");
   t9 = (t1 == ALUCondition_PendingSequenceBreakEnabled) ? 1 : 0;   
 
-force_alignment30031:
-  if (_trace) printf("force_alignment30031:\n");
+force_alignment32726:
+  if (_trace) printf("force_alignment32726:\n");
   if (t9 == 0) 
-    goto basic_dispatch30004;
+    goto basic_dispatch32699;
   /* Here if argument ALUConditionPendingSequenceBreakEnabled */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30004:
-  if (_trace) printf("basic_dispatch30004:\n");
+basic_dispatch32699:
+  if (_trace) printf("basic_dispatch32699:\n");
   t9 = (t1 == ALUCondition_Op1TypeAcceptable) ? 1 : 0;   
 
-force_alignment30032:
-  if (_trace) printf("force_alignment30032:\n");
+force_alignment32727:
+  if (_trace) printf("force_alignment32727:\n");
   if (t9 == 0) 
-    goto basic_dispatch30005;
+    goto basic_dispatch32700;
   /* Here if argument ALUConditionOp1TypeAcceptable */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30005:
-  if (_trace) printf("basic_dispatch30005:\n");
+basic_dispatch32700:
+  if (_trace) printf("basic_dispatch32700:\n");
   t9 = (t1 == ALUCondition_Op1TypeCondition) ? 1 : 0;   
 
-force_alignment30033:
-  if (_trace) printf("force_alignment30033:\n");
+force_alignment32728:
+  if (_trace) printf("force_alignment32728:\n");
   if (t9 == 0) 
-    goto basic_dispatch30006;
+    goto basic_dispatch32701;
   /* Here if argument ALUConditionOp1TypeCondition */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30006:
-  if (_trace) printf("basic_dispatch30006:\n");
+basic_dispatch32701:
+  if (_trace) printf("basic_dispatch32701:\n");
   t9 = (t1 == ALUCondition_StackCacheOverflow) ? 1 : 0;   
 
-force_alignment30034:
-  if (_trace) printf("force_alignment30034:\n");
+force_alignment32729:
+  if (_trace) printf("force_alignment32729:\n");
   if (t9 == 0) 
-    goto basic_dispatch30007;
+    goto basic_dispatch32702;
   /* Here if argument ALUConditionStackCacheOverflow */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30007:
-  if (_trace) printf("basic_dispatch30007:\n");
+basic_dispatch32702:
+  if (_trace) printf("basic_dispatch32702:\n");
   t9 = (t1 == ALUCondition_OrLogicVariable) ? 1 : 0;   
 
-force_alignment30035:
-  if (_trace) printf("force_alignment30035:\n");
+force_alignment32730:
+  if (_trace) printf("force_alignment32730:\n");
   if (t9 == 0) 
-    goto basic_dispatch30008;
+    goto basic_dispatch32703;
   /* Here if argument ALUConditionOrLogicVariable */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch30008:
-  if (_trace) printf("basic_dispatch30008:\n");
+basic_dispatch32703:
+  if (_trace) printf("basic_dispatch32703:\n");
   /* Here for all other cases */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29920:
-  if (_trace) printf("basic_dispatch29920:\n");
+basic_dispatch32615:
+  if (_trace) printf("basic_dispatch32615:\n");
   t1 = (t6 == ALUFunction_Byte) ? 1 : 0;   
 
-force_alignment30036:
-  if (_trace) printf("force_alignment30036:\n");
+force_alignment32731:
+  if (_trace) printf("force_alignment32731:\n");
   if (t1 == 0) 
-    goto basic_dispatch29955;
+    goto basic_dispatch32650;
   /* Here if argument ALUFunctionByte */
   t9 = *(u64 *)&(processor->byterotate);   		// Get rotate 
   t10 = *(u64 *)&(processor->bytesize);   		// Get bytesize 
@@ -1824,15 +1820,15 @@ force_alignment30036:
   t1 = t1 & 3;		// Extract the byte background 
   t11 = (t1 == ALUByteBackground_Op1) ? 1 : 0;   
 
-force_alignment29962:
-  if (_trace) printf("force_alignment29962:\n");
+force_alignment32657:
+  if (_trace) printf("force_alignment32657:\n");
   if (t11 == 0) 
-    goto basic_dispatch29958;
+    goto basic_dispatch32653;
   /* Here if argument ALUByteBackgroundOp1 */
   t1 = t3;
 
-basic_dispatch29957:
-  if (_trace) printf("basic_dispatch29957:\n");
+basic_dispatch32652:
+  if (_trace) printf("basic_dispatch32652:\n");
   t12 = t7 >> 12;   
   t12 = t12 & 1;		// Extractthe byte rotate latch 
   t8 = t5 << (t9 & 63);   
@@ -1840,11 +1836,11 @@ basic_dispatch29957:
   t8 = (u32)t8;   
   t8 = t8 | t11;		// OP2 rotated 
   if (t12 == 0) 		// Don't update rotate latch if not requested 
-    goto alu_function_byte29956;
+    goto alu_function_byte32651;
   *(u64 *)&processor->rotatelatch = t8;   
 
-alu_function_byte29956:
-  if (_trace) printf("alu_function_byte29956:\n");
+alu_function_byte32651:
+  if (_trace) printf("alu_function_byte32651:\n");
   t12 = zero + -2;   
   t12 = t12 << (t10 & 63);   
   t12 = ~t12;   		// Compute mask 
@@ -1853,28 +1849,28 @@ alu_function_byte29956:
   t11 = t11 & 1;
   t10 = (t11 == ALUByteFunction_Dpb) ? 1 : 0;   
 
-force_alignment29967:
-  if (_trace) printf("force_alignment29967:\n");
+force_alignment32662:
+  if (_trace) printf("force_alignment32662:\n");
   if (t10 == 0) 
-    goto basic_dispatch29964;
+    goto basic_dispatch32659;
   /* Here if argument ALUByteFunctionDpb */
   t12 = t12 << (t9 & 63);   		// Position mask 
 
-basic_dispatch29963:
-  if (_trace) printf("basic_dispatch29963:\n");
+basic_dispatch32658:
+  if (_trace) printf("basic_dispatch32658:\n");
   t8 = t8 & t12;		// rotated&mask 
   t1 = t1 & ~t12;		// background&~mask 
   t8 = t8 | t1;
-  goto basic_dispatch29919;   
+  goto basic_dispatch32614;   
 
-basic_dispatch29955:
-  if (_trace) printf("basic_dispatch29955:\n");
+basic_dispatch32650:
+  if (_trace) printf("basic_dispatch32650:\n");
   t1 = (t6 == ALUFunction_Adder) ? 1 : 0;   
 
-force_alignment30037:
-  if (_trace) printf("force_alignment30037:\n");
+force_alignment32732:
+  if (_trace) printf("force_alignment32732:\n");
   if (t1 == 0) 
-    goto basic_dispatch29968;
+    goto basic_dispatch32663;
   /* Here if argument ALUFunctionAdder */
   t10 = t7 >> 11;   
   t10 = t10 & 3;		// Extract the op2 
@@ -1882,15 +1878,15 @@ force_alignment30037:
   t9 = t9 & 1;		// Extract the adder carry in 
   t11 = (t10 == ALUAdderOp2_Op2) ? 1 : 0;   
 
-force_alignment29976:
-  if (_trace) printf("force_alignment29976:\n");
+force_alignment32671:
+  if (_trace) printf("force_alignment32671:\n");
   if (t11 == 0) 
-    goto basic_dispatch29971;
+    goto basic_dispatch32666;
   /* Here if argument ALUAdderOp2Op2 */
   t1 = t5;
 
-basic_dispatch29970:
-  if (_trace) printf("basic_dispatch29970:\n");
+basic_dispatch32665:
+  if (_trace) printf("basic_dispatch32665:\n");
   t8 = t3 + t1;
   t8 = t8 + t9;
   t10 = t8 >> 31;   		// Sign bit 
@@ -1899,7 +1895,7 @@ basic_dispatch29970:
   t11 = t7 >> 24;   		// Get the load-carry-in bit 
   *(u64 *)&processor->aluoverflow = t10;   
   if ((t11 & 1) == 0)   
-    goto alu_function_adder29969;
+    goto alu_function_adder32664;
   t10 = (u32)(t8 >> ((4&7)*8));   		// Get the carry 
   t11 = zero + 1024;   
   t7 = t7 & ~t11;
@@ -1908,116 +1904,116 @@ basic_dispatch29970:
   t7 = t7 | t11;		// Set the adder carry in 
   *(u64 *)&processor->aluandrotatecontrol = t7;   
 
-alu_function_adder29969:
-  if (_trace) printf("alu_function_adder29969:\n");
+alu_function_adder32664:
+  if (_trace) printf("alu_function_adder32664:\n");
   t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->aluborrow = t10;   
   t3 = (s32)t3;
   t5 = (s32)t5;
   t10 = ((s64)t3 < (s64)t1) ? 1 : 0;   
   *(u64 *)&processor->alulessthan = t10;   
-  goto basic_dispatch29919;   
+  goto basic_dispatch32614;   
 
-basic_dispatch29968:
-  if (_trace) printf("basic_dispatch29968:\n");
+basic_dispatch32663:
+  if (_trace) printf("basic_dispatch32663:\n");
   t1 = (t6 == ALUFunction_MultiplyDivide) ? 1 : 0;   
 
-force_alignment30038:
-  if (_trace) printf("force_alignment30038:\n");
+force_alignment32733:
+  if (_trace) printf("force_alignment32733:\n");
   if (t1 == 0) 
-    goto basic_dispatch29919;
+    goto basic_dispatch32614;
   /* Here if argument ALUFunctionMultiplyDivide */
   /* This instruction has not been written yet. */
   arg5 = 0;
   arg2 = 38;
   goto illegaloperand;
 
-basic_dispatch29971:
-  if (_trace) printf("basic_dispatch29971:\n");
+basic_dispatch32666:
+  if (_trace) printf("basic_dispatch32666:\n");
   t11 = (t10 == ALUAdderOp2_Zero) ? 1 : 0;   
 
-force_alignment30039:
-  if (_trace) printf("force_alignment30039:\n");
+force_alignment32734:
+  if (_trace) printf("force_alignment32734:\n");
   if (t11 == 0) 
-    goto basic_dispatch29972;
+    goto basic_dispatch32667;
   /* Here if argument ALUAdderOp2Zero */
   t1 = zero;
-  goto basic_dispatch29970;   
+  goto basic_dispatch32665;   
 
-basic_dispatch29972:
-  if (_trace) printf("basic_dispatch29972:\n");
+basic_dispatch32667:
+  if (_trace) printf("basic_dispatch32667:\n");
   t11 = (t10 == ALUAdderOp2_Invert) ? 1 : 0;   
 
-force_alignment30040:
-  if (_trace) printf("force_alignment30040:\n");
+force_alignment32735:
+  if (_trace) printf("force_alignment32735:\n");
   if (t11 == 0) 
-    goto basic_dispatch29973;
+    goto basic_dispatch32668;
   /* Here if argument ALUAdderOp2Invert */
   t1 = (s32)t5;
   t1 = zero - t1;   
   t1 = (u32)t1;   
-  goto basic_dispatch29970;   
+  goto basic_dispatch32665;   
 
-basic_dispatch29973:
-  if (_trace) printf("basic_dispatch29973:\n");
+basic_dispatch32668:
+  if (_trace) printf("basic_dispatch32668:\n");
   t11 = (t10 == ALUAdderOp2_MinusOne) ? 1 : 0;   
 
-force_alignment30041:
-  if (_trace) printf("force_alignment30041:\n");
+force_alignment32736:
+  if (_trace) printf("force_alignment32736:\n");
   if (t11 == 0) 
-    goto basic_dispatch29970;
+    goto basic_dispatch32665;
   /* Here if argument ALUAdderOp2MinusOne */
   t1 = ~zero;   
   t1 = (u32)t1;   
-  goto basic_dispatch29970;   
+  goto basic_dispatch32665;   
 
-basic_dispatch29964:
-  if (_trace) printf("basic_dispatch29964:\n");
+basic_dispatch32659:
+  if (_trace) printf("basic_dispatch32659:\n");
   t10 = (t11 == ALUByteFunction_Ldb) ? 1 : 0;   
 
-force_alignment30042:
-  if (_trace) printf("force_alignment30042:\n");
+force_alignment32737:
+  if (_trace) printf("force_alignment32737:\n");
   if (t10 != 0)   
-    goto basic_dispatch29963;
-  goto basic_dispatch29963;   
+    goto basic_dispatch32658;
+  goto basic_dispatch32658;   
 
-basic_dispatch29958:
-  if (_trace) printf("basic_dispatch29958:\n");
+basic_dispatch32653:
+  if (_trace) printf("basic_dispatch32653:\n");
   t11 = (t1 == ALUByteBackground_RotateLatch) ? 1 : 0;   
 
-force_alignment30043:
-  if (_trace) printf("force_alignment30043:\n");
+force_alignment32738:
+  if (_trace) printf("force_alignment32738:\n");
   if (t11 == 0) 
-    goto basic_dispatch29959;
+    goto basic_dispatch32654;
   /* Here if argument ALUByteBackgroundRotateLatch */
   t1 = *(u64 *)&(processor->rotatelatch);   
-  goto basic_dispatch29957;   
+  goto basic_dispatch32652;   
 
-basic_dispatch29959:
-  if (_trace) printf("basic_dispatch29959:\n");
+basic_dispatch32654:
+  if (_trace) printf("basic_dispatch32654:\n");
   t11 = (t1 == ALUByteBackground_Zero) ? 1 : 0;   
 
-force_alignment30044:
-  if (_trace) printf("force_alignment30044:\n");
+force_alignment32739:
+  if (_trace) printf("force_alignment32739:\n");
   if (t11 == 0) 
-    goto basic_dispatch29957;
+    goto basic_dispatch32652;
   /* Here if argument ALUByteBackgroundZero */
   t1 = zero;
-  goto basic_dispatch29957;   
+  goto basic_dispatch32652;   
 
-vma_memory_read29909:
-  if (_trace) printf("vma_memory_read29909:\n");
+vma_memory_read32604:
+  if (_trace) printf("vma_memory_read32604:\n");
   t10 = *(u64 *)&(processor->stackcachedata);   
   t9 = (t9 * 8) + t10;  		// reconstruct SCA 
   t3 = *(s32 *)t9;   
   t2 = *(s32 *)(t9 + 4);   		// Read from stack cache 
-  goto vma_memory_read29908;   
+  goto vma_memory_read32603;   
 
-vma_memory_read29911:
-  if (_trace) printf("vma_memory_read29911:\n");
+vma_memory_read32606:
+  if (_trace) printf("vma_memory_read32606:\n");
 
-vma_memory_read29910:
-  if (_trace) printf("vma_memory_read29910:\n");
+vma_memory_read32605:
+  if (_trace) printf("vma_memory_read32605:\n");
   t12 = (t1 * 4);   		// Cycle-number -> table offset 
   t12 = (t12 * 4) + ivory;   
   t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD);   
@@ -2027,26 +2023,26 @@ vma_memory_read29910:
   t11 = (t11 * 4) + t12;   		// Adjust for a longword load 
   t12 = *(s32 *)t11;   		// Get the memory action 
 
-vma_memory_read29916:
-  if (_trace) printf("vma_memory_read29916:\n");
+vma_memory_read32611:
+  if (_trace) printf("vma_memory_read32611:\n");
   t10 = t12 & MemoryActionIndirect;
   if (t10 == 0) 
-    goto vma_memory_read29915;
+    goto vma_memory_read32610;
   arg3 = (u32)t3;   		// Do the indirect thing 
-  goto vma_memory_read29907;   
+  goto vma_memory_read32602;   
 
-vma_memory_read29915:
-  if (_trace) printf("vma_memory_read29915:\n");
+vma_memory_read32610:
+  if (_trace) printf("vma_memory_read32610:\n");
   t11 = t12 & MemoryActionTransform;
   if (t11 == 0) 
-    goto vma_memory_read29914;
+    goto vma_memory_read32609;
   t2 = t2 & ~63L;
   t2 = t2 | Type_ExternalValueCellPointer;
-  goto vma_memory_read29918;   
+  goto vma_memory_read32613;   
 
-vma_memory_read29914:
+vma_memory_read32609:
 
-vma_memory_read29913:
+vma_memory_read32608:
   /* Perform memory action */
   arg1 = t12;
   arg2 = t1;
