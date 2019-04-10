@@ -52,7 +52,18 @@ The emulator is split into 2 parts:
   disks, network)
 - the emulator proper which emulates the CPU
 
+## Life support
+
 The life support is common to all emulators and is coded in C.
+
+It grew out of the Mac Ivory environment where the life support package was
+software available on the Mac to interface with the Ivory add-on hardware card
+providing the Lisp Machine.
+
+In the Genera version, the emulator replaces the physical add-on card, the
+purpose of life support remains the same.
+
+## Emulator
 
 The emulator comes in different flavours: Alpha assembly, C version started but
 unfinished by Symbolics, C version by Brian PARKER. The Alpha version is written
@@ -68,17 +79,21 @@ binary).
 
 No idea where .sid files come from.
 
-They are manipulated by assembler/alphadsdl.lisp (DSDL = Document Schema
-Definition Language?). DSDL is a facility that describes a file type and methods
-to convert them into other file types. Here, the .sid files are converted into
-.asm (assembly), .c, .h and .lisp files.
+They are manipulated by assembler/alphadsdl.lisp (Does DSDL mean Document Schema
+Definition Language?). As best as I can see, DSDL is a LM facility that
+describes a file type and methods to convert it into other file types. Here, the
+.sid files are converted into .as (Alpha assembly), .c, .h and .lisp files.
 
-## BP Emulator
+Note that I have completely ignored the Power G5 version.
 
-stub/process.lisp: converts Alpha ISA into C statements, then converts assembly
-(written in lisp) files to c files.
+## BP Emulator 
 
-## Various
+(BP = Brian PARKER)
+
+```stub/process.lisp```: converts Alpha ISA into C statements, then converts assembly
+(written in lisp) files to c files. It has been renamed ```convert-asm-to-c.lisp```.
+
+## Various notes
 
 The assembly file describe the instructions as _list of symbols_. Each item in a
 list must be a symbol; therefore no item must be evaluated past read time. This
@@ -89,7 +104,6 @@ entirely sure that this is a correct explanation, but the point remains.)
 
 Far example ```fcallmac.lisp``` line 42: ```#.1_22``` forces the read-time
 evaluation of ```1_22``` which is a constant defined as ```2^22```.
-
 
 # CPU
 
