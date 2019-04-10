@@ -512,11 +512,6 @@
       (AND ,temp ,cr ,temp2)
       (LDQ ,temp PROCESSORSTATE_BINDINGSTACKPOINTER (ivory))
       (BEQ ,temp2 ,done "J. if cr.cleanup-bindings is 0.")
-      ;; (passthru "#ifdef MINIMA")
-      ;; (comment "BSP not a locative -> Deep-bound")
-      ;; (SRL ,temp 32 ,temp4)
-      ;; (CheckDataType ,temp4 |TypeLocative| ,cfdbt ,temp3)
-      ;; (passthru "#endif")
       (label ,more)
       (unbind ,temp ,temp2 ,temp3 ,temp4 ,temp5 ,temp6 ,temp7 ,temp8 ,temp9 ,temp10 ,temp11 ,temp12)
       (get-control-register ,cr)
@@ -533,11 +528,6 @@
 
       ;;    (label ,cfuwp)
       ;;      (external-branch HANDLEUNWINDPROTECT "Tail call to handle UNWIND-PROTECT")
-      ;;
-      ;;      (passthru "#ifdef MINIMA")
-      ;;    (label ,cfdbt)
-      ;;      (external-branch DBUNWINDFRAMETRAP "Tail call for deep-bound trap")
-      ;;      (passthru "#endif")
 
       ,@(unless done-label
 	        `((label ,reallydone))))))
@@ -557,15 +547,8 @@
       (LDQ iSP PROCESSORSTATE_RESTARTSP (ivory) "Restore SP")
       ;; Restore binding stack. temp2=bindingstacklevel
       (LDQ ,temp PROCESSORSTATE_BINDINGSTACKPOINTER (ivory))
-      ;; (passthru "#ifdef MINIMA")
-      ;; (SRL ,temp 32 ,temp4)
-      ;; (passthru "#endif")
       (SUBL ,temp ,temp2 ,temp3)
       (BEQ ,temp3 ,pushpc "J. if binding level= binding stack")
-      ;; (passthru "#ifdef MINIMA")
-      ;; (comment "BSP not a locative -> Deep-bound")
-      ;; (CheckDataType ,temp4 |TypeLocative| ,dupdbt ,temp3)
-      ;; (passthru "#endif")
       (label ,restorebindings)
       (unbind ,temp ,cr ,temp3 ,temp4 ,temp5 ,temp6 ,temp7 ,temp8 ,temp9 ,temp10 ,temp11 ,temp12)
       (LDQ ,temp PROCESSORSTATE_BINDINGSTACKPOINTER (ivory))
@@ -606,10 +589,6 @@
       (BIS ,temp5 ,temp10 ,temp5)
       (STQ ,temp5 PROCESSORSTATE_CATCHBLOCK (ivory))
       (ContinueToInterpretInstruction-ValidateCache "Execute cleanup")
-      ;; (passthru "#ifdef MINIMA")
-      ;; (label ,dupdbt)
-      ;; (external-branch DBUNWINDFRAMETRAP "Tail call for deep-bound trap")
-      ;; (passthru "#endif")
       )))
 
 
@@ -639,12 +618,6 @@
 	          (EXTLL ,saved-continuation-data 0 ,saved-continuation-data)
 	          (LDL ,continuation-tag |PROCESSORSTATE_CONTINUATION+4| (ivory))
 	          (EXTLL ,continuation-data 0 ,continuation-data)
-
-	          (passthru "#ifdef IVERIFY")
-	          (comment "check for instruction verification suite end-of-test")
-	          (SUBL ,saved-continuation-tag |TypeNIL| ,saved-control-data "check for end of run")
-	          (BEQ ,saved-control-data ,afexc)
-	          (passthru "#endif")
 
 	          (stack-read-data-disp iFP 8 ,saved-control-data "Get saved control register" :signed t)
 	          (TagType ,saved-continuation-tag ,saved-continuation-tag)
@@ -686,10 +659,4 @@
       (BIS ,temp4 ,temp3 ,temp3)
       (STQ ,temp3 PROCESSORSTATE_STOP_INTERPRETER (ivory))
       (S8ADDQ ,temp iFP iLP "Restore the local pointer.")
-      ;;      (passthru "#ifdef IVERIFY")
-      ;;      (BR zero ,afgo)
-      ;;    (label ,afexc)
-      ;;      (halt-machine)
-      ;;    (label ,afgo)
-      ;;      (passthru "#endif")
       )))

@@ -54,10 +54,10 @@ handleunwindprotect:
   t1 = *(u64 *)&(processor->bindingstackpointer);   
   t3 = (s32)t1 - (s32)t2;   
   if (t3 == 0) 		// J. if binding level= binding stack 
-    goto do-unwind-protect13972;
+    goto do-unwind-protect16670;
 
-do-unwind-protect13973:
-  if (_trace) printf("do-unwind-protect13973:\n");
+do-unwind-protect16671:
+  if (_trace) printf("do-unwind-protect16671:\n");
   t1 = *(u64 *)&(processor->bindingstackpointer);   
   t4 = *(s32 *)&processor->control;   
   t1 = (u32)t1;   		// vma only 
@@ -66,17 +66,17 @@ do-unwind-protect13973:
   t3 = t4 & arg1;
   t4 = t4 & ~arg1;		// Turn off the bit 
   if (t3 != 0)   
-    goto g13974;
+    goto g16672;
   t4 = *(u64 *)&(processor->restartsp);   		// Get the SP, ->op2 
   arg5 = 0;
   arg2 = 20;
   goto illegaloperand;
 
-g13974:
-  if (_trace) printf("g13974:\n");
+g16672:
+  if (_trace) printf("g16672:\n");
   /* Memory Read Internal */
 
-vma-memory-read13975:
+vma-memory-read16673:
   t8 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t10 = t1 + ivory;
   t9 = *(s32 *)&processor->scovlimit;   
@@ -88,19 +88,19 @@ vma-memory-read13975:
   t6 = *(s32 *)t6;   
   t7 = (u8)(t7 >> ((t10&7)*8));   
   if (t9 != 0)   
-    goto vma-memory-read13977;
+    goto vma-memory-read16675;
 
-vma-memory-read13976:
+vma-memory-read16674:
   t10 = zero + 224;   
   t11 = t11 >> (t7 & 63);   
   t10 = t10 >> (t7 & 63);   
   if (t11 & 1)   
-    goto vma-memory-read13979;
+    goto vma-memory-read16677;
 
-vma-memory-read13984:
+vma-memory-read16682:
   /* Memory Read Internal */
 
-vma-memory-read13985:
+vma-memory-read16683:
   t8 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t10 = t5 + ivory;
   t9 = *(s32 *)&processor->scovlimit;   
@@ -112,20 +112,20 @@ vma-memory-read13985:
   arg1 = *(s32 *)arg1;   
   t3 = (u8)(t3 >> ((t10&7)*8));   
   if (t9 != 0)   
-    goto vma-memory-read13987;
+    goto vma-memory-read16685;
 
-vma-memory-read13986:
+vma-memory-read16684:
   t10 = zero + 224;   
   t11 = t11 >> (t3 & 63);   
   t10 = t10 >> (t3 & 63);   
   arg1 = (u32)arg1;   
   if (t11 & 1)   
-    goto vma-memory-read13989;
+    goto vma-memory-read16687;
 
-vma-memory-read13994:
+vma-memory-read16692:
   /* Memory Read Internal */
 
-vma-memory-read13995:
+vma-memory-read16693:
   t10 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t12 = arg1 + ivory;
   t11 = *(s32 *)&processor->scovlimit;   
@@ -136,17 +136,17 @@ vma-memory-read13995:
   t9 = *(s32 *)t9;   
   t8 = (u8)(t8 >> ((t12&7)*8));   
   if (t11 != 0)   
-    goto vma-memory-read13997;
+    goto vma-memory-read16695;
 
-vma-memory-read13996:
+vma-memory-read16694:
   t10 = *(u64 *)&(processor->bindwrite_mask);   
   t12 = zero + 224;   
   t10 = t10 >> (t8 & 63);   
   t12 = t12 >> (t8 & 63);   
   if (t10 & 1)   
-    goto vma-memory-read13999;
+    goto vma-memory-read16697;
 
-vma-memory-read14004:
+vma-memory-read16702:
   /* Merge cdr-code */
   t9 = t7 & 63;
   t8 = t8 & 192;
@@ -157,8 +157,8 @@ vma-memory-read14004:
   t11 = (t8 & 0xff) << ((t10&7)*8);   
   t12 = t12 & ~(0xffL << (t10&7)*8);   
 
-force-alignment14007:
-  if (_trace) printf("force-alignment14007:\n");
+force-alignment16705:
+  if (_trace) printf("force-alignment16705:\n");
   t12 = t12 | t11;
   t11 = *(u64 *)&(processor->stackcachebasevma);   
   STQ_U(t10, t12);   
@@ -167,9 +167,9 @@ force-alignment14007:
   t10 = ((u64)t11 < (u64)t10) ? 1 : 0;   		// In range? 
   *(u32 *)t9 = t6;
   if (t10 != 0)   		// J. if in cache 
-    goto vma-memory-write14006;
+    goto vma-memory-write16704;
 
-vma-memory-write14005:
+vma-memory-write16703:
   t3 = t3 & 64;		// Get the old cleanup-bindings bit 
   t3 = t3 << 19;   
   t1 = t1 - 2;   
@@ -180,18 +180,18 @@ vma-memory-write14005:
   t1 = *(u64 *)&(processor->bindingstackpointer);   
   t3 = (s32)t1 - (s32)t2;   
   if (t3 != 0)   		// J. if binding level/= binding stack 
-    goto do-unwind-protect13973;
+    goto do-unwind-protect16671;
   t2 = *(s32 *)&processor->interruptreg;   
   t3 = t2 & 2;
   t3 = (t3 == 2) ? 1 : 0;   
   t2 = t2 | t3;
   *(u32 *)&processor->interruptreg = t2;
   if (t2 == 0) 
-    goto do-unwind-protect13972;
+    goto do-unwind-protect16670;
   *(u64 *)&processor->stop_interpreter = t2;   
 
-do-unwind-protect13972:
-  if (_trace) printf("do-unwind-protect13972:\n");
+do-unwind-protect16670:
+  if (_trace) printf("do-unwind-protect16670:\n");
   /* Convert PC to a real continuation. */
   t3 = iPC & 1;
   t1 = iPC >> 1;   		// convert PC to a real word address. 
@@ -243,33 +243,33 @@ do-unwind-protect13972:
   *(u64 *)&processor->catchblock = t5;   
   goto interpretinstructionforbranch;   		// Execute cleanup 
 
-vma-memory-write14006:
-  if (_trace) printf("vma-memory-write14006:\n");
+vma-memory-write16704:
+  if (_trace) printf("vma-memory-write16704:\n");
   t10 = *(u64 *)&(processor->stackcachedata);   
   t10 = (t11 * 8) + t10;  		// reconstruct SCA 
 		/* Store in stack */
   *(u32 *)t10 = t6;
 		/* write the stack cache */
   *(u32 *)(t10 + 4) = t8;
-  goto vma-memory-write14005;   
+  goto vma-memory-write16703;   
 
-vma-memory-read13997:
-  if (_trace) printf("vma-memory-read13997:\n");
+vma-memory-read16695:
+  if (_trace) printf("vma-memory-read16695:\n");
   t11 = *(u64 *)&(processor->stackcachedata);   
   t10 = (t10 * 8) + t11;  		// reconstruct SCA 
   t9 = *(s32 *)t10;   
   t8 = *(s32 *)(t10 + 4);   		// Read from stack cache 
-  goto vma-memory-read13996;   
+  goto vma-memory-read16694;   
 
-vma-memory-read13999:
-  if (_trace) printf("vma-memory-read13999:\n");
+vma-memory-read16697:
+  if (_trace) printf("vma-memory-read16697:\n");
   if ((t12 & 1) == 0)   
-    goto vma-memory-read13998;
+    goto vma-memory-read16696;
   arg1 = (u32)t9;   		// Do the indirect thing 
-  goto vma-memory-read13995;   
+  goto vma-memory-read16693;   
 
-vma-memory-read13998:
-  if (_trace) printf("vma-memory-read13998:\n");
+vma-memory-read16696:
+  if (_trace) printf("vma-memory-read16696:\n");
   t10 = *(u64 *)&(processor->bindwrite);   		// Load the memory action table for cycle 
   /* TagType. */
   t12 = t8 & 63;		// Discard the CDR code 
@@ -277,29 +277,29 @@ vma-memory-read13998:
   t12 = (t12 * 4) + t10;   		// Adjust for a longword load 
   t10 = *(s32 *)t12;   		// Get the memory action 
 
-vma-memory-read14001:
+vma-memory-read16699:
   /* Perform memory action */
   arg1 = t10;
   arg2 = 3;
   goto performmemoryaction;
 
-vma-memory-read13987:
-  if (_trace) printf("vma-memory-read13987:\n");
+vma-memory-read16685:
+  if (_trace) printf("vma-memory-read16685:\n");
   t9 = *(u64 *)&(processor->stackcachedata);   
   t8 = (t8 * 8) + t9;  		// reconstruct SCA 
   arg1 = *(s32 *)t8;   
   t3 = *(s32 *)(t8 + 4);   		// Read from stack cache 
-  goto vma-memory-read13986;   
+  goto vma-memory-read16684;   
 
-vma-memory-read13989:
-  if (_trace) printf("vma-memory-read13989:\n");
+vma-memory-read16687:
+  if (_trace) printf("vma-memory-read16687:\n");
   if ((t10 & 1) == 0)   
-    goto vma-memory-read13988;
+    goto vma-memory-read16686;
   t5 = (u32)arg1;   		// Do the indirect thing 
-  goto vma-memory-read13985;   
+  goto vma-memory-read16683;   
 
-vma-memory-read13988:
-  if (_trace) printf("vma-memory-read13988:\n");
+vma-memory-read16686:
+  if (_trace) printf("vma-memory-read16686:\n");
   t11 = *(u64 *)&(processor->bindread);   		// Load the memory action table for cycle 
   /* TagType. */
   t10 = t3 & 63;		// Discard the CDR code 
@@ -307,29 +307,29 @@ vma-memory-read13988:
   t10 = (t10 * 4) + t11;   		// Adjust for a longword load 
   t11 = *(s32 *)t10;   		// Get the memory action 
 
-vma-memory-read13991:
+vma-memory-read16689:
   /* Perform memory action */
   arg1 = t11;
   arg2 = 2;
   goto performmemoryaction;
 
-vma-memory-read13977:
-  if (_trace) printf("vma-memory-read13977:\n");
+vma-memory-read16675:
+  if (_trace) printf("vma-memory-read16675:\n");
   t9 = *(u64 *)&(processor->stackcachedata);   
   t8 = (t8 * 8) + t9;  		// reconstruct SCA 
   t6 = *(s32 *)t8;   
   t7 = *(s32 *)(t8 + 4);   		// Read from stack cache 
-  goto vma-memory-read13976;   
+  goto vma-memory-read16674;   
 
-vma-memory-read13979:
-  if (_trace) printf("vma-memory-read13979:\n");
+vma-memory-read16677:
+  if (_trace) printf("vma-memory-read16677:\n");
   if ((t10 & 1) == 0)   
-    goto vma-memory-read13978;
+    goto vma-memory-read16676;
   t1 = (u32)t6;   		// Do the indirect thing 
-  goto vma-memory-read13975;   
+  goto vma-memory-read16673;   
 
-vma-memory-read13978:
-  if (_trace) printf("vma-memory-read13978:\n");
+vma-memory-read16676:
+  if (_trace) printf("vma-memory-read16676:\n");
   t11 = *(u64 *)&(processor->bindread);   		// Load the memory action table for cycle 
   /* TagType. */
   t10 = t7 & 63;		// Discard the CDR code 
@@ -337,7 +337,7 @@ vma-memory-read13978:
   t10 = (t10 * 4) + t11;   		// Adjust for a longword load 
   t11 = *(s32 *)t10;   		// Get the memory action 
 
-vma-memory-read13981:
+vma-memory-read16679:
   /* Perform memory action */
   arg1 = t11;
   arg2 = 2;
@@ -354,153 +354,153 @@ performmemoryaction:
   /* ARG2 contains the memory cycle so we can generate the proper microstate. */
   t1 = (arg1 == MemoryActionTrap) ? 1 : 0;   
 
-force-alignment14036:
-  if (_trace) printf("force-alignment14036:\n");
+force-alignment16734:
+  if (_trace) printf("force-alignment16734:\n");
   if (t1 == 0) 
-    goto basic-dispatch14009;
+    goto basic-dispatch16707;
   /* Here if argument MemoryActionTrap */
   t1 = *(u64 *)&(processor->vma);   		// Get the failing VMA 
   t2 = (arg2 == Cycle_DataRead) ? 1 : 0;   
 
-force-alignment14023:
-  if (_trace) printf("force-alignment14023:\n");
+force-alignment16721:
+  if (_trace) printf("force-alignment16721:\n");
   if (t2 == 0) 
-    goto basic-dispatch14011;
+    goto basic-dispatch16709;
   /* Here if argument CycleDataRead */
   arg5 = t1;
   arg2 = 57;
   goto illegaloperand;
 
-basic-dispatch14011:
-  if (_trace) printf("basic-dispatch14011:\n");
+basic-dispatch16709:
+  if (_trace) printf("basic-dispatch16709:\n");
   t2 = (arg2 == Cycle_DataWrite) ? 1 : 0;   
 
-force-alignment14024:
-  if (_trace) printf("force-alignment14024:\n");
+force-alignment16722:
+  if (_trace) printf("force-alignment16722:\n");
   if (t2 == 0) 
-    goto basic-dispatch14012;
+    goto basic-dispatch16710;
   /* Here if argument CycleDataWrite */
   arg5 = t1;
   arg2 = 58;
   goto illegaloperand;
 
-basic-dispatch14012:
-  if (_trace) printf("basic-dispatch14012:\n");
+basic-dispatch16710:
+  if (_trace) printf("basic-dispatch16710:\n");
   t2 = (arg2 == Cycle_BindRead) ? 1 : 0;   
 
-force-alignment14025:
-  if (_trace) printf("force-alignment14025:\n");
+force-alignment16723:
+  if (_trace) printf("force-alignment16723:\n");
   if (t2 != 0)   
-    goto basic-dispatch14014;
+    goto basic-dispatch16712;
   t2 = (arg2 == Cycle_BindReadNoMonitor) ? 1 : 0;   
 
-force-alignment14026:
-  if (_trace) printf("force-alignment14026:\n");
+force-alignment16724:
+  if (_trace) printf("force-alignment16724:\n");
   if (t2 == 0) 
-    goto basic-dispatch14013;
+    goto basic-dispatch16711;
 
-basic-dispatch14014:
-  if (_trace) printf("basic-dispatch14014:\n");
+basic-dispatch16712:
+  if (_trace) printf("basic-dispatch16712:\n");
   /* Here if argument (CycleBindRead CycleBindReadNoMonitor) */
   arg5 = t1;
   arg2 = 54;
   goto illegaloperand;
 
-basic-dispatch14013:
-  if (_trace) printf("basic-dispatch14013:\n");
+basic-dispatch16711:
+  if (_trace) printf("basic-dispatch16711:\n");
   t2 = (arg2 == Cycle_BindWrite) ? 1 : 0;   
 
-force-alignment14027:
-  if (_trace) printf("force-alignment14027:\n");
+force-alignment16725:
+  if (_trace) printf("force-alignment16725:\n");
   if (t2 != 0)   
-    goto basic-dispatch14016;
+    goto basic-dispatch16714;
   t2 = (arg2 == Cycle_BindWriteNoMonitor) ? 1 : 0;   
 
-force-alignment14028:
-  if (_trace) printf("force-alignment14028:\n");
+force-alignment16726:
+  if (_trace) printf("force-alignment16726:\n");
   if (t2 == 0) 
-    goto basic-dispatch14015;
+    goto basic-dispatch16713;
 
-basic-dispatch14016:
-  if (_trace) printf("basic-dispatch14016:\n");
+basic-dispatch16714:
+  if (_trace) printf("basic-dispatch16714:\n");
   /* Here if argument (CycleBindWrite CycleBindWriteNoMonitor) */
   arg5 = t1;
   arg2 = 55;
   goto illegaloperand;
 
-basic-dispatch14015:
-  if (_trace) printf("basic-dispatch14015:\n");
+basic-dispatch16713:
+  if (_trace) printf("basic-dispatch16713:\n");
   t2 = (arg2 == Cycle_Header) ? 1 : 0;   
 
-force-alignment14029:
-  if (_trace) printf("force-alignment14029:\n");
+force-alignment16727:
+  if (_trace) printf("force-alignment16727:\n");
   if (t2 != 0)   
-    goto basic-dispatch14018;
+    goto basic-dispatch16716;
   t2 = (arg2 == Cycle_StructureOffset) ? 1 : 0;   
 
-force-alignment14030:
-  if (_trace) printf("force-alignment14030:\n");
+force-alignment16728:
+  if (_trace) printf("force-alignment16728:\n");
   if (t2 == 0) 
-    goto basic-dispatch14017;
+    goto basic-dispatch16715;
 
-basic-dispatch14018:
-  if (_trace) printf("basic-dispatch14018:\n");
+basic-dispatch16716:
+  if (_trace) printf("basic-dispatch16716:\n");
   /* Here if argument (CycleHeader CycleStructureOffset) */
   arg5 = t1;
   arg2 = 59;
   goto illegaloperand;
 
-basic-dispatch14017:
-  if (_trace) printf("basic-dispatch14017:\n");
+basic-dispatch16715:
+  if (_trace) printf("basic-dispatch16715:\n");
   t2 = (arg2 == Cycle_Scavenge) ? 1 : 0;   
 
-force-alignment14031:
-  if (_trace) printf("force-alignment14031:\n");
+force-alignment16729:
+  if (_trace) printf("force-alignment16729:\n");
   if (t2 != 0)   
-    goto basic-dispatch14020;
+    goto basic-dispatch16718;
   t2 = (arg2 == Cycle_GCCopy) ? 1 : 0;   
 
-force-alignment14032:
-  if (_trace) printf("force-alignment14032:\n");
+force-alignment16730:
+  if (_trace) printf("force-alignment16730:\n");
   if (t2 == 0) 
-    goto basic-dispatch14019;
+    goto basic-dispatch16717;
 
-basic-dispatch14020:
-  if (_trace) printf("basic-dispatch14020:\n");
+basic-dispatch16718:
+  if (_trace) printf("basic-dispatch16718:\n");
   /* Here if argument (CycleScavenge CycleGCCopy) */
   arg5 = t1;
   arg2 = 60;
   goto illegaloperand;
 
-basic-dispatch14019:
-  if (_trace) printf("basic-dispatch14019:\n");
+basic-dispatch16717:
+  if (_trace) printf("basic-dispatch16717:\n");
   t2 = (arg2 == Cycle_Cdr) ? 1 : 0;   
 
-force-alignment14033:
-  if (_trace) printf("force-alignment14033:\n");
+force-alignment16731:
+  if (_trace) printf("force-alignment16731:\n");
   if (t2 == 0) 
-    goto basic-dispatch14010;
+    goto basic-dispatch16708;
   /* Here if argument CycleCdr */
   arg5 = t1;
   arg2 = 56;
   goto illegaloperand;
 
-basic-dispatch14010:
-  if (_trace) printf("basic-dispatch14010:\n");
+basic-dispatch16708:
+  if (_trace) printf("basic-dispatch16708:\n");
 
-basic-dispatch14009:
-  if (_trace) printf("basic-dispatch14009:\n");
+basic-dispatch16707:
+  if (_trace) printf("basic-dispatch16707:\n");
   t1 = (arg1 == MemoryActionMonitor) ? 1 : 0;   
 
-force-alignment14037:
-  if (_trace) printf("force-alignment14037:\n");
+force-alignment16735:
+  if (_trace) printf("force-alignment16735:\n");
   if (t1 == 0) 
-    goto basic-dispatch14008;
+    goto basic-dispatch16706;
   /* Here if argument MemoryActionMonitor */
   goto monitortrap;
 
-basic-dispatch14008:
-  if (_trace) printf("basic-dispatch14008:\n");
+basic-dispatch16706:
+  if (_trace) printf("basic-dispatch16706:\n");
 
 /* end PERFORMMEMORYACTION */
 /* start OutOfLineExceptions */
@@ -688,11 +688,11 @@ exception:
   if (t2 != 0)   
     goto nativeexception;
   if (arg3 != 0)   		// J. if arguments stacked 
-    goto exception-handler14039;
+    goto exception-handler16737;
   t1 = (u16)(arg2 >> ((4&7)*8));   		// Get original operand 
   t3 = (t1 == 512) ? 1 : 0;   		// t3 is non-zero iff SP|POP operand 
   if (t3 != 0)   		// SP|POP operand recovered by restoring SP 
-    goto exception-handler14039;
+    goto exception-handler16737;
   arg5 = iFP;   		// Assume FP mode 
   t3 = iSP + -2040;   		// SP mode constant 
   t4 = (u8)(arg2 >> ((5&7)*8));   		// Get the mode bits 
@@ -704,7 +704,7 @@ exception:
     arg5 = t3;
   arg5 = (t2 * 8) + arg5;  		// Compute operand address 
   if ((s64)t4 <= 0)  		// Not immediate mode 
-    goto exception-handler14040;
+    goto exception-handler16738;
   t1 = t2 << 56;   
   t3 = arg2 >> 16;   
   t1 = (s64)t1 >> 56;   
@@ -713,14 +713,14 @@ exception:
    t2 = t1;
   *(u32 *)&processor->immediate_arg = t2;
 
-exception-handler14040:
-  if (_trace) printf("exception-handler14040:\n");
+exception-handler16738:
+  if (_trace) printf("exception-handler16738:\n");
   t1 = zero + -32768;   
   t1 = t1 + ((2) << 16);   
   t2 = arg2 & t1;
   t3 = (t1 == t2) ? 1 : 0;   
   if (t3 == 0) 		// J. if not address-format operand 
-    goto exception-handler14041;
+    goto exception-handler16739;
   /* Convert stack cache address to VMA */
   t2 = *(u64 *)&(processor->stackcachedata);   
   t1 = *(u64 *)&(processor->stackcachebasevma);   
@@ -731,19 +731,19 @@ exception-handler14040:
   /* SetTag. */
   arg5 = t2 << 32;   
   arg5 = t1 | arg5;
-  goto exception-handler14042;   
+  goto exception-handler16740;   
 
-exception-handler14041:
-  if (_trace) printf("exception-handler14041:\n");
+exception-handler16739:
+  if (_trace) printf("exception-handler16739:\n");
   arg5 = *(u64 *)arg5;   		// Fetch the arg 
 
-exception-handler14042:
-  if (_trace) printf("exception-handler14042:\n");
+exception-handler16740:
+  if (_trace) printf("exception-handler16740:\n");
   *(u64 *)(iSP + 8) = arg5;   
   iSP = iSP + 8;
 
-exception-handler14039:
-  if (_trace) printf("exception-handler14039:\n");
+exception-handler16737:
+  if (_trace) printf("exception-handler16737:\n");
   arg2 = arg2 >> 10;   		// Shift opcode into position 
   arg2 = arg2 & 255;		// Just 8-bits of opcode 
   t11 = arg2 + TrapVector_InstructionException;   
@@ -772,7 +772,7 @@ arithmeticexception:
   t1 = (u16)(arg2 >> ((4&7)*8));   		// Get original operand 
   t3 = (t1 == 512) ? 1 : 0;   		// t3 is non-zero iff SP|POP operand 
   if (t3 != 0)   		// SP|POP operand recovered by restoring SP 
-    goto exception-handler14044;
+    goto exception-handler16742;
   arg5 = iFP;   		// Assume FP mode 
   t3 = iSP + -2040;   		// SP mode constant 
   t4 = (u8)(arg2 >> ((5&7)*8));   		// Get the mode bits 
@@ -784,7 +784,7 @@ arithmeticexception:
     arg5 = t3;
   arg5 = (t2 * 8) + arg5;  		// Compute operand address 
   if ((s64)t4 <= 0)  		// Not immediate mode 
-    goto exception-handler14045;
+    goto exception-handler16743;
   t1 = t2 << 56;   
   t3 = arg2 >> 16;   
   t1 = (s64)t1 >> 56;   
@@ -793,14 +793,14 @@ arithmeticexception:
    t2 = t1;
   *(u32 *)&processor->immediate_arg = t2;
 
-exception-handler14045:
-  if (_trace) printf("exception-handler14045:\n");
+exception-handler16743:
+  if (_trace) printf("exception-handler16743:\n");
   t1 = zero + -32768;   
   t1 = t1 + ((2) << 16);   
   t2 = arg2 & t1;
   t3 = (t1 == t2) ? 1 : 0;   
   if (t3 == 0) 		// J. if not address-format operand 
-    goto exception-handler14046;
+    goto exception-handler16744;
   /* Convert stack cache address to VMA */
   t2 = *(u64 *)&(processor->stackcachedata);   
   t1 = *(u64 *)&(processor->stackcachebasevma);   
@@ -811,32 +811,32 @@ exception-handler14045:
   /* SetTag. */
   arg5 = t2 << 32;   
   arg5 = t1 | arg5;
-  goto exception-handler14047;   
+  goto exception-handler16745;   
 
-exception-handler14046:
-  if (_trace) printf("exception-handler14046:\n");
+exception-handler16744:
+  if (_trace) printf("exception-handler16744:\n");
   arg5 = *(u64 *)arg5;   		// Fetch the arg 
 
-exception-handler14047:
-  if (_trace) printf("exception-handler14047:\n");
+exception-handler16745:
+  if (_trace) printf("exception-handler16745:\n");
   *(u64 *)(iSP + 8) = arg5;   
   iSP = iSP + 8;
 
-exception-handler14044:
-  if (_trace) printf("exception-handler14044:\n");
+exception-handler16742:
+  if (_trace) printf("exception-handler16742:\n");
   t4 = arg2 >> 17;   		// Get unary/nary bit of opcode 
   arg1 = 1;		// Assume unary 
   t11 = zero;
   t2 = iSP;
   if ((t4 & 1) == 0)   		// J. if not binary arithmetic dispatch 
-    goto exception-handler14043;
+    goto exception-handler16741;
   arg1 = 2;		// Nary -> Binary 
   t11 = *(s32 *)(iSP + 4);   
   t2 = t2 - 8;   
   t11 = t11 & 7;		// low three bits has opcode tag for op2 
 
-exception-handler14043:
-  if (_trace) printf("exception-handler14043:\n");
+exception-handler16741:
+  if (_trace) printf("exception-handler16741:\n");
   arg2 = arg2 >> 4;   		// Shift opcode into position 
   t2 = *(s32 *)(t2 + 4);   
   arg2 = arg2 & 1984;		// five bits from the opcode 
@@ -867,11 +867,11 @@ loopexception:
   if (t2 != 0)   
     goto nativeexception;
   if (arg3 != 0)   		// J. if arguments stacked 
-    goto exception-handler14049;
+    goto exception-handler16747;
   t1 = (u16)(arg2 >> ((4&7)*8));   		// Get original operand 
   t3 = (t1 == 512) ? 1 : 0;   		// t3 is non-zero iff SP|POP operand 
   if (t3 != 0)   		// SP|POP operand recovered by restoring SP 
-    goto exception-handler14049;
+    goto exception-handler16747;
   arg5 = iFP;   		// Assume FP mode 
   t3 = iSP + -2040;   		// SP mode constant 
   t4 = (u8)(arg2 >> ((5&7)*8));   		// Get the mode bits 
@@ -883,7 +883,7 @@ loopexception:
     arg5 = t3;
   arg5 = (t2 * 8) + arg5;  		// Compute operand address 
   if ((s64)t4 <= 0)  		// Not immediate mode 
-    goto exception-handler14050;
+    goto exception-handler16748;
   t1 = t2 << 56;   
   t3 = arg2 >> 16;   
   t1 = (s64)t1 >> 56;   
@@ -892,14 +892,14 @@ loopexception:
    t2 = t1;
   *(u32 *)&processor->immediate_arg = t2;
 
-exception-handler14050:
-  if (_trace) printf("exception-handler14050:\n");
+exception-handler16748:
+  if (_trace) printf("exception-handler16748:\n");
   t1 = zero + -32768;   
   t1 = t1 + ((2) << 16);   
   t2 = arg2 & t1;
   t3 = (t1 == t2) ? 1 : 0;   
   if (t3 == 0) 		// J. if not address-format operand 
-    goto exception-handler14051;
+    goto exception-handler16749;
   /* Convert stack cache address to VMA */
   t2 = *(u64 *)&(processor->stackcachedata);   
   t1 = *(u64 *)&(processor->stackcachebasevma);   
@@ -910,19 +910,19 @@ exception-handler14050:
   /* SetTag. */
   arg5 = t2 << 32;   
   arg5 = t1 | arg5;
-  goto exception-handler14052;   
+  goto exception-handler16750;   
 
-exception-handler14051:
-  if (_trace) printf("exception-handler14051:\n");
+exception-handler16749:
+  if (_trace) printf("exception-handler16749:\n");
   arg5 = *(u64 *)arg5;   		// Fetch the arg 
 
-exception-handler14052:
-  if (_trace) printf("exception-handler14052:\n");
+exception-handler16750:
+  if (_trace) printf("exception-handler16750:\n");
   *(u64 *)(iSP + 8) = arg5;   
   iSP = iSP + 8;
 
-exception-handler14049:
-  if (_trace) printf("exception-handler14049:\n");
+exception-handler16747:
+  if (_trace) printf("exception-handler16747:\n");
   arg2 = arg2 >> 10;   		// Shift opcode into position 
   arg2 = arg2 & 255;		// Just 8-bits of opcode 
   t11 = arg2 + TrapVector_InstructionException;   
@@ -959,7 +959,7 @@ handleexception:
   *(u64 *)&processor->tvi = t8;   		// Record TVI for tracing (if enabled) 
   /* Memory Read Internal */
 
-vma-memory-read14056:
+vma-memory-read16754:
   t9 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t6 = t8 + ivory;
   t7 = *(s32 *)&processor->scovlimit;   
@@ -971,21 +971,21 @@ vma-memory-read14056:
   t3 = *(s32 *)t3;   
   t2 = (u8)(t2 >> ((t6&7)*8));   
   if (t7 != 0)   
-    goto vma-memory-read14058;
+    goto vma-memory-read16756;
 
-vma-memory-read14057:
+vma-memory-read16755:
   t6 = zero + 240;   
   t5 = t5 >> (t2 & 63);   
   t6 = t6 >> (t2 & 63);   
   t3 = (u32)t3;   
   if (t5 & 1)   
-    goto vma-memory-read14060;
+    goto vma-memory-read16758;
 
-vma-memory-read14067:
+vma-memory-read16765:
   t5 = t2 - Type_EvenPC;   
   t5 = t5 & 62;		// Strip CDR code, low bits 
   if (t5 != 0)   
-    goto get-trap-vector-entry14055;
+    goto get-trap-vector-entry16753;
 		/* Restore the cr */
   *(u32 *)&processor->control = t4;
   t8 = *(s32 *)&processor->scovlimit;   		// Current stack cache limit (words) 
@@ -996,33 +996,33 @@ vma-memory-read14067:
   t6 = (t8 * 8) + t6;  		// SCA of current end of cache 
   t8 = ((s64)t5 <= (s64)t6) ? 1 : 0;   
   if (t8 == 0) 		// We're done if new SCA is within bounds 
-    goto stack-cache-overflow-check14068;
+    goto stack-cache-overflow-check16766;
   iFP = (arg1 * 8) + zero;  
   iFP = iSP - iFP;   
   iFP = iFP + 8;
   if (arg1 == 0) 
-    goto take-post-trap14053;
+    goto take-post-trap16751;
   t5 = *(u64 *)iSP;   
   *(u64 *)(iSP + 32) = t5;   
   arg1 = arg1 - 1;   
   if (arg1 == 0) 
-    goto take-post-trap14053;
+    goto take-post-trap16751;
   t5 = *(u64 *)(iSP + -8);   
   *(u64 *)(iSP + 24) = t5;   
   arg1 = arg1 - 1;   
   if (arg1 == 0) 
-    goto take-post-trap14053;
+    goto take-post-trap16751;
   t5 = *(u64 *)(iSP + -16);   
   *(u64 *)(iSP + 16) = t5;   
   arg1 = arg1 - 1;   
   if (arg1 == 0) 
-    goto take-post-trap14053;
+    goto take-post-trap16751;
   t5 = *(u64 *)(iSP + -24);   
   *(u64 *)(iSP + 8) = t5;   
   arg1 = arg1 - 1;   
 
-take-post-trap14053:
-  if (_trace) printf("take-post-trap14053:\n");
+take-post-trap16751:
+  if (_trace) printf("take-post-trap16751:\n");
   iSP = iSP + 32;
   t5 = *(s32 *)&processor->continuation;   
   t7 = *((s32 *)(&processor->continuation)+1);   
@@ -1098,7 +1098,7 @@ take-post-trap14053:
   t4 = t9 + t4;		// reconstruct VMA 
   t9 = ((s64)t4 < (s64)t8) ? 1 : 0;   		// Check for overflow 
   if (t9 == 0) 		// Jump if overflow 
-    goto take-post-trap14054;
+    goto take-post-trap16752;
   /* Convert a halfword address into a CP pointer. */
   iCP = iPC >> (CacheLine_RShift & 63);   		// Get third byte into bottom 
   t9 = *(u64 *)&(processor->icachebase);   		// get the base of the icache 
@@ -1113,34 +1113,34 @@ take-post-trap14053:
   iCP = t9 + iCP;		// cpos=base+cpos*48 
   goto cachevalid;   
 
-take-post-trap14054:
-  if (_trace) printf("take-post-trap14054:\n");
+take-post-trap16752:
+  if (_trace) printf("take-post-trap16752:\n");
   if (t6 == 0) 		// Take the overflow if in emulator mode 
     goto stackoverflow;
   goto fatalstackoverflow;
 
-stack-cache-overflow-check14068:
-  if (_trace) printf("stack-cache-overflow-check14068:\n");
+stack-cache-overflow-check16766:
+  if (_trace) printf("stack-cache-overflow-check16766:\n");
   arg2 = 8;
   goto stackcacheoverflowhandler;   
 
-vma-memory-read14058:
-  if (_trace) printf("vma-memory-read14058:\n");
+vma-memory-read16756:
+  if (_trace) printf("vma-memory-read16756:\n");
   t7 = *(u64 *)&(processor->stackcachedata);   
   t9 = (t9 * 8) + t7;  		// reconstruct SCA 
   t3 = *(s32 *)t9;   
   t2 = *(s32 *)(t9 + 4);   		// Read from stack cache 
-  goto vma-memory-read14057;   
+  goto vma-memory-read16755;   
 
-vma-memory-read14060:
-  if (_trace) printf("vma-memory-read14060:\n");
+vma-memory-read16758:
+  if (_trace) printf("vma-memory-read16758:\n");
   if ((t6 & 1) == 0)   
-    goto vma-memory-read14059;
+    goto vma-memory-read16757;
   t8 = (u32)t3;   		// Do the indirect thing 
-  goto vma-memory-read14056;   
+  goto vma-memory-read16754;   
 
-vma-memory-read14059:
-  if (_trace) printf("vma-memory-read14059:\n");
+vma-memory-read16757:
+  if (_trace) printf("vma-memory-read16757:\n");
   t5 = *(u64 *)&(processor->dataread);   		// Load the memory action table for cycle 
   /* TagType. */
   t6 = t2 & 63;		// Discard the CDR code 
@@ -1148,25 +1148,25 @@ vma-memory-read14059:
   t6 = (t6 * 4) + t5;   		// Adjust for a longword load 
   t5 = *(s32 *)t6;   		// Get the memory action 
 
-vma-memory-read14064:
-  if (_trace) printf("vma-memory-read14064:\n");
+vma-memory-read16762:
+  if (_trace) printf("vma-memory-read16762:\n");
   t6 = t5 & MemoryActionTransform;
   if (t6 == 0) 
-    goto vma-memory-read14063;
+    goto vma-memory-read16761;
   t2 = t2 & ~63L;
   t2 = t2 | Type_ExternalValueCellPointer;
-  goto vma-memory-read14067;   
+  goto vma-memory-read16765;   
 
-vma-memory-read14063:
+vma-memory-read16761:
 
-vma-memory-read14062:
+vma-memory-read16760:
   /* Perform memory action */
   arg1 = t5;
   arg2 = 0;
   goto performmemoryaction;
 
-get-trap-vector-entry14055:
-  if (_trace) printf("get-trap-vector-entry14055:\n");
+get-trap-vector-entry16753:
+  if (_trace) printf("get-trap-vector-entry16753:\n");
   goto illegaltrapvector;
 
 /* end HandleException */
@@ -1192,7 +1192,7 @@ stackoverflow:
   *(u64 *)&processor->tvi = t8;   		// Record TVI for tracing (if enabled) 
   /* Memory Read Internal */
 
-vma-memory-read14072:
+vma-memory-read16770:
   t9 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t6 = t8 + ivory;
   t7 = *(s32 *)&processor->scovlimit;   
@@ -1204,21 +1204,21 @@ vma-memory-read14072:
   t3 = *(s32 *)t3;   
   t2 = (u8)(t2 >> ((t6&7)*8));   
   if (t7 != 0)   
-    goto vma-memory-read14074;
+    goto vma-memory-read16772;
 
-vma-memory-read14073:
+vma-memory-read16771:
   t6 = zero + 240;   
   t5 = t5 >> (t2 & 63);   
   t6 = t6 >> (t2 & 63);   
   t3 = (u32)t3;   
   if (t5 & 1)   
-    goto vma-memory-read14076;
+    goto vma-memory-read16774;
 
-vma-memory-read14083:
+vma-memory-read16781:
   t5 = t2 - Type_EvenPC;   
   t5 = t5 & 62;		// Strip CDR code, low bits 
   if (t5 != 0)   
-    goto get-trap-vector-entry14071;
+    goto get-trap-vector-entry16769;
 		/* Restore the cr */
   *(u32 *)&processor->control = t4;
   t8 = *(s32 *)&processor->scovlimit;   		// Current stack cache limit (words) 
@@ -1229,29 +1229,29 @@ vma-memory-read14083:
   t6 = (t8 * 8) + t6;  		// SCA of current end of cache 
   t8 = ((s64)t5 <= (s64)t6) ? 1 : 0;   
   if (t8 == 0) 		// We're done if new SCA is within bounds 
-    goto stack-cache-overflow-check14084;
+    goto stack-cache-overflow-check16782;
   iFP = (zero * 8) + zero;  
   iFP = iSP - iFP;   
   iFP = iFP + 8;
   if (zero == 0) 
-    goto take-post-trap14069;
+    goto take-post-trap16767;
   t5 = *(u64 *)iSP;   
   *(u64 *)(iSP + 32) = t5;   
   if (zero == 0) 
-    goto take-post-trap14069;
+    goto take-post-trap16767;
   t5 = *(u64 *)(iSP + -8);   
   *(u64 *)(iSP + 24) = t5;   
   if (zero == 0) 
-    goto take-post-trap14069;
+    goto take-post-trap16767;
   t5 = *(u64 *)(iSP + -16);   
   *(u64 *)(iSP + 16) = t5;   
   if (zero == 0) 
-    goto take-post-trap14069;
+    goto take-post-trap16767;
   t5 = *(u64 *)(iSP + -24);   
   *(u64 *)(iSP + 8) = t5;   
 
-take-post-trap14069:
-  if (_trace) printf("take-post-trap14069:\n");
+take-post-trap16767:
+  if (_trace) printf("take-post-trap16767:\n");
   iSP = iSP + 32;
   t5 = *(s32 *)&processor->continuation;   
   t7 = *((s32 *)(&processor->continuation)+1);   
@@ -1327,7 +1327,7 @@ take-post-trap14069:
   t4 = t9 + t4;		// reconstruct VMA 
   t9 = ((s64)t4 < (s64)t8) ? 1 : 0;   		// Check for overflow 
   if (t9 == 0) 		// Jump if overflow 
-    goto take-post-trap14070;
+    goto take-post-trap16768;
   /* Convert a halfword address into a CP pointer. */
   iCP = iPC >> (CacheLine_RShift & 63);   		// Get third byte into bottom 
   t9 = *(u64 *)&(processor->icachebase);   		// get the base of the icache 
@@ -1342,34 +1342,34 @@ take-post-trap14069:
   iCP = t9 + iCP;		// cpos=base+cpos*48 
   goto cachevalid;   
 
-take-post-trap14070:
-  if (_trace) printf("take-post-trap14070:\n");
+take-post-trap16768:
+  if (_trace) printf("take-post-trap16768:\n");
   if (t6 == 0) 		// Take the overflow if in emulator mode 
     goto stackoverflow;
   goto fatalstackoverflow;
 
-stack-cache-overflow-check14084:
-  if (_trace) printf("stack-cache-overflow-check14084:\n");
+stack-cache-overflow-check16782:
+  if (_trace) printf("stack-cache-overflow-check16782:\n");
   arg2 = 8;
   goto stackcacheoverflowhandler;   
 
-vma-memory-read14074:
-  if (_trace) printf("vma-memory-read14074:\n");
+vma-memory-read16772:
+  if (_trace) printf("vma-memory-read16772:\n");
   t7 = *(u64 *)&(processor->stackcachedata);   
   t9 = (t9 * 8) + t7;  		// reconstruct SCA 
   t3 = *(s32 *)t9;   
   t2 = *(s32 *)(t9 + 4);   		// Read from stack cache 
-  goto vma-memory-read14073;   
+  goto vma-memory-read16771;   
 
-vma-memory-read14076:
-  if (_trace) printf("vma-memory-read14076:\n");
+vma-memory-read16774:
+  if (_trace) printf("vma-memory-read16774:\n");
   if ((t6 & 1) == 0)   
-    goto vma-memory-read14075;
+    goto vma-memory-read16773;
   t8 = (u32)t3;   		// Do the indirect thing 
-  goto vma-memory-read14072;   
+  goto vma-memory-read16770;   
 
-vma-memory-read14075:
-  if (_trace) printf("vma-memory-read14075:\n");
+vma-memory-read16773:
+  if (_trace) printf("vma-memory-read16773:\n");
   t5 = *(u64 *)&(processor->dataread);   		// Load the memory action table for cycle 
   /* TagType. */
   t6 = t2 & 63;		// Discard the CDR code 
@@ -1377,25 +1377,25 @@ vma-memory-read14075:
   t6 = (t6 * 4) + t5;   		// Adjust for a longword load 
   t5 = *(s32 *)t6;   		// Get the memory action 
 
-vma-memory-read14080:
-  if (_trace) printf("vma-memory-read14080:\n");
+vma-memory-read16778:
+  if (_trace) printf("vma-memory-read16778:\n");
   t6 = t5 & MemoryActionTransform;
   if (t6 == 0) 
-    goto vma-memory-read14079;
+    goto vma-memory-read16777;
   t2 = t2 & ~63L;
   t2 = t2 | Type_ExternalValueCellPointer;
-  goto vma-memory-read14083;   
+  goto vma-memory-read16781;   
 
-vma-memory-read14079:
+vma-memory-read16777:
 
-vma-memory-read14078:
+vma-memory-read16776:
   /* Perform memory action */
   arg1 = t5;
   arg2 = 0;
   goto performmemoryaction;
 
-get-trap-vector-entry14071:
-  if (_trace) printf("get-trap-vector-entry14071:\n");
+get-trap-vector-entry16769:
+  if (_trace) printf("get-trap-vector-entry16769:\n");
   goto illegaltrapvector;
 
 /* end STACKOVERFLOW */
@@ -1422,7 +1422,7 @@ startpretrap:
   *(u64 *)&processor->tvi = t8;   		// Record TVI for tracing (if enabled) 
   /* Memory Read Internal */
 
-vma-memory-read14086:
+vma-memory-read16784:
   t9 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t6 = t8 + ivory;
   t7 = *(s32 *)&processor->scovlimit;   
@@ -1434,21 +1434,21 @@ vma-memory-read14086:
   t3 = *(s32 *)t3;   
   t2 = (u8)(t2 >> ((t6&7)*8));   
   if (t7 != 0)   
-    goto vma-memory-read14088;
+    goto vma-memory-read16786;
 
-vma-memory-read14087:
+vma-memory-read16785:
   t6 = zero + 240;   
   t5 = t5 >> (t2 & 63);   
   t6 = t6 >> (t2 & 63);   
   t3 = (u32)t3;   
   if (t5 & 1)   
-    goto vma-memory-read14090;
+    goto vma-memory-read16788;
 
-vma-memory-read14097:
+vma-memory-read16795:
   t5 = t2 - Type_EvenPC;   
   t5 = t5 & 62;		// Strip CDR code, low bits 
   if (t5 != 0)   
-    goto get-trap-vector-entry14085;
+    goto get-trap-vector-entry16783;
 		/* Restore the cr */
   *(u32 *)&processor->control = t4;
   iSP = *(u64 *)&(processor->restartsp);   
@@ -1460,7 +1460,7 @@ vma-memory-read14097:
   t5 = (t7 * 8) + t5;  		// SCA of current end of cache 
   t7 = ((s64)t4 <= (s64)t5) ? 1 : 0;   
   if (t7 == 0) 		// We're done if new SCA is within bounds 
-    goto stack-cache-overflow-check14098;
+    goto stack-cache-overflow-check16796;
   t5 = *(s32 *)&processor->continuation;   
   t4 = *((s32 *)(&processor->continuation)+1);   
   t5 = (u32)t5;   
@@ -1496,28 +1496,28 @@ vma-memory-read14097:
   iSP = iSP + 8;
   goto *r0; /* ret */
 
-stack-cache-overflow-check14098:
-  if (_trace) printf("stack-cache-overflow-check14098:\n");
+stack-cache-overflow-check16796:
+  if (_trace) printf("stack-cache-overflow-check16796:\n");
   arg2 = 8;
   goto stackcacheoverflowhandler;   
 
-vma-memory-read14088:
-  if (_trace) printf("vma-memory-read14088:\n");
+vma-memory-read16786:
+  if (_trace) printf("vma-memory-read16786:\n");
   t7 = *(u64 *)&(processor->stackcachedata);   
   t9 = (t9 * 8) + t7;  		// reconstruct SCA 
   t3 = *(s32 *)t9;   
   t2 = *(s32 *)(t9 + 4);   		// Read from stack cache 
-  goto vma-memory-read14087;   
+  goto vma-memory-read16785;   
 
-vma-memory-read14090:
-  if (_trace) printf("vma-memory-read14090:\n");
+vma-memory-read16788:
+  if (_trace) printf("vma-memory-read16788:\n");
   if ((t6 & 1) == 0)   
-    goto vma-memory-read14089;
+    goto vma-memory-read16787;
   t8 = (u32)t3;   		// Do the indirect thing 
-  goto vma-memory-read14086;   
+  goto vma-memory-read16784;   
 
-vma-memory-read14089:
-  if (_trace) printf("vma-memory-read14089:\n");
+vma-memory-read16787:
+  if (_trace) printf("vma-memory-read16787:\n");
   t5 = *(u64 *)&(processor->dataread);   		// Load the memory action table for cycle 
   /* TagType. */
   t6 = t2 & 63;		// Discard the CDR code 
@@ -1525,25 +1525,25 @@ vma-memory-read14089:
   t6 = (t6 * 4) + t5;   		// Adjust for a longword load 
   t5 = *(s32 *)t6;   		// Get the memory action 
 
-vma-memory-read14094:
-  if (_trace) printf("vma-memory-read14094:\n");
+vma-memory-read16792:
+  if (_trace) printf("vma-memory-read16792:\n");
   t6 = t5 & MemoryActionTransform;
   if (t6 == 0) 
-    goto vma-memory-read14093;
+    goto vma-memory-read16791;
   t2 = t2 & ~63L;
   t2 = t2 | Type_ExternalValueCellPointer;
-  goto vma-memory-read14097;   
+  goto vma-memory-read16795;   
 
-vma-memory-read14093:
+vma-memory-read16791:
 
-vma-memory-read14092:
+vma-memory-read16790:
   /* Perform memory action */
   arg1 = t5;
   arg2 = 0;
   goto performmemoryaction;
 
-get-trap-vector-entry14085:
-  if (_trace) printf("get-trap-vector-entry14085:\n");
+get-trap-vector-entry16783:
+  if (_trace) printf("get-trap-vector-entry16783:\n");
   goto illegaltrapvector;
 
 /* end StartPreTrap */
@@ -1614,19 +1614,11 @@ finishpretrap:
 
 illegaloperand:
   if (_trace) printf("illegaloperand:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmetererror;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_Error;		// save the trap vector index 
-  r0 = (u64)&&return0434;
+  r0 = (u64)&&return0530;
   goto startpretrap;
-return0434:
+return0530:
   t11 = Type_Fixnum;
   *(u32 *)(iSP + 8) = arg2;
 		/* write the stack cache */
@@ -1645,19 +1637,11 @@ return0434:
 
 resettrap:
   if (_trace) printf("resettrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_Reset;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_Reset;		// save the trap vector index 
-  r0 = (u64)&&return0435;
+  r0 = (u64)&&return0531;
   goto startpretrap;
-return0435:
+return0531:
   goto finishpretrap;   
 
 /* end RESETTRAP */
@@ -1666,14 +1650,6 @@ return0435:
 
 pullapplyargstrap:
   if (_trace) printf("pullapplyargstrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_PullApplyArgs;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t12 = *(s32 *)iSP;   
   t11 = *(s32 *)(iSP + 4);   
   iSP = iSP - 8;   		// Pop Stack. 
@@ -1681,9 +1657,9 @@ pullapplyargstrap:
   *(u64 *)&processor->restartsp = iSP;   
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_PullApplyArgs;		// save the trap vector index 
-  r0 = (u64)&&return0436;
+  r0 = (u64)&&return0532;
   goto startpretrap;
-return0436:
+return0532:
   arg2 = Type_Fixnum;
   *(u32 *)(iSP + 8) = arg1;
 		/* write the stack cache */
@@ -1702,19 +1678,11 @@ return0436:
 
 tracetrap:
   if (_trace) printf("tracetrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_Trace;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_Trace;		// save the trap vector index 
-  r0 = (u64)&&return0437;
+  r0 = (u64)&&return0533;
   goto startpretrap;
-return0437:
+return0533:
   goto finishpretrap;   
 
 /* end TRACETRAP */
@@ -1723,19 +1691,12 @@ return0437:
 
 preemptrequesttrap:
   if (_trace) printf("preemptrequesttrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_PreemptRequest;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
 #endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_PreemptRequest;		// save the trap vector index 
-  r0 = (u64)&&return0438;
+  r0 = (u64)&&return0534;
   goto startpretrap;
-return0438:
+return0534:
   goto finishpretrap;   
 
 /* end PREEMPTREQUESTTRAP */
@@ -1744,19 +1705,11 @@ return0438:
 
 highprioritysequencebreak:
   if (_trace) printf("highprioritysequencebreak:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_HighPrioritySequenceBreak;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_HighPrioritySequenceBreak;		// save the trap vector index 
-  r0 = (u64)&&return0439;
+  r0 = (u64)&&return0535;
   goto startpretrap;
-return0439:
+return0535:
   goto finishpretrap;   
 
 /* end HIGHPRIORITYSEQUENCEBREAK */
@@ -1765,19 +1718,11 @@ return0439:
 
 lowprioritysequencebreak:
   if (_trace) printf("lowprioritysequencebreak:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_LowPrioritySequenceBreak;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_LowPrioritySequenceBreak;		// save the trap vector index 
-  r0 = (u64)&&return0440;
+  r0 = (u64)&&return0536;
   goto startpretrap;
-return0440:
+return0536:
   goto finishpretrap;   
 
 /* end LOWPRIORITYSEQUENCEBREAK */
@@ -1786,19 +1731,11 @@ return0440:
 
 dbunwindframetrap:
   if (_trace) printf("dbunwindframetrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_DBUnwindFrame;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_DBUnwindFrame;		// save the trap vector index 
-  r0 = (u64)&&return0441;
+  r0 = (u64)&&return0537;
   goto startpretrap;
-return0441:
+return0537:
   t11 = *(u64 *)&(processor->bindingstackpointer);   
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
@@ -1813,19 +1750,11 @@ return0441:
 
 dbunwindcatchtrap:
   if (_trace) printf("dbunwindcatchtrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + TrapVector_DBUnwindCatch;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_DBUnwindCatch;		// save the trap vector index 
-  r0 = (u64)&&return0442;
+  r0 = (u64)&&return0538;
   goto startpretrap;
-return0442:
+return0538:
   t11 = *(u64 *)&(processor->bindingstackpointer);   
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
@@ -1840,20 +1769,12 @@ return0442:
 
 transporttrap:
   if (_trace) printf("transporttrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmetertransport;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_Transport;		// save the trap vector index 
-  r0 = (u64)&&return0443;
+  r0 = (u64)&&return0539;
   goto startpretrap;
-return0443:
+return0539:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */
@@ -1867,20 +1788,12 @@ return0443:
 
 monitortrap:
   if (_trace) printf("monitortrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmetermonitor;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_Monitor;		// save the trap vector index 
-  r0 = (u64)&&return0444;
+  r0 = (u64)&&return0540;
   goto startpretrap;
-return0444:
+return0540:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */
@@ -1894,20 +1807,12 @@ return0444:
 
 pagenotresident:
   if (_trace) printf("pagenotresident:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmeterpagenotresident;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_PageNotResident;		// save the trap vector index 
-  r0 = (u64)&&return0445;
+  r0 = (u64)&&return0541;
   goto startpretrap;
-return0445:
+return0541:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */
@@ -1921,20 +1826,12 @@ return0445:
 
 pagefaultrequesthandler:
   if (_trace) printf("pagefaultrequesthandler:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmeterpagefaultrequest;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_PageFaultRequest;		// save the trap vector index 
-  r0 = (u64)&&return0446;
+  r0 = (u64)&&return0542;
   goto startpretrap;
-return0446:
+return0542:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */
@@ -1948,20 +1845,12 @@ return0446:
 
 pagewritefault:
   if (_trace) printf("pagewritefault:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmeterpagewritefault;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_PageWriteFault;		// save the trap vector index 
-  r0 = (u64)&&return0447;
+  r0 = (u64)&&return0543;
   goto startpretrap;
-return0447:
+return0543:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */
@@ -1976,20 +1865,12 @@ return0447:
 
 dbcachemisstrap:
   if (_trace) printf("dbcachemisstrap:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmeterdbcachemiss;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = trapvectordbcachemiss;		// save the trap vector index 
-  r0 = (u64)&&return0448;
+  r0 = (u64)&&return0544;
   goto startpretrap;
-return0448:
+return0544:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */
@@ -2005,20 +1886,12 @@ return0448:
 
 uncorrectablememoryerror:
   if (_trace) printf("uncorrectablememoryerror:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmeteruncorrectablememoryerror;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_UncorrectableMemoryError;		// save the trap vector index 
-  r0 = (u64)&&return0449;
+  r0 = (u64)&&return0545;
   goto startpretrap;
-return0449:
+return0545:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */
@@ -2032,20 +1905,12 @@ return0449:
 
 buserror:
   if (_trace) printf("buserror:\n");
-#ifdef TRAPMETERING
-  t1 = *(u64 *)&(processor->trapmeterdata);   		// pointer to trap data vector 
-  t2 = zero + trapmetermemorybuserror;   		// get the vector index 
-  t1 = (t2 * 8) + t1;  
-  t2 = *(u64 *)t1;   		// get the old value 
-  t2 = t2 + 1;   		// increment it 
-  *(u64 *)t1 = t2;   		// and store it back 
-#endif
   t11 = *(u64 *)&(processor->vma);   		// Preserve VMA against reading trap vector 
   t1 = iFP;		// save old frame pointer 
   t10 = TrapVector_MemoryBusError;		// save the trap vector index 
-  r0 = (u64)&&return0450;
+  r0 = (u64)&&return0546;
   goto startpretrap;
-return0450:
+return0546:
   t12 = Type_Locative;
   *(u32 *)(iSP + 8) = t11;
 		/* write the stack cache */

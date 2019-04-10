@@ -33,31 +33,31 @@ collision:
   t4 = t4 >> 30;   		// Isolate current trap mode 
   t3 = (r0 == TrapReason_HighPrioritySequenceBreak) ? 1 : 0;   
 
-force-alignment14104:
-  if (_trace) printf("force-alignment14104:\n");
+force-alignment16802:
+  if (_trace) printf("force-alignment16802:\n");
   if (t3 == 0) 
-    goto basic-dispatch14100;
+    goto basic-dispatch16798;
   /* Here if argument TrapReasonHighPrioritySequenceBreak */
   t4 = ((u64)t4 <= (u64)TrapMode_ExtraStack) ? 1 : 0;   		// Only interrupts EXTRA-STACK and EMULATOR 
   if (t4 == 0) 
     goto continuecurrentinstruction;
   goto highprioritysequencebreak;
 
-basic-dispatch14100:
-  if (_trace) printf("basic-dispatch14100:\n");
+basic-dispatch16798:
+  if (_trace) printf("basic-dispatch16798:\n");
   t3 = (r0 == TrapReason_LowPrioritySequenceBreak) ? 1 : 0;   
 
-force-alignment14105:
-  if (_trace) printf("force-alignment14105:\n");
+force-alignment16803:
+  if (_trace) printf("force-alignment16803:\n");
   if (t3 == 0) 
-    goto basic-dispatch14101;
+    goto basic-dispatch16799;
   /* Here if argument TrapReasonLowPrioritySequenceBreak */
   if (t4 != 0)   		// Only interrupts EMULATOR 
     goto continuecurrentinstruction;
   goto lowprioritysequencebreak;
 
-basic-dispatch14101:
-  if (_trace) printf("basic-dispatch14101:\n");
+basic-dispatch16799:
+  if (_trace) printf("basic-dispatch16799:\n");
   /* Here for all other cases */
   /* Check for preempt-request trap */
   t5 = *(s32 *)&processor->interruptreg;   		// Get the preempt-pending bit 
@@ -67,8 +67,8 @@ basic-dispatch14101:
     goto continuecurrentinstruction;
   goto preemptrequesttrap;
 
-basic-dispatch14099:
-  if (_trace) printf("basic-dispatch14099:\n");
+basic-dispatch16797:
+  if (_trace) printf("basic-dispatch16797:\n");
 
 SUSPENDMACHINE:
   if (_trace) printf("SUSPENDMACHINE:\n");

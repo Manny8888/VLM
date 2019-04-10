@@ -14,7 +14,7 @@ fetchdoublefloat:
   sp = sp + -8;   
   /* Memory Read Internal */
 
-vma-memory-read14107:
+vma-memory-read16805:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -24,25 +24,25 @@ vma-memory-read14107:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read14109;
+    goto vma-memory-read16807;
 
-vma-memory-read14108:
+vma-memory-read16806:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read14111;
+    goto vma-memory-read16809;
 
-vma-memory-read14118:
+vma-memory-read16816:
   t5 = arg5 - Type_Fixnum;   
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
-    goto fetch-double-float-internal14106;
+    goto fetch-double-float-internal16804;
   *((u32 *)(&processor->fp0)+1) = arg6;
   arg2 = arg2 + 1;
   /* Memory Read Internal */
 
-vma-memory-read14119:
+vma-memory-read16817:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -52,64 +52,64 @@ vma-memory-read14119:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read14121;
+    goto vma-memory-read16819;
 
-vma-memory-read14120:
+vma-memory-read16818:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read14123;
+    goto vma-memory-read16821;
 
-vma-memory-read14130:
+vma-memory-read16828:
   t5 = arg5 - Type_Fixnum;   
   t5 = t5 & 63;		// Strip CDR code 
   if (t5 != 0)   
-    goto fetch-double-float-internal14106;
+    goto fetch-double-float-internal16804;
   *(u32 *)&processor->fp0 = arg6;
   sp = sp + 8;   
   goto *r0; /* ret */
 
-vma-memory-read14123:
-  if (_trace) printf("vma-memory-read14123:\n");
+vma-memory-read16821:
+  if (_trace) printf("vma-memory-read16821:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read14122;
+    goto vma-memory-read16820;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read14119;   
+  goto vma-memory-read16817;   
 
-vma-memory-read14122:
-  if (_trace) printf("vma-memory-read14122:\n");
+vma-memory-read16820:
+  if (_trace) printf("vma-memory-read16820:\n");
 
-vma-memory-read14121:
-  if (_trace) printf("vma-memory-read14121:\n");
+vma-memory-read16819:
+  if (_trace) printf("vma-memory-read16819:\n");
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0451;
+  r0 = (u64)&&return0547;
   goto memoryreaddatadecode;
-return0451:
+return0547:
   r0 = *(u64 *)sp;   
-  goto vma-memory-read14130;   
+  goto vma-memory-read16828;   
 
-vma-memory-read14111:
-  if (_trace) printf("vma-memory-read14111:\n");
+vma-memory-read16809:
+  if (_trace) printf("vma-memory-read16809:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read14110;
+    goto vma-memory-read16808;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read14107;   
+  goto vma-memory-read16805;   
 
-vma-memory-read14110:
-  if (_trace) printf("vma-memory-read14110:\n");
+vma-memory-read16808:
+  if (_trace) printf("vma-memory-read16808:\n");
 
-vma-memory-read14109:
-  if (_trace) printf("vma-memory-read14109:\n");
+vma-memory-read16807:
+  if (_trace) printf("vma-memory-read16807:\n");
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0452;
+  r0 = (u64)&&return0548;
   goto memoryreaddatadecode;
-return0452:
+return0548:
   r0 = *(u64 *)sp;   
-  goto vma-memory-read14118;   
+  goto vma-memory-read16816;   
 
-fetch-double-float-internal14106:
-  if (_trace) printf("fetch-double-float-internal14106:\n");
+fetch-double-float-internal16804:
+  if (_trace) printf("fetch-double-float-internal16804:\n");
   arg6 = Type_DoubleFloat;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
@@ -131,10 +131,10 @@ consdoublefloat:
   arg2 = *(u64 *)&(processor->lcaddress);   		// Fetch address 
   t7 = (t5 == t8) ? 1 : 0;   
   if (t7 != 0)   		// Decached area 
-    goto cons-double-float-internal14131;
+    goto cons-double-float-internal16829;
   t7 = t6 - 2;   		// Effectively an unsigned 32-bit compare 
   if ((s64)t7 < 0)   		// Insufficient cache 
-    goto cons-double-float-internal14131;
+    goto cons-double-float-internal16829;
   /* trapb force the trap to occur here */   		// Force the trap to occur here 
 		/* Store remaining length */
   *(u32 *)&processor->lclength = t7;
@@ -151,8 +151,8 @@ consdoublefloat:
   t6 = (t9 & 0xff) << ((t5&7)*8);   
   t7 = t7 & ~(0xffL << (t5&7)*8);   
 
-force-alignment14132:
-  if (_trace) printf("force-alignment14132:\n");
+force-alignment16830:
+  if (_trace) printf("force-alignment16830:\n");
   t7 = t7 | t6;
   STQ_U(t5, t7);   
   *(u32 *)t8 = arg5;
@@ -165,16 +165,16 @@ force-alignment14132:
   t6 = (t9 & 0xff) << ((t5&7)*8);   
   t7 = t7 & ~(0xffL << (t5&7)*8);   
 
-force-alignment14133:
-  if (_trace) printf("force-alignment14133:\n");
+force-alignment16831:
+  if (_trace) printf("force-alignment16831:\n");
   t7 = t7 | t6;
   STQ_U(t5, t7);   
   *(u32 *)t8 = arg6;
   sp = sp + 8;   
   goto *r0; /* ret */
 
-cons-double-float-internal14131:
-  if (_trace) printf("cons-double-float-internal14131:\n");
+cons-double-float-internal16829:
+  if (_trace) printf("cons-double-float-internal16829:\n");
   arg6 = Type_DoubleFloat;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
@@ -243,46 +243,46 @@ begindodoublefloatop:
   t3 = zero + DoubleFloatOp_Add;   
   t3 = t1 - t3;   
   if (t3 != 0)   
-    goto mondo-dispatch14135;
+    goto mondo-dispatch16833;
   /* Here if argument DoubleFloatOpAdd */
   ADDT(1, f1, 1, f1, 2, f2); /* addt */   
-  goto mondo-dispatch14134;   
+  goto mondo-dispatch16832;   
 
-mondo-dispatch14135:
-  if (_trace) printf("mondo-dispatch14135:\n");
+mondo-dispatch16833:
+  if (_trace) printf("mondo-dispatch16833:\n");
   t3 = zero + DoubleFloatOp_Sub;   
   t3 = t1 - t3;   
   if (t3 != 0)   
-    goto mondo-dispatch14136;
+    goto mondo-dispatch16834;
   /* Here if argument DoubleFloatOpSub */
   SUBT(1, f1, 1, f1, 2, f2);   
-  goto mondo-dispatch14134;   
+  goto mondo-dispatch16832;   
 
-mondo-dispatch14136:
-  if (_trace) printf("mondo-dispatch14136:\n");
+mondo-dispatch16834:
+  if (_trace) printf("mondo-dispatch16834:\n");
   t3 = zero + DoubleFloatOp_Multiply;   
   t3 = t1 - t3;   
   if (t3 != 0)   
-    goto mondo-dispatch14137;
+    goto mondo-dispatch16835;
   /* Here if argument DoubleFloatOpMultiply */
   MULT(1, f1, 1, f1, 2, f2);   
-  goto mondo-dispatch14134;   
+  goto mondo-dispatch16832;   
 
-mondo-dispatch14137:
-  if (_trace) printf("mondo-dispatch14137:\n");
+mondo-dispatch16835:
+  if (_trace) printf("mondo-dispatch16835:\n");
   t3 = zero + DoubleFloatOp_Divide;   
   t3 = t1 - t3;   
   if (t3 != 0)   
-    goto mondo-dispatch14138;
+    goto mondo-dispatch16836;
   /* Here if argument DoubleFloatOpDivide */
   DIVT(1, f1, 1, f1, 2, f2);   
-  goto mondo-dispatch14134;   
+  goto mondo-dispatch16832;   
 
-mondo-dispatch14138:
-  if (_trace) printf("mondo-dispatch14138:\n");
+mondo-dispatch16836:
+  if (_trace) printf("mondo-dispatch16836:\n");
 
-mondo-dispatch14134:
-  if (_trace) printf("mondo-dispatch14134:\n");
+mondo-dispatch16832:
+  if (_trace) printf("mondo-dispatch16832:\n");
   /* trapb force the trap to occur here */   		// Force the trap to occur here 
   t3 = *(u64 *)&(processor->niladdress);   		// There was no FP exception 
 

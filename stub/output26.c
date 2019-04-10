@@ -45,9 +45,9 @@ carsubroutine:
   r0 = r0 + 4;
   *(u64 *)&processor->restartsp = iSP;   
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0453;
+  r0 = (u64)&&return0549;
   goto carinternal;
-return0453:
+return0549:
   r0 = *(u64 *)sp;   
   *(u64 *)&processor->linkage = zero;   
   sp = sp + 8;   
@@ -66,9 +66,9 @@ cdrsubroutine:
   r0 = r0 + 4;
   *(u64 *)&processor->restartsp = iSP;   
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0454;
+  r0 = (u64)&&return0550;
   goto cdrinternal;
-return0454:
+return0550:
   r0 = *(u64 *)sp;   
   *(u64 *)&processor->linkage = zero;   
   sp = sp + 8;   
@@ -87,9 +87,9 @@ carcdrsubroutine:
   r0 = r0 + 4;
   *(u64 *)&processor->restartsp = iSP;   
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0455;
+  r0 = (u64)&&return0551;
   goto carcdrinternal;
-return0455:
+return0551:
   r0 = *(u64 *)sp;   
   *(u64 *)&processor->linkage = zero;   
   sp = sp + 8;   

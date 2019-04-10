@@ -121,10 +121,10 @@ begindopushaddresssprelative:
   t2 = t1 & 63;		// Strip off any CDR code bits. 
   t3 = (t2 == Type_Fixnum) ? 1 : 0;   
 
-force-alignment13219:
-  if (_trace) printf("force-alignment13219:\n");
+force-alignment15917:
+  if (_trace) printf("force-alignment15917:\n");
   if (t3 == 0) 
-    goto basic-dispatch13216;
+    goto basic-dispatch15914;
   /* Here if argument TypeFixnum */
   arg1 = (arg1 * 8) + 8;  
   t5 = t4 - arg1;   		// Compute stack relative pointer 
@@ -140,15 +140,15 @@ force-alignment13219:
   iSP = iSP + 8;
   goto cachevalid;   
 
-basic-dispatch13216:
-  if (_trace) printf("basic-dispatch13216:\n");
+basic-dispatch15914:
+  if (_trace) printf("basic-dispatch15914:\n");
   /* Here for all other cases */
   arg5 = 0;
   arg2 = 63;
   goto illegaloperand;
 
-basic-dispatch13215:
-  if (_trace) printf("basic-dispatch13215:\n");
+basic-dispatch15913:
+  if (_trace) printf("basic-dispatch15913:\n");
 
 /* end DoPushAddressSpRelative */
   /* End of Halfword operand from stack instruction - DoPushAddressSpRelative */
