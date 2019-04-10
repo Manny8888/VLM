@@ -3,7 +3,7 @@
 
 ;; This ensures there are two arguments
 (defmacro verify-generic-arity (cr nargs temp4)
-  (let ((recheck (gensym "verify-generic-arity")))
+  (let ((recheck (gensym "verify_generic_arity")))
     `((load-constant ,temp4 #.1_17 "cr.apply")
       (AND ,temp4 ,cr ,temp4)
       (BEQ ,temp4 ,recheck "not applying")
@@ -16,10 +16,10 @@
 ;; Reads the instance itag/idata and returns mask data and mapping table data
 (defmacro instance-descriptor-info (itag idata mask-data table-data
 				                            vma tag data temp temp2 temp3 temp4)
-  (let ((masknotfix (gensym "instance-descriptor-info"))
-	      (notlocative (gensym "instance-descriptor-info"))
-	      (instance-tag (gensym "instance-descriptor-info"))
-	      (non-instance-tag (gensym "instance-descriptor-info")))
+  (let ((masknotfix (gensym "instance_descriptor_info"))
+	      (notlocative (gensym "instance_descriptor_info"))
+	      (instance-tag (gensym "instance_descriptor_info"))
+	      (non-instance-tag (gensym "instance_descriptor_info")))
     (push
      `((label ,non-instance-tag)
 	     (comment "not an instance, flavor description comes from magic vector")
@@ -68,8 +68,8 @@
 ;; Returns parameter ptag/pdata and method mtag/mdata
 (defmacro lookup-handler (gtag gdata table mask ptag pdata mtag mdata
 			                    offset vma tag data temp2 temp3 temp4 temp5)
-  (let ((found (gensym "lookup-handler"))
-	      (loop (gensym "lookup-handler")))
+  (let ((found (gensym "lookup_handler"))
+	      (loop (gensym "lookup_handler")))
     `((AND ,mask ,gdata ,vma)
       (SLL ,vma 1 ,temp2)
       (ADDQ ,vma ,temp2 ,offset "(* (logand mask data) 3)")
@@ -100,8 +100,8 @@
       )))
 
 (defmacro generic-dispatch (gtag gdata itag idata mtag mdata ptag pdata cr nargs temp2 temp3)
-  (let ((isnil (gensym "generic-dispatch"))
-	      (notpc (gensym "generic-dispatch")))
+  (let ((isnil (gensym "generic_dispatch"))
+	      (notpc (gensym "generic_dispatch")))
     `((get-control-register ,cr)
       (stack-read2-disp-signed iFP ,(* 2 8) ,gtag ,gdata "get generic tag and data")
       (AND ,cr #xFF ,nargs "get number of arguments")
@@ -124,9 +124,9 @@
       (illegal-operand (generic-search-table-entry-not-pc data-read) ,temp2))))
 
 (defmacro message-dispatch (gtag gdata itag idata mtag mdata ptag pdata cr nargs temp2 temp3)
-  (let ((isnil (gensym "message-dispatch"))
-	      (isntnil (gensym "message-dispatch"))
-	      (notpc (gensym "message-dispatch")))
+  (let ((isnil (gensym "message_dispatch"))
+	      (isntnil (gensym "message_dispatch"))
+	      (notpc (gensym "message_dispatch")))
     `((get-control-register ,cr)
       (stack-read2-disp-signed iFP ,(* 3 8) ,gtag ,gdata "get message tag and data")
       (AND ,cr #xFF ,nargs "get number of arguments")

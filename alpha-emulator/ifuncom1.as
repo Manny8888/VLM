@@ -1,4 +1,3 @@
-
 ;(include-header "aihead.s")
 ;(include-header "aistat.s")
 ;(include-header "ifunhead.s")
@@ -49,19 +48,6 @@
     (EXTBL arg3 4 arg2		    "Extract (8-bit, unsigned) operand")
     (BNE t2 TakeICacheMiss          "PC didn't match, take a cache miss")
     (CMOVLBS t4 iLP arg1            "LP or Immediate mode")
-    (passthru "#ifdef TRACING")
-    (maybe-icount t4)
-    (maybe-trace t4 t5 t6 t7 t8 t9 t3)
-    (passthru "#endif")
-    (passthru "#ifdef STATISTICS")
-    (maybe-statistics t4 t5 t6 t7 t8 t9)
-    (passthru "#endif")
-    (passthru "#ifdef CACHEMETERING")
-    (maybe-meter-hit t4 t5 t6 t7 t8 t9)
-    (passthru "#endif")
-    (passthru "#ifdef DEBUGGING")
-    (BEQ t3 haltmachine		   "Just in case...")
-    (passthru "#endif")
 
     ;; Carefully hand-calculated constant that the assembler should
     ;; generate for us --- If you re-arrange nextInstruction and/or

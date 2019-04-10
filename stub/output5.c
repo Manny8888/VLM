@@ -43,32 +43,32 @@ begindomessagedispatch:
     goto verifygenericarity;
   t1 = (u32)t1;   
   arg4 = (u32)arg4;   
-  r0 = (u64)&&return0491;
+  r0 = (u64)&&return0324;
   goto lookuphandler;
-return0491:
+return0324:
   arg4 = *(u64 *)(iFP + 16);   		// clobbered by |LookupHandler| 
   t3 = t4 - Type_EvenPC;   
   t3 = t3 & 62;		// Strip CDR code, low bits 
   if (t3 != 0)   
-    goto message-dispatch14911;
+    goto message_dispatch28406;
   t3 = t6 & 63;		// Strip CDR code 
   t3 = t3 - Type_NIL;   
   if (t3 == 0) 
-    goto message-dispatch14909;
+    goto message_dispatch28404;
   *(u32 *)(iFP + 16) = t7;
 		/* write the stack cache */
   *(u32 *)(iFP + 20) = t6;
-  goto message-dispatch14910;   
+  goto message_dispatch28405;   
 
-message-dispatch14909:
-  if (_trace) printf("message-dispatch14909:\n");
+message_dispatch28404:
+  if (_trace) printf("message_dispatch28404:\n");
 		/* swap message/instance in the frame */
   *(u32 *)(iFP + 16) = t1;
 		/* write the stack cache */
   *(u32 *)(iFP + 20) = arg1;
 
-message-dispatch14910:
-  if (_trace) printf("message-dispatch14910:\n");
+message_dispatch28405:
+  if (_trace) printf("message_dispatch28405:\n");
   *(u64 *)(iFP + 24) = arg4;   
   /* Convert real continuation to PC. */
   iPC = t4 & 1;
@@ -76,8 +76,8 @@ message-dispatch14910:
   iPC = t9 + iPC;
   goto interpretinstructionforjump;   
 
-message-dispatch14911:
-  if (_trace) printf("message-dispatch14911:\n");
+message_dispatch28406:
+  if (_trace) printf("message_dispatch28406:\n");
   /* Convert stack cache address to VMA */
   t2 = *(u64 *)&(processor->stackcachedata);   
   t3 = *(u64 *)&(processor->stackcachebasevma);   

@@ -25,7 +25,7 @@
       (NumericTypeException t1 ,name arg1))))
 
 (defmacro ilogical-immediate (name operator)
-  (let ((tag1notfix (gensym "ilogical-immediate")))
+  (let ((tag1notfix (gensym "ilogical_immediate")))
     `((LDL t3 4 (iSP) "Get tag from ARG1")
       (SLL arg2 #.(- 64 8) arg2)
       (LDL t4 0 (iSP) "Grab data for ARG1")

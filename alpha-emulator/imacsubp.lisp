@@ -63,8 +63,8 @@
   (let ((len (if listp 'PROCESSORSTATE_LCLENGTH 'PROCESSORSTATE_SCLENGTH))
 	      (adr (if listp 'PROCESSORSTATE_LCADDRESS 'PROCESSORSTATE_SCADDRESS))
 	      (area (if listp 'PROCESSORSTATE_LCAREA 'PROCESSORSTATE_SCAREA))
-	      (illoplab (gensym "i%allocate-block"))
-	      (ielab (gensym "i%allocate-block")))
+	      (illoplab (gensym "i_allocate_block"))
+	      (ielab (gensym "i_allocate_block")))
     `((LDQ t1 ,area (ivory))
       (stack-read iSP arg3)
       (SRL arg1 32 arg2)
@@ -142,7 +142,7 @@
 	         append (dozone)))))
 
 (defmacro check-preempt-request (done-label temp1 temp2)
-  (let ((done (or done-label (gensym "check-preempt-request"))))
+  (let ((done (or done-label (gensym "check_preempt_request"))))
     `((LDL ,temp1 PROCESSORSTATE_INTERRUPTREG (ivory))
       (AND ,temp1 2 ,temp2)
       (CMPEQ ,temp2 2 ,temp2)
@@ -162,7 +162,7 @@
 	      (high-slot (if writep
 		                   'PROCESSORSTATE_INTERNALREGISTERWRITE2
 		                   'PROCESSORSTATE_INTERNALREGISTERREAD2))
-	      (high-ones (gensym "internal-register-dispatch")))
+	      (high-ones (gensym "internal_register_dispatch")))
     ;;+++ The constants #o1000, #o52, and #o41 are kind of poor...
     `((LDQ ,temp2 ,high-slot (ivory))
       (SUBL ,reg #o1000 ,temp3)

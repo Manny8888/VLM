@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 (comment "This file implements the main instruction dispatch loop.")
 
@@ -117,17 +116,6 @@
   (label FillICache)
     (VM-Read instn arg4 iword t10 t11)
   (label FillICachePrefetched)
-    (passthru "#ifdef CACHEMETERING")
-    (comment "Increment the fill count for both cache entries")
-    (LDL t10 CACHELINE_ANNOTATION (ecp))
-    (LDL t11 CACHELINE_ANNOTATION (ocp))
-    (EXTLL t10 0 t10)
-    (EXTLL t11 0 t11)
-    (ADDQ t10 1 t10)
-    (STL t10 CACHELINE_ANNOTATION (ecp))
-    (ADDQ t11 1 t11)
-    (STL t11 CACHELINE_ANNOTATION (ocp))
-    (passthru "#endif")
     (STQ epc CACHELINE_PCDATA (ecp)   "Set address of even cache posn.")
     (AND arg4 #xC0 arg1               "CDR code << 6")
     (TagType arg4 arg4		      "Strip cdr")
@@ -160,9 +148,6 @@
     ;; going when it sees a FINISH-CALL instruction.
   (label DecodePackedWord)
     (comment "Here to decode a packed word")
-    (passthru "#ifdef CACHEMETERING")
-    (maybe-meter-miss t10 arg4 t12 t11 arg2 arg1) ; count the odd instruction.
-    (passthru "#endif")
     (SRL iword 18 arg4              "arg4 contains the odd packedword")
     (SRL iword 8 t10                "even opcode+2bits")
     (STQ arg4 CACHELINE_INSTRUCTION (ocp) "Save the odd instruction")
@@ -207,13 +192,6 @@
     (STQ iword CACHELINE_INSTRUCTION (ecp) "save the even instruction")
     (SUBQ arg4 #o60 t10               "t10>=0 if packed")
     ;; Cache metering steals ANNOTATION from us
-    (passthru "#ifndef CACHEMETERING")
-    ;; Clear the annotation field (used for branch-taken cache)
-    (STQ zero CACHELINE_ANNOTATION (ecp))
-    (passthru "#endif")
-    (passthru "#ifdef CACHEMETERING")
-    (maybe-meter-miss t11 t12 t10 arg1 arg2 epc) ; count the even instruction.
-    (passthru "#endif")
     (BGE t10 DecodePackedWord         "B. if a packed instruction")
     (S8ADDQ arg4 fwdispatch t11       "t11 is the fwdispatch index")
     (LDQ t12 PROCESSORSTATE_I_STAGE_ERROR_HOOK (ivory))

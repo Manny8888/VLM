@@ -1,4 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 ;(include-header "aihead.s")
 ;(include-header "aistat.s")
@@ -190,11 +189,6 @@
 
 (define-procedure PageWriteFault ()
     (page-write-fault-handler))
-
-(passthru "#ifdef MINIMA")
-(define-procedure DBCacheMissTrap ()
-    (db-cache-miss-trap-handler))
-(passthru "#endif")
 
 (comment "The following handlers should never be invoked.")
 

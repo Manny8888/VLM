@@ -425,8 +425,8 @@
 
 (defmacro stack-fill (VMA SCA count temp temp2 temp3 temp4)
   (check-temporaries (VMA SCA count) (temp temp2))
-  (let ((l1 (gensym "stack-fill"))
-        (l2 (gensym "stack-fill")))
+  (let ((l1 (gensym "stack_fill"))
+        (l2 (gensym "stack_fill")))
     `((VM-Read ,vma ,temp ,temp2 ,temp3 ,temp4 t) ; read and prefetch
       (BR zero ,l1)
       (label ,l2)
@@ -443,7 +443,7 @@
 				                               from to count stack-pointer
 				                               &rest regs-to-adjust)
   (declare (ignore to regs-to-adjust))
-  (let ((done (or done-label (gensym "stack-cache-underflow-check"))))
+  (let ((done (or done-label (gensym "stack_cache_underflow_check"))))
     `((LDQ ,from PROCESSORSTATE_STACKCACHEDATA (ivory))
       (LDQ ,stack-pointer PROCESSORSTATE_RESTARTSP (ivory) "Preserve through instruction's original SP")
       (SUBQ ,from ,arg ,count "Number of words*8 to fill iff positive")
@@ -492,10 +492,10 @@
 ;;; --- s/b in memoryem, so all memory code is in one place!
 (defmacro stack-dump (VMA SCA count temp temp2)
   (check-temporaries (VMA SCA count) (temp temp2))
-  (let ((datal1 (gensym "stack-dump"))
-        (datal2 (gensym "stack-dump"))
-	      (tagl1 (gensym "stack-dump"))
-	      (tagl2 (gensym "stack-dump")))
+  (let ((datal1 (gensym "stack_dump"))
+        (datal2 (gensym "stack_dump"))
+	      (tagl1 (gensym "stack_dump"))
+	      (tagl2 (gensym "stack_dump")))
     `((STL ,count PROCESSORSTATE_SCOVDUMPCOUNT (ivory) "Will be destructively modified")
       (ADDQ ,vma Ivory ,temp2 "Starting address of tags")
       (S4ADDQ ,temp2 zero ,vma "Starting address of data")
@@ -541,7 +541,7 @@
   (check-temporaries (sp handler-arg) (temp temp2 temp3 temp4 temp5))
   (let ((newSCA temp)
 	      (oldSCA temp2)
-	      (not-done (gensym "stack-cache-overflow-check")))
+	      (not-done (gensym "stack_cache_overflow_check")))
     (unless (eq nwords handler-arg)
       (push
 	     `((label ,not-done)
@@ -626,8 +626,8 @@
 ;;; This macro destructively advances count, from and to registers.
 (defmacro stack-block-copy (from to count ccp upp temp temp2)
   (check-temporaries (from to count) (temp temp2))
-  (let ((l1 (gensym "stack-block-copy"))
-        (l2 (gensym "stack-block-copy")))
+  (let ((l1 (gensym "stack_block_copy"))
+        (l2 (gensym "stack_block_copy")))
     `(,@(when ccp
 	        `((LDQ ,temp PROCESSORSTATE_CDRCODEMASK (ivory) "mask for CDR codes")))
         ,@(when upp

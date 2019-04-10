@@ -1,8 +1,7 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
-;(include-header "aihead.s")
-;(include-header "aistat.s")
-;(include-header "ifunhead.s")
+;;(include-header "aihead.s")
+;;(include-header "aistat.s")
+;;(include-header "ifunhead.s")
 
 (comment "Subprimitives.")
 
@@ -29,7 +28,7 @@
 (define-instruction |DoUnsignedLessp| :operand-from-stack-immediate (:own-immediate t)
     (LDL t2 0 (iSP) "Get data from arg1")
     (SRL arg3 #.(+ 10 2) arg3)
-    (LDQ t11 PROCESSORSTATE_NILADDRESS (ivory)) 
+    (LDQ t11 PROCESSORSTATE_NILADDRESS (ivory))
     (EXTLL arg1 0 t4 "Get unsigned data from arg2")
     (LDQ t12 PROCESSORSTATE_TADDRESS (ivory))
     (AND arg3 1 arg3 "1 if no-pop, 0 if pop")
@@ -43,7 +42,7 @@
   (immediate-handler |DoUnsignedLessp|)
     (LDL t2 0 (iSP) "Get data from arg1")
     (SRL arg3 #.(+ 10 2) arg3)
-    (LDQ t11 PROCESSORSTATE_NILADDRESS (ivory)) 
+    (LDQ t11 PROCESSORSTATE_NILADDRESS (ivory))
     (EXTLL t2 0 t2 "...")
     (LDQ t12 PROCESSORSTATE_TADDRESS (ivory))
     (AND arg3 1 arg3 "1 if no-pop, 0 if pop")
@@ -195,7 +194,7 @@
     (STQ zero PROCESSORSTATE_ALUOVERFLOW (ivory))
     (LDQ arg6 PROCESSORSTATE_ALUANDROTATECONTROL (ivory))
     (basic-dispatch arg5 t1
-      (|ALUFunctionBoolean| 
+      (|ALUFunctionBoolean|
 	(alu-function-boolean arg6 t10 arg4 arg1 t1)
 	(STL t10 0 (iSP))
 	(ContinueToNextInstruction))
@@ -300,7 +299,7 @@
 (define-procedure |ReadRegisterChipRevision| ()
   (BIS zero 5 t3)				;+++ magic number
   (stack-push-fixnum t3 t5)
-  (ContinueToNextInstruction))	  
+  (ContinueToNextInstruction))
 
 (define-procedure |ReadRegisterFPCoprocessorPresent| ()
   (stack-push-fixnum zero t4)
@@ -432,7 +431,7 @@
   (ContinueToNextInstruction))
 
 (define-procedure |ReadRegisterStructureStackChoicePointer| ()
-  (LDL t3 PROCESSORSTATE_SSTKCHOICEPTR (ivory))  
+  (LDL t3 PROCESSORSTATE_SSTKCHOICEPTR (ivory))
   (stack-push-fixnum t3 t5)
   (ContinueToNextInstruction))
 
@@ -466,45 +465,19 @@
 
 (define-procedure |WriteRegisterFP| ()
   ;; Use the StackSwitch coprocessor register, instead.
-  (passthru "#ifdef IVERIFY")
-  (VMAtoSCAmaybe arg3 t1 badregister t2 t3)
-  (BIS t1 zero iFP)
-  (ContinueToNextInstruction)
-  (passthru "#else")
-  (illegal-operand unknown-internal-register)
-  (passthru "#endif"))
+  (illegal-operand unknown-internal-register))
 
 (define-procedure |WriteRegisterLP| ()
   ;; Use the StackSwitch coprocessor register, instead.
-  (passthru "#ifdef IVERIFY")
-  (VMAtoSCAmaybe arg3 t1 badregister t2 t3)
-  (BIS t1 zero iLP)
-  (ContinueToNextInstruction)
-  (passthru "#else")
-  (illegal-operand unknown-internal-register)
-  (passthru "#endif"))
+  (illegal-operand unknown-internal-register))
 
 (define-procedure |WriteRegisterSP| ()
   ;; Use the StackSwitch coprocessor register, instead.
-  (passthru "#ifdef IVERIFY")
-  (VMAtoSCAmaybe arg3 t1 badregister t2 t3)
-  (BIS t1 zero iSP)
-  (ContinueToNextInstruction)
-  (passthru "#else")
-  (illegal-operand unknown-internal-register)
-  (passthru "#endif"))
+  (illegal-operand unknown-internal-register))
 
 (define-procedure |WriteRegisterStackCacheLowerBound| ()
   ;; Use the StackSwitch coprocessor register, instead.
-  (passthru "#ifdef IVERIFY")
-  (STQ arg3 PROCESSORSTATE_STACKCACHEBASEVMA (ivory))
-  (LDQ t1 PROCESSORSTATE_STACKCACHESIZE (ivory))
-  (ADDQ arg3 t1 t1)
-  (STQ t1 PROCESSORSTATE_STACKCACHETOPVMA (ivory))
-  (ContinueToNextInstruction)
-  (passthru "#else")
-  (illegal-operand unknown-internal-register)
-  (passthru "#endif"))
+  (illegal-operand unknown-internal-register))
 
 ;; |WriteRegisterBARx| is in IFUNCOM1.AS
 
@@ -547,7 +520,7 @@
   #+ignore (refill-oldspace-table)
   (ContinueToNextInstruction))
 
-(define-procedure |WriteRegisterFPCoprocessorPresent| ()	;+++ 
+(define-procedure |WriteRegisterFPCoprocessorPresent| ()	;+++
   (ContinueToNextInstruction))
 
 (define-procedure |WriteRegisterPreemptRegister| ()
@@ -632,7 +605,7 @@
   (combine-tag-data-word arg2 arg3 arg4)
   (STQ arg4 PROCESSORSTATE_DBCBASE (ivory))
   (ContinueToNextInstruction))
-        
+
 (define-procedure |WriteRegisterDynamicBindingCacheMask| ()
   (combine-tag-data-word arg2 arg3 arg4)
   (STQ arg4 PROCESSORSTATE_DBCMASK (ivory))

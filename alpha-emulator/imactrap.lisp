@@ -20,7 +20,7 @@
 ;;; takes index in 'index' and returns entry in 'tag' and 'data'
 (defmacro get-trap-vector-entry (index tag data cr temp2 temp3 temp4 temp5 temp6)
   (check-temporaries (tag data cr) (temp2 temp3 temp4 temp5 temp6))
-  (let ((tventrybad (gensym "get-trap-vector-entry")))
+  (let ((tventrybad (gensym "get_trap_vector_entry")))
     (push
      `((label ,tventrybad)
 	     (halt-machine HaltReasonIllegalTrapVector)	;+++ fixup later
@@ -50,11 +50,11 @@
 (defmacro take-post-trap (tvi arity temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10
 			                    &optional next-pc next-cp)
   (check-temporaries () (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10))
-  (let ((label (gensym "take-post-trap"))
+  (let ((label (gensym "take_post_trap"))
 	      (tag temp2)
 	      (data temp3)
 	      (cr temp4)
-	      (overflow (gensym "take-post-trap")))
+	      (overflow (gensym "take_post_trap")))
     `((BIS iFP zero ,temp "save old frame pointer")
       (get-trap-vector-entry ,tvi ,tag ,data ,cr  ,temp5 ,temp6 ,temp7 ,temp8 ,temp9)
       (stack-cache-overflow-check ,temp5 ,temp6 ,temp7 ,temp8 ,temp9 iSP 8)
@@ -812,11 +812,11 @@ shouldn't happen for that instruction, or a fixnum with the following fields:
 
 (defmacro exception-handler (specialp tvi next-pc taillabel &optional fixed-arity)
   (check-temporaries (tvi next-pc) ('arg1 'arg2 'arg3 'arg5 't1 't2 't3 't4))
-  (let ((l1 (gensym "exception-handler"))
-	      (l2 (gensym "exception-handler"))
-	      (l3 (gensym "exception-handler"))
-	      (l4 (gensym "exception-handler"))
-	      (l5 (gensym "exception-handler")))
+  (let ((l1 (gensym "exception_handler"))
+	      (l2 (gensym "exception_handler"))
+	      (l3 (gensym "exception_handler"))
+	      (l4 (gensym "exception_handler"))
+	      (l5 (gensym "exception_handler")))
     `((LDQ t2 PROCESSORSTATE_LINKAGE (Ivory))
       (LDQ iSP PROCESSORSTATE_RESTARTSP (ivory) "fix the stack pointer")
       (LDQ arg2 CACHELINE_INSTRUCTION (iCP) "fetch the real opcode")

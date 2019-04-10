@@ -68,12 +68,12 @@ DoEntryRestAcceptedFP:
   t3 = arg5 >> 17;   
   t4 = *(s32 *)(iSP + 4);   		// Get the tag of the stack top. 
 
-force-alignment14914:
-  if (_trace) printf("force-alignment14914:\n");
+force_alignment28409:
+  if (_trace) printf("force_alignment28409:\n");
   if (t3 & 1)   		// J. if apply args 
-    goto b-apply-argument-supplied14912;
+    goto b_apply_argument_supplied28407;
 
-b-apply-argument-supplied14913:
+b_apply_argument_supplied28408:
   t2 = t1 - arg2;   		// t2=supplied-minimum 
   if ((s64)t2 < 0)   		// B. if too few args. 
     goto retryeratoofew;
@@ -130,12 +130,12 @@ retryerarest:
   t2 = arg5 >> 17;   
   t3 = *(s32 *)(iSP + 4);   		// Get the tag of the stack top. 
 
-force-alignment14919:
-  if (_trace) printf("force-alignment14919:\n");
+force_alignment28414:
+  if (_trace) printf("force_alignment28414:\n");
   if (t2 & 1)   		// J. if apply args 
-    goto b-apply-argument-supplied14917;
+    goto b_apply_argument_supplied28412;
 
-b-apply-argument-supplied14918:
+b_apply_argument_supplied28413:
   t1 = (arg4 * 8) + iFP;  
   /* Convert stack cache address to VMA */
   t3 = *(u64 *)&(processor->stackcachedata);   
@@ -148,10 +148,10 @@ b-apply-argument-supplied14918:
 		/* write the stack cache */
   *(u32 *)(iSP + 12) = t1;
   iSP = iSP + 8;
-  goto push-apply-args14916;   
+  goto push_apply_args28411;   
 
-push-apply-args14915:
-  if (_trace) printf("push-apply-args14915:\n");
+push_apply_args28410:
+  if (_trace) printf("push_apply_args28410:\n");
   t1 = iSP - 8;   
   t3 = *(s32 *)(t1 + 4);   		// get tag 
   t3 = t3 & 63;
@@ -174,8 +174,8 @@ push-apply-args14915:
   arg5 = arg5 + 1;
   *(u32 *)&processor->control = arg5;
 
-push-apply-args14916:
-  if (_trace) printf("push-apply-args14916:\n");
+push_apply_args28411:
+  if (_trace) printf("push_apply_args28411:\n");
   t1 = arg4 - arg2;   
   t1 = t1 + 1;
   /* Compute entry position and advance PC/CP accordingly. */
@@ -188,22 +188,22 @@ push-apply-args14916:
   iPC = iPC & ~1L;		// Make it an DTP-EVEN-PC 
   goto interpretinstructionforjump;   
 
-b-apply-argument-supplied14917:
-  if (_trace) printf("b-apply-argument-supplied14917:\n");
+b_apply_argument_supplied28412:
+  if (_trace) printf("b_apply_argument_supplied28412:\n");
   t3 = t3 & 63;
   t3 = t3 - Type_NIL;   
   if (t3 != 0)   		// J. if apply args supplied not nil. 
-    goto push-apply-args14915;
+    goto push_apply_args28410;
   t2 = t2 & 1;		// keep just the apply bit! 
   t2 = t2 << 17;   		// reposition the apply bit 
   iSP = iSP - 8;   		// Pop off the null applied arg. 
   arg5 = arg5 & ~t2;		// Blast the apply arg bit away 
 		/* Reset the stored cr bit */
   *(u32 *)&processor->control = arg5;
-  goto b-apply-argument-supplied14918;   
+  goto b_apply_argument_supplied28413;   
 
-b-apply-argument-supplied14912:
-  if (_trace) printf("b-apply-argument-supplied14912:\n");
+b_apply_argument_supplied28407:
+  if (_trace) printf("b_apply_argument_supplied28407:\n");
   t4 = t4 & 63;
   t4 = t4 - Type_NIL;   
   if (t4 != 0)   		// J. if apply args supplied not nil. 
@@ -214,7 +214,7 @@ b-apply-argument-supplied14912:
   arg5 = arg5 & ~t3;		// Blast the apply arg bit away 
 		/* Reset the stored cr bit */
   *(u32 *)&processor->control = arg5;
-  goto b-apply-argument-supplied14913;   
+  goto b_apply_argument_supplied28408;   
 
 /* end DoEntryRestAccepted */
   /* End of Halfword operand from stack instruction - DoEntryRestAccepted */
@@ -228,14 +228,14 @@ carcdrinternal:
   t5 = t1 & 63;		// Strip off any CDR code bits. 
   t6 = (t5 == Type_List) ? 1 : 0;   
 
-force-alignment14967:
-  if (_trace) printf("force-alignment14967:\n");
+force_alignment28462:
+  if (_trace) printf("force_alignment28462:\n");
   if (t6 == 0) 
-    goto basic-dispatch14924;
+    goto basic_dispatch28419;
   /* Here if argument TypeList */
   /* Memory Read Internal */
 
-vma-memory-read14925:
+vma_memory_read28420:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -245,59 +245,59 @@ vma-memory-read14925:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read14927;
+    goto vma_memory_read28422;
 
-vma-memory-read14926:
+vma_memory_read28421:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   arg6 = (u32)arg6;   
   if (t8 & 1)   
-    goto vma-memory-read14929;
+    goto vma_memory_read28424;
 
-vma-memory-read14936:
+vma_memory_read28431:
   t5 = (s32)arg2 - (s32)t2;   
   if (t5 != 0)   		// CAR forwarded, must CDR the hard way 
-    goto carcdr-internal14920;
+    goto carcdr_internal28415;
   t1 = arg5;
   t2 = arg6;
 
-carcdr-internal14922:
-  if (_trace) printf("carcdr-internal14922:\n");
+carcdr_internal28417:
+  if (_trace) printf("carcdr_internal28417:\n");
   t5 = arg5 & 192;		// Extract CDR code. 
   if (t5 != 0)   
-    goto basic-dispatch14938;
+    goto basic_dispatch28433;
   /* Here if argument 0 */
   arg6 = arg2 + 1;		// Address of next position is CDR 
   arg5 = Type_List;
 
-basic-dispatch14937:
-  if (_trace) printf("basic-dispatch14937:\n");
+basic_dispatch28432:
+  if (_trace) printf("basic_dispatch28432:\n");
 
-basic-dispatch14923:
-  if (_trace) printf("basic-dispatch14923:\n");
+basic_dispatch28418:
+  if (_trace) printf("basic_dispatch28418:\n");
 
-carcdr-internal14921:
-  if (_trace) printf("carcdr-internal14921:\n");
+carcdr_internal28416:
+  if (_trace) printf("carcdr_internal28416:\n");
   sp = sp + 8;   
   goto *r0; /* ret */
 
-basic-dispatch14924:
-  if (_trace) printf("basic-dispatch14924:\n");
+basic_dispatch28419:
+  if (_trace) printf("basic_dispatch28419:\n");
   t6 = (t5 == Type_NIL) ? 1 : 0;   
 
-force-alignment14968:
-  if (_trace) printf("force-alignment14968:\n");
+force_alignment28463:
+  if (_trace) printf("force_alignment28463:\n");
   if (t6 == 0) 
-    goto basic-dispatch14954;
+    goto basic_dispatch28449;
   /* Here if argument TypeNIL */
   arg6 = *(s32 *)&processor->niladdress;   
   arg5 = *((s32 *)(&processor->niladdress)+1);   
   arg6 = (u32)arg6;   
-  goto basic-dispatch14923;   
+  goto basic_dispatch28418;   
 
-basic-dispatch14954:
-  if (_trace) printf("basic-dispatch14954:\n");
+basic_dispatch28449:
+  if (_trace) printf("basic_dispatch28449:\n");
   /* Here for all other cases */
   arg6 = t1;		// arg6 = tag to dispatch on 
   arg3 = 0;		// arg3 = stackp 
@@ -305,14 +305,14 @@ basic-dispatch14954:
   arg4 = 0;		// arg4 = arithmeticp 
   goto listexception;
 
-carcdr-internal14920:
-  if (_trace) printf("carcdr-internal14920:\n");
+carcdr_internal28415:
+  if (_trace) printf("carcdr_internal28415:\n");
   arg2 = (u32)(t2 >> ((zero&7)*8));   
   t1 = arg5;
   t2 = arg6;
   /* Memory Read Internal */
 
-vma-memory-read14956:
+vma_memory_read28451:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -322,50 +322,50 @@ vma-memory-read14956:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read14958;
+    goto vma_memory_read28453;
 
-vma-memory-read14957:
+vma_memory_read28452:
   t7 = zero + 192;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read14960;
+    goto vma_memory_read28455;
 
-vma-memory-read14965:
-  goto carcdr-internal14922;   
+vma_memory_read28460:
+  goto carcdr_internal28417;   
 
-vma-memory-read14960:
-  if (_trace) printf("vma-memory-read14960:\n");
+vma_memory_read28455:
+  if (_trace) printf("vma_memory_read28455:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read14959;
+    goto vma_memory_read28454;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read14956;   
+  goto vma_memory_read28451;   
 
-vma-memory-read14959:
-  if (_trace) printf("vma-memory-read14959:\n");
+vma_memory_read28454:
+  if (_trace) printf("vma_memory_read28454:\n");
 
-vma-memory-read14958:
-  if (_trace) printf("vma-memory-read14958:\n");
+vma_memory_read28453:
+  if (_trace) printf("vma_memory_read28453:\n");
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0492;
+  r0 = (u64)&&return0325;
   goto memoryreadcdrdecode;
-return0492:
+return0325:
   r0 = *(u64 *)sp;   
-  goto vma-memory-read14965;   
+  goto vma_memory_read28460;   
 
-basic-dispatch14938:
-  if (_trace) printf("basic-dispatch14938:\n");
+basic_dispatch28433:
+  if (_trace) printf("basic_dispatch28433:\n");
   t6 = (t5 == 128) ? 1 : 0;   
 
-force-alignment14969:
-  if (_trace) printf("force-alignment14969:\n");
+force_alignment28464:
+  if (_trace) printf("force_alignment28464:\n");
   if (t6 == 0) 
-    goto basic-dispatch14939;
+    goto basic_dispatch28434;
   /* Here if argument 128 */
   arg2 = arg2 + 1;
   /* Memory Read Internal */
 
-vma-memory-read14940:
+vma_memory_read28435:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -375,75 +375,75 @@ vma-memory-read14940:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read14942;
+    goto vma_memory_read28437;
 
-vma-memory-read14941:
+vma_memory_read28436:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   arg6 = (u32)arg6;   
   if (t8 & 1)   
-    goto vma-memory-read14944;
-  goto carcdr-internal14921;   
+    goto vma_memory_read28439;
+  goto carcdr_internal28416;   
 
-basic-dispatch14939:
-  if (_trace) printf("basic-dispatch14939:\n");
+basic_dispatch28434:
+  if (_trace) printf("basic_dispatch28434:\n");
   t6 = (t5 == 64) ? 1 : 0;   
 
-force-alignment14970:
-  if (_trace) printf("force-alignment14970:\n");
+force_alignment28465:
+  if (_trace) printf("force_alignment28465:\n");
   if (t6 == 0) 
-    goto basic-dispatch14951;
+    goto basic_dispatch28446;
   /* Here if argument 64 */
   arg6 = *(s32 *)&processor->niladdress;   
   arg5 = *((s32 *)(&processor->niladdress)+1);   
   arg6 = (u32)arg6;   
-  goto carcdr-internal14921;   
+  goto carcdr_internal28416;   
 
-basic-dispatch14951:
-  if (_trace) printf("basic-dispatch14951:\n");
+basic_dispatch28446:
+  if (_trace) printf("basic_dispatch28446:\n");
   /* Here for all other cases */
   arg5 = arg2;
   arg2 = 15;
   goto illegaloperand;
 
-vma-memory-read14944:
-  if (_trace) printf("vma-memory-read14944:\n");
+vma_memory_read28439:
+  if (_trace) printf("vma_memory_read28439:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read14943;
+    goto vma_memory_read28438;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read14940;   
+  goto vma_memory_read28435;   
 
-vma-memory-read14943:
-  if (_trace) printf("vma-memory-read14943:\n");
+vma_memory_read28438:
+  if (_trace) printf("vma_memory_read28438:\n");
 
-vma-memory-read14942:
-  if (_trace) printf("vma-memory-read14942:\n");
+vma_memory_read28437:
+  if (_trace) printf("vma_memory_read28437:\n");
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0493;
+  r0 = (u64)&&return0326;
   goto memoryreaddatadecode;
-return0493:
+return0326:
   r0 = *(u64 *)sp;   
-  goto carcdr-internal14921;   
+  goto carcdr_internal28416;   
 
-vma-memory-read14929:
-  if (_trace) printf("vma-memory-read14929:\n");
+vma_memory_read28424:
+  if (_trace) printf("vma_memory_read28424:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read14928;
+    goto vma_memory_read28423;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read14925;   
+  goto vma_memory_read28420;   
 
-vma-memory-read14928:
-  if (_trace) printf("vma-memory-read14928:\n");
+vma_memory_read28423:
+  if (_trace) printf("vma_memory_read28423:\n");
 
-vma-memory-read14927:
-  if (_trace) printf("vma-memory-read14927:\n");
+vma_memory_read28422:
+  if (_trace) printf("vma_memory_read28422:\n");
   *(u64 *)sp = r0;   
-  r0 = (u64)&&return0494;
+  r0 = (u64)&&return0327;
   goto memoryreaddatadecode;
-return0494:
+return0327:
   r0 = *(u64 *)sp;   
-  goto vma-memory-read14936;   
+  goto vma_memory_read28431;   
 
 /* end CarCdrInternal */
 /* start PullApplyArgsSlowly */
@@ -460,14 +460,14 @@ pullapplyargsslowly:
   t3 = arg3 & 63;		// Strip off any CDR code bits. 
   t4 = (t3 == Type_List) ? 1 : 0;   
 
-force-alignment15018:
-  if (_trace) printf("force-alignment15018:\n");
+force_alignment28513:
+  if (_trace) printf("force_alignment28513:\n");
   if (t4 == 0) 
-    goto basic-dispatch14975;
+    goto basic_dispatch28470;
   /* Here if argument TypeList */
   /* Memory Read Internal */
 
-vma-memory-read14976:
+vma_memory_read28471:
   t5 = t2 + ivory;
   arg6 = (t5 * 4);   
   arg5 = LDQ_U(t5);   
@@ -477,40 +477,40 @@ vma-memory-read14976:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t5&7)*8));   
   if (t4 != 0)   
-    goto vma-memory-read14978;
+    goto vma_memory_read28473;
 
-vma-memory-read14977:
+vma_memory_read28472:
   t5 = zero + 240;   
   t6 = t6 >> (arg5 & 63);   
   t5 = t5 >> (arg5 & 63);   
   arg6 = (u32)arg6;   
   if (t6 & 1)   
-    goto vma-memory-read14980;
+    goto vma_memory_read28475;
 
-vma-memory-read14987:
+vma_memory_read28482:
   t3 = (s32)t2 - (s32)arg4;   
   if (t3 != 0)   		// CAR forwarded, must CDR the hard way 
-    goto carcdr-internal14971;
+    goto carcdr_internal28466;
   arg3 = arg5;
   arg4 = arg6;
 
-carcdr-internal14973:
-  if (_trace) printf("carcdr-internal14973:\n");
+carcdr_internal28468:
+  if (_trace) printf("carcdr_internal28468:\n");
   t3 = arg5 & 192;		// Extract CDR code. 
   if (t3 != 0)   
-    goto basic-dispatch14989;
+    goto basic_dispatch28484;
   /* Here if argument 0 */
   arg6 = t2 + 1;		// Address of next position is CDR 
   arg5 = Type_List;
 
-basic-dispatch14988:
-  if (_trace) printf("basic-dispatch14988:\n");
+basic_dispatch28483:
+  if (_trace) printf("basic_dispatch28483:\n");
 
-basic-dispatch14974:
-  if (_trace) printf("basic-dispatch14974:\n");
+basic_dispatch28469:
+  if (_trace) printf("basic_dispatch28469:\n");
 
-carcdr-internal14972:
-  if (_trace) printf("carcdr-internal14972:\n");
+carcdr_internal28467:
+  if (_trace) printf("carcdr_internal28467:\n");
 		/* Push the pulled argument */
   *(u32 *)iSP = arg4;
 		/* write the stack cache */
@@ -530,34 +530,34 @@ carcdr-internal14972:
   iLP = iLP + 8;
   goto INTERPRETINSTRUCTION;   
 
-basic-dispatch14975:
-  if (_trace) printf("basic-dispatch14975:\n");
+basic_dispatch28470:
+  if (_trace) printf("basic_dispatch28470:\n");
   t4 = (t3 == Type_NIL) ? 1 : 0;   
 
-force-alignment15019:
-  if (_trace) printf("force-alignment15019:\n");
+force_alignment28514:
+  if (_trace) printf("force_alignment28514:\n");
   if (t4 == 0) 
-    goto basic-dispatch15005;
+    goto basic_dispatch28500;
   /* Here if argument TypeNIL */
   arg6 = *(s32 *)&processor->niladdress;   
   arg5 = *((s32 *)(&processor->niladdress)+1);   
   arg6 = (u32)arg6;   
-  goto basic-dispatch14974;   
+  goto basic_dispatch28469;   
 
-basic-dispatch15005:
-  if (_trace) printf("basic-dispatch15005:\n");
+basic_dispatch28500:
+  if (_trace) printf("basic_dispatch28500:\n");
   /* Here for all other cases */
   arg1 = arg1;
   goto pullapplyargstrap;
 
-carcdr-internal14971:
-  if (_trace) printf("carcdr-internal14971:\n");
+carcdr_internal28466:
+  if (_trace) printf("carcdr_internal28466:\n");
   t2 = (u32)(arg4 >> ((zero&7)*8));   
   arg3 = arg5;
   arg4 = arg6;
   /* Memory Read Internal */
 
-vma-memory-read15007:
+vma_memory_read28502:
   t5 = t2 + ivory;
   arg6 = (t5 * 4);   
   arg5 = LDQ_U(t5);   
@@ -567,35 +567,35 @@ vma-memory-read15007:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t5&7)*8));   
   if (t4 != 0)   
-    goto vma-memory-read15009;
+    goto vma_memory_read28504;
 
-vma-memory-read15008:
+vma_memory_read28503:
   t5 = zero + 192;   
   t6 = t6 >> (arg5 & 63);   
   t5 = t5 >> (arg5 & 63);   
   if (t6 & 1)   
-    goto vma-memory-read15011;
+    goto vma_memory_read28506;
 
-vma-memory-read15016:
-  goto carcdr-internal14973;   
+vma_memory_read28511:
+  goto carcdr_internal28468;   
 
-vma-memory-read15009:
-  if (_trace) printf("vma-memory-read15009:\n");
+vma_memory_read28504:
+  if (_trace) printf("vma_memory_read28504:\n");
   t4 = *(u64 *)&(processor->stackcachedata);   
   t3 = (t3 * 8) + t4;  		// reconstruct SCA 
   arg6 = *(s32 *)t3;   
   arg5 = *(s32 *)(t3 + 4);   		// Read from stack cache 
-  goto vma-memory-read15008;   
+  goto vma_memory_read28503;   
 
-vma-memory-read15011:
-  if (_trace) printf("vma-memory-read15011:\n");
+vma_memory_read28506:
+  if (_trace) printf("vma_memory_read28506:\n");
   if ((t5 & 1) == 0)   
-    goto vma-memory-read15010;
+    goto vma_memory_read28505;
   t2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read15007;   
+  goto vma_memory_read28502;   
 
-vma-memory-read15010:
-  if (_trace) printf("vma-memory-read15010:\n");
+vma_memory_read28505:
+  if (_trace) printf("vma_memory_read28505:\n");
   t6 = *(u64 *)&(processor->cdr);   		// Load the memory action table for cycle 
   /* TagType. */
   t5 = arg5 & 63;		// Discard the CDR code 
@@ -603,25 +603,25 @@ vma-memory-read15010:
   t5 = (t5 * 4) + t6;   		// Adjust for a longword load 
   t6 = *(s32 *)t5;   		// Get the memory action 
 
-vma-memory-read15013:
+vma_memory_read28508:
   /* Perform memory action */
   arg1 = t6;
   arg2 = 9;
   goto performmemoryaction;
 
-basic-dispatch14989:
-  if (_trace) printf("basic-dispatch14989:\n");
+basic_dispatch28484:
+  if (_trace) printf("basic_dispatch28484:\n");
   t4 = (t3 == 128) ? 1 : 0;   
 
-force-alignment15020:
-  if (_trace) printf("force-alignment15020:\n");
+force_alignment28515:
+  if (_trace) printf("force_alignment28515:\n");
   if (t4 == 0) 
-    goto basic-dispatch14990;
+    goto basic_dispatch28485;
   /* Here if argument 128 */
   t2 = t2 + 1;
   /* Memory Read Internal */
 
-vma-memory-read14991:
+vma_memory_read28486:
   t5 = t2 + ivory;
   arg6 = (t5 * 4);   
   arg5 = LDQ_U(t5);   
@@ -631,55 +631,55 @@ vma-memory-read14991:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t5&7)*8));   
   if (t4 != 0)   
-    goto vma-memory-read14993;
+    goto vma_memory_read28488;
 
-vma-memory-read14992:
+vma_memory_read28487:
   t5 = zero + 240;   
   t6 = t6 >> (arg5 & 63);   
   t5 = t5 >> (arg5 & 63);   
   arg6 = (u32)arg6;   
   if (t6 & 1)   
-    goto vma-memory-read14995;
-  goto carcdr-internal14972;   
+    goto vma_memory_read28490;
+  goto carcdr_internal28467;   
 
-basic-dispatch14990:
-  if (_trace) printf("basic-dispatch14990:\n");
+basic_dispatch28485:
+  if (_trace) printf("basic_dispatch28485:\n");
   t4 = (t3 == 64) ? 1 : 0;   
 
-force-alignment15021:
-  if (_trace) printf("force-alignment15021:\n");
+force_alignment28516:
+  if (_trace) printf("force_alignment28516:\n");
   if (t4 == 0) 
-    goto basic-dispatch15002;
+    goto basic_dispatch28497;
   /* Here if argument 64 */
   arg6 = *(s32 *)&processor->niladdress;   
   arg5 = *((s32 *)(&processor->niladdress)+1);   
   arg6 = (u32)arg6;   
-  goto carcdr-internal14972;   
+  goto carcdr_internal28467;   
 
-basic-dispatch15002:
-  if (_trace) printf("basic-dispatch15002:\n");
+basic_dispatch28497:
+  if (_trace) printf("basic_dispatch28497:\n");
   /* Here for all other cases */
   arg5 = t2;
   arg2 = 15;
   goto illegaloperand;
 
-vma-memory-read14993:
-  if (_trace) printf("vma-memory-read14993:\n");
+vma_memory_read28488:
+  if (_trace) printf("vma_memory_read28488:\n");
   t4 = *(u64 *)&(processor->stackcachedata);   
   t3 = (t3 * 8) + t4;  		// reconstruct SCA 
   arg6 = *(s32 *)t3;   
   arg5 = *(s32 *)(t3 + 4);   		// Read from stack cache 
-  goto vma-memory-read14992;   
+  goto vma_memory_read28487;   
 
-vma-memory-read14995:
-  if (_trace) printf("vma-memory-read14995:\n");
+vma_memory_read28490:
+  if (_trace) printf("vma_memory_read28490:\n");
   if ((t5 & 1) == 0)   
-    goto vma-memory-read14994;
+    goto vma_memory_read28489;
   t2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read14991;   
+  goto vma_memory_read28486;   
 
-vma-memory-read14994:
-  if (_trace) printf("vma-memory-read14994:\n");
+vma_memory_read28489:
+  if (_trace) printf("vma_memory_read28489:\n");
   t6 = *(u64 *)&(processor->dataread);   		// Load the memory action table for cycle 
   /* TagType. */
   t5 = arg5 & 63;		// Discard the CDR code 
@@ -687,40 +687,40 @@ vma-memory-read14994:
   t5 = (t5 * 4) + t6;   		// Adjust for a longword load 
   t6 = *(s32 *)t5;   		// Get the memory action 
 
-vma-memory-read14999:
-  if (_trace) printf("vma-memory-read14999:\n");
+vma_memory_read28494:
+  if (_trace) printf("vma_memory_read28494:\n");
   t5 = t6 & MemoryActionTransform;
   if (t5 == 0) 
-    goto vma-memory-read14998;
+    goto vma_memory_read28493;
   arg5 = arg5 & ~63L;
   arg5 = arg5 | Type_ExternalValueCellPointer;
-  goto carcdr-internal14972;   
+  goto carcdr_internal28467;   
 
-vma-memory-read14998:
+vma_memory_read28493:
 
-vma-memory-read14997:
+vma_memory_read28492:
   /* Perform memory action */
   arg1 = t6;
   arg2 = 0;
   goto performmemoryaction;
 
-vma-memory-read14978:
-  if (_trace) printf("vma-memory-read14978:\n");
+vma_memory_read28473:
+  if (_trace) printf("vma_memory_read28473:\n");
   t4 = *(u64 *)&(processor->stackcachedata);   
   t3 = (t3 * 8) + t4;  		// reconstruct SCA 
   arg6 = *(s32 *)t3;   
   arg5 = *(s32 *)(t3 + 4);   		// Read from stack cache 
-  goto vma-memory-read14977;   
+  goto vma_memory_read28472;   
 
-vma-memory-read14980:
-  if (_trace) printf("vma-memory-read14980:\n");
+vma_memory_read28475:
+  if (_trace) printf("vma_memory_read28475:\n");
   if ((t5 & 1) == 0)   
-    goto vma-memory-read14979;
+    goto vma_memory_read28474;
   t2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read14976;   
+  goto vma_memory_read28471;   
 
-vma-memory-read14979:
-  if (_trace) printf("vma-memory-read14979:\n");
+vma_memory_read28474:
+  if (_trace) printf("vma_memory_read28474:\n");
   t6 = *(u64 *)&(processor->dataread);   		// Load the memory action table for cycle 
   /* TagType. */
   t5 = arg5 & 63;		// Discard the CDR code 
@@ -728,18 +728,18 @@ vma-memory-read14979:
   t5 = (t5 * 4) + t6;   		// Adjust for a longword load 
   t6 = *(s32 *)t5;   		// Get the memory action 
 
-vma-memory-read14984:
-  if (_trace) printf("vma-memory-read14984:\n");
+vma_memory_read28479:
+  if (_trace) printf("vma_memory_read28479:\n");
   t5 = t6 & MemoryActionTransform;
   if (t5 == 0) 
-    goto vma-memory-read14983;
+    goto vma_memory_read28478;
   arg5 = arg5 & ~63L;
   arg5 = arg5 | Type_ExternalValueCellPointer;
-  goto vma-memory-read14987;   
+  goto vma_memory_read28482;   
 
-vma-memory-read14983:
+vma_memory_read28478:
 
-vma-memory-read14982:
+vma_memory_read28477:
   /* Perform memory action */
   arg1 = t6;
   arg2 = 0;
@@ -853,25 +853,19 @@ returnmultipletop:
   t3 = (u32)t3;   
   t4 = *((s32 *)(&processor->continuation)+1);   
   t5 = (u32)t5;   
-#ifdef IVERIFY
-  /* check for instruction verification suite end-of-test */
-  t6 = (s32)t2 - (s32)Type_NIL;   		// check for end of run 
-  if (t6 == 0) 
-    goto abandon-frame-simple15022;
-#endif
   t6 = *(s32 *)(iFP + 8);   		// Get saved control register 
   /* TagType. */
   t2 = t2 & 63;
   /* Restore the PC. */
   if (arg4 == 0) 
-    goto abandon-frame-simple15023;
+    goto abandon_frame_simple28518;
   iPC = t5 << 1;   		// Assume even PC 
   t1 = t4 & 1;
   t7 = *(u64 *)&(processor->continuationcp);   
   iPC = iPC + t1;
 
-abandon-frame-simple15023:
-  if (_trace) printf("abandon-frame-simple15023:\n");
+abandon_frame_simple28518:
+  if (_trace) printf("abandon_frame_simple28518:\n");
   /* Restore the saved continuation */
   *((u32 *)(&processor->continuation)+1) = t2;
   t1 = arg5 >> 9;   		// Get the caller frame size into place 
@@ -897,10 +891,10 @@ abandon-frame-simple15023:
   t4 = iSP + 8;		// Compute destination of copy 
   t3 = arg1;		// Values 
   t1 = *(u64 *)&(processor->cdrcodemask);   		// mask for CDR codes 
-  goto stack-block-copy15024;   
+  goto stack_block_copy28519;   
 
-stack-block-copy15025:
-  if (_trace) printf("stack-block-copy15025:\n");
+stack_block_copy28520:
+  if (_trace) printf("stack_block_copy28520:\n");
   t3 = t3 - 1;   
   t2 = *(u64 *)arg3;   		// Get a word from source 
   arg3 = arg3 + 8;		// advance from position 
@@ -908,9 +902,9 @@ stack-block-copy15025:
   *(u64 *)t4 = t2;   		// Put word in destination 
   t4 = t4 + 8;		// advance to position 
 
-stack-block-copy15024:
+stack_block_copy28519:
   if ((s64)t3 > 0)   
-    goto stack-block-copy15025;
+    goto stack_block_copy28520;
   iSP = (arg1 * 8) + iSP;  		// Adjust iSP over returned values 
   /* arg4 -2=effect -1=value 0=return 1=multiple */
   if (arg4 == 0) 
@@ -983,14 +977,14 @@ handleframecleanup:
   iSP = *(u64 *)&(processor->restartsp);   		// Restore SP to instruction start 
   arg5 = *(s32 *)&processor->control;   		// Get control register 
 
-cleanup-frame15028:
-  if (_trace) printf("cleanup-frame15028:\n");
+cleanup_frame28523:
+  if (_trace) printf("cleanup_frame28523:\n");
   t1 = (1024) << 16;   
   t4 = *(s32 *)&processor->catchblock;   
   t4 = (u32)t4;   
   t2 = t1 & arg5;
   if (t2 == 0) 		// J. if cr.cleanup-catch is 0 
-    goto cleanup-frame15027;
+    goto cleanup_frame28522;
   /* Convert VMA to stack cache address */
   t2 = *(u64 *)&(processor->stackcachebasevma);   
   t3 = *(u64 *)&(processor->stackcachedata);   
@@ -1016,18 +1010,18 @@ cleanup-frame15028:
   t5 = t5 << 32;   
   t6 = t6 | t5;
   *(u64 *)&processor->catchblock = t6;   
-  goto cleanup-frame15028;   
+  goto cleanup_frame28523;   
 
-cleanup-frame15027:
-  if (_trace) printf("cleanup-frame15027:\n");
+cleanup_frame28522:
+  if (_trace) printf("cleanup_frame28522:\n");
   t1 = (512) << 16;   
   t2 = t1 & arg5;
   t1 = *(u64 *)&(processor->bindingstackpointer);   
   if (t2 == 0) 		// J. if cr.cleanup-bindings is 0. 
-    goto cleanup-frame15026;
+    goto cleanup_frame28521;
 
-cleanup-frame15029:
-  if (_trace) printf("cleanup-frame15029:\n");
+cleanup_frame28524:
+  if (_trace) printf("cleanup_frame28524:\n");
   t1 = *(u64 *)&(processor->bindingstackpointer);   
   t4 = *(s32 *)&processor->control;   
   t1 = (u32)t1;   		// vma only 
@@ -1036,17 +1030,17 @@ cleanup-frame15029:
   t3 = t4 & t2;
   t4 = t4 & ~t2;		// Turn off the bit 
   if (t3 != 0)   
-    goto g15030;
+    goto g28525;
   t4 = *(u64 *)&(processor->restartsp);   		// Get the SP, ->op2 
   arg5 = 0;
   arg2 = 20;
   goto illegaloperand;
 
-g15030:
-  if (_trace) printf("g15030:\n");
+g28525:
+  if (_trace) printf("g28525:\n");
   /* Memory Read Internal */
 
-vma-memory-read15031:
+vma_memory_read28526:
   t8 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t10 = t1 + ivory;
   t9 = *(s32 *)&processor->scovlimit;   
@@ -1058,19 +1052,19 @@ vma-memory-read15031:
   t6 = *(s32 *)t6;   
   t7 = (u8)(t7 >> ((t10&7)*8));   
   if (t9 != 0)   
-    goto vma-memory-read15033;
+    goto vma_memory_read28528;
 
-vma-memory-read15032:
+vma_memory_read28527:
   t10 = zero + 224;   
   t11 = t11 >> (t7 & 63);   
   t10 = t10 >> (t7 & 63);   
   if (t11 & 1)   
-    goto vma-memory-read15035;
+    goto vma_memory_read28530;
 
-vma-memory-read15040:
+vma_memory_read28535:
   /* Memory Read Internal */
 
-vma-memory-read15041:
+vma_memory_read28536:
   t8 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t10 = t5 + ivory;
   t9 = *(s32 *)&processor->scovlimit;   
@@ -1082,20 +1076,20 @@ vma-memory-read15041:
   t2 = *(s32 *)t2;   
   t3 = (u8)(t3 >> ((t10&7)*8));   
   if (t9 != 0)   
-    goto vma-memory-read15043;
+    goto vma_memory_read28538;
 
-vma-memory-read15042:
+vma_memory_read28537:
   t10 = zero + 224;   
   t11 = t11 >> (t3 & 63);   
   t10 = t10 >> (t3 & 63);   
   t2 = (u32)t2;   
   if (t11 & 1)   
-    goto vma-memory-read15045;
+    goto vma_memory_read28540;
 
-vma-memory-read15050:
+vma_memory_read28545:
   /* Memory Read Internal */
 
-vma-memory-read15051:
+vma_memory_read28546:
   t10 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t12 = t2 + ivory;
   t11 = *(s32 *)&processor->scovlimit;   
@@ -1106,17 +1100,17 @@ vma-memory-read15051:
   t9 = *(s32 *)t9;   
   t8 = (u8)(t8 >> ((t12&7)*8));   
   if (t11 != 0)   
-    goto vma-memory-read15053;
+    goto vma_memory_read28548;
 
-vma-memory-read15052:
+vma_memory_read28547:
   t10 = *(u64 *)&(processor->bindwrite_mask);   
   t12 = zero + 224;   
   t10 = t10 >> (t8 & 63);   
   t12 = t12 >> (t8 & 63);   
   if (t10 & 1)   
-    goto vma-memory-read15055;
+    goto vma_memory_read28550;
 
-vma-memory-read15060:
+vma_memory_read28555:
   /* Merge cdr-code */
   t9 = t7 & 63;
   t8 = t8 & 192;
@@ -1127,8 +1121,8 @@ vma-memory-read15060:
   t11 = (t8 & 0xff) << ((t10&7)*8);   
   t12 = t12 & ~(0xffL << (t10&7)*8);   
 
-force-alignment15063:
-  if (_trace) printf("force-alignment15063:\n");
+force_alignment28558:
+  if (_trace) printf("force_alignment28558:\n");
   t12 = t12 | t11;
   t11 = *(u64 *)&(processor->stackcachebasevma);   
   STQ_U(t10, t12);   
@@ -1137,9 +1131,9 @@ force-alignment15063:
   t10 = ((u64)t11 < (u64)t10) ? 1 : 0;   		// In range? 
   *(u32 *)t9 = t6;
   if (t10 != 0)   		// J. if in cache 
-    goto vma-memory-write15062;
+    goto vma_memory_write28557;
 
-vma-memory-write15061:
+vma_memory_write28556:
   t3 = t3 & 64;		// Get the old cleanup-bindings bit 
   t3 = t3 << 19;   
   t1 = t1 - 2;   
@@ -1151,21 +1145,21 @@ vma-memory-write15061:
   t1 = (512) << 16;   
   t2 = t1 & arg5;
   if (t2 != 0)   		// J. if cr.cleanup-bindings is 0. 
-    goto cleanup-frame15029;
+    goto cleanup_frame28524;
   t2 = *(s32 *)&processor->interruptreg;   
   t3 = t2 & 2;
   t3 = (t3 == 2) ? 1 : 0;   
   t2 = t2 | t3;
   *(u32 *)&processor->interruptreg = t2;
   if (t2 == 0) 
-    goto check-preempt-request15064;
+    goto check_preempt_request28559;
   *(u64 *)&processor->stop_interpreter = t2;   
 
-check-preempt-request15064:
-  if (_trace) printf("check-preempt-request15064:\n");
+check_preempt_request28559:
+  if (_trace) printf("check_preempt_request28559:\n");
 
-cleanup-frame15026:
-  if (_trace) printf("cleanup-frame15026:\n");
+cleanup_frame28521:
+  if (_trace) printf("cleanup_frame28521:\n");
   t3 = (256) << 16;   
   t2 = t3 & arg5;
   if (t2 == 0) 
@@ -1175,33 +1169,33 @@ cleanup-frame15026:
   goto illegaloperand;
   goto INTERPRETINSTRUCTION;   		// Retry the instruction 
 
-vma-memory-write15062:
-  if (_trace) printf("vma-memory-write15062:\n");
+vma_memory_write28557:
+  if (_trace) printf("vma_memory_write28557:\n");
   t10 = *(u64 *)&(processor->stackcachedata);   
   t10 = (t11 * 8) + t10;  		// reconstruct SCA 
 		/* Store in stack */
   *(u32 *)t10 = t6;
 		/* write the stack cache */
   *(u32 *)(t10 + 4) = t8;
-  goto vma-memory-write15061;   
+  goto vma_memory_write28556;   
 
-vma-memory-read15053:
-  if (_trace) printf("vma-memory-read15053:\n");
+vma_memory_read28548:
+  if (_trace) printf("vma_memory_read28548:\n");
   t11 = *(u64 *)&(processor->stackcachedata);   
   t10 = (t10 * 8) + t11;  		// reconstruct SCA 
   t9 = *(s32 *)t10;   
   t8 = *(s32 *)(t10 + 4);   		// Read from stack cache 
-  goto vma-memory-read15052;   
+  goto vma_memory_read28547;   
 
-vma-memory-read15055:
-  if (_trace) printf("vma-memory-read15055:\n");
+vma_memory_read28550:
+  if (_trace) printf("vma_memory_read28550:\n");
   if ((t12 & 1) == 0)   
-    goto vma-memory-read15054;
+    goto vma_memory_read28549;
   t2 = (u32)t9;   		// Do the indirect thing 
-  goto vma-memory-read15051;   
+  goto vma_memory_read28546;   
 
-vma-memory-read15054:
-  if (_trace) printf("vma-memory-read15054:\n");
+vma_memory_read28549:
+  if (_trace) printf("vma_memory_read28549:\n");
   t10 = *(u64 *)&(processor->bindwrite);   		// Load the memory action table for cycle 
   /* TagType. */
   t12 = t8 & 63;		// Discard the CDR code 
@@ -1209,29 +1203,29 @@ vma-memory-read15054:
   t12 = (t12 * 4) + t10;   		// Adjust for a longword load 
   t10 = *(s32 *)t12;   		// Get the memory action 
 
-vma-memory-read15057:
+vma_memory_read28552:
   /* Perform memory action */
   arg1 = t10;
   arg2 = 3;
   goto performmemoryaction;
 
-vma-memory-read15043:
-  if (_trace) printf("vma-memory-read15043:\n");
+vma_memory_read28538:
+  if (_trace) printf("vma_memory_read28538:\n");
   t9 = *(u64 *)&(processor->stackcachedata);   
   t8 = (t8 * 8) + t9;  		// reconstruct SCA 
   t2 = *(s32 *)t8;   
   t3 = *(s32 *)(t8 + 4);   		// Read from stack cache 
-  goto vma-memory-read15042;   
+  goto vma_memory_read28537;   
 
-vma-memory-read15045:
-  if (_trace) printf("vma-memory-read15045:\n");
+vma_memory_read28540:
+  if (_trace) printf("vma_memory_read28540:\n");
   if ((t10 & 1) == 0)   
-    goto vma-memory-read15044;
+    goto vma_memory_read28539;
   t5 = (u32)t2;   		// Do the indirect thing 
-  goto vma-memory-read15041;   
+  goto vma_memory_read28536;   
 
-vma-memory-read15044:
-  if (_trace) printf("vma-memory-read15044:\n");
+vma_memory_read28539:
+  if (_trace) printf("vma_memory_read28539:\n");
   t11 = *(u64 *)&(processor->bindread);   		// Load the memory action table for cycle 
   /* TagType. */
   t10 = t3 & 63;		// Discard the CDR code 
@@ -1239,29 +1233,29 @@ vma-memory-read15044:
   t10 = (t10 * 4) + t11;   		// Adjust for a longword load 
   t11 = *(s32 *)t10;   		// Get the memory action 
 
-vma-memory-read15047:
+vma_memory_read28542:
   /* Perform memory action */
   arg1 = t11;
   arg2 = 2;
   goto performmemoryaction;
 
-vma-memory-read15033:
-  if (_trace) printf("vma-memory-read15033:\n");
+vma_memory_read28528:
+  if (_trace) printf("vma_memory_read28528:\n");
   t9 = *(u64 *)&(processor->stackcachedata);   
   t8 = (t8 * 8) + t9;  		// reconstruct SCA 
   t6 = *(s32 *)t8;   
   t7 = *(s32 *)(t8 + 4);   		// Read from stack cache 
-  goto vma-memory-read15032;   
+  goto vma_memory_read28527;   
 
-vma-memory-read15035:
-  if (_trace) printf("vma-memory-read15035:\n");
+vma_memory_read28530:
+  if (_trace) printf("vma_memory_read28530:\n");
   if ((t10 & 1) == 0)   
-    goto vma-memory-read15034;
+    goto vma_memory_read28529;
   t1 = (u32)t6;   		// Do the indirect thing 
-  goto vma-memory-read15031;   
+  goto vma_memory_read28526;   
 
-vma-memory-read15034:
-  if (_trace) printf("vma-memory-read15034:\n");
+vma_memory_read28529:
+  if (_trace) printf("vma_memory_read28529:\n");
   t11 = *(u64 *)&(processor->bindread);   		// Load the memory action table for cycle 
   /* TagType. */
   t10 = t7 & 63;		// Discard the CDR code 
@@ -1269,7 +1263,7 @@ vma-memory-read15034:
   t10 = (t10 * 4) + t11;   		// Adjust for a longword load 
   t11 = *(s32 *)t10;   		// Get the memory action 
 
-vma-memory-read15037:
+vma_memory_read28532:
   /* Perform memory action */
   arg1 = t11;
   arg2 = 2;
@@ -1290,9 +1284,9 @@ stackcacheunderflowcheck:
   t4 = t4 + 8;		// Account for the inclusive limit 
   if ((s64)t3 <= 0)  		// in case only low three bits nonzero 
     goto interpretinstructionforbranch;
-  r0 = (u64)&&return0495;
+  r0 = (u64)&&return0328;
   goto stackcacheunderflow;
-return0495:
+return0328:
   goto interpretinstructionforbranch;   
 
 /* end StackCacheUnderflowCheck */
@@ -1307,19 +1301,19 @@ stackcacheunderflow:
   /* Shove everything up */
   t1 = (t5 * 8) + t1;  		// Adjust to end of source block 
   t2 = (t5 * 8) + t2;  		// Adjust to end of target block 
-  goto stack-block-copy15065;   
+  goto stack_block_copy28560;   
 
-stack-block-copy15066:
-  if (_trace) printf("stack-block-copy15066:\n");
+stack_block_copy28561:
+  if (_trace) printf("stack_block_copy28561:\n");
   t1 = t1 - 8;   		// advance from position 
   t5 = t5 - 1;   
   t7 = *(u64 *)t1;   		// Get a word from source 
   t2 = t2 - 8;   		// advance to position 
   *(u64 *)t2 = t7;   		// Put word in destination 
 
-stack-block-copy15065:
+stack_block_copy28560:
   if ((s64)t5 > 0)   
-    goto stack-block-copy15066;
+    goto stack_block_copy28561;
   /* Adjust stack cache relative registers */
   iFP = (t3 * 8) + iFP;  
   t4 = *(u64 *)&(processor->restartsp);   
@@ -1340,10 +1334,10 @@ stack-block-copy15065:
   t4 = LDQ_U(t7);   
   t5 = *(s32 *)t5;   
   t4 = (u8)(t4 >> ((t7&7)*8));   
-  goto stack-fill15067;   
+  goto stack_fill28562;   
 
-stack-fill15068:
-  if (_trace) printf("stack-fill15068:\n");
+stack_fill28563:
+  if (_trace) printf("stack_fill28563:\n");
   t7 = t1 + ivory;
   t5 = (t7 * 4);   
   t4 = LDQ_U(t7);   
@@ -1356,9 +1350,9 @@ stack-fill15068:
   *(u32 *)(t2 + 4) = t4;
   t2 = t2 + 8;		// advance sca position 
 
-stack-fill15067:
+stack_fill28562:
   if ((s64)t3 > 0)   
-    goto stack-fill15068;
+    goto stack_fill28563;
   goto *r0; /* ret */
 
 /* end StackCacheUnderflow */
@@ -1413,10 +1407,10 @@ stackcacheoverflowhandler:
   t5 = t2 + ivory;		// Starting address of tags 
   t2 = (t5 * 4);   		// Starting address of data 
   /* Dump the data */
-  goto stack-dump15069;   
+  goto stack_dump28564;   
 
-stack-dump15070:
-  if (_trace) printf("stack-dump15070:\n");
+stack_dump28565:
+  if (_trace) printf("stack_dump28565:\n");
   t4 = *(s32 *)t3;   		// Get data word 
   t1 = t1 - 1;   
   t3 = t3 + 8;		// Advance SCA position 
@@ -1424,18 +1418,18 @@ stack-dump15070:
   *(u32 *)t2 = t4;
   t2 = t2 + 4;		// Advance VMA position 
 
-stack-dump15069:
+stack_dump28564:
   if ((s64)t1 > 0)   
-    goto stack-dump15070;
+    goto stack_dump28565;
   /* Dump the tags */
   t1 = *(s32 *)&processor->scovdumpcount;   		// Restore the count 
   t2 = t5;		// Restore tag VMA 
   t4 = t1 << 3;   
   t3 = t3 - t4;   		// Restore orginal SCA 
-  goto stack-dump15071;   
+  goto stack_dump28566;   
 
-stack-dump15072:
-  if (_trace) printf("stack-dump15072:\n");
+stack_dump28567:
+  if (_trace) printf("stack_dump28567:\n");
   t1 = t1 - 1;   
   t4 = *(s32 *)(t3 + 4);   		// Get tag word 
   t3 = t3 + 8;		// Advance SCA position 
@@ -1446,9 +1440,9 @@ stack-dump15072:
   STQ_U(t2, t5);   		// Save packed tags word 
   t2 = t2 + 1;		// Advance VMA position 
 
-stack-dump15071:
+stack_dump28566:
   if ((s64)t1 > 0)   
-    goto stack-dump15072;
+    goto stack_dump28567;
   t1 = zero + 896;   
   t2 = *(u64 *)&(processor->stackcachebasevma);   		// Stack cache base VMA 
   t4 = *(u64 *)&(processor->stackcachetopvma);   		// Top of cache 
@@ -1462,19 +1456,19 @@ stack-dump15071:
   /* Move the cache down */
   t3 = *(u64 *)&(processor->stackcachedata);   		// Alpha base of stack cache 
   t2 = (t1 * 8) + t3;  		// SCA of first word of new base 
-  goto stack-block-copy15073;   
+  goto stack_block_copy28568;   
 
-stack-block-copy15074:
-  if (_trace) printf("stack-block-copy15074:\n");
+stack_block_copy28569:
+  if (_trace) printf("stack_block_copy28569:\n");
   t1 = t1 - 1;   
   t5 = *(u64 *)t2;   		// Get a word from source 
   t2 = t2 + 8;		// advance from position 
   *(u64 *)t3 = t5;   		// Put word in destination 
   t3 = t3 + 8;		// advance to position 
 
-stack-block-copy15073:
+stack_block_copy28568:
   if ((s64)t1 > 0)   
-    goto stack-block-copy15074;
+    goto stack_block_copy28569;
   /* Adjust stack cache relative registers */
   t1 = zero + 896;   
   t1 = t1 << 3;   		// Convert to SCA adjustment 
@@ -1537,12 +1531,6 @@ DoReturnKludgeIM:
   t5 = (u32)t5;   
   t6 = *((s32 *)(&processor->continuation)+1);   
   t7 = (u32)t7;   
-#ifdef IVERIFY
-  /* check for instruction verification suite end-of-test */
-  t8 = (s32)t4 - (s32)Type_NIL;   		// check for end of run 
-  if (t8 == 0) 
-    goto abandon-frame-simple15075;
-#endif
   t8 = *(s32 *)(iFP + 8);   		// Get saved control register 
   /* TagType. */
   t4 = t4 & 63;
@@ -1552,8 +1540,8 @@ DoReturnKludgeIM:
   t9 = *(u64 *)&(processor->continuationcp);   
   iPC = iPC + t3;
 
-abandon-frame-simple15076:
-  if (_trace) printf("abandon-frame-simple15076:\n");
+abandon_frame_simple28571:
+  if (_trace) printf("abandon_frame_simple28571:\n");
   /* Restore the saved continuation */
   *((u32 *)(&processor->continuation)+1) = t4;
   t3 = t2 >> 9;   		// Get the caller frame size into place 
@@ -1828,17 +1816,17 @@ catchcloselt:
   t3 = t4 & t2;
   t4 = t4 & ~t2;		// Turn off the bit 
   if (t3 != 0)   
-    goto g15078;
+    goto g28573;
   t4 = *(u64 *)&(processor->restartsp);   		// Get the SP, ->op2 
   arg5 = 0;
   arg2 = 20;
   goto illegaloperand;
 
-g15078:
-  if (_trace) printf("g15078:\n");
+g28573:
+  if (_trace) printf("g28573:\n");
   /* Memory Read Internal */
 
-vma-memory-read15079:
+vma_memory_read28574:
   t8 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   arg1 = t1 + ivory;
   t9 = *(s32 *)&processor->scovlimit;   
@@ -1850,19 +1838,19 @@ vma-memory-read15079:
   t6 = *(s32 *)t6;   
   t7 = (u8)(t7 >> ((arg1&7)*8));   
   if (t9 != 0)   
-    goto vma-memory-read15081;
+    goto vma_memory_read28576;
 
-vma-memory-read15080:
+vma_memory_read28575:
   arg1 = zero + 224;   
   arg2 = arg2 >> (t7 & 63);   
   arg1 = arg1 >> (t7 & 63);   
   if (arg2 & 1)   
-    goto vma-memory-read15083;
+    goto vma_memory_read28578;
 
-vma-memory-read15088:
+vma_memory_read28583:
   /* Memory Read Internal */
 
-vma-memory-read15089:
+vma_memory_read28584:
   t8 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   arg1 = t5 + ivory;
   t9 = *(s32 *)&processor->scovlimit;   
@@ -1874,20 +1862,20 @@ vma-memory-read15089:
   t2 = *(s32 *)t2;   
   t3 = (u8)(t3 >> ((arg1&7)*8));   
   if (t9 != 0)   
-    goto vma-memory-read15091;
+    goto vma_memory_read28586;
 
-vma-memory-read15090:
+vma_memory_read28585:
   arg1 = zero + 224;   
   arg2 = arg2 >> (t3 & 63);   
   arg1 = arg1 >> (t3 & 63);   
   t2 = (u32)t2;   
   if (arg2 & 1)   
-    goto vma-memory-read15093;
+    goto vma_memory_read28588;
 
-vma-memory-read15098:
+vma_memory_read28593:
   /* Memory Read Internal */
 
-vma-memory-read15099:
+vma_memory_read28594:
   arg1 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t11 = t2 + ivory;
   arg2 = *(s32 *)&processor->scovlimit;   
@@ -1898,17 +1886,17 @@ vma-memory-read15099:
   t9 = *(s32 *)t9;   
   t8 = (u8)(t8 >> ((t11&7)*8));   
   if (arg2 != 0)   
-    goto vma-memory-read15101;
+    goto vma_memory_read28596;
 
-vma-memory-read15100:
+vma_memory_read28595:
   arg1 = *(u64 *)&(processor->bindwrite_mask);   
   t11 = zero + 224;   
   arg1 = arg1 >> (t8 & 63);   
   t11 = t11 >> (t8 & 63);   
   if (arg1 & 1)   
-    goto vma-memory-read15103;
+    goto vma_memory_read28598;
 
-vma-memory-read15108:
+vma_memory_read28603:
   /* Merge cdr-code */
   t9 = t7 & 63;
   t8 = t8 & 192;
@@ -1919,8 +1907,8 @@ vma-memory-read15108:
   arg2 = (t8 & 0xff) << ((arg1&7)*8);   
   t11 = t11 & ~(0xffL << (arg1&7)*8);   
 
-force-alignment15111:
-  if (_trace) printf("force-alignment15111:\n");
+force_alignment28606:
+  if (_trace) printf("force_alignment28606:\n");
   t11 = t11 | arg2;
   arg2 = *(u64 *)&(processor->stackcachebasevma);   
   STQ_U(arg1, t11);   
@@ -1929,9 +1917,9 @@ force-alignment15111:
   arg1 = ((u64)arg2 < (u64)arg1) ? 1 : 0;   		// In range? 
   *(u32 *)t9 = t6;
   if (arg1 != 0)   		// J. if in cache 
-    goto vma-memory-write15110;
+    goto vma_memory_write28605;
 
-vma-memory-write15109:
+vma_memory_write28604:
   t3 = t3 & 64;		// Get the old cleanup-bindings bit 
   t3 = t3 << 19;   
   t1 = t1 - 2;   
@@ -1948,11 +1936,11 @@ vma-memory-write15109:
   t3 = t3 | t4;
   *(u32 *)&processor->interruptreg = t3;
   if (t3 == 0) 
-    goto check-preempt-request15112;
+    goto check_preempt_request28607;
   *(u64 *)&processor->stop_interpreter = t3;   
 
-check-preempt-request15112:
-  if (_trace) printf("check-preempt-request15112:\n");
+check_preempt_request28607:
+  if (_trace) printf("check_preempt_request28607:\n");
 
 catchcloseld:
   if (_trace) printf("catchcloseld:\n");
@@ -2007,33 +1995,33 @@ catchclosedbt:
   if (_trace) printf("catchclosedbt:\n");
   goto dbunwindcatchtrap;
 
-vma-memory-write15110:
-  if (_trace) printf("vma-memory-write15110:\n");
+vma_memory_write28605:
+  if (_trace) printf("vma_memory_write28605:\n");
   arg1 = *(u64 *)&(processor->stackcachedata);   
   arg1 = (arg2 * 8) + arg1;  		// reconstruct SCA 
 		/* Store in stack */
   *(u32 *)arg1 = t6;
 		/* write the stack cache */
   *(u32 *)(arg1 + 4) = t8;
-  goto vma-memory-write15109;   
+  goto vma_memory_write28604;   
 
-vma-memory-read15101:
-  if (_trace) printf("vma-memory-read15101:\n");
+vma_memory_read28596:
+  if (_trace) printf("vma_memory_read28596:\n");
   arg2 = *(u64 *)&(processor->stackcachedata);   
   arg1 = (arg1 * 8) + arg2;  		// reconstruct SCA 
   t9 = *(s32 *)arg1;   
   t8 = *(s32 *)(arg1 + 4);   		// Read from stack cache 
-  goto vma-memory-read15100;   
+  goto vma_memory_read28595;   
 
-vma-memory-read15103:
-  if (_trace) printf("vma-memory-read15103:\n");
+vma_memory_read28598:
+  if (_trace) printf("vma_memory_read28598:\n");
   if ((t11 & 1) == 0)   
-    goto vma-memory-read15102;
+    goto vma_memory_read28597;
   t2 = (u32)t9;   		// Do the indirect thing 
-  goto vma-memory-read15099;   
+  goto vma_memory_read28594;   
 
-vma-memory-read15102:
-  if (_trace) printf("vma-memory-read15102:\n");
+vma_memory_read28597:
+  if (_trace) printf("vma_memory_read28597:\n");
   arg1 = *(u64 *)&(processor->bindwrite);   		// Load the memory action table for cycle 
   /* TagType. */
   t11 = t8 & 63;		// Discard the CDR code 
@@ -2041,29 +2029,29 @@ vma-memory-read15102:
   t11 = (t11 * 4) + arg1;   		// Adjust for a longword load 
   arg1 = *(s32 *)t11;   		// Get the memory action 
 
-vma-memory-read15105:
+vma_memory_read28600:
   /* Perform memory action */
   arg1 = arg1;
   arg2 = 3;
   goto performmemoryaction;
 
-vma-memory-read15091:
-  if (_trace) printf("vma-memory-read15091:\n");
+vma_memory_read28586:
+  if (_trace) printf("vma_memory_read28586:\n");
   t9 = *(u64 *)&(processor->stackcachedata);   
   t8 = (t8 * 8) + t9;  		// reconstruct SCA 
   t2 = *(s32 *)t8;   
   t3 = *(s32 *)(t8 + 4);   		// Read from stack cache 
-  goto vma-memory-read15090;   
+  goto vma_memory_read28585;   
 
-vma-memory-read15093:
-  if (_trace) printf("vma-memory-read15093:\n");
+vma_memory_read28588:
+  if (_trace) printf("vma_memory_read28588:\n");
   if ((arg1 & 1) == 0)   
-    goto vma-memory-read15092;
+    goto vma_memory_read28587;
   t5 = (u32)t2;   		// Do the indirect thing 
-  goto vma-memory-read15089;   
+  goto vma_memory_read28584;   
 
-vma-memory-read15092:
-  if (_trace) printf("vma-memory-read15092:\n");
+vma_memory_read28587:
+  if (_trace) printf("vma_memory_read28587:\n");
   arg2 = *(u64 *)&(processor->bindread);   		// Load the memory action table for cycle 
   /* TagType. */
   arg1 = t3 & 63;		// Discard the CDR code 
@@ -2071,29 +2059,29 @@ vma-memory-read15092:
   arg1 = (arg1 * 4) + arg2;   		// Adjust for a longword load 
   arg2 = *(s32 *)arg1;   		// Get the memory action 
 
-vma-memory-read15095:
+vma_memory_read28590:
   /* Perform memory action */
   arg1 = arg2;
   arg2 = 2;
   goto performmemoryaction;
 
-vma-memory-read15081:
-  if (_trace) printf("vma-memory-read15081:\n");
+vma_memory_read28576:
+  if (_trace) printf("vma_memory_read28576:\n");
   t9 = *(u64 *)&(processor->stackcachedata);   
   t8 = (t8 * 8) + t9;  		// reconstruct SCA 
   t6 = *(s32 *)t8;   
   t7 = *(s32 *)(t8 + 4);   		// Read from stack cache 
-  goto vma-memory-read15080;   
+  goto vma_memory_read28575;   
 
-vma-memory-read15083:
-  if (_trace) printf("vma-memory-read15083:\n");
+vma_memory_read28578:
+  if (_trace) printf("vma_memory_read28578:\n");
   if ((arg1 & 1) == 0)   
-    goto vma-memory-read15082;
+    goto vma_memory_read28577;
   t1 = (u32)t6;   		// Do the indirect thing 
-  goto vma-memory-read15079;   
+  goto vma_memory_read28574;   
 
-vma-memory-read15082:
-  if (_trace) printf("vma-memory-read15082:\n");
+vma_memory_read28577:
+  if (_trace) printf("vma_memory_read28577:\n");
   arg2 = *(u64 *)&(processor->bindread);   		// Load the memory action table for cycle 
   /* TagType. */
   arg1 = t7 & 63;		// Discard the CDR code 
@@ -2101,7 +2089,7 @@ vma-memory-read15082:
   arg1 = (arg1 * 4) + arg2;   		// Adjust for a longword load 
   arg2 = *(s32 *)arg1;   		// Get the memory action 
 
-vma-memory-read15085:
+vma_memory_read28580:
   /* Perform memory action */
   arg1 = arg2;
   arg2 = 2;

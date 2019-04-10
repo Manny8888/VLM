@@ -1141,8 +1141,8 @@
 		           (fixarg arg1)
 		           (fixarg arg2)
                (trailing-comment arg4))
-	     (format destination "  if (~A >> 32)~%    exception();  /* addl/v */~%"
-		           (fixarg arg3)))
+	     ;; (format destination "  if (~A >> 32)~%    exception();  /* addl/v */     // WARNING !!! THIS IS ADJUSTED BY THE DIFF FILE~%" (fixarg arg3))
+      (format destination "  if (~A >> 31) exception(1, ~A);  /* addl/v */     // WARNING !!! THIS SHOULD REFLECT THE DIFF FILE~%" (fixarg arg3) (fixarg arg3))))
 
 	    (SUBL/V
 	     (format destination
@@ -1151,8 +1151,9 @@
 		           (fixarg arg1)
 		           (fixarg arg2)
                (trailing-comment arg4))
-	     (format destination "  if (~A >> 32)~%    exception();  /* subl/v */ ~%"
-		           (fixarg arg3)))
+	     ;; (format destination "  if (~A >> 32)~%    exception();  /* subl/v */     // WARNING !!! THIS IS ADJUSTED BY THE DIFF FILE ~%" (fixarg arg3)))
+       (format destination "  if (~A >> 31) exception(2, ~A);  /* subl/v */     // WARNING !!! THIS SHOULD REFLECT THE DIFF FILE ~%"
+               (fixarg arg3) (fixarg arg3)))
 
 	    (ADDQ
 	     (cond
@@ -1748,8 +1749,9 @@
 	     (format destination "  ~A = (s64)((s32)~A * (s64)(s32)~A); /* mull/v */   ~A~%"
 		           (fixarg arg3) (fixarg arg1) (fixarg arg2)
                (trailing-comment arg4))
-	     (format destination "  if (~A >> 32)~%    exception();  // WARNING !!! THIS IS ADJUSTED BY THE DIFF FILE~%"
-		           (fixarg arg3)))
+	     ;; (format destination "  if (~A >> 32)~%    exception();  // WARNING !!! THIS IS ADJUSTED BY THE DIFF FILE~%" (fixarg arg3))
+       (format destination "  if (~A >> 31) exception(3, ~A);  // WARNING !!! THIS SHOULD REFLECT THE DIFF FILE~%"
+		           (fixarg arg3) (fixarg arg3)))
 
 	    (NOP)
 
@@ -1826,14 +1828,13 @@
                (trailing-comment arg4)))
 
 	    (STL
-	     (check-comment arg4)
 	     (if (listp arg3)
 	         (setf arg3 (car arg3)))
 	     (if (numberp arg2)
 	         (if (eq arg2 0)
-		           (format destination "  *(u32 *)~A = ~A;~%"
+		           (format destination "  *(u32 *)~A = ~A;"
 			                 (fixarg arg3) (fixarg arg1))
-	             (format destination "  *(u32 *)(~A + ~A) = ~A;~%"
+	             (format destination "  *(u32 *)(~A + ~A) = ~A;"
 		                   (fixarg arg3) (fixarg arg2) (fixarg arg1)))
 	         ;; handle ugly x+4 case
 	         (multiple-value-bind (ptr member offset)
@@ -1846,11 +1847,12 @@
 		             (setf offset (format nil "~A/4" offset)))
 		         (cond
 		           ((eq offset 0)
-		            (format destination "  *(u32 *)&~A->~A = ~A;~%"
+		            (format destination "  *(u32 *)&~A->~A = ~A;"
 			                  ptr (fixarg member) (fixarg arg1)))
 		           (t
-		            (format destination "  *((u32 *)(&~A->~A)+~A) = ~A;~%"
-			                  ptr (fixarg member) offset (fixarg arg1)))))))
+		            (format destination "  *((u32 *)(&~A->~A)+~A) = ~A;"
+			                  ptr (fixarg member) offset (fixarg arg1))))))
+       (format destination "   ~A~%" (trailing-comment arg4)))
 
 	    (STQ
 	     (if (listp arg3)

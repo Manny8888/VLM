@@ -7,8 +7,8 @@
 (defmacro car-internal (tag data opcode vma temp3 temp4 temp5 temp6 &optional signedp)
   (assert (member signedp '(t nil)) () "Barf")
   (check-temporaries (tag data) (vma temp3 temp4 temp5 temp6))
-  (let ((loccase (gensym "car-internal"))
-	      (endcar (gensym "car-internal")))
+  (let ((loccase (gensym "car_internal"))
+	      (endcar (gensym "car_internal")))
     `(;; Allows arg-fetch to be signed
       (EXTLL ,data zero ,vma)
       (type-dispatch ,tag ,temp3 ,temp4
@@ -33,8 +33,8 @@
 (defmacro cdr-internal (tag data opcode vma temp3 temp4 temp5 temp6 &optional signedp)
   (assert (member signedp '(t nil)) () "Barf")
   (check-temporaries (tag data) (vma temp3 temp4 temp5 temp6))
-  (let ((readcdr (gensym "cdr-internal"))
-	      (endcdr (gensym "cdr-internal")))
+  (let ((readcdr (gensym "cdr_internal"))
+	      (endcdr (gensym "cdr_internal")))
     `(;; Allows arg-fetch to be signed
       (EXTLL ,data 0 ,vma)
       (type-dispatch ,tag ,temp3 ,temp4
@@ -75,9 +75,9 @@
   "DTAG and DDATA should be the canonical tag/data registers"
   (assert (member signedp '(t nil)) () "Barf")
   (check-temporaries (tag data dtag ddata) (vma temp3 temp4 temp5 temp6))
-  (let ((forwarded (gensym "carcdr-internal"))
-	      (end-carcdr (gensym "carcdr-internal"))
-	      (cdr-ed (gensym "carcdr-internal")))
+  (let ((forwarded (gensym "carcdr_internal"))
+	      (end-carcdr (gensym "carcdr_internal"))
+	      (cdr-ed (gensym "carcdr_internal")))
     `(;; Allows arg-fetch to be signed
       (EXTLL ,data zero ,vma)
       (type-dispatch ,tag ,temp3 ,temp4

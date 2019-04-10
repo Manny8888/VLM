@@ -121,7 +121,7 @@
 	     (ORNOT zero zero ,res)))))
 
 (defmacro alu-function-byte (alu op1 op2 res bgnd rot siz temp temp2)
-  (let ((hrl (gensym "alu-function-byte"))
+  (let ((hrl (gensym "alu_function_byte"))
 	      (mask temp2))
     `((LDQ ,rot PROCESSORSTATE_BYTEROTATE (ivory) "Get rotate")
       (LDQ ,siz PROCESSORSTATE_BYTESIZE (ivory) "Get bytesize")
@@ -156,7 +156,7 @@
       (BIS ,res ,bgnd ,res))))
 
 (defmacro alu-function-adder (alu op1 op2 res op2a carryin temp temp2)
-  (let ((skipcinupdate (gensym "alu-function-adder")))
+  (let ((skipcinupdate (gensym "alu_function_adder")))
     `((read-alu-adder-op2 ,alu ,temp)
       (read-alu-adder-carry-in ,alu ,carryin)
       (basic-dispatch ,temp ,temp2
@@ -195,9 +195,9 @@
   `((UnimplementedInstruction)))
 
 (defmacro alu-compute-condition (alu op1tag op2tag result condition temp temp2 temp3 temp4)
-  (let ((labone (gensym "alu-compute-condition"))
-	      (labzero (gensym "alu-compute-condition"))
-	      (done (gensym "alu-compute-condition"))
+  (let ((labone (gensym "alu_compute_condition"))
+	      (labzero (gensym "alu_compute_condition"))
+	      (done (gensym "alu_compute_condition"))
 	      (ov temp2)
 	      (bo temp3)
 	      (lt temp4)

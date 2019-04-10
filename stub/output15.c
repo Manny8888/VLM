@@ -93,7 +93,7 @@ DoPLdbFP:
     goto pldbillop;
   /* Memory Read Internal */
 
-vma-memory-read16134:
+vma_memory_read29629:
   t3 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t5 = t2 + ivory;
   t4 = *(s32 *)&processor->scovlimit;   
@@ -104,12 +104,12 @@ vma-memory-read16134:
   arg4 = *(s32 *)arg4;   
   arg3 = (u8)(arg3 >> ((t5&7)*8));   
   if (t4 != 0)   
-    goto vma-memory-read16136;
+    goto vma_memory_read29631;
 
-vma-memory-read16135:
+vma_memory_read29630:
   arg4 = (u32)arg4;   
 
-vma-memory-read16142:
+vma_memory_read29637:
   t7 = zero - 1;   		// t7= -1 
   arg1 = arg1 + 1;		// Size of field 
   t4 = arg4 << (arg2 & 63);   		// T4= shifted value if PP==0 
@@ -138,13 +138,13 @@ pldbillop:
   arg2 = 57;
   goto illegaloperand;
 
-vma-memory-read16136:
-  if (_trace) printf("vma-memory-read16136:\n");
+vma_memory_read29631:
+  if (_trace) printf("vma_memory_read29631:\n");
   t4 = *(u64 *)&(processor->stackcachedata);   
   t3 = (t3 * 8) + t4;  		// reconstruct SCA 
   arg4 = *(s32 *)t3;   
   arg3 = *(s32 *)(t3 + 4);   		// Read from stack cache 
-  goto vma-memory-read16135;   
+  goto vma_memory_read29630;   
 
 /* end DoPLdb */
   /* End of Halfword operand from stack instruction - DoPLdb */
@@ -180,7 +180,7 @@ DoPTagLdbFP:
     goto ptagldbillop;
   /* Memory Read Internal */
 
-vma-memory-read16143:
+vma_memory_read29638:
   t3 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t5 = t2 + ivory;
   t4 = *(s32 *)&processor->scovlimit;   
@@ -191,11 +191,11 @@ vma-memory-read16143:
   arg4 = *(s32 *)arg4;   
   arg3 = (u8)(arg3 >> ((t5&7)*8));   
   if (t4 != 0)   
-    goto vma-memory-read16145;
+    goto vma_memory_read29640;
 
-vma-memory-read16144:
+vma_memory_read29639:
 
-vma-memory-read16151:
+vma_memory_read29646:
   t7 = zero - 1;   		// t7= -1 
   arg1 = arg1 + 1;		// Size of field 
   t4 = arg3 << (arg2 & 63);   		// T4= shifted value if PP==0 
@@ -224,13 +224,13 @@ ptagldbillop:
   arg2 = 57;
   goto illegaloperand;
 
-vma-memory-read16145:
-  if (_trace) printf("vma-memory-read16145:\n");
+vma_memory_read29640:
+  if (_trace) printf("vma_memory_read29640:\n");
   t4 = *(u64 *)&(processor->stackcachedata);   
   t3 = (t3 * 8) + t4;  		// reconstruct SCA 
   arg4 = *(s32 *)t3;   
   arg3 = *(s32 *)(t3 + 4);   		// Read from stack cache 
-  goto vma-memory-read16144;   
+  goto vma_memory_read29639;   
 
 /* end DoPTagLdb */
   /* End of Halfword operand from stack instruction - DoPTagLdb */
@@ -268,17 +268,17 @@ DoDpbFP:
   arg6 = arg3 & 63;		// Strip off any CDR code bits. 
   t2 = (t1 == Type_Fixnum) ? 1 : 0;   
 
-force-alignment16164:
-  if (_trace) printf("force-alignment16164:\n");
+force_alignment29659:
+  if (_trace) printf("force_alignment29659:\n");
   if (t2 == 0) 
-    goto basic-dispatch16157;
+    goto basic_dispatch29652;
   /* Here if argument TypeFixnum */
   arg5 = (arg6 == Type_Fixnum) ? 1 : 0;   
 
-force-alignment16161:
-  if (_trace) printf("force-alignment16161:\n");
+force_alignment29656:
+  if (_trace) printf("force_alignment29656:\n");
   if (arg5 == 0) 
-    goto binary-type-dispatch16154;
+    goto binary_type_dispatch29649;
   /* Here if argument TypeFixnum */
   t7 = zero - 2;   		// t7= -2 
   t7 = t7 << (arg1 & 63);   		// Unmask 
@@ -296,35 +296,35 @@ force-alignment16161:
   *(u32 *)(iSP + 4) = t4;
   goto cachevalid;   
 
-basic-dispatch16158:
-  if (_trace) printf("basic-dispatch16158:\n");
+basic_dispatch29653:
+  if (_trace) printf("basic_dispatch29653:\n");
 
-basic-dispatch16157:
-  if (_trace) printf("basic-dispatch16157:\n");
+basic_dispatch29652:
+  if (_trace) printf("basic_dispatch29652:\n");
   /* Here for all other cases */
 
-binary-type-dispatch16153:
-  if (_trace) printf("binary-type-dispatch16153:\n");
+binary_type_dispatch29648:
+  if (_trace) printf("binary_type_dispatch29648:\n");
   arg6 = t5;		// arg6 = tag to dispatch on 
   arg3 = 1;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 0;		// arg4 = arithmeticp 
   goto numericexception;
-  goto binary-type-dispatch16155;   
+  goto binary_type_dispatch29650;   
 
-binary-type-dispatch16154:
-  if (_trace) printf("binary-type-dispatch16154:\n");
+binary_type_dispatch29649:
+  if (_trace) printf("binary_type_dispatch29649:\n");
   arg6 = arg3;		// arg6 = tag to dispatch on 
   arg3 = 1;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
   arg4 = 0;		// arg4 = arithmeticp 
   goto numericexception;
 
-binary-type-dispatch16155:
-  if (_trace) printf("binary-type-dispatch16155:\n");
+binary_type_dispatch29650:
+  if (_trace) printf("binary_type_dispatch29650:\n");
 
-basic-dispatch16156:
-  if (_trace) printf("basic-dispatch16156:\n");
+basic_dispatch29651:
+  if (_trace) printf("basic_dispatch29651:\n");
 
 /* end DoDpb */
   /* End of Halfword operand from stack instruction - DoDpb */
@@ -362,17 +362,17 @@ DoCharDpbFP:
   arg6 = arg3 & 63;		// Strip off any CDR code bits. 
   t2 = (t1 == Type_Character) ? 1 : 0;   
 
-force-alignment16177:
-  if (_trace) printf("force-alignment16177:\n");
+force_alignment29672:
+  if (_trace) printf("force_alignment29672:\n");
   if (t2 == 0) 
-    goto basic-dispatch16170;
+    goto basic_dispatch29665;
   /* Here if argument TypeCharacter */
   arg5 = (arg6 == Type_Fixnum) ? 1 : 0;   
 
-force-alignment16174:
-  if (_trace) printf("force-alignment16174:\n");
+force_alignment29669:
+  if (_trace) printf("force_alignment29669:\n");
   if (arg5 == 0) 
-    goto binary-type-dispatch16167;
+    goto binary_type_dispatch29662;
   /* Here if argument TypeFixnum */
   t7 = zero - 2;   		// t7= -2 
   t7 = t7 << (arg1 & 63);   		// Unmask 
@@ -390,15 +390,15 @@ force-alignment16174:
   *(u32 *)(iSP + 4) = t4;
   goto cachevalid;   
 
-basic-dispatch16171:
-  if (_trace) printf("basic-dispatch16171:\n");
+basic_dispatch29666:
+  if (_trace) printf("basic_dispatch29666:\n");
 
-basic-dispatch16170:
-  if (_trace) printf("basic-dispatch16170:\n");
+basic_dispatch29665:
+  if (_trace) printf("basic_dispatch29665:\n");
   /* Here for all other cases */
 
-binary-type-dispatch16166:
-  if (_trace) printf("binary-type-dispatch16166:\n");
+binary_type_dispatch29661:
+  if (_trace) printf("binary_type_dispatch29661:\n");
   arg6 = t5;		// arg6 = tag to dispatch on 
   arg3 = 1;		// arg3 = stackp 
   arg1 = 2;		// arg1 = instruction arity 
@@ -406,19 +406,19 @@ binary-type-dispatch16166:
   arg5 = 0;
   arg2 = 27;
   goto spareexception;
-  goto binary-type-dispatch16168;   
+  goto binary_type_dispatch29663;   
 
-binary-type-dispatch16167:
-  if (_trace) printf("binary-type-dispatch16167:\n");
+binary_type_dispatch29662:
+  if (_trace) printf("binary_type_dispatch29662:\n");
   arg5 = 0;
   arg2 = 27;
   goto illegaloperand;
 
-binary-type-dispatch16168:
-  if (_trace) printf("binary-type-dispatch16168:\n");
+binary_type_dispatch29663:
+  if (_trace) printf("binary_type_dispatch29663:\n");
 
-basic-dispatch16169:
-  if (_trace) printf("basic-dispatch16169:\n");
+basic_dispatch29664:
+  if (_trace) printf("basic_dispatch29664:\n");
 
 /* end DoCharDpb */
   /* End of Halfword operand from stack instruction - DoCharDpb */
@@ -459,7 +459,7 @@ DoPDpbFP:
   arg4 = (u32)arg4;   
   /* Memory Read Internal */
 
-vma-memory-read16178:
+vma_memory_read29673:
   t3 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t1 = t2 + ivory;
   t4 = *(s32 *)&processor->scovlimit;   
@@ -470,20 +470,20 @@ vma-memory-read16178:
   t6 = *(s32 *)t6;   
   t8 = (u8)(t8 >> ((t1&7)*8));   
   if (t4 != 0)   
-    goto vma-memory-read16180;
+    goto vma_memory_read29675;
 
-vma-memory-read16179:
+vma_memory_read29674:
   t6 = (u32)t6;   
 
-vma-memory-read16186:
+vma_memory_read29681:
   t6 = (u32)t6;   
   t1 = arg3 & 63;		// Strip off any CDR code bits. 
   t10 = (t1 == Type_Fixnum) ? 1 : 0;   
 
-force-alignment16193:
-  if (_trace) printf("force-alignment16193:\n");
+force_alignment29688:
+  if (_trace) printf("force_alignment29688:\n");
   if (t10 == 0) 
-    goto basic-dispatch16188;
+    goto basic_dispatch29683;
   /* Here if argument TypeFixnum */
   t7 = zero - 2;   		// t7= -2 
   t7 = t7 << (arg1 & 63);   		// Unmask 
@@ -503,25 +503,25 @@ force-alignment16193:
   t4 = (t8 & 0xff) << ((t3&7)*8);   
   t1 = t1 & ~(0xffL << (t3&7)*8);   
 
-force-alignment16190:
-  if (_trace) printf("force-alignment16190:\n");
+force_alignment29685:
+  if (_trace) printf("force_alignment29685:\n");
   t1 = t1 | t4;
   STQ_U(t3, t1);   
   *(u32 *)t5 = t6;
   if (t10 != 0)   		// J. if in cache 
-    goto vma-memory-write16189;
+    goto vma_memory_write29684;
   goto NEXTINSTRUCTION;   
   goto NEXTINSTRUCTION;   
 
-basic-dispatch16188:
-  if (_trace) printf("basic-dispatch16188:\n");
+basic_dispatch29683:
+  if (_trace) printf("basic_dispatch29683:\n");
   /* Here for all other cases */
   arg5 = 0;
   arg2 = 6;
   goto illegaloperand;
 
-basic-dispatch16187:
-  if (_trace) printf("basic-dispatch16187:\n");
+basic_dispatch29682:
+  if (_trace) printf("basic_dispatch29682:\n");
 
 pdpbillop:
   if (_trace) printf("pdpbillop:\n");
@@ -535,12 +535,12 @@ pdpbillop:
   arg2 = 57;
   goto illegaloperand;
 
-vma-memory-write16189:
-  if (_trace) printf("vma-memory-write16189:\n");
+vma_memory_write29684:
+  if (_trace) printf("vma_memory_write29684:\n");
   t4 = *(u64 *)&(processor->stackcachebasevma);   
 
-force-alignment16194:
-  if (_trace) printf("force-alignment16194:\n");
+force_alignment29689:
+  if (_trace) printf("force_alignment29689:\n");
   t3 = *(u64 *)&(processor->stackcachedata);   
   t4 = t2 - t4;   		// Stack cache offset 
   t3 = (t4 * 8) + t3;  		// reconstruct SCA 
@@ -550,13 +550,13 @@ force-alignment16194:
   *(u32 *)(t3 + 4) = t8;
   goto NEXTINSTRUCTION;   
 
-vma-memory-read16180:
-  if (_trace) printf("vma-memory-read16180:\n");
+vma_memory_read29675:
+  if (_trace) printf("vma_memory_read29675:\n");
   t4 = *(u64 *)&(processor->stackcachedata);   
   t3 = (t3 * 8) + t4;  		// reconstruct SCA 
   t6 = *(s32 *)t3;   
   t8 = *(s32 *)(t3 + 4);   		// Read from stack cache 
-  goto vma-memory-read16179;   
+  goto vma_memory_read29674;   
 
 /* end DoPDpb */
   /* End of Halfword operand from stack instruction - DoPDpb */
@@ -597,7 +597,7 @@ DoPTagDpbFP:
   arg4 = (u32)arg4;   
   /* Memory Read Internal */
 
-vma-memory-read16195:
+vma_memory_read29690:
   t3 = *(u64 *)&(processor->stackcachebasevma);   		// Base of stack cache 
   t1 = t2 + ivory;
   t4 = *(s32 *)&processor->scovlimit;   
@@ -608,18 +608,18 @@ vma-memory-read16195:
   t8 = *(s32 *)t8;   
   t6 = (u8)(t6 >> ((t1&7)*8));   
   if (t4 != 0)   
-    goto vma-memory-read16197;
+    goto vma_memory_read29692;
 
-vma-memory-read16196:
+vma_memory_read29691:
 
-vma-memory-read16203:
+vma_memory_read29698:
   t1 = arg3 & 63;		// Strip off any CDR code bits. 
   t10 = (t1 == Type_Fixnum) ? 1 : 0;   
 
-force-alignment16210:
-  if (_trace) printf("force-alignment16210:\n");
+force_alignment29705:
+  if (_trace) printf("force_alignment29705:\n");
   if (t10 == 0) 
-    goto basic-dispatch16205;
+    goto basic_dispatch29700;
   /* Here if argument TypeFixnum */
   t7 = zero - 2;   		// t7= -2 
   t7 = t7 << (arg1 & 63);   		// Unmask 
@@ -639,25 +639,25 @@ force-alignment16210:
   t4 = (t6 & 0xff) << ((t3&7)*8);   
   t1 = t1 & ~(0xffL << (t3&7)*8);   
 
-force-alignment16207:
-  if (_trace) printf("force-alignment16207:\n");
+force_alignment29702:
+  if (_trace) printf("force_alignment29702:\n");
   t1 = t1 | t4;
   STQ_U(t3, t1);   
   *(u32 *)t5 = t8;
   if (t10 != 0)   		// J. if in cache 
-    goto vma-memory-write16206;
+    goto vma_memory_write29701;
   goto NEXTINSTRUCTION;   
   goto NEXTINSTRUCTION;   
 
-basic-dispatch16205:
-  if (_trace) printf("basic-dispatch16205:\n");
+basic_dispatch29700:
+  if (_trace) printf("basic_dispatch29700:\n");
   /* Here for all other cases */
   arg5 = 0;
   arg2 = 6;
   goto illegaloperand;
 
-basic-dispatch16204:
-  if (_trace) printf("basic-dispatch16204:\n");
+basic_dispatch29699:
+  if (_trace) printf("basic_dispatch29699:\n");
 
 ptagdpbillop:
   if (_trace) printf("ptagdpbillop:\n");
@@ -671,12 +671,12 @@ ptagdpbillop:
   arg2 = 57;
   goto illegaloperand;
 
-vma-memory-write16206:
-  if (_trace) printf("vma-memory-write16206:\n");
+vma_memory_write29701:
+  if (_trace) printf("vma_memory_write29701:\n");
   t4 = *(u64 *)&(processor->stackcachebasevma);   
 
-force-alignment16211:
-  if (_trace) printf("force-alignment16211:\n");
+force_alignment29706:
+  if (_trace) printf("force_alignment29706:\n");
   t3 = *(u64 *)&(processor->stackcachedata);   
   t4 = t2 - t4;   		// Stack cache offset 
   t3 = (t4 * 8) + t3;  		// reconstruct SCA 
@@ -686,13 +686,13 @@ force-alignment16211:
   *(u32 *)(t3 + 4) = t6;
   goto NEXTINSTRUCTION;   
 
-vma-memory-read16197:
-  if (_trace) printf("vma-memory-read16197:\n");
+vma_memory_read29692:
+  if (_trace) printf("vma_memory_read29692:\n");
   t4 = *(u64 *)&(processor->stackcachedata);   
   t3 = (t3 * 8) + t4;  		// reconstruct SCA 
   t8 = *(s32 *)t3;   
   t6 = *(s32 *)(t3 + 4);   		// Read from stack cache 
-  goto vma-memory-read16196;   
+  goto vma_memory_read29691;   
 
 /* end DoPTagDpb */
   /* End of Halfword operand from stack instruction - DoPTagDpb */

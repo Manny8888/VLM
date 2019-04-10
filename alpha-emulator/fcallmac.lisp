@@ -68,13 +68,13 @@
   ;; The various flavors of start-call are all expanded in-line here, so
   ;; that there are only two "tails" for the cases of pushing a frame
   ;; with and without an extra argument
-  (let ((interp (gensym "start-call-dispatch"))
-	      (notpc (gensym "start-call-dispatch"))
-	      (again (gensym "start-call-dispatch"))
-	      (call (gensym "start-call-dispatch"))
-	      (call-extra (gensym "start-call-dispatch"))
-	      (push-extra (gensym "start-call-dispatch"))
-	      ;; (hardway (gensym "start-call-dispatch"))
+  (let ((interp (gensym "start_call_dispatch"))
+	      (notpc (gensym "start_call_dispatch"))
+	      (again (gensym "start_call_dispatch"))
+	      (call (gensym "start_call_dispatch"))
+	      (call-extra (gensym "start_call_dispatch"))
+	      (push-extra (gensym "start_call_dispatch"))
+	      ;; (hardway (gensym "start_call_dispatch"))
         )
     `((label ,again)
       ;; Constant shared by several branches
@@ -256,8 +256,8 @@
   (if cr
       (check-temporaries (cr) (temp temp2 temp3))
       (check-temporaries () (temp temp2 temp3)))
-  (let ((apply (gensym "b-apply-argument-supplied"))
-	      (done (gensym "b-apply-argument-supplied")))
+  (let ((apply (gensym "b_apply_argument_supplied"))
+	      (done (gensym "b_apply_argument_supplied")))
     ;; If you are going to pull args, you are on the slow path
     (push  `((label ,apply)
 	           (AND ,temp3 #x3F ,temp3)
@@ -297,8 +297,8 @@
   (if cr
       (check-temporaries (min max cr) (temp temp2 temp3))
       (check-temporaries (min max) (temp temp2 temp3)))
-  (let ((l1 (gensym "push-apply-args"))
-	      (ent (gensym "push-apply-args")))
+  (let ((l1 (gensym "push_apply_args"))
+	      (ent (gensym "push_apply_args")))
     `((stack-set-cdr-code iSP 1 ,temp)  ;cdr-nil
       (b-apply-argument-supplied ,l1 ,temp ,temp2 ,temp3 ,cr)
       (S8ADDQ ,max iFP ,temp)
@@ -338,8 +338,8 @@
 (defmacro pull-apply-args (n tag data done-label
 			                     temp temp2 temp3 temp4 temp5 temp6 temp7 temp8)
   (check-temporaries (n tag data) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8))
-  (let ((done (or done-label (gensym "pull-apply-args")))
-	      (notincache (gensym "pull-apply-args")))
+  (let ((done (or done-label (gensym "pull_apply_args")))
+	      (notincache (gensym "pull_apply_args")))
     `((stack-top2 ,tag ,data)
       (type-dispatch ,tag ,temp ,temp2
 	      (|TypeList|
@@ -374,13 +374,13 @@
 				                           temp temp2 temp3 temp4 temp5 temp6 temp7)
   "Expects rest-arg has been popped and its SCA is rest"
   (check-temporaries (n rest) (temp temp2 temp3 temp4 temp5 temp6 temp7))
-  (let ((top (gensym "pull-apply-args-quickly"))
-	      (done (or done-label (gensym "pull-apply-args-quickly")))
-	      (endloop (gensym "pull-apply-args-quickly"))
-	      (notincache (gensym "pull-apply-args-quickly"))
-	      (ranout (gensym "pull-apply-args-quickly"))
-	      (maybedone (gensym "pull-apply-args-quickly"))
-	      (loopentry (gensym "pull-apply-args-quickly"))
+  (let ((top (gensym "pull_apply_args_quickly"))
+	      (done (or done-label (gensym "pull_apply_args_quickly")))
+	      (endloop (gensym "pull_apply_args_quickly"))
+	      (notincache (gensym "pull_apply_args_quickly"))
+	      (ranout (gensym "pull_apply_args_quickly"))
+	      (maybedone (gensym "pull_apply_args_quickly"))
+	      (loopentry (gensym "pull_apply_args_quickly"))
 	      ;; readability
 	      (count temp3)
 	      (argtag temp4)
@@ -477,11 +477,11 @@
 (defmacro cleanup-frame (cr done-label
 			                   temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
   (check-temporaries (cr) (temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12))
-  (let ((reallydone (or done-label (gensym "cleanup-frame")))
-	      (done (gensym "cleanup-frame"))
-	      (almostdone (gensym "cleanup-frame"))
-	      (top (gensym "cleanup-frame"))
-	      (more (gensym "cleanup-frame"))
+  (let ((reallydone (or done-label (gensym "cleanup_frame")))
+	      (done (gensym "cleanup_frame"))
+	      (almostdone (gensym "cleanup_frame"))
+	      (top (gensym "cleanup_frame"))
+	      (more (gensym "cleanup_frame"))
 	      (cfuwp 'HANDLEUNWINDPROTECT)
 	      (cfdbt 'DBUNWINDFRAMETRAP))
     `(
@@ -536,8 +536,8 @@
 ;; encountered.  It does not need to be inlined, since the unwind
 ;; handler deals with retrying the instruction when it exits
 (defmacro do-unwind-protect (cr temp temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12)
-  (let ((pushpc (gensym "do-unwind-protect"))
-	      (restorebindings (gensym "do-unwind-protect"))
+  (let ((pushpc (gensym "do_unwind_protect"))
+	      (restorebindings (gensym "do_unwind_protect"))
 	      (dupdbt 'DBUNWINDFRAMETRAP))
     `((LDL ,temp4 PROCESSORSTATE_CATCHBLOCK (ivory))
       (EXTLL ,temp4 0 ,temp4)
@@ -595,9 +595,9 @@
 (defmacro abandon-frame-simple (restorepctest cr cleanuplabel temp temp2 temp3 temp4 temp5 temp6 next-cp)
   "If the pc is restored, you must go to InterpretInstructionForBranch to update the CP"
   (check-temporaries (cr) (temp temp2 temp3 temp4 temp5 temp6 next-cp))
-  (let ((afexc (gensym "abandon-frame-simple"))
-	      ;; (afgo (gensym "abandon-frame-simple"))
-	      (norestore (gensym "abandon-frame-simple"))
+  (let ((afexc (gensym "abandon_frame_simple"))
+	      ;; (afgo (gensym "abandon_frame_simple"))
+	      (norestore (gensym "abandon_frame_simple"))
 	      (saved-control-data temp6))
     `((Comment "Restore machine state from frame header.")
       ,@(let ((saved-continuation-tag temp2)

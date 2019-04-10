@@ -43,7 +43,7 @@
   `((BEQ ,r ,label ,@(if comment `(,comment)))))
 
 (defmacro force-alignment ()
-  `((label ,(gensym "force-alignment"))))
+  `((label ,(gensym "force_alignment"))))
 
 
 ;;; This macro assumes that the PC is a halfword address where the lsbit
@@ -242,7 +242,7 @@
     (external-branch arrayexception)))
 
 (defmacro maybe-icount (r)
-  (let ((lb (gensym "maybe-icount")))
+  (let ((lb (gensym "maybe_icount")))
     `((comment "Update the instruction count.")
       (LDQ ,r PROCESSORSTATE_INSTRUCTION_COUNT (ivory))
       (SUBQ ,r 1 ,r "Decrement the instruction count.")
@@ -263,7 +263,7 @@
     (STL ,temp5 0 (,temp4) "Set current usage data")))
 
 (defmacro maybe-meter-hit (temp temp2 temp3 temp4 temp5 temp6)
-  (let ((done (gensym "maybe-meter-hit")))
+  (let ((done (gensym "maybe_meter_hit")))
     `((LDL ,temp2 PROCESSORSTATE_METERCOUNT (ivory) "The number of remaining tokens.")
       (LDQ ,temp PROCESSORSTATE_METERDATABUFF (ivory) "The cache miss meter buffer.")
       (LDL ,temp4 PROCESSORSTATE_METERPOS (ivory) "Position for new data.")
@@ -287,7 +287,7 @@
       (STL ,temp2 PROCESSORSTATE_METERCOUNT (ivory)))))
 
 (defmacro maybe-meter-miss (temp temp2 temp3 temp4 temp5 temp6)
-  (let ((done (gensym "maybe-meter-miss")))
+  (let ((done (gensym "maybe_meter_miss")))
     `((LDL ,temp6 PROCESSORSTATE_METERVALUE (ivory))
       (LDL ,temp2 PROCESSORSTATE_METERCOUNT (ivory) "The number of remaining tokens.")
       (LDQ ,temp PROCESSORSTATE_METERDATABUFF (ivory) "The cache miss meter buffer.")
@@ -360,11 +360,11 @@
     (STQ ,temp2 0 (,temp) "and store it back")))
 
 (defmacro maybe-trace (temp temp2 temp3 temp4 temp5 temp6 &optional dispatch)
-  (let ((dotrace (gensym "maybe-trace"))
-	(finishtrace (gensym "maybe-trace"))
-	(noprint (gensym "maybe-trace"))
-	(nowrap (gensym "maybe-trace"))
-	(notrace (gensym "maybe-trace")))
+  (let ((dotrace (gensym "maybe_trace"))
+	(finishtrace (gensym "maybe_trace"))
+	(noprint (gensym "maybe_trace"))
+	(nowrap (gensym "maybe_trace"))
+	(notrace (gensym "maybe_trace")))
     `((comment "Trace instructions if requested.")
       (LDQ ,temp PROCESSORSTATE_TRACE_HOOK (ivory))
       (BEQ ,temp ,notrace "J. if not tracing.")
@@ -951,7 +951,7 @@
 ;;; deals with tags of up to 8 bits only
 (defmacro basic-dispatch (t1 t2 &body clauses &environment env)
   (let* ((expanded ())
-	 (end-label (gensym "basic-dispatch"))
+	 (end-label (gensym "basic_dispatch"))
 	 (else-label (assoc :else-label clauses))
 	 (fall-through nil)
 	 )
@@ -959,7 +959,7 @@
       (setq clauses (remove else-label clauses)
 	    else-label (second else-label)))
     (loop for rest-label = nil then label
-	  as label = (gensym "basic-dispatch")
+	  as label = (gensym "basic_dispatch")
 	  for (clause . rest) on clauses do ;dolist (clause clauses)
       (when (null rest)
 	(if else-label
@@ -1004,7 +1004,7 @@
 		       `((BR zero ,end-label))))
 		   expanded))
 		((listp key)
-		 (let ((matchlabel (gensym "basic-dispatch")))
+		 (let ((matchlabel (gensym "basic_dispatch")))
 		   (push
 		     `(,@(when rest-label
 			 `((label ,rest-label)))
@@ -1078,9 +1078,9 @@
 			  (incf n (length (car clause)))
 			  (incf n 1)))
 		    n))
-	 (end-label (gensym "mondo-dispatch"))
+	 (end-label (gensym "mondo_dispatch"))
 	 (i 0)
-	 (label (gensym "mondo-dispatch")))
+	 (label (gensym "mondo_dispatch")))
     (dolist (clause clauses)
       (cond ((member (car clause) '(:else :otherwise 'else 'otherwise))
 	     (push
@@ -1113,7 +1113,7 @@
 		 (label ,label))
 	       expanded)))
       (incf i)
-      (setq label (gensym "mondo-dispatch")))
+      (setq label (gensym "mondo_dispatch")))
     `(,@(apply #'nconc (nreverse expanded))
       (label ,end-label))))
 
@@ -1145,10 +1145,10 @@
 	(elseclause nil)
 	(else1clause nil)
 	(else2clause nil)
-	(eclabel (gensym "binary-type-dispatch"))
-	(ec1label (gensym "binary-type-dispatch"))
-	(ec2label (gensym "binary-type-dispatch"))
-	(done (gensym "binary-type-dispatch")))
+	(eclabel (gensym "binary_type_dispatch"))
+	(ec1label (gensym "binary_type_dispatch"))
+	(ec2label (gensym "binary_type_dispatch"))
+	(done (gensym "binary_type_dispatch")))
     ;; For each clause, sort into first type, subclauses
     ;; Next make a nested type-dispatch
     (dolist (cl clauses)

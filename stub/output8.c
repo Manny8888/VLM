@@ -37,9 +37,9 @@ begindosettocar:
   arg5 = *(s32 *)(arg1 + 4);   		// Get the operand from the stack. 
   arg6 = *(s32 *)arg1;   
   t2 = arg5 & 192;		// Save the old CDR code 
-  r0 = (u64)&&return0496;
+  r0 = (u64)&&return0329;
   goto carinternal;
-return0496:
+return0329:
   /* TagType. */
   arg5 = arg5 & 63;
   arg5 = arg5 | t2;		// Put back the original CDR codes 
@@ -84,9 +84,9 @@ begindosettocdr:
   arg5 = *(s32 *)(arg1 + 4);   		// Get the operand from the stack. 
   arg6 = *(s32 *)arg1;   
   t2 = arg5 & 192;		// Save the old CDR code 
-  r0 = (u64)&&return0497;
+  r0 = (u64)&&return0330;
   goto cdrinternal;
-return0497:
+return0330:
   /* TagType. */
   arg5 = arg5 & 63;
   arg5 = arg5 | t2;		// Put back the original CDR codes 
@@ -111,7 +111,7 @@ settocdrpushcarlocative:
   arg2 = t2;
   /* Memory Read Internal */
 
-vma-memory-read15121:
+vma_memory_read28616:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -121,16 +121,16 @@ vma-memory-read15121:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read15123;
+    goto vma_memory_read28618;
 
-vma-memory-read15122:
+vma_memory_read28617:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read15125;
+    goto vma_memory_read28620;
 
-vma-memory-read15132:
+vma_memory_read28627:
   /* TagType. */
   t1 = t1 & 63;
   *(u32 *)(iSP + 8) = arg6;
@@ -143,22 +143,22 @@ vma-memory-read15132:
   *(u32 *)(arg1 + 4) = arg5;
   goto NEXTINSTRUCTION;   
 
-vma-memory-read15125:
-  if (_trace) printf("vma-memory-read15125:\n");
+vma_memory_read28620:
+  if (_trace) printf("vma_memory_read28620:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read15124;
+    goto vma_memory_read28619;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read15121;   
+  goto vma_memory_read28616;   
 
-vma-memory-read15124:
-  if (_trace) printf("vma-memory-read15124:\n");
+vma_memory_read28619:
+  if (_trace) printf("vma_memory_read28619:\n");
 
-vma-memory-read15123:
-  if (_trace) printf("vma-memory-read15123:\n");
-  r0 = (u64)&&return0498;
+vma_memory_read28618:
+  if (_trace) printf("vma_memory_read28618:\n");
+  r0 = (u64)&&return0331;
   goto memoryreaddatadecode;
-return0498:
-  goto vma-memory-read15132;   
+return0331:
+  goto vma_memory_read28627;   
 
 /* end SetToCdrPushCarLocative */
 /* start DoAssoc */
@@ -205,7 +205,7 @@ begindoassoc:
   if (t5 & 1)   
     goto assocexc;
   t6 = zero;
-  goto carcdrloop15134;   
+  goto carcdrloop28629;   
 
 assoccdr:
   if (_trace) printf("assoccdr:\n");
@@ -215,30 +215,30 @@ assoccdr:
   t1 = arg5 & 63;
   t2 = arg6;
 
-carcdrloop15134:
-  if (_trace) printf("carcdrloop15134:\n");
+carcdrloop28629:
+  if (_trace) printf("carcdrloop28629:\n");
   t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto carcdrloop15133;
+    goto carcdrloop28628;
   if (t5 == 0) 
-    goto carcdrloop15135;
-  r0 = (u64)&&return0499;
+    goto carcdrloop28630;
+  r0 = (u64)&&return0332;
   goto carcdrinternal;
-return0499:
+return0332:
   t7 = t1 & 63;		// Strip off any CDR code bits. 
   t8 = (t7 == Type_List) ? 1 : 0;   
 
-force-alignment15153:
-  if (_trace) printf("force-alignment15153:\n");
+force_alignment28648:
+  if (_trace) printf("force_alignment28648:\n");
   if (t8 == 0) 
-    goto basic-dispatch15137;
+    goto basic_dispatch28632;
   /* Here if argument TypeList */
   arg2 = t2;
   t3 = arg5;
   arg1 = arg6;
   /* Memory Read Internal */
 
-vma-memory-read15138:
+vma_memory_read28633:
   t7 = arg2 + ivory;
   arg6 = (t7 * 4);   
   arg5 = LDQ_U(t7);   
@@ -248,16 +248,16 @@ vma-memory-read15138:
   arg6 = *(s32 *)arg6;   
   arg5 = (u8)(arg5 >> ((t7&7)*8));   
   if (t6 != 0)   
-    goto vma-memory-read15140;
+    goto vma_memory_read28635;
 
-vma-memory-read15139:
+vma_memory_read28634:
   t7 = zero + 240;   
   t8 = t8 >> (arg5 & 63);   
   t7 = t7 >> (arg5 & 63);   
   if (t8 & 1)   
-    goto vma-memory-read15142;
+    goto vma_memory_read28637;
 
-vma-memory-read15149:
+vma_memory_read28644:
   /* TagType. */
   t5 = arg5 & 63;
   arg5 = t3;
@@ -276,19 +276,19 @@ vma-memory-read15149:
   *(u32 *)(iSP + 4) = t1;
   goto NEXTINSTRUCTION;   
 
-basic-dispatch15137:
-  if (_trace) printf("basic-dispatch15137:\n");
+basic_dispatch28632:
+  if (_trace) printf("basic_dispatch28632:\n");
   t8 = (t7 == Type_NIL) ? 1 : 0;   
 
-force-alignment15154:
-  if (_trace) printf("force-alignment15154:\n");
+force_alignment28649:
+  if (_trace) printf("force_alignment28649:\n");
   if (t8 == 0) 
-    goto basic-dispatch15150;
+    goto basic_dispatch28645;
   /* Here if argument TypeNIL */
   goto assoccdr;   
 
-basic-dispatch15150:
-  if (_trace) printf("basic-dispatch15150:\n");
+basic_dispatch28645:
+  if (_trace) printf("basic_dispatch28645:\n");
   /* Here for all other cases */
   /* SetTag. */
   t1 = arg4 << 32;   
@@ -297,11 +297,11 @@ basic-dispatch15150:
   arg2 = 14;
   goto illegaloperand;
 
-basic-dispatch15136:
-  if (_trace) printf("basic-dispatch15136:\n");
+basic_dispatch28631:
+  if (_trace) printf("basic_dispatch28631:\n");
 
-carcdrloop15135:
-  if (_trace) printf("carcdrloop15135:\n");
+carcdrloop28630:
+  if (_trace) printf("carcdrloop28630:\n");
   t1 = *(u64 *)&(processor->niladdress);   		// Return NIL 
   *(u64 *)iSP = t1;   		// push the data 
   goto NEXTINSTRUCTION;   
@@ -313,25 +313,25 @@ assocexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-vma-memory-read15142:
-  if (_trace) printf("vma-memory-read15142:\n");
+vma_memory_read28637:
+  if (_trace) printf("vma_memory_read28637:\n");
   if ((t7 & 1) == 0)   
-    goto vma-memory-read15141;
+    goto vma_memory_read28636;
   arg2 = (u32)arg6;   		// Do the indirect thing 
-  goto vma-memory-read15138;   
+  goto vma_memory_read28633;   
 
-vma-memory-read15141:
-  if (_trace) printf("vma-memory-read15141:\n");
+vma_memory_read28636:
+  if (_trace) printf("vma_memory_read28636:\n");
 
-vma-memory-read15140:
-  if (_trace) printf("vma-memory-read15140:\n");
-  r0 = (u64)&&return0500;
+vma_memory_read28635:
+  if (_trace) printf("vma_memory_read28635:\n");
+  r0 = (u64)&&return0333;
   goto memoryreaddatadecode;
-return0500:
-  goto vma-memory-read15149;   
+return0333:
+  goto vma_memory_read28644;   
 
-carcdrloop15133:
-  if (_trace) printf("carcdrloop15133:\n");
+carcdrloop28628:
+  if (_trace) printf("carcdrloop28628:\n");
   iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
 
@@ -384,7 +384,7 @@ begindomember:
   if (t5 & 1)   
     goto memberexc;
   t6 = zero;
-  goto carcdrloop15156;   
+  goto carcdrloop28651;   
 
 membercdr:
   if (_trace) printf("membercdr:\n");
@@ -394,19 +394,19 @@ membercdr:
   t1 = arg5 & 63;
   t2 = arg6;
 
-carcdrloop15156:
-  if (_trace) printf("carcdrloop15156:\n");
+carcdrloop28651:
+  if (_trace) printf("carcdrloop28651:\n");
   /* TagType. */
   t3 = t1 & 63;
   arg1 = t2;
   t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto carcdrloop15155;
+    goto carcdrloop28650;
   if (t5 == 0) 
-    goto carcdrloop15157;
-  r0 = (u64)&&return0501;
+    goto carcdrloop28652;
+  r0 = (u64)&&return0334;
   goto carcdrinternal;
-return0501:
+return0334:
   /* TagType. */
   t5 = t1 & 63;
   t7 = arg4 - t2;   		// t7=0 if data same 
@@ -421,8 +421,8 @@ return0501:
   *(u32 *)(iSP + 4) = t3;
   goto NEXTINSTRUCTION;   
 
-carcdrloop15157:
-  if (_trace) printf("carcdrloop15157:\n");
+carcdrloop28652:
+  if (_trace) printf("carcdrloop28652:\n");
   t1 = *(u64 *)&(processor->niladdress);   		// Return NIL 
   *(u64 *)iSP = t1;   		// push the data 
   goto NEXTINSTRUCTION;   
@@ -434,8 +434,8 @@ memberexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-carcdrloop15155:
-  if (_trace) printf("carcdrloop15155:\n");
+carcdrloop28650:
+  if (_trace) printf("carcdrloop28650:\n");
   iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
 
@@ -488,29 +488,29 @@ begindorgetf:
   if (t5 & 1)   
     goto rgetfexc;
   t6 = zero;
-  goto carcdrloop15159;   
+  goto carcdrloop28654;   
 
 rgetfcdr:
   if (_trace) printf("rgetfcdr:\n");
-  r0 = (u64)&&return0502;
+  r0 = (u64)&&return0335;
   goto cdrinternal;
-return0502:
+return0335:
   t6 = *(u64 *)&(processor->stop_interpreter);   		// Have we been asked to stop or trap? 
   /* Move cdr to car for next carcdr-internal */
   /* TagType. */
   t1 = arg5 & 63;
   t2 = arg6;
 
-carcdrloop15159:
-  if (_trace) printf("carcdrloop15159:\n");
+carcdrloop28654:
+  if (_trace) printf("carcdrloop28654:\n");
   t5 = t1 - Type_NIL;   
   if (t6 != 0)   		// Asked to stop, check for sequence break 
-    goto carcdrloop15158;
+    goto carcdrloop28653;
   if (t5 == 0) 
-    goto carcdrloop15160;
-  r0 = (u64)&&return0503;
+    goto carcdrloop28655;
+  r0 = (u64)&&return0336;
   goto carcdrinternal;
-return0503:
+return0336:
   /* TagType. */
   t5 = t1 & 63;
   t7 = arg4 - t2;   		// t7=0 if data same 
@@ -526,9 +526,9 @@ return0503:
   if (t5 == 0) 		// after all this effort we lose! 
     goto rgetfexc;
   t2 = arg6;
-  r0 = (u64)&&return0504;
+  r0 = (u64)&&return0337;
   goto carinternal;
-return0504:
+return0337:
   /* TagType. */
   arg5 = arg5 & 63;		// Strip the CDR code 
   *(u32 *)iSP = arg6;
@@ -542,8 +542,8 @@ return0504:
   iSP = iSP + 8;
   goto NEXTINSTRUCTION;   
 
-carcdrloop15160:
-  if (_trace) printf("carcdrloop15160:\n");
+carcdrloop28655:
+  if (_trace) printf("carcdrloop28655:\n");
   arg2 = *(u64 *)&(processor->niladdress);   		// Return NIL 
   *(u64 *)iSP = arg2;   
   *(u64 *)(iSP + 8) = arg2;   		// push the data 
@@ -557,8 +557,8 @@ rgetfexc:
   arg4 = 0;		// arg4 = arithmeticp 
   goto exception;
 
-carcdrloop15158:
-  if (_trace) printf("carcdrloop15158:\n");
+carcdrloop28653:
+  if (_trace) printf("carcdrloop28653:\n");
   iSP = *(u64 *)&(processor->restartsp);   
   goto INTERPRETINSTRUCTION;   
 

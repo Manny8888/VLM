@@ -339,8 +339,8 @@ DoLshcBignumStepIM:
   /* This sequence only sucks a moderate amount */
   arg2 = arg2 << 56;   		// sign extend the byte argument. 
 
-force-alignment16669:
-  if (_trace) printf("force-alignment16669:\n");
+force_alignment30164:
+  if (_trace) printf("force_alignment30164:\n");
   arg2 = (s64)arg2 >> 56;   		// Rest of sign extension 
   *(u32 *)&processor->immediate_arg = arg2;
   arg1 = *(u64 *)&(processor->immediate_arg);   

@@ -127,7 +127,7 @@
   "Conses the double-float in PROCESSORSTATE_FP0 into DEFAULT-CONS-AREA;
   returns cons in VMA"
   (check-temporaries (hi lo area vma) (temp1 temp2 temp3 temp4 temp5 temp6))
-  (let ((exception (gensym "cons-double-float-internal")))
+  (let ((exception (gensym "cons_double_float_internal")))
     ;; On any problems, trap out and do things the hard way
     (push `((label ,exception)
 	          (NumericTypeException |TypeDoubleFloat| ADD))
@@ -142,7 +142,7 @@
   "Fetches a double float at ADDRESS into PROCESSORSTATE_FP0; callee can
   then load the float into the appropriate float register"
   (check-temporaries (vma tag data) (temp5 temp6 temp7 temp8))
-  (let ((exception (gensym "fetch-double-float-internal")))
+  (let ((exception (gensym "fetch_double_float_internal")))
     ;; On any problems, trap out and do things the hard way
     (push `((label ,exception)
 	          (NumericTypeException |TypeDoubleFloat| ADD))
@@ -167,8 +167,8 @@
                                                    &optional inst a1-signed a2-signed)
                                                &body body)
   (check-temporaries (a1 a2 ar t1 t2) (temp1 temp2))
-  (let ((iolab (gensym "with-simple-binary-fixnum-operation"))
-	      (doit (gensym "with-simple-binary-fixnum-operation")))
+  (let ((iolab (gensym "with_simple_binary_fixnum_operation"))
+	      (doit (gensym "with_simple_binary_fixnum_operation")))
     `(  (label ,doit)
         (stack-read-tag iSP ,t1  "Arg1 on the stack" :tos-valid t)
         (PrefetchNextPC ,temp1)
@@ -207,15 +207,15 @@
 ;; Note well: this is counting on being used in the kludge :OPERAND-FROM-STACK
 ;; mode with :OWN-IMMEDIATE T!
 (defmacro simple-binary-arithmetic-operation (inst opfn opflt
-                                              &optional (ovflow (gensym "simple-binary-arithmetic-operation")))
+                                              &optional (ovflow (gensym "simple_binary_arithmetic_operation")))
   (let ((new (cdr (assoc opfn '((ADDL . ADDL/V) (SUBL . SUBL/V) (MULL . MULL/V))))))
     (setq opfn (or new opfn)))
-  (let ((dofloat (gensym "simple-binary-arithmetic-operation"))
-	      (dodouble (gensym "simple-binary-arithmetic-operation"))
+  (let ((dofloat (gensym "simple_binary_arithmetic_operation"))
+	      (dodouble (gensym "simple_binary_arithmetic_operation"))
 	      (opdouble (intern (substitute #\T #\S (string opflt) :start 3)))
-	      (doublesingle (gensym "simple-binary-arithmetic-operation"))
-	      (singledouble (gensym "simple-binary-arithmetic-operation"))
-	      (loaddoubleop2 (gensym "simple-binary-arithmetic-operation"))
+	      (doublesingle (gensym "simple_binary_arithmetic_operation"))
+	      (singledouble (gensym "simple_binary_arithmetic_operation"))
+	      (loaddoubleop2 (gensym "simple_binary_arithmetic_operation"))
 	      ;; Mnemonics
 	      (op1-tag 't1)
 	      (op1-data 't2)
@@ -333,7 +333,7 @@
 	       (BR zero ,ovflow))))))
 
 (defmacro simple-binary-immediate-arithmetic-operation (name opfn
-                                                        &optional sign-extend-immp (ovflow (gensym "simple-binary-immediate-arithmetic-operation")))
+                                                        &optional sign-extend-immp (ovflow (gensym "simple_binary_immediate_arithmetic_operation")))
   (let ((new (cdr (assoc opfn '((ADDL . ADDQ) (SUBL . SUBQ) (MULL . MULQ))))))
     (setq opfn (or new opfn)))
   (let (;; Mnemonics
@@ -374,11 +374,11 @@
 (defmacro binary-arithmetic-division-prelude (inst)
   "Loads any mixture of float, single, double into F1 and F2 as T
   floats, in preparation for a division operation"
-  (let ((done (gensym "binary-arithmetic-division-prelude"))
-	      (doublesingle (gensym "binary-arithmetic-division-prelude"))
-	      (singledouble (gensym "binary-arithmetic-division-prelude"))
-	      (loaddoubleop2 (gensym "binary-arithmetic-division-prelude"))
-	      (ovflow (gensym "binary-arithmetic-division-prelude"))
+  (let ((done (gensym "binary_arithmetic_division_prelude"))
+	      (doublesingle (gensym "binary_arithmetic_division_prelude"))
+	      (singledouble (gensym "binary_arithmetic_division_prelude"))
+	      (loaddoubleop2 (gensym "binary_arithmetic_division_prelude"))
+	      (ovflow (gensym "binary_arithmetic_division_prelude"))
 	      ;; Mnemonics
 	      (op1-tag 't1)
 	      (op1-data 't2)
@@ -562,10 +562,10 @@
 
 ;; Note well: this is counting on being used in the kludge :OPERAND-FROM-STACK
 ;; mode with :OWN-IMMEDIATE T!
-(defmacro simple-binary-minmax (inst &optional (ovflow (gensym "simple-binary-minmax")))
+(defmacro simple-binary-minmax (inst &optional (ovflow (gensym "simple_binary_minmax")))
   (let ((instn (if (eq inst 'max) 'CMOVGT 'CMOVLT))
 	      (finstn (if (eq inst 'max) 'FCMOVGT 'FCMOVLT))
-	      (dofloat (gensym "simple-binary-minmax"))
+	      (dofloat (gensym "simple_binary_minmax"))
 	      ;; Mnemonics
 	      (op1-tag 't1)
 	      (op1-data 't2)
@@ -620,7 +620,7 @@
 	       (BIS ,op2-tag zero ,op1-tag)
 	       (BR zero ,ovflow))))))
 
-(defmacro simple-binary-immediate-minmax (inst &optional sign-extend-immp (ovflow (gensym "simple-binary-immediate-minmax") o-p))
+(defmacro simple-binary-immediate-minmax (inst &optional sign-extend-immp (ovflow (gensym "simple_binary_immediate_minmax") o-p))
   (let ((instn (if (eq inst 'max) 'CMOVGT 'CMOVLT))
 	      (finstn (if (eq inst 'max) 'FCMOVGT 'FCMOVLT))
 	      ;; Mnemonics
