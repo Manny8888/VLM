@@ -15,10 +15,7 @@
 	      (popnbr (+ (if elsepopp 1 0) (if extrapopp 1 0)))) ;pops if taken NOT!
     `(;; branch offset in arg1.
       (EXTLL arg6 4 t1 "Check tag of word in TOS.")
-      ;; Cache metering steals ANNOTATION from us
-      (passthru "#ifndef CACHEMETERING")
       (LDQ arg2 CACHELINE_ANNOTATION (iCP))
-      (passthru "#endif")
       (SRA arg3 48 arg1 "Get signed 10-bit immediate arg")
       (TagType t1 t1 "strip the cdr code off.")
       (SUBQ t1 |TypeNIL| t1 "Compare to NIL")
@@ -33,10 +30,7 @@
       (BEQ arg1 ,brielab "Can't branch to ourself")
       ,@(if (> popbr 0) `((SUBQ iSP ,(* 8 popbr) iSP)))
       (ADDQ iPC arg1 iPC "Update the PC in halfwords")
-      ;; Cache metering steals ANNOTATION from us
-      (passthru "#ifndef CACHEMETERING")
       (BNE arg2 interpretInstructionPredicted)
-      (passthru "#endif")
       (BR zero interpretInstructionForBranch))))
 
 (defmacro iloop-decrement-tos ()
@@ -46,10 +40,7 @@
 	      (notnumeric (gensym "iloop-decrement-tos"))
 	      (overflow (gensym "iloop-decrement-tos")))
     `((EXTLL arg6 4 ,tag)
-      ;; Cache metering steals ANNOTATION from us
-      (passthru "#ifndef CACHEMETERING")
       (LDQ arg2 CACHELINE_ANNOTATION (iCP))
-      (passthru "#endif")
       (EXTLL arg6 0 ,data)
       (CheckDataType ,tag |TypeFixnum| ,exception t3)
       (SUBL ,data 1 t3)
@@ -59,10 +50,7 @@
       (BLE t3 NextInstruction)
       (comment "Here if branch taken.")
       (ADDQ iPC arg1 iPC "Update the PC in halfwords")
-      ;; Cache metering steals ANNOTATION from us
-      (passthru "#ifndef CACHEMETERING")
       (BNE arg2 interpretInstructionPredicted)
-      (passthru "#endif")
       (BR zero interpretInstructionForBranch)
       (label ,exception)
       (CheckAdjacentDataTypes ,tag |TypeFixnum| 8 ,notnumeric t3)
@@ -86,10 +74,7 @@
 	      (overflow (gensym "iloop-increment-tos-less-than"))
 	      (notnumeric (gensym "iloop-increment-tos-less-than")))
     `((EXTLL arg6 4 ,tag)
-      ;; Cache metering steals ANNOTATION from us
-      (passthru "#ifndef CACHEMETERING")
       (LDQ arg2 CACHELINE_ANNOTATION (iCP))
-      (passthru "#endif")
       (EXTLL arg6 0 ,data)
       (CheckDataType ,tag |TypeFixnum| ,exception1 t5)
       (stack-read2-disp iSP -8 ,tag2 ,data2 "Get arg1.")
@@ -103,10 +88,7 @@
       (comment "Here if branch taken.")
       (force-alignment)
       (ADDQ iPC arg1 iPC "Update the PC in halfwords")
-      ;; Cache metering steals ANNOTATION from us
-      (passthru "#ifndef CACHEMETERING")
       (BNE arg2 interpretInstructionPredicted)
-      (passthru "#endif")
       (BR zero interpretInstructionForBranch)
       (label ,exception1)
       (CheckAdjacentDataTypes ,tag |TypeFixnum| 8 ,notnumeric t5)
