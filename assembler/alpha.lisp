@@ -1,5 +1,5 @@
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internal)
 
 ;;; ALPHA Instructions From Instruction Encodings - Appendix C AARM
 (eval-when (compile load eval)
@@ -445,7 +445,7 @@
 (defmacro define-integer-register
 	  (name reg &optional (printas (intern (format nil "$~a"
 						 (register-number reg)
-						 (find-package "ALPHA-AXP-INTERNALS")))))
+						 (find-package :alpha-axp-internal)))))
   `(clos:make-instance 'integer-alpha-register
      :name ',name
      :code ,(register-number reg)
@@ -920,7 +920,7 @@
   (with-open-file (sfs sourcefilename :direction :input)
     (with-open-file (tfs targetname :direction :output
 				    #-Genera :if-exists #-Genera :supersede)
-      (let ((*package* (find-package "ALPHA-AXP-INTERNALS"))
+      (let ((*package* (find-package :alpha-axp-internal))
 	    (*read-base* 10)
 	    (*print-base* 10)
 	    (*previous-instructions*
@@ -981,7 +981,7 @@ With a numeric argument, inserts the typeout into the buffer" ()
 			  (copy-bp (point) :normal) (forward-sexp (point) 1 t) t)
 	(with-interval-stream (input-stream sbp ebp t)
 	  (let ((output-stream (rest-of-interval-stream ebp))
-		(cl:*package* (cl:find-package "ALPHA-AXP-INTERNALS"))
+		(cl:*package* (cl:find-package :alpha-axp-internal))
 		(cl:*read-base* 10)
 		(cl:*print-base* 10)
 		(axpi::*previous-instructions*

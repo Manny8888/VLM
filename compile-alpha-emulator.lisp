@@ -25,7 +25,7 @@
     (when (or force?
 	            (not (probe-file output))
 	            (> (file-write-date input) (file-write-date output)))
-      (let ((*package* (find-package "ALPHA-AXP-INTERNALS")))
+      (let ((*package* (find-package :alpha-axp-internal)))
 	      (format t "~&;Translating ~S... " input)
 	      (funcall (intern "DSDL" "ALPHA-AXP-INTERNALS") input '(:c :asm :lisp))))
     (load output :verbose t)))
@@ -34,7 +34,7 @@
   (let* ((input  (merge-pathnames file (make-pathname :type "as")))
 	       (output (merge-pathnames (make-pathname :type "s") input)))
     (format t "~&;Translating ~S... " input)
-    (funcall (intern "PROCESS-ASM-SOURCE" "ALPHA-AXP-INTERNALS") input output)))
+    (funcall (intern "PROCESS-ASM-SOURCE" :alpha-axp-internal) input output)))
 
 (defun translate ()
   ;; The actual emulator core

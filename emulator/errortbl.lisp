@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 #+Alpha-AXP-Emulator
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internal)
 
 #+PowerPC-Emulator
 (in-package "POWERPC-INTERNALS")
