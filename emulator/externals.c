@@ -326,43 +326,6 @@ void InitializeTracing(int bufferSize, unsigned int startPC, unsigned int stopPC
     processor->trace_hook = (char *)&traceData;
 }
 
-#ifdef SLOW_TRACING
-void EnterTrace()
-{
-    TraceRecord *traceRecord;
-    LispObjRecord *args;
-    int i;
-
-    if (!traceData.recordingP && (processor->epc == traceData.startPC))
-        traceData.recordingP = TRUE;
-
-    if (traceData.recordingP) {
-        traceRecord = traceData.records + traceData.currentEntry;
-        traceRecord->counter = 0 - processor->instruction_count;
-        traceRecord->epc = processor->epc;
-        traceRecord->TOS = *(LispObjRecord *)processor->sp;
-        traceRecord->SP = processor->stackcachebasevma + ((processor->sp - (uint64_t)processor->stackcachedata) >> 3);
-        traceRecord->instruction = (char *)((struct cacheline *)processor->cp)->code;
-        traceRecord->operand = ((struct cacheline *)processor->cp)->operand;
-        traceRecord->instructionData = ((struct cacheline *)processor->cp)->instruction;
-        traceRecord->trapP = (processor->tvi != 0);
-        if (traceRecord->trapP) {
-            for (i = 0, args = ((LispObjRecord *)processor->fp) + 2; i < 4; i++, args++)
-                traceRecord->trapData[i] = *args;
-            processor->tvi = 0;
-        }
-        traceRecord->catchBlockP = FALSE;
-        traceData.currentEntry++;
-        if (traceData.currentEntry == traceData.nEntries) {
-            traceData.currentEntry = 0;
-            traceData.wrapP = TRUE;
-        }
-    }
-
-    if (traceData.recordingP && (processor->epc == traceData.stopPC))
-        traceData.recordingP = FALSE;
-}
-#endif
 
 #define DecodeObject(object)                                                                                           \
     (((LispObjRecord *)&object)->tag & 0xC0) >> 6, ((LispObjRecord *)&object)->tag & 0x3F,                             \

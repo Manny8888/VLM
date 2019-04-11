@@ -134,9 +134,6 @@ void WaitForLifeSupport()
             vpunt(NULL, "Unable to unlock the VLM wakeup lock in thread %lx", pthread_self());
         pthread_cleanup_pop(FALSE);
 
-#if defined(ARCH_ALPHA)
-        processor->previousrcpp = 0; /* Force microsecond clock to be reset */
-#endif
     }
 }
 

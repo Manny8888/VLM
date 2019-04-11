@@ -649,7 +649,6 @@ typedef struct {
 
 #define MaxEmbNetPacketSize 1516
 
-#ifdef OS_LINUX
 /* ARP table entry a VLM IP address --
    Added to the host's ARP by InitializeLifeSupport and removed by
    TerminateLifeSupport */
@@ -657,7 +656,6 @@ typedef struct EmbNetARPReq {
     struct EmbNetARPReq *next;
     struct arpreq arp;
 } EmbNetARPReq;
-#endif
 
 typedef struct {
     EmbWord type; /* EmbNetworkChannelType */
@@ -701,10 +699,8 @@ typedef struct {
     pcap_t *pcap;
 #else
     int fd; /* File descriptor of our filter or -1 if not open */
-#ifdef OS_LINUX
     struct sockaddr_ll sll; /* Contains information needed to write packets */
     EmbNetARPReq *arpReq; /* List of ARP entries associated with this channel */
-#endif
 #endif
     EmbNetFilter filter; /* Our packet filter psuedo-code */
     pthread_t receiverThread; /* Packet receiver runs in this thread */

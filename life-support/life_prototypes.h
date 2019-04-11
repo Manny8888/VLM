@@ -105,23 +105,14 @@ void ResetNetworkChannel(EmbChannel *channel);
 void TerminateNetworkChannels(void);
 
 static void InitializeNetChannel(NetworkInterface *interface, int netUnit
-#ifdef OS_OSF
-    ,
-    struct in_addr *localHostAddress
-#else
 #ifndef USE_LIBPCAP
     ,
     int ipSocket, struct ifconf *ifc
 #endif
-#endif
 );
 static void NetworkChannelReceiver(pthread_addr_t argument);
 static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel);
-#ifdef OS_OSF
-static void TerminateNetChannel(EmbNetChannel *netChannel);
-#else
 static void TerminateNetChannel(EmbNetChannel *netChannel, int ipSocket);
-#endif
 
 /*** polling.c ***/
 

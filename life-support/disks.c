@@ -4,9 +4,6 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
-#ifdef OS_OSF
-#include <sys/mode.h>
-#endif
 #include <sys/uio.h>
 
 #include "life_types.h"

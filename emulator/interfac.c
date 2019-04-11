@@ -5,9 +5,6 @@
 #include <sys/times.h>
 
 #include <sys/mman.h>
-#if defined(OS_DARWIN) || defined(__FreeBSD__)
-#define MAP_ANONYMOUS MAP_ANON
-#endif
 
 #include <sys/socket.h>
 #include <fcntl.h>
@@ -65,71 +62,22 @@ char *haltreason(int reason)
 */
 
 /* In memory.c */
-#if defined(OS_OSF)
-extern void segv_handler(int sigval, int code, struct sigcontext *scp);
-#elif defined(OS_LINUX)
 extern void segv_handler(int sigval, siginfo_t *si, void *uc);
-#elif defined(OS_DARWIN) || defined(__FreeBSD__)
-extern void segv_handler(int sigval, siginfo_t *si, void *uc);
-#endif
 
 extern void DoIStageError();
 /* Just jam the PC to DoIStageError, which will "do the right thing"!!! */
-#if defined(OS_OSF)
-void ill_handler(int sigval, int code, register struct sigcontext *scp) { scp->sc_pc = (int64_t)DoIStageError; }
-#elif defined(OS_LINUX) && defined(ARCH_PPC64)
-void ill_handler(int sigval, siginfo_t *si, void *uc)
-{
-    ((struct ucontext *)uc)->uc_mcontext.regs->nip = (uint64_t)DoIStageError;
-}
-#elif defined(OS_LINUX) && defined(ARCH_PPC64)
-void ill_handler(int sigval, siginfo_t *si, void *uc)
-{
-    ((struct ucontext *)uc)->uc_mcontext.regs->nip = (uint64_t)DoIStageError;
-}
-#elif defined(OS_LINUX) && defined(ARCH_X86_64)
 void ill_handler(int sigval, siginfo_t *si, void *uc)
 {
     ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP] = (uint64_t)DoIStageError;
 }
-#elif defined(OS_DARWIN)
-void ill_handler(int sigval, siginfo_t *si, void *uc)
-{
-    ((struct ucontext *)uc)->uc_mcontext->ss.srr0 = (uint64_t)DoIStageError;
-}
-#elif defined(__FreeBSD__)
-void ill_handler(int sigval, siginfo_t *si, void *uc)
-{
-    ((struct __ucontext *)uc)->uc_mcontext.mc_rip = (uint64_t)DoIStageError;
-}
-#endif
 
 extern void ARITHMETICEXCEPTION();
 /* Just jam the PC to ArithmeticException, which will "do the right thing"!!!
  */
-#if defined(OS_OSF)
-void fpe_handler(int sigval, int code, register struct sigcontext *scp) { scp->sc_pc = (int64_t)ARITHMETICEXCEPTION; }
-#elif defined(OS_LINUX) && defined(ARCH_PPC64)
-void fpe_handler(int sigval, siginfo_t *si, void *uc)
-{
-    ((struct ucontext *)uc)->uc_mcontext.regs->nip = (uint64_t)ARITHMETICEXCEPTION;
-}
-#elif defined(OS_LINUX) && defined(ARCH_X86_64)
 void fpe_handler(int sigval, siginfo_t *si, void *uc)
 {
     ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP] = (uint64_t)ARITHMETICEXCEPTION;
 }
-#elif defined(OS_DARWIN)
-void fpe_handler(int sigval, siginfo_t *si, void *uc)
-{
-    ((struct ucontext *)uc)->uc_mcontext->ss.srr0 = (uint64_t)ARITHMETICEXCEPTION;
-}
-#elif defined(__FreeBSD__)
-void fpe_handler(int sigval, siginfo_t *si, void *uc)
-{
-    ((struct __ucontext *)uc)->uc_mcontext.mc_rip = (uint64_t)ARITHMETICEXCEPTION;
-}
-#endif
 
 int InstructionSequencer(void)
 {
@@ -140,35 +88,20 @@ int InstructionSequencer(void)
         int reason;
         struct sigaction action;
 
-#ifdef OS_OSF
-        action.sa_handler = (sa_handler_t)segv_handler;
-        action.sa_flags = 0; /* tried SA_RESTART too, no luck */
-#else
         action.sa_sigaction = (sa_sigaction_t)segv_handler;
         action.sa_flags = SA_SIGINFO;
-#endif
         sigemptyset(&action.sa_mask);
         if (-1 == sigaction(SIGSEGV, &action, NULL))
             vpunt(NULL, "Unable to establish memory fault handler.");
 
-#ifdef OS_OSF
-        action.sa_handler = (sa_handler_t)fpe_handler;
-        action.sa_flags = 0;
-#else
         action.sa_sigaction = (sa_sigaction_t)fpe_handler;
         action.sa_flags = SA_SIGINFO;
-#endif
         sigemptyset(&action.sa_mask);
         if (-1 == sigaction(SIGFPE, &action, NULL))
             vpunt(NULL, "Unable to establish floating point exception handler");
 
-#ifdef OS_OSF
-        action.sa_handler = (sa_handler_t)ill_handler;
-        action.sa_flags = 0;
-#else
         action.sa_sigaction = (sa_sigaction_t)ill_handler;
         action.sa_flags = SA_SIGINFO;
-#endif
         sigemptyset(&action.sa_mask);
         if (-1 == sigaction(SIGILL, &action, NULL))
             vpunt(NULL, "Unable to establish floating point exception handler");
@@ -177,11 +110,6 @@ int InstructionSequencer(void)
         processor->please_stop = 0;
         processor->please_trap = 0; /* ????? */
         if (reason != HaltReason_SpyCalled) {
-#ifdef TRACING
-            vwarn(NULL, "%s at instruction #%ld\n", haltreason(reason), 0 - processor->instruction_count);
-            if (Trace)
-                PrintTrace();
-#endif
         }
         return (reason);
     } else if (pthread_delay_np(&interpreterSleep))
@@ -333,7 +261,6 @@ void CheckMat()
     }
 }
 
-#if defined(ARCH_ALPHA)
 static void ComputeSpeed(int64_t *speed)
 {
     extern void SpinWheels();
@@ -353,65 +280,13 @@ static void ComputeSpeed(int64_t *speed)
     *speed = ((((int64_t)tmin) * 1000000L) / 0x4000000L);
     processor->mscmultiplier = (*speed << 24) / 1000000;
 }
-
-#elif defined(ARCH_PPC64)
-#define timebase()                                                                                                     \
-    ({                                                                                                                 \
-        int64_t __value;                                                                                               \
-        asm("	mftb 0,268\n	std 0,%0" : "=g"(__value) : : "r0");                                                   \
-        __value;                                                                                                       \
-    })
-
-volatile int gotit = 0;
-
-static void alarm_handler(int sigval, register siginfo_t *si, void *uc_p) { gotit = 1; }
-
-static void ComputeSpeed(int64_t *speed)
-{
-    struct sigaction action, oldaction;
-    int64_t start, stop;
-    action.sa_sigaction = (sa_sigaction_t)alarm_handler;
-    action.sa_flags = SA_SIGINFO;
-    sigemptyset(&action.sa_mask);
-    sigaction(SIGALRM, &action, &oldaction);
-    gotit = 0;
-    alarm(1);
-    start = timebase();
-    while (!gotit)
-        ;
-    stop = timebase();
-    sigaction(SIGALRM, &oldaction, NULL);
-    *speed = processor->ticksperms = (stop - start) / 1000000;
-}
-#elif defined(ARCH_X86_64)
-static void ComputeSpeed(int64_t *speed)
-{
-    extern void SpinWheels();
-    struct tms tms;
-    int timebefore, timeafter, t1, tmin = 0x7FFFFFFF, i;
-    int64_t tps = sysconf(_SC_CLK_TCK);
-    for (i = 0; i < 3; i++) {
-        times(&tms);
-        timebefore = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
-        SpinWheels();
-        times(&tms);
-        timeafter = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
-        t1 = timeafter - timebefore;
-        if (t1 < tmin)
-            tmin = t1;
-    };
-    *speed = ((((int64_t)tmin) * 1000000L) / 0x4000000L);
-    processor->mscmultiplier = (*speed << 24) / 1000000;
-}
-#endif
 
 static void RunPOST(int64_t speed)
 {
     int mstimeb, mstimea, result;
-#if defined(ARCH_ALPHA) || defined(ARCH_X86_64)
     struct tms tms;
     int64_t tps = sysconf(_SC_CLK_TCK);
-#endif
+
     printf("RunPOST\n");
     if (TestFunction)
         InitializeTestFunction();
@@ -419,29 +294,14 @@ static void RunPOST(int64_t speed)
         InitializeFIBTest(); /* This is the Power on self test */
     if (Trace)
         InitializeTracing(1000, processor->epc >> 1, 0, NULL);
-#if defined(ARCH_ALPHA) || defined(ARCH_X86_64)
     times(&tms);
     mstimeb = (int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps);
-#elif defined(ARCH_PPC64)
-    mstimeb = timebase() / processor->ticksperms;
-#endif
     if (result = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0)), result != HaltReason_Halted)
         vwarn("POST", "FAILED: %s", haltreason(result));
     else {
-#if defined(ARCH_ALPHA) || defined(ARCH_X86_64)
         times(&tms);
         mstimea = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
-#elif defined(ARCH_PPC64)
-        mstimea = timebase() / processor->ticksperms;
-#endif
         vwarn("POST", "OK %d %ld", mstimea - mstimeb, speed);
-#ifdef STATISTICS
-#ifdef STATISTICSNEVER
-        DumpInstructionUsageData();
-#else
-        InitializeStatistics(); /* reset statistics */
-#endif
-#endif
     }
     if (Trace)
         PrintTrace();
@@ -631,22 +491,10 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
     processor->control = 2;
 
-#if defined(ARCH_ALPHA)
-    /* MS clock multiplier -- initial values */
-    processor->mscmultiplier = 109051; /* 6.5 ns clock RPCC N=1 */
-    processor->msclockcache = 0;
-    processor->previousrcpp = 0;
-#elif defined(ARCH_PPC64)
-    /* MS clock -- initial values */
-    processor->ticksperms = 33; /* 33 MHz timebase */
-    processor->msclockcache = 0;
-    processor->previoustb = timebase();
-#elif defined(ARCH_X86_64)
     /* MS clock -- initial values */
     processor->mscmultiplier = 109051; /* 6.5 ns clock RPCC N=1 */
     processor->msclockcache = 0;
     processor->previousrcpp = 0;
-#endif
 
     /* Initialize the interpreter state */
     /* Push an Initial Frame */
@@ -654,36 +502,6 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
     processor->sp += 8;
     *((int64_t *)(processor->sp)) = ((((int64_t)Type_NIL) << 32) | 037001011000L);
     processor->lp = processor->sp + 8;
-
-#ifdef TRANSACTIONAL
-    /*  setup transactional memory state */
-    processor->tmcurrenttransaction = 0;
-#endif
-
-#ifdef CACHEMETERING
-    /* setup the instruction cache miss metering block */
-    processor->meterdatabuff = (void *)malloc(sizeof(int) << CacheMeter_Pwr);
-    processor->meterpos = 0; /*  the place where the next data item goes. */
-    processor->metermax = 0; /*  the highest value ever recorded. */
-    processor->meterfreq = CacheMeter_DefaultFreq; /* sample size. */
-    processor->metermask = (1 << CacheMeter_Pwr) - 1; /* mask for wrap */
-    processor->metervalue = 0; /* current number of misses. */
-    processor->metercount = processor->meterfreq; /* number remaining */
-    {
-        int i; /* set all entries to -1 to indicate that they haven't been
-                  used yet. */
-        for (i = 0; i <= processor->metermask; i++)
-            ((int *)processor->meterdatabuff)[i] = -1;
-    }
-#endif
-#ifdef TRAPMETERING
-    processor->trapmeterdata = (void *)malloc(sizeof(int64_t) * TrapMeter_NEntries);
-    {
-        int i;
-        for (i = 0; i < TrapMeter_NEntries; i++)
-            ((int64_t *)processor->trapmeterdata)[i] = 0;
-    }
-#endif
 
     if (first_time) {
         uint64_t plp = processor->lp, psp = processor->sp, pfp = processor->fp;

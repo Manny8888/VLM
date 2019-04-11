@@ -35,10 +35,8 @@ typedef struct NetworkInterface {
     char device[_POSIX_PATH_MAX + 1]; /* Optional interface or packet filter name */
     unsigned short myProtocol; /* Primary Ethernet protocol */
     struct in_addr myAddress; /* Primary protocol address */
-#ifdef GENERA
     char myOptions[_POSIX_PATH_MAX + 1]; /* Primary network options */
     struct NetworkInterface *anotherAddress; /* Secondary address for this interface */
-#endif
 } NetworkInterface;
 
 #define MaxNetworkInterfaces 8
@@ -102,11 +100,9 @@ typedef struct {
     size_t guestBufferSpace; /* Words reserved for guest buffers */
     char vlmDebuggerPath[_POSIX_PATH_MAX + 1]; /* Pathname of VLM debugger to be loaded */
     char worldPath[_POSIX_PATH_MAX + 1]; /* Pathname of world load to be loaded */
-#ifdef GENERA
     char *worldSearchPath; /* -> Directories to search for worlds */
     boolean enableIDS; /* TRUE => allow incremental disk saves */
     size_t virtualMemory; /* Size of emulated virtual memory */
-#endif
     XParams coldLoadXParams; /* X parameters for cold load window */
     XParams generaXParams; /* X Parameters for the main screen */
     struct in_addr diagnosticIPAddress; /* IP address of our diagnostic server */

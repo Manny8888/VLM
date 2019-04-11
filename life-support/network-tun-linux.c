@@ -81,16 +81,6 @@ void InitializeNetworkChannels(VLMConfig *config)
 
     close(ipSocket);
 
-#ifdef MINIMA
-    WriteFEPCommSlot(localIPAddress0, 0, Type_Fixnum);
-    WriteFEPCommSlot(diagnosticIPAddress, htonl(config->diagnosticIPAddress.s_addr), Type_Fixnum);
-    WriteFEPCommSlot(localIPAddress1, 0, Type_Fixnum);
-    WriteFEPCommSlot(localIPSubnetMask0, 0, Type_Fixnum);
-    WriteFEPCommSlot(localIPSubnetMask1, 0, Type_Fixnum);
-    WriteFEPCommSlot(gatewayIPAddress0, 0, Type_Fixnum);
-    WriteFEPCommSlot(gatewayIPAddress1, 0, Type_Fixnum);
-    WriteFEPCommSlot(loadServerIPAddress, 0, Type_Fixnum);
-#endif
 }
 
 /* Create a single network channel */
@@ -103,11 +93,9 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     struct if_nameindex *saved_ifs, *ifs;
     int interfaceIndex, i, err;
     NetworkInterface *pInterface;
-#ifdef GENERA
     struct in_addr guestAddress;
     char addressAsString[_POSIX_ARG_MAX];
     boolean firstInterface;
-#endif
 
     pInputChannel = p;
 
@@ -229,11 +217,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
     p->arpReq = NULL;
 
-#ifdef GENERA
     for (pInterface = interface; pInterface != NULL; pInterface = pInterface->anotherAddress)
-#else
-    pInterface = interface;
-#endif
     {
         if (pInterface->myProtocol == ETHERTYPE_IP) {
             EmbPtr arpReqPtr = EmbCommAreaAlloc(sizeof(EmbNetARPReq));
@@ -291,7 +275,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     p->hostToGuestQueue = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
     p->hostToGuestQ = (EmbQueue *)HostPointer(p->hostToGuestQueue);
 
-#ifdef GENERA
     for (pInterface = interface, firstInterface = TRUE; pInterface != NULL;
          pInterface = pInterface->anotherAddress, firstInterface = FALSE) {
         if (firstInterface)
@@ -319,7 +302,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     // printf("addressAsString %s\n", addressAsString);
 
     p->addressString = MakeEmbString(addressAsString);
-#endif
 
     if (pthread_create(&p->receiverThread, &EmbCommAreaPtr->inputThreadAttrs,
             (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p))

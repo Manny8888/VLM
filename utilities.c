@@ -16,18 +16,9 @@
 #include "life_types.h"
 #include "ivoryrep.h"
 
-#if defined(GENERA)
 static char *CommandName = "genera";
 #define CommandClass "Genera"
 
-#elif defined(MINIMA)
-static char *CommandName = "minima";
-#define CommandClass "Minima"
-
-#elif defined(IVERIFY)
-static char *CommandName = "iverify";
-#define CommandClass "IVerify"
-#endif
 
 /* Internal function prototypes */
 
@@ -136,11 +127,7 @@ void vwarn(char *section, char *format, ...)
 
 void SetCommandName(char *newCommandName)
 {
-#if defined(OS_OSF) || defined(__FreeBSD__)
-    CommandName = strdup(newCommandName);
-#else
     CommandName = strndup(newCommandName, 32);
-#endif
 }
 
 /* Creates an X display name string in the supplied buffer */
@@ -251,35 +238,20 @@ static void MaybeReadConfigurationFile(VLMConfig *config, XrmDatabase *options, 
     if (NULL == fileOptions)
         vpunt(NULL, "Unable to parse configuration file %s", pathname);
 
-#ifdef GENERA
     if (GetOption(fileOptions, "worldSearchPath", "WorldSearchPath", newSearchPath)) {
         GetOption(*options, "worldSearchPath", "WorldSearchPath", oldSearchPath);
         mergedSearchPath = MergeSearchPaths(newSearchPath, oldSearchPath);
         sprintf(searchPathOption, "%s.worldSearchPath", CommandName);
         XrmPutStringResource(&fileOptions, searchPathOption, mergedSearchPath);
     }
-#endif
 
     XrmMergeDatabases(fileOptions, options);
 }
 
 /* The command line arguments to a VLM command */
 
-#if defined(GENERA)
 #define BaseOptions 33
-
-#elif defined(MINIMA)
-#define BaseOptions 5
-
-#elif defined(IVERIFY)
-#define BaseOptions 3
-#endif
-
-#ifdef TRACING
-#define TracingOptions 2
-#else
 #define TracingOptions 0
-#endif
 
 #define OptionsTableSize BaseOptions + TracingOptions
 
@@ -287,11 +259,8 @@ static XrmOptionDescRec OptionsTable[OptionsTableSize] = {
     { "-spy", ".spy", XrmoptionSepArg, NULL },
     { "-diagnostic", ".diagnosticHost", XrmoptionSepArg, NULL },
     { "-testfunction", ".testfunction", XrmoptionSepArg, NULL },
-#ifndef IVERIFY
     { "-world", ".world", XrmoptionSepArg, NULL },
     { "-network", ".network", XrmoptionSepArg, NULL },
-#endif
-#ifdef GENERA
     { "-debugger", ".debugger", XrmoptionSepArg, NULL },
     { "-ids", ".enableIDS", XrmoptionSepArg, NULL },
     { "-vm", ".virtualMemory", XrmoptionSepArg, NULL },
@@ -320,11 +289,6 @@ static XrmOptionDescRec OptionsTable[OptionsTableSize] = {
     { "-clbd", ".coldLoad.borderColor", XrmoptionSepArg, NULL },
     { "-coldloadborderwidth", ".coldLoad.borderWidth", XrmoptionSepArg, NULL },
     { "-clbw", ".coldLoad.borderWidth", XrmoptionSepArg, NULL },
-#endif
-#ifdef TRACING
-    { "-trace", ".trace", XrmoptionSepArg, NULL },
-    { "-tracePOST", ".tracePOST", XrmoptionSepArg, NULL },
-#endif
 };
 
 /* Parse the command line arguments */
@@ -342,7 +306,6 @@ static void ProcessCommandArguments(VLMConfig *config, XrmDatabase *options, int
         argv++;
         argc--;
 
-#ifdef GENERA
         argLength = strlen(*argv);
         if (0 == strncmp(*argv, "-searchpath", (argLength < 7) ? 7 : argLength)) {
             if (argc > 1) {
@@ -357,7 +320,6 @@ static void ProcessCommandArguments(VLMConfig *config, XrmDatabase *options, int
         }
 
         else
-#endif
             vpunt(NULL, "Unrecognized option %s", *argv);
     }
 }
@@ -388,88 +350,15 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
     else
         vpunt(NULL, "Value of testfunction parameter, %s, is invalid", value);
 
-#ifndef TRACING
     config->tracing.traceP = FALSE;
     config->tracing.tracePOST = FALSE;
-#endif
 
-#ifdef TRACING
-    config->tracing.bufferSize = 25000;
-    config->tracing.startPC = 0;
-    config->tracing.stopPC = 0;
-    config->tracing.outputFile = NULL;
 
-    GetOption(options, "trace", "Trace", value);
-
-    if (0 == strcmp(value, "yes"))
-        config->tracing.traceP = TRUE;
-
-    else if (0 == strcmp(value, "no"))
-        config->tracing.traceP = FALSE;
-
-    else {
-        config->tracing.traceP = TRUE;
-        start = value;
-        datum = strtoul(start, &end, 10);
-        if (start != end)
-            config->tracing.bufferSize = datum;
-        else {
-            if (*end == '[') {
-                end2 = strrchr(start, ']');
-                if (end2) {
-                    *end2 = '\0';
-#if defined(OS_OSF) || defined(__FreeBSD__)
-                    config->tracing.outputFile = strdup(start + 1);
-#else
-                    config->tracing.outputFile = strndup(start + 1, _POSIX_PATH_MAX + 1);
-#endif
-                    *end2 = ']';
-                    end = end2 + 1;
-                } else
-                    vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
-            }
-        }
-        if (*end) {
-            if (*end == ',') {
-                start = end + 1;
-                datum = strtoul(start, &end, 0);
-                if (start != end)
-                    config->tracing.startPC = datum;
-                if (*end) {
-                    if (*end == ',') {
-                        start = end + 1;
-                        datum = strtoul(start, &end, 0);
-                        if (start != end)
-                            config->tracing.stopPC = datum;
-                        if (*end)
-                            vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
-                    } else
-                        vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
-                }
-            } else
-                vpunt(NULL, "Value of trace parameter, %s, is invalid", value);
-        }
-    }
-
-    GetOption(options, "tracePOST", "TracePOST", value);
-
-    if (0 == strcmp(value, "yes"))
-        config->tracing.tracePOST = TRUE;
-
-    else if (0 == strcmp(value, "no"))
-        config->tracing.tracePOST = FALSE;
-
-    else
-        vpunt(NULL, "Value of tracePOST parameter, %s, is invalid", value);
-#endif
-
-#ifndef IVERIFY
     GetOption(options, "world", "World", value);
     strcpy(config->worldPath, value);
 
     InterpretNetworkOptions(config, options);
 
-#ifdef GENERA
     GetOption(options, "debugger", "Debugger", value);
     strcpy(config->vlmDebuggerPath, value);
 
@@ -494,12 +383,8 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
 
     InterpretXOptions(options, &config->generaXParams, "main X console", "main", "Main");
     InterpretXOptions(options, &config->coldLoadXParams, "cold load", "coldLoad", "ColdLoad");
-#endif
-#endif
 
-#ifndef MINIMA
     if (config->enableSpy)
-#endif
     {
         if (GetOption(options, "diagnosticHost", "DiagnosticHost", value)) {
             if (VerifyHostName(value, &hostName, &hostAddress, FALSE))
@@ -508,9 +393,6 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
             else
                 vpunt(NULL, "Unknown diagnostic host %s", value);
         } else
-#ifdef MINIMA
-            vpunt(NULL, "You must specify a diagnostic host.");
-#else
         {
             config->diagnosticIPAddress.s_addr = 0;
             for (i = 0; (i < MaxNetworkInterfaces) && (0 == config->diagnosticIPAddress.s_addr); i++) {
@@ -520,18 +402,13 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
                         config->diagnosticIPAddress.s_addr = htonl(interface->myAddress.s_addr);
                         break;
                     }
-#ifdef GENERA
                     interface = interface->anotherAddress;
-#else
-                    interface = NULL;
-#endif
                 }
             }
 
             if (0 == config->diagnosticIPAddress.s_addr)
                 vpunt(NULL, "You must specify a diagnostic host to use the spy.");
         }
-#endif
     }
 }
 
@@ -575,11 +452,6 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
                 if (0 == strcmp(deviceName, config->interfaces[i].device)) {
                     mainInterface = &config->interfaces[i];
                     interface = mainInterface;
-#ifndef GENERA
-                    vpunt(NULL,
-                        "Only one network address per interface is "
-                        "supported");
-#else
                     while (interface->anotherAddress != NULL)
                         interface = interface->anotherAddress;
                     interface->anotherAddress = malloc(sizeof(NetworkInterface));
@@ -588,7 +460,6 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
                             "Unable to allocate space for an additional "
                             "network address");
                     interface = interface->anotherAddress;
-#endif
                     break;
                 } else
                     ;
@@ -661,13 +532,11 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
             }
         }
 
-#ifdef GENERA
         if (semicolonPosition != NULL)
             strcpy(interface->myOptions, semicolonPosition + 1);
         else
             interface->myOptions[0] = 0;
         interface->anotherAddress = FALSE;
-#endif
 
         interface->present = TRUE;
 
@@ -845,8 +714,6 @@ static boolean VerifyHostName(char *name, char **hostName, unsigned long *hostAd
     return (TRUE);
 }
 
-#ifndef OS_OSF
-
 /* Time-related thread "primitives" that were part of OSF and used througout
  * the emulator */
 
@@ -897,4 +764,3 @@ int pthread_delay_np(const struct timespec *ointerval)
     return (status);
 }
 
-#endif

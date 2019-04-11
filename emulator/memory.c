@@ -1,9 +1,6 @@
 #include "std.h"
 
 #include <sys/mman.h>
-#if defined(OS_DARWIN) || defined(__FreeBSD__)
-#define MAP_ANONYMOUS MAP_ANON
-#endif
 
 #include "aistat.h"
 #include "aihead.h"
@@ -22,32 +19,10 @@ static int mvalid(caddr_t address, size_t count, int access);
 Integer memory_vma;
 int mprotect_result;
 
-#if defined(OS_OSF)
-/* Superstition says threads go at 1<<32 */
-Tag *TagSpace = (Tag *)((int64_t)1 << 33); /* 1<<32 bytes of tages */
-/* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer *DataSpace = (Integer *)((int64_t)1 << 35); /* 4<<32 bytes of data */
-
-#elif defined(OS_LINUX) && defined(ARCH_PPC64)
 Tag *TagSpace = (Tag *)((int64_t)1 << 36); /* 1<<32 bytes of tages */
 /* Data space must be TagSpace*4 for Ivory-based address scheme */
 Integer *DataSpace = (Integer *)((int64_t)1 << 38); /* 4<<32 bytes of data */
 
-#elif defined(OS_LINUX) && defined(ARCH_X86_64)
-Tag *TagSpace = (Tag *)((int64_t)1 << 36); /* 1<<32 bytes of tages */
-/* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer *DataSpace = (Integer *)((int64_t)1 << 38); /* 4<<32 bytes of data */
-
-#elif defined(__FreeBSD__)
-Tag *TagSpace = (Tag *)((int64_t)1 << 36); /* 1<<32 bytes of tages */
-/* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer *DataSpace = (Integer *)((int64_t)1 << 38); /* 4<<32 bytes of data */
-
-#elif defined(OS_DARWIN)
-Tag *TagSpace = (Tag *)((int64_t) /* TBD: 1<<33 */ 0); /* 1<<32 bytes of tages */
-/* Data space must be TagSpace*4 for Ivory-based address scheme */
-Integer *DataSpace = (Integer *)((int64_t) /* TBD: 1<<35 */ 0); /* 4<<32 bytes of data */
-#endif
 
 /* Initially, just a record of the pages that have faulted recently */
 typedef Integer PHTEntry;
@@ -827,12 +802,6 @@ Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
 
     done:
         if (update) {
-#ifdef OPTIMISTICUPDATES
-            /* Lisp would be required to scan whole pages, unless it *knows*
-            there
-            /* is nothing beyond, e.g., a stack */
-            if (!MemoryPageOffset(endvma))
-#endif
             {
                 register VMAttribute oa = VMAttributeTable[MemoryPageNumber(scanvma)];
                 register VMAttribute a = oa;
@@ -865,10 +834,6 @@ Boolean VirtualMemoryScan(Integer *vma, register int count, Boolean slowp)
     register int mask;
     register Boolean (*scan)() = slowp ? SlowScanPage : ScanPage;
     Boolean update = FALSE;
-#ifdef DEBUGSCAN
-    Integer slowvma = FALSE;
-    Boolean slowfound = NULL;
-#endif
 
     if (slowp)
         mask = VMAttribute_Exists;
@@ -896,33 +861,15 @@ Boolean VirtualMemoryScan(Integer *vma, register int count, Boolean slowp)
 
     for (; count > 0;) {
         register VMAttribute a = *attr;
-#ifdef DEBUGSCAN
-        VMAttribute oa = a;
-#endif
         /* Always disable faults, even if you optimize out the scan */
         if (VMTransportFault(a) && !VMTransportDisable(a)) {
             SetVMTransportDisable(a);
             AdjustProtection(scanvma, a);
         }
 
-#ifdef DEBUGSCAN
-        if (VMExists(oa)) {
-            slowfound
-                = SlowScanPage(scanvma - MemoryPageOffset(scanvma), &slowvma, whack + MemoryPageOffset(scanvma), FALSE);
-        }
-#endif
 
         if ((a & mask) == mask) {
             if ((*scan)(scanvma, vma, whack, update)) {
-#ifdef DEBUGSCAN
-                if (!slowfound || slowvma != *vma) {
-                    fprintf(stderr, "Slow/Fast mismatch.  OA=%x A=%x SCAN=%lx WHACK=%x SLOW=%lx FAST=%lx\n\
-                   SLOWTAG=%x SLOWDATA=%lx FASTTAG=%x FASTDATA=%lx PREVIOUS=%lx\n",
-                        oa, a, (uint64_t)scanvma, whack, (uint64_t)slowvma, (uint64_t)*vma, slowtag, (uint64_t)slowdata,
-                        TagSpace[*vma], (uint64_t)DataSpace[*vma], (uint64_t)previousslowvma);
-                    (*scan)(scanvma, vma, whack, update);
-                }
-#endif
                 return (TRUE);
             }
         } else if (!slowp) {
@@ -931,15 +878,6 @@ Boolean VirtualMemoryScan(Integer *vma, register int count, Boolean slowp)
             ClearVMTransportFault(a);
             *attr = ClearVMTransportDisable(a);
         }
-#ifdef DEBUGSCAN
-        if (slowfound) {
-            fprintf(stderr, "Slow/Fast mismatch.  OA=%x A=%x SCAN=%lx WHACK=%x SLOW=%lx FAST=%lx\n\
-	       SLOWTAG=%x SLOWDATA=%lx FASTTAG=%x FASTDATA=%lx PREVIOUS=%lx\n",
-                oa, a, (uint64_t)scanvma, whack, (uint64_t)slowvma, (uint64_t)NULL, slowtag, (uint64_t)slowdata, NULL,
-                NULL, (uint64_t)previousslowvma);
-            (*scan)(scanvma, vma, whack, update);
-        }
-#endif
 
         attr++;
         scanvma += whack;
@@ -1258,138 +1196,6 @@ static int times = 0;
 // extern void DECODEFAULT();
 extern void *DECODEFAULT;
 
-/* Here on a seg-fault */
-
-#if defined(OS_OSF)
-void segv_handler(int sigval, int code, register struct sigcontext *scp)
-{
-    /* emperically derived knowledge:  traparg_a0 is the faulting address */
-    register uint64_t maybevma = (uint64_t)((Tag *)scp->sc_traparg_a0 - TagSpace);
-    register Integer vma = (Integer)maybevma;
-    register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
-
-    if (maybevma >> 32) {
-        /* Not a fault in Lisp space */
-        vpunt(NULL, "Unexpected SEGV at PC %lx on VMA %lx", scp->sc_pc, scp->sc_traparg_a0);
-    }
-
-    if (last_vma == (caddr_t)scp->sc_traparg_a0) {
-        if (++times > 10) {
-            /* make genera bus-error */
-            processor->vma = (uint64_t)vma;
-            scp->sc_pc = (int64_t)DECODEFAULT;
-            return;
-        }
-    } else {
-        last_vma = (caddr_t)scp->sc_traparg_a0;
-        times = 1;
-    }
-
-    switch (attr & (fault_mask | VMAttribute_TransportDisable | VMAttribute_Exists)) {
-    case VMAttribute_Exists:
-    case VMAttribute_Exists | VMAttribute_TransportDisable:
-    case VMAttribute_Exists | VMAttribute_TransportDisable | VMAttribute_TransportFault: {
-        /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry *ptr = ResidentPagesPointer;
-
-        *ptr = vma;
-        if (++ptr >= &ResidentPages[ResidentPages_Size]) {
-            ResidentPagesWrap = TRUE;
-            ptr = ResidentPages;
-        }
-        ResidentPagesPointer = ptr;
-
-        AdjustProtection(vma, attr | (VMAttribute_Ephemeral | VMAttribute_Modified));
-    } break;
-
-    default:
-        /* verify that it is a Lisp fault */
-        {
-            register int instn1 = (*((int *)(scp->sc_pc)) >> 26) & 0x3f;
-
-            if ((scp->sc_regs[14] != (int64_t)TagSpace) /* ivory register not TagSpace */
-                || ((instn1 != 0x0B) && (instn1 != 0x0F))) /* not LDQ_U/STQ_U */
-            {
-                /* Not a Lisp fault */
-                vpunt(NULL, "Unexpected SEGV at PC %lx on VMA %lx instn=%x", scp->sc_pc, scp->sc_traparg_a0, instn1);
-            }
-        }
-
-        /* a true fault, advance the pc into the fault handler */
-        processor->vma = (uint64_t)vma;
-        scp->sc_pc = (int64_t)DECODEFAULT;
-    }
-}
-
-#elif defined(OS_LINUX) && defined(ARCH_PPC64)
-#define OPCODE_MASK 0xFC000000
-#define OPCODE_LBZ 0x88000000
-#define OPCODE_STB 0x98000000
-
-void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
-{
-    register struct ucontext *uc = (struct ucontext *)uc_p;
-    register uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
-    register Integer vma = (Integer)maybevma;
-    register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
-
-    if (maybevma >> 32) {
-        /* Not a fault in Lisp space */
-        vpunt(NULL, "Unexpected SEGV at PC %p on VMA %p", (void *)uc->uc_mcontext.regs->nip, si->si_addr);
-    }
-
-    if (last_vma == (caddr_t)si->si_addr) {
-        if (++times > 10) {
-            /* make genera bus-error */
-            processor->vma = (uint64_t)vma;
-            uc->uc_mcontext.regs->nip = (uint64_t)DECODEFAULT;
-            return;
-        }
-    } else {
-        last_vma = (caddr_t)si->si_addr;
-        times = 1;
-    }
-
-    switch (attr & (fault_mask | VMAttribute_TransportDisable | VMAttribute_Exists)) {
-    case VMAttribute_Exists:
-    case VMAttribute_Exists | VMAttribute_TransportDisable:
-    case VMAttribute_Exists | VMAttribute_TransportDisable | VMAttribute_TransportFault: {
-        /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry *ptr = ResidentPagesPointer;
-
-        *ptr = vma;
-        if (++ptr >= &ResidentPages[ResidentPages_Size]) {
-            ResidentPagesWrap = TRUE;
-            ptr = ResidentPages;
-        }
-        ResidentPagesPointer = ptr;
-
-        AdjustProtection(vma, attr | (VMAttribute_Ephemeral | VMAttribute_Modified));
-    } break;
-
-    default:
-        /* verify that it is a Lisp fault */
-        {
-            uint32_t instn = *(uint32_t *)uc->uc_mcontext.regs->nip;
-            register uint32_t instn1 = instn & OPCODE_MASK;
-
-            if ((uc->uc_mcontext.regs->gpr[30] != (uint64_t)TagSpace) /* ivory register not TagSpace */
-                || ((instn1 != OPCODE_LBZ) && (instn1 != OPCODE_STB))) /* not lbz or stb */
-            {
-                /* Not a Lisp fault */
-                vpunt(NULL, "Unexpected SEGV at PC %p (instn=%p) on VMA %p", (void *)uc->uc_mcontext.regs->nip,
-                    (void *)(uint64_t)instn, si->si_addr);
-            }
-        }
-
-        /* a true fault, advance the pc into the fault handler */
-        processor->vma = (uint64_t)vma;
-        uc->uc_mcontext.regs->nip = (uint64_t)DECODEFAULT;
-    }
-}
-
-#elif defined(OS_LINUX) && defined(ARCH_X86_64)
-
 void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
 {
     register struct ucontext_t *uc = (struct ucontext *)uc_p;
@@ -1457,143 +1263,3 @@ void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
         // printf("RIP = DECODEFAULT #2 (new rip %p)\n", DECODEFAULT);
     }
 }
-
-#elif defined(OS_DARWIN)
-#define OPCODE_MASK 0xFC000000
-#define OPCODE_LBZ 0x88000000
-#define OPCODE_STB 0x98000000
-
-void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
-{
-    register struct ucontext *uc = (struct ucontext *)uc_p;
-    register uint64_t maybevma = (uint64_t)((Tag *)uc->uc_mcontext->es.dar - TagSpace);
-    register Integer vma = (Integer)maybevma;
-    register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
-
-    if (maybevma >> 32) {
-        /* Not a fault in Lisp space */
-        vpunt(NULL, "Unexpected SEGV at PC %p on VMA %p", (void *)uc->uc_mcontext->ss.srr0,
-            (void *)uc->uc_mcontext->es.dar);
-    }
-
-    if (last_vma == (caddr_t)uc->uc_mcontext->es.dar) {
-        if (++times > 10) {
-            /* make genera bus-error */
-            processor->vma = (uint64_t)vma;
-            uc->uc_mcontext->ss.srr0 = (uint64_t)DECODEFAULT;
-            return;
-        }
-    } else {
-        last_vma = (caddr_t)uc->uc_mcontext->es.dar;
-        times = 1;
-    }
-
-    switch (attr & (fault_mask | VMAttribute_TransportDisable | VMAttribute_Exists)) {
-    case VMAttribute_Exists:
-    case VMAttribute_Exists | VMAttribute_TransportDisable:
-    case VMAttribute_Exists | VMAttribute_TransportDisable | VMAttribute_TransportFault: {
-        /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry *ptr = ResidentPagesPointer;
-
-        *ptr = vma;
-        if (++ptr >= &ResidentPages[ResidentPages_Size]) {
-            ResidentPagesWrap = TRUE;
-            ptr = ResidentPages;
-        }
-        ResidentPagesPointer = ptr;
-
-        AdjustProtection(vma, attr | (VMAttribute_Ephemeral | VMAttribute_Modified));
-    } break;
-
-    default:
-        /* verify that it is a Lisp fault */
-        {
-            uint32_t instn = *(uint32_t *)uc->uc_mcontext->ss.srr0;
-            register uint32_t instn1 = instn & OPCODE_MASK;
-
-            if ((uc->uc_mcontext->ss.r30 != (uint64_t)TagSpace) /* ivory register not TagSpace */
-                || ((instn1 != OPCODE_LBZ) && (instn1 != OPCODE_STB))) /* not lbz or stb */
-            {
-                /* Not a Lisp fault */
-                vpunt(NULL, "Unexpected SEGV at PC %p (instn=%p) on VMA %p", (void *)uc->uc_mcontext->ss.srr0,
-                    (void *)instn, (void *)uc->uc_mcontext->es.dar);
-            }
-        }
-
-        /* a true fault, advance the pc into the fault handler */
-        processor->vma = (uint64_t)vma;
-        uc->uc_mcontext->ss.srr0 = (uint64_t)DECODEFAULT;
-    }
-}
-
-#elif defined(__FreeBSD__)
-
-void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
-{
-    register struct __ucontext *uc = (struct __ucontext *)uc_p;
-    register uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
-    register Integer vma = (Integer)maybevma;
-    register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
-
-    if (maybevma >> 32) {
-        /* Not a fault in Lisp space */
-        vpunt(NULL, "Unexpected SEGV at PC %p on VMA %p", (void *)uc->uc_mcontext.mc_rip, si->si_addr);
-    }
-
-    if (last_vma == (caddr_t)si->si_addr) {
-        if (++times > 10) {
-            /* make genera bus-error */
-            processor->vma = (uint64_t)vma;
-            uc->uc_mcontext.mc_rip = (uint64_t)DECODEFAULT;
-            return;
-        }
-    } else {
-        last_vma = (caddr_t)si->si_addr;
-        times = 1;
-    }
-
-    switch (attr & (fault_mask | VMAttribute_TransportDisable | VMAttribute_Exists)) {
-    case VMAttribute_Exists:
-    case VMAttribute_Exists | VMAttribute_TransportDisable:
-    case VMAttribute_Exists | VMAttribute_TransportDisable | VMAttribute_TransportFault: {
-        /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry *ptr = ResidentPagesPointer;
-
-        *ptr = vma;
-        if (++ptr >= &ResidentPages[ResidentPages_Size]) {
-            ResidentPagesWrap = TRUE;
-            ptr = ResidentPages;
-        }
-        ResidentPagesPointer = ptr;
-
-        AdjustProtection(vma, attr | (VMAttribute_Ephemeral | VMAttribute_Modified));
-    } break;
-
-    default:
-        /* verify that it is a Lisp fault */
-        {
-            uint32_t instn = *(uint32_t *)uc->uc_mcontext.mc_rip;
-            //	register uint32_t instn1 = instn & OPCODE_MASK;
-            //
-            // 	/* ivory register not TagSpace */
-            //	if ((uc->uc_mcontext.gregs[30] != (uint64_t)TagSpace)
-            //	    /* not lbz or stb */
-            //	    || ((instn1 != OPCODE_LBZ) && (instn1 != OPCODE_STB)))
-            //	{
-            //	  /* Not a Lisp fault */
-            //	  vpunt (NULL, "Unexpected SEGV at PC %p (instn=%p) on VMA
-            //%p", 		 (void*)uc->uc_mcontext.gregs[REG_RIP],
-            //		 (void*)(uint64_t)instn, si->si_addr);
-            //	}
-        }
-
-        /* a true fault, advance the pc into the fault handler */
-        processor->vma = (uint64_t)vma;
-        // printf("RIP = DECODEFAULT #2 (old rip %p)\n",
-        // uc->uc_mcontext.gregs[REG_RIP]);
-        uc->uc_mcontext.mc_rip = (uint64_t)DECODEFAULT;
-        // printf("RIP = DECODEFAULT #2 (new rip %p)\n", DECODEFAULT);
-    }
-}
-
-#endif

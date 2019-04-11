@@ -14,14 +14,6 @@
 #
 #   The main preprocessor options used throughout the sources are
 #      GENERA to build an emulator that is intended to run Genera
-#      MINIMA to build an emulator that is intended to run Minima
-#      IVERIFY to build an emulator that is intended to run the instruction test suite
-#      TRACING to enable instruction tracing and counting
-#      CACHEMETERING to enable instruction cache metering facilities
-#      TRAPMETERING to enable trap metering facilities
-#      STATISTICS to enable other statistics-gathering facilities
-#      DEBUGGING to enable debugging facilities
-#      DEBUG* to enable other, more specific debugging facilities
 #      AUTOSTART to immediately start execution of the loaded image without waiting for
 #         a :Start Interactor command from the Minima Debugger.  (This option is defined
 #         automatically when the TARGET is "genera".)
@@ -112,9 +104,7 @@ SRCS = main.c spy.c world_tools.c utilities.c \
        $(EMULATOR)/interfac.c $(EMULATOR)/interpds.c $(EMULATOR)/externals.c \
        $(EMULATOR)/memory.c
 
-NETWORKSOURCES = $(LIFE)/network-osf.c \
-	$(LIFE)/network-linux.c $(LIFE)/network-tun-linux.c \
-	$(LIFE)/network-darwin.c $(LIFE)/network-libpcap.c
+NETWORKSOURCES = $(LIFE)/network-linux.c $(LIFE)/network-tun-linux.c $(LIFE)/network-libpcap.c
 
 FAKEEMULATOR=y
 ifndef FAKEEMULATOR
@@ -180,12 +170,6 @@ spy.o: spy.c $(EMULATORINCLUDES)
 genera: main.o byteswap_world.o $(OBJS) $(OTHEROBJS)
 	$(COMPILER) $(PROFILE) -o genera $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
 	$(COMPILER) $(PROFILE) -o byteswap_world $(EARLYLIBS) $(OTHEROBJS) byteswap_world.o $(OBJS) $(LIBRARIES)
-
-minima: main.o $(OBJS) $(OTHEROBJS)
-	$(COMPILER) $(PROFILE) -o minima $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
-
-iverify: main.o $(OBJS) $(OTHEROBJS)
-	$(COMPILER) $(PROFILE) -o iverify $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
 
 clean:
 	rm -f main.o byteswap_world.o $(OBJS)

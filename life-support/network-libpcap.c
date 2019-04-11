@@ -33,16 +33,6 @@ void InitializeNetworkChannels(VLMConfig *config)
         }
     }
 
-#ifdef MINIMA
-    WriteFEPCommSlot(localIPAddress0, 0, Type_Fixnum);
-    WriteFEPCommSlot(diagnosticIPAddress, htonl(config->diagnosticIPAddress.s_addr), Type_Fixnum);
-    WriteFEPCommSlot(localIPAddress1, 0, Type_Fixnum);
-    WriteFEPCommSlot(localIPSubnetMask0, 0, Type_Fixnum);
-    WriteFEPCommSlot(localIPSubnetMask1, 0, Type_Fixnum);
-    WriteFEPCommSlot(gatewayIPAddress0, 0, Type_Fixnum);
-    WriteFEPCommSlot(gatewayIPAddress1, 0, Type_Fixnum);
-    WriteFEPCommSlot(loadServerIPAddress, 0, Type_Fixnum);
-#endif
 }
 
 /* Create a single network channel */
@@ -54,11 +44,9 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber)
 
     NetworkInterface *pInterface;
 
-#ifdef GENERA
     struct in_addr guestAddress;
     char addressAsString[_POSIX_ARG_MAX];
     boolean firstInterface;
-#endif
 
     pInputChannel = p;
 
@@ -112,7 +100,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber)
     p->hostToGuestQueue = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
     p->hostToGuestQ = (EmbQueue *)HostPointer(p->hostToGuestQueue);
 
-#ifdef GENERA
     for (pInterface = interface, firstInterface = TRUE; pInterface != NULL;
          pInterface = pInterface->anotherAddress, firstInterface = FALSE) {
         if (firstInterface)
@@ -135,7 +122,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber)
     }
     printf("Initialize network interface #%d as \"%s\"\n", unitNumber, addressAsString);
     p->addressString = MakeEmbString(addressAsString);
-#endif
 
     if (pthread_create(&p->receiverThread, &EmbCommAreaPtr->inputThreadAttrs,
             (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p))
@@ -153,10 +139,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber)
 void ResetNetworkChannel(EmbChannel *channel)
 {
     register EmbNetChannel *netChannel = (EmbNetChannel *)channel;
-
-#ifdef OS_OSF
-    ioctl(netChannel->fd, EIOCFLUSH, 0); /* Flush incoming packets */
-#endif
 
     ResetIncomingQueue(netChannel->guestToHostQ);
     ResetOutgoingQueue(netChannel->guestToHostReturnQ);

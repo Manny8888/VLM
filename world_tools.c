@@ -5,11 +5,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#if !defined(OS_DARWIN) && !defined(__FreeBSD__)
-
 #include <malloc.h>
-
-#endif
 
 #include <string.h>
 #include <dirent.h>
@@ -73,11 +69,7 @@ Integer LoadWorld(VLMConfig *config)
 
     world.pathname = config->worldPath;
     OpenWorldFile(&world, TRUE);
-#ifdef GENERA
     MergeLoadMaps(&world, config->worldSearchPath);
-#else
-    MergeLoadMaps(&world, "");
-#endif
 
     worldImageSize = 0;
 
@@ -679,23 +671,14 @@ static void ScanOneDirectory(World *world)
    We're only interested in legitimate world files of the same format as the
    user's world */
 
-#ifdef OS_LINUX
-
 static int WorldP(const struct dirent *candidateWorld)
-#else
-static int WorldP(struct dirent *candidateWorld)
-#endif
 {
     World aWorld, **newWorlds;
     char candidatePathname[_POSIX_PATH_MAX + 1];
     size_t nameLen;
     int newTotalWorlds, i;
 
-#ifdef OS_LINUX
     nameLen = _D_EXACT_NAMLEN(candidateWorld);
-#else
-    nameLen = candidateWorld->d_namlen;
-#endif
 
     if ((nameLen > strlen(VLMWorldSuffix)
             && (0
@@ -703,11 +686,7 @@ static int WorldP(struct dirent *candidateWorld)
                     (VLMWorldFormat == originalWorld->format) ? VLMWorldSuffix : IvoryWorldSuffix,
                     strlen(VLMWorldSuffix))))) {
         sprintf(candidatePathname, "%s/%s", scanningDir, candidateWorld->d_name);
-#if defined(OS_OSF) || defined(__FreeBSD__)
-        aWorld.pathname = strdup(candidatePathname);
-#else
         aWorld.pathname = strndup(candidatePathname, _POSIX_PATH_MAX + 1);
-#endif
 
         if (OpenWorldFile(&aWorld, FALSE)) {
             if (nWorlds == totalWorlds) {
@@ -1420,11 +1399,7 @@ static void ByteSwapOneWorld(World *world)
     uint32_t *wordBlockStart;
     int newFD;
 
-#if defined(OS_OSF) || defined(__FreeBSD__)
-    newPathname = strdup(world->pathname);
-#else
     newPathname = strndup(world->pathname, _POSIX_PATH_MAX + 1);
-#endif
     newPathname = strncat(newPathname, ".swap", _POSIX_PATH_MAX + 1);
 
     printf("Swapping bytes in %s ... ", world->pathname);
@@ -1481,11 +1456,7 @@ static void ByteSwapOneWorld(World *world)
     CloseWorldFile(world, FALSE);
     close(newFD);
 
-#if defined(OS_OSF) || defined(__FreeBSD__)
-    bakPathname = strdup(world->pathname);
-#else
     bakPathname = strndup(world->pathname, _POSIX_PATH_MAX + 1);
-#endif
     bakPathname = strncat(bakPathname, ".bak", _POSIX_PATH_MAX + 1);
 
     if (rename(world->pathname, bakPathname) < 0)

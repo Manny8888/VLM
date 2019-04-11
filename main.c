@@ -14,11 +14,7 @@
 #endif
 #include "spy.h"
 
-#ifdef OS_OSF
-#include <machine/fpu.h>
-#else
 #include <fenv.h>
-#endif
 
 #define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
@@ -30,13 +26,9 @@ static pthread_key_t mainThread;
 
 static void MaybeTerminateVLM(int signal)
 {
-#ifdef OS_LINUX
     char *answer = NULL;
     size_t answerSize = 0, *answerSize_p = &answerSize;
     ssize_t nRead;
-#else
-    char answer[BUFSIZ];
-#endif
 
     if (NULL == pthread_getspecific(mainThread))
         return;
@@ -56,15 +48,10 @@ static void MaybeTerminateVLM(int signal)
         fflush(stderr);
 
         while (TRUE) {
-#ifdef OS_LINUX
             nRead = getline(&answer, answerSize_p, stdin);
             if (nRead < 0)
                 vpunt(NULL, "Unexpected EOF on standard input");
             answer[nRead - 1] = '\0';
-#else
-            if (NULL == gets(answer))
-                vpunt(NULL, "Unexpected EOF on standard input");
-#endif
             if (0 == strcmp(answer, "yes"))
                 break;
             else if (0 == strcmp(answer, "no"))
@@ -92,9 +79,7 @@ int main(int argc, char **argv)
     int reason;
 
     BuildConfiguration(&config, argc, argv);
-#ifdef GENERA
     EnableIDS = config.enableIDS;
-#endif
 
     TestFunction = config.testFunction;
     Trace = config.tracing.tracePOST;
@@ -107,20 +92,12 @@ int main(int argc, char **argv)
 
     InitializeLifeSupport(&config);
 
-#if defined(OS_OSF)
-    ieee_set_fp_control(IEEE_TRAP_ENABLE_INV + IEEE_TRAP_ENABLE_DZE + IEEE_TRAP_ENABLE_OVF + IEEE_TRAP_ENABLE_UNF
-        + IEEE_TRAP_ENABLE_INE);
-
-#elif defined(OS_LINUX)
 #ifdef FE_NOMASK_ENV
     fesetenv(FE_NOMASK_ENV);
 #else
     feenableexcept(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID);
 #endif
 
-#elif defined(OS_DARWIN)
-    /* TBD: -- Need an equivalent to: fesetenv (FE_NOMASK_ENV) */
-#endif
 
     if (pthread_key_create(&mainThread, NULL))
         vpunt(NULL, "Unable to establish per-thread data.");
@@ -139,12 +116,8 @@ int main(int argc, char **argv)
     if (sigaction(SIGQUIT, &sigAction, NULL))
         vpunt(NULL, "Unable to establish SIGQUIT handler.");
 
-#ifdef IVERIFY
-    EnsureVirtualAddressRange(0xF8000000L, 0x00100000L, FALSE);
-#else
     worldImageSize = LoadWorld(&config);
 
-#ifdef GENERA
     LoadVLMDebugger(&config);
 
     worldImageMB = WordsToMB(worldImageSize);
@@ -164,8 +137,6 @@ int main(int argc, char **argv)
 
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
-#endif
-#endif
 
     if (config.enableSpy)
         InitializeSpy(TRUE, config.diagnosticIPAddress.s_addr);
@@ -208,10 +179,8 @@ int main(int argc, char **argv)
             if (message != NULL)
                 vwarn(NULL, "%s at PC %08x (%s)", message, processor->epc >> 1, (processor->epc & 1) ? "Odd" : "Even");
         }
-#ifndef IVERIFY
         if (HaltReason_Halted == reason)
             break;
-#endif
     }
 
     exit(EXIT_SUCCESS);

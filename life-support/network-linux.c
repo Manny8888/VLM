@@ -69,7 +69,6 @@ void InitializeNetworkChannels(VLMConfig *config)
 
     close(ipSocket);
 
-#ifdef MINIMA
     WriteFEPCommSlot(localIPAddress0, 0, Type_Fixnum);
     WriteFEPCommSlot(diagnosticIPAddress, htonl(config->diagnosticIPAddress.s_addr), Type_Fixnum);
     WriteFEPCommSlot(localIPAddress1, 0, Type_Fixnum);
@@ -78,7 +77,6 @@ void InitializeNetworkChannels(VLMConfig *config)
     WriteFEPCommSlot(gatewayIPAddress0, 0, Type_Fixnum);
     WriteFEPCommSlot(gatewayIPAddress1, 0, Type_Fixnum);
     WriteFEPCommSlot(loadServerIPAddress, 0, Type_Fixnum);
-#endif
 }
 
 /* Create a single network channel */
@@ -116,11 +114,9 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     u_short ipAddressOffset = (offsetof(struct ip, ip_dst) + sizeof(struct ether_header)) / sizeof(u_short);
     int interfaceIndex, i;
     NetworkInterface *pInterface;
-#ifdef GENERA
     struct in_addr guestAddress;
     char addressAsString[_POSIX_ARG_MAX];
     boolean firstInterface;
-#endif
 
     pInputChannel = p;
 
@@ -259,34 +255,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
     /* Set attributes (e.g., copyall, not promiscuous */
 
-#ifdef OS_OSF
-    ioctlBits = ENHOLDSIG | ENNONEXCL | ENCOPYALL;
-    if (-1 == ioctl(p->fd, EIOCMBIS, &ioctlBits))
-        vpunt(NULL, "Unable to set attributes for VLM network interface #%d", unitNumber);
-
-    ioctlBits = ENBATCH | ENTSTAMP | ENPROMISC | ENBPFHDR;
-    if (-1 == ioctl(p->fd, EIOCMBIC, &ioctlBits))
-        vpunt(NULL, "Unable to clear attributes for VLM network interface #%d", unitNumber);
-
-    timeout.tv_sec = timeout.tv_usec = 0; /* Wait indefinitely for packets */
-    if (-1 == ioctl(p->fd, EIOCSRTIMEOUT, &timeout))
-        vpunt(NULL, "Unable to set packet timeout for VLM network interface #%d", unitNumber);
-
-    x = deviceParms.end_MTU; /* TEMPORARY workaround to DEC bug */
-    x = (x < MaxEmbNetPacketSize) ? x : MaxEmbNetPacketSize;
-    if (-1 == ioctl(p->fd, EIOCTRUNCATE, &x))
-        vpunt(NULL, "Unable to set maximum packet size for VLM network interface #%d", unitNumber);
-
-    x = -1; /* -1 => Get maximum allowable queue size */
-    if (-1 == ioctl(p->fd, EIOCMAXBACKLOG, &x))
-        vpunt(NULL,
-            "Unable to determine maximum queue size for VLM network "
-            "interface #%d",
-            unitNumber);
-    if (-1 == ioctl(p->fd, EIOCSETW, &x))
-        vpunt(NULL, "Unable to set queue size for VLM network interface #%d", unitNumber);
-#endif
-
     /* Create and attach the filter program */
 
     // localFilters[4].k = htonl(0x4c04f5c0);
@@ -314,11 +282,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
     p->arpReq = NULL;
 
-#ifdef GENERA
     for (pInterface = interface; pInterface != NULL; pInterface = pInterface->anotherAddress)
-#else
-    pInterface = interface;
-#endif
     {
         if (pInterface->myProtocol == ETHERTYPE_IP) {
             EmbPtr arpReqPtr = EmbCommAreaAlloc(sizeof(EmbNetARPReq));
@@ -375,7 +339,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     p->hostToGuestQueue = CreateQueue(NetworkReceiverQueueSize, sizeof(EmbPtr));
     p->hostToGuestQ = (EmbQueue *)HostPointer(p->hostToGuestQueue);
 
-#ifdef GENERA
     for (pInterface = interface, firstInterface = TRUE; pInterface != NULL;
          pInterface = pInterface->anotherAddress, firstInterface = FALSE) {
         if (firstInterface)
@@ -397,7 +360,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
             sprintf(addressAsString, "%s;%s", addressAsString, pInterface->myOptions);
     }
     p->addressString = MakeEmbString(addressAsString);
-#endif
 
     if (pthread_create(&p->receiverThread, &EmbCommAreaPtr->inputThreadAttrs,
             (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p))
@@ -415,10 +377,6 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 void ResetNetworkChannel(EmbChannel *channel)
 {
     register EmbNetChannel *netChannel = (EmbNetChannel *)channel;
-
-#ifdef OS_OSF
-    ioctl(netChannel->fd, EIOCFLUSH, 0); /* Flush incoming packets */
-#endif
 
     ResetIncomingQueue(netChannel->guestToHostQ);
     ResetOutgoingQueue(netChannel->guestToHostReturnQ);

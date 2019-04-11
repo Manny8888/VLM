@@ -314,12 +314,8 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaPtr->unixUID = getuid();
     EmbCommAreaPtr->unixGID = getgid();
 
-#ifndef MINIMA
-#ifndef IVERIFY
     InitializeColdLoadChannel(config);
     InitializeConsoleChannel(config);
-#endif
-#endif
     InitializeMessageChannels(config);
     InitializeNetworkChannels(config);
 
@@ -366,12 +362,8 @@ void TerminateLifeSupport()
 
     TerminateSignalHandlers();
 
-#ifndef MINIMA
-#ifndef IVERIFY
     TerminateColdLoadChannel();
     TerminateConsoleChannel();
-#endif
-#endif
     TerminateDiskChannels();
     TerminateMessageChannels();
     // temphack
@@ -466,12 +458,4 @@ static void SetupThreadAttrs(char *class, int priorityBoost, pthread_attr_t *thr
         /* Can't change the priority of a regular thread in Linux and Mac OS X
          */
 
-#if 0
-#ifdef OS_OSF
-	priority = pthread_attr_getprio (*threadAttrs);
-	if (pthread_attr_setprio (threadAttrs, (priority + priorityBoost)))
-		vpunt (NULL, "Unable to set priority attribute for Life Support %s threads to %d",
-			   class, (priority + priorityBoost));
-#endif
-#endif
 }
