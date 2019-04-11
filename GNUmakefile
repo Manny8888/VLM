@@ -40,7 +40,6 @@
 
 LIFE = ./life-support
 EMULATOR = ./emulator
-G5EMULATOR = ./g5-emulator
 X86EMULATOR = ./x86_64-emulator
 OTHER = ./other
 COMPILER = /usr/bin/clang 
