@@ -14,8 +14,10 @@
 #include "utilities.h"
 
 #include "aihead.h"
+#ifndef _C_EMULATOR_
 #include "aistat.h"
 #include "ivoryrep.h"
+#endif
 #include "memory.h"
 
 /* Version of the VLM (nee, genera program):  Eventually, this information
@@ -74,10 +76,8 @@ EmbPtr EmbCommAreaAlloc(size_t nBytes)
     size_t nWords = (nBytes + sizeof(EmbWord) - 1) / sizeof(EmbWord);
     EmbPtr thePtr = EmbCommAreaAllocPtr;
 
-#if LONG_BIT == 64
     if (nWords & 1)
         nWords++; /* Must ensure quadword alignment */
-#endif
 
     if ((nWords > EmbCommAreaAllocSize) || (nBytes <= 0))
         vpunt(NULL, "Couldn't allocate %d words in the embedded communications area", nWords);
@@ -132,8 +132,9 @@ static void ParseVersionNumber(char *versionString, int *majorVersion, int *mino
             minor = strtoul(start, &end, 0);
             if ((start == end) || *end)
                 return;
-        } else
+        } else {
             return;
+        }
 
     *majorVersion = major;
     *minorVersion = minor;
@@ -149,7 +150,11 @@ void InitializeLifeSupport(VLMConfig *config)
 
     /* Ask the emulator to establish the BootComm/BootData/CommArea mapping */
 
+#ifdef _C_EMULATOR_
+    EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize));
+#else
     EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
+#endif
     BootCommAreaPtr = (BootCommArea *)MapVirtualAddressData(BootCommAreaAddress);
     BootDataAreaPtr = (BootDataArea *)MapVirtualAddressData(BootDataAreaAddress);
     EmbCommAreaPtr = (EmbCommArea *)MapVirtualAddressData(EmbCommAreaAddress);
@@ -170,14 +175,22 @@ void InitializeLifeSupport(VLMConfig *config)
     /* Ask the emulator to establish the FEPComm area mapping and initialize
      * the area */
 
+    #ifdef _C_EMULATOR_
+    EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize);
+    #else
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
+    #endif
     VirtualMemoryWriteBlockConstant(FEPCommAreaAddress, MakeLispObj(Type_Null, FEPCommAreaAddress), FEPCommAreaSize, 1);
     FEPCommAreaPtr = (FEPCommArea *)MapVirtualAddressData(FEPCommAreaAddress);
 
     /* Ask the emulator to establish the SystemComm area mapping and
      * initialize the area */
 
+#ifdef _C_EMULATOR_
+    EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize);
+#else
     EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize, FALSE);
+#endif
     VirtualMemoryWriteBlockConstant(
         SystemCommAreaAddress, MakeLispObj(Type_Null, SystemCommAreaAddress), SystemCommAreaSize, 1);
     SystemCommAreaPtr = (SystemCommArea *)MapVirtualAddressData(SystemCommAreaAddress);

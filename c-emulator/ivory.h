@@ -105,18 +105,9 @@ typedef enum _IvoryCdr { CdrNext, CdrNil, CdrNormal } IvoryCdr;
 #define BinaryTypeFixnumP(tag1, tag2) (((((tag1) ^ TypeFixnum) | ((tag2) ^ TypeFixnum)) & TagTypeMask) == 0)
 #define BinaryTypeNumericP(tag1, tag2) (((tag1)&070) == 010 && ((tag2)&070) == 010)
 
-#if (LONG_BIT == 64)
 extern const LispObj ObjectCdrMask;
 #define StoreCdrNext(dest, source) ((dest).whole = (source).whole & (~ObjectCdrMask.whole))
 #define ObjectEqP(a, b) ((((a).whole ^ (b).whole) & (~ObjectCdrMask.whole)) == 0)
-#else
-#define StoreCdrNext(dest, source)                                                                                     \
-    {                                                                                                                  \
-        (dest).TAG = (source).TAG & TagTypeMask;                                                                       \
-        (dest).DATA = (source).DATA;                                                                                   \
-    }
-#define ObjectEqP(a, b) (((a).DATA == (b).DATA) && TypeEqualP((a).TAG, (b).TAG))
-#endif
 
 extern const LispObj ObjectT;
 extern const LispObj ObjectNIL;

@@ -57,12 +57,12 @@ Integer EnsureVirtualAddress(Integer vma)
     if (data
         != mmap(data, sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED,
             -1, 0)) {
-        printf("Couldn't map data page at %s for VMA %x", data, vma);
+        printf("Couldn't map data page at %s for VMA %ll", data, vma);
     }
     if (tag
         != mmap(
             tag, sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0)) {
-        printf("Couldn't map tag page at %s for VMA %x", tag, vma);
+        printf("Couldn't map tag page at %s for VMA %ll", tag, vma);
     }
 
     SetCreated(vma);
@@ -91,12 +91,12 @@ Integer EnsureVirtualAddressRange(Integer vma, int count)
             if (data
                 != mmap(data, n * sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE,
                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
-                printf("Couldn't map %d data pages at %s for VMA %x", n, data, aligned_vma);
+                printf("Couldn't map %d data pages at %s for VMA %ll", n, data, aligned_vma);
 
             if (tag
                 != mmap(tag, n * sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE,
                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
-                printf("Couldn't map %d tag pages at %s for VMA %x", n, tag, aligned_vma);
+                printf("Couldn't map %d tag pages at %s for VMA %ll", n, tag, aligned_vma);
             aligned_vma += n * MemoryPageSize;
         }
 
@@ -120,9 +120,9 @@ Integer DestroyVirtualAddress(Integer vma)
     data = (caddr_t)&DataSpace[aligned_vma];
     tag = (caddr_t)&TagSpace[aligned_vma];
     if (munmap(data, sizeof(Integer[MemoryPageSize])))
-        printf("Couldn't unmap data page at %s for VMA %x", data, vma);
+        printf("Couldn't unmap data page at %s for VMA %ll", data, vma);
     if (munmap(tag, sizeof(Tag[MemoryPageSize])))
-        printf("Couldn't unmap tag page at %s for VMA %x", tag, vma);
+        printf("Couldn't unmap tag page at %s for VMA %ll", tag, vma);
 
     ClearCreated(vma);
     return (vma);
@@ -272,9 +272,10 @@ int VirtualMemoryCopy(Integer from, Integer to, int count, Byte row[])
 
     for (; fromtag < etag;) {
         /* Transport takes precedence over anything but trap */
-        if ((action = row[tag = *fromtag]) & (MemoryActionTransport | MemoryActionTrap) == MemoryActionTransport) {
-            if (OldspaceAddressP(*fromdata))
+        if (((action = row[tag = *fromtag]) & (MemoryActionTransport | MemoryActionTrap)) == MemoryActionTransport) {
+            if (OldspaceAddressP(*fromdata)) {
                 TakeMemoryTrap(TransportTrapVector, *fromdata);
+            }
         }
 
         if (action) {

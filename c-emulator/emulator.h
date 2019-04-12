@@ -3,15 +3,12 @@
 #ifndef _EMULATOR_H
 #define _EMULATOR_H
 
+#include <stdint.h>
 #include <limits.h>
 
 typedef unsigned char Byte;
 typedef unsigned char Tag;
-#if (LONG_BIT == 64)
-typedef unsigned long Integer;
-#else
-typedef unsigned int Integer;
-#endif
+typedef uint64_t Integer;
 typedef int Boolean;
 typedef float Float;
 typedef void *Pointer;
@@ -34,20 +31,14 @@ typedef void *Pointer;
 
 typedef union {
     struct _LispObj {
-#if (LONG_BIT == 64)
-        unsigned int tag;
-#else
-        unsigned char tag;
-#endif
+        uint32_t tag;
         union {
-            unsigned int u;
-            signed int s;
+            uint32_t u;
+            int32_t s;
             float f;
         } data;
     } parts;
-#if (LONG_BIT == 64)
-    unsigned long whole;
-#endif
+    uint64_t whole;
 } LispObj, PC;
 
 #define DATA parts.data
@@ -153,6 +144,7 @@ Boolean WriteInternalRegister(int regno, LispObj *val);
 extern void SendInterruptToEmulator(void);
 extern void SendInterruptToLifeSupport(void);
 
+extern Boolean OldspaceP(LispObj *obj);
 extern int InstructionSequencer(void);
 extern void OutOfMemory(char *Where, int HowMuch);
 extern void StackCacheScrollDown(void);

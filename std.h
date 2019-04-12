@@ -8,7 +8,6 @@
 
 // caddr_t definition is not picked up
 // #define __USE_MISC
-#define LONG_BIT 64
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE

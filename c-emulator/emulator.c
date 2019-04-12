@@ -8,6 +8,7 @@
 
 #define MARK(tag)
 
+#include "aihead.h"
 #include "dispatch.h"
 #include "emulator.h"
 #include "ivory.h"
@@ -133,7 +134,7 @@ void StackCacheScrollUp(void)
     VirtualMemoryWriteBlock(processor->StackCacheBase, processor->StackCache, PageSize);
 
     for (i = (StackCacheSize - 1); i--;) {
-        memcpy((char *)&processor->StackCache[i * PageSize], (char *)&processor->StackCache[(1 + i) * PageSize],
+        memcpy((void *)&processor->StackCache[i * PageSize], (void *)&processor->StackCache[(1 + i) * PageSize],
             sizeof(LispObj[PageSize]));
     }
     processor->fp -= PageSize;
@@ -173,7 +174,9 @@ Boolean OldspaceAddressP(vma)
         return (ps->ZoneOldspaceRegister & (1 << zone));
 }
 
-Boolean OldspaceP(LispObj *obj) { return (PointerTypeP(TagType(obj->TAG)) && OldspaceAddressP(obj->DATA.u)); }
+Boolean OldspaceP(LispObj *obj) { 
+    return (PointerTypeP(TagType(obj->TAG)) && OldspaceAddressP(obj->DATA.u)); 
+    }
 
 Byte MemoryActionTable[12][64] = { { 014, 06, 014, 010, 05, 05, 05, 05, 0, 0, 0, 04, 04, 04, 04, 04, 04, 04, 04, 04, 04,
                                        04, 04, 04, 04, 04, 04, 04, 04, 04, 04, 04, 0, 0, 044, 0, 024, 010, 04, 04, 04,
@@ -214,7 +217,7 @@ loop:
     action = row[TagType(object->TAG)];
 
     /* Transport takes precedence over anything but trap */
-    if (action & (MemoryActionTransport | MemoryActionTrap) == MemoryActionTransport) {
+    if ((action & (MemoryActionTransport | MemoryActionTrap)) == MemoryActionTransport) {
         if (OldspaceAddressP(object->DATA.u))
             TakeMemoryTrap(TransportTrapVector, vma);
     }

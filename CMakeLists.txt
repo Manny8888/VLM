@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(genera_c VERSION 0.1.0)
 
-include_directories(life-support c-emulator /usr/include)
+include_directories(. life-support c-emulator /usr/include)
 add_definitions(-D_C_EMULATOR_)
 
 # other c sources to build
-set(SRC_C utilities.c c-emulator/memory.c)
+set(SRC_C utilities.c c-emulator/memory.c c-emulator/initialization.c c-emulator/emulator.c life-support/initialization.c )
 add_library(c_emulator_files STATIC ${SRC_C})
 
 
