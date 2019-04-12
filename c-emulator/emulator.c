@@ -744,7 +744,8 @@ Boolean ALUComputeCondition(Integer ALU, LispObj *op1, LispObj *op2, int result)
 #define AddressPopOperand() (op2 = sp--)
 #define AddressBAR(n) (bar = &processor->bar[n])
 
-/* Be careful not to side-effect TOS before setting (in case TOS is your arg!)
+/* 
+ * Be careful not to side-effect TOS before setting (in case TOS is your arg!)
  */
 #define PushObject(object)                                                                                             \
     {                                                                                                                  \
@@ -875,7 +876,7 @@ void IncrementPC(LispObj *pc, int offset)
         pc->TAG = TypeEvenPC;
 }
 
-void InstructionSequencer(void)
+int InstructionSequencer(void)
 {
     /* Do not use register decls without considering setjmp/longjmp effects */
     /* register */ InstructionCacheLine *cp;
@@ -903,7 +904,7 @@ void InstructionSequencer(void)
         case -1:
             if (Trace)
                 fprintf(stderr, "Spy\n");
-            return;
+            return HaltReason_SpyCalled; // CHECK: Not sure that this is the right HaltReason
 
         /* Traps with no arguments */
         case HighPrioritySequenceBreakTrapVector:
@@ -947,7 +948,7 @@ void InstructionSequencer(void)
             if (Trace)
                 fprintf(stderr, "Instruction exception at PC %08x, #%d\n", pc.DATA.u, ps->instruction_count);
             if (!TakeInstructionException(cp->instruction, op2, &cp->next_pc))
-                goto halt;
+                goto halt; 
             break;
 
         default:
@@ -958,11 +959,11 @@ void InstructionSequencer(void)
     }
     goto InstructionCacheLookup;
 
-BranchNotTaken:
-    MARK(NextInstruction);
-NextInstructionTag:
-    pc = cp->next_pc;
-    cp = cp->next_cp;
+    BranchNotTaken:
+        MARK(NextInstruction);
+    NextInstructionTag:
+        pc = cp->next_pc;
+        cp = cp->next_cp;
 
 Dispatch:
     /* Here for things that advance the PC non-sequentially, e.g., branch */
@@ -994,7 +995,7 @@ Dispatch:
         if (cp->pc.DATA.u != pc.DATA.u) {
             DecacheRegisters();
             if (InstructionCacheMiss())
-                goto halt;
+                goto halt; 
             EncacheRegisters();
         }
         goto Dispatch;
@@ -5506,5 +5507,5 @@ halt:
     ps->running = 0;
     signal(SIGIO, old_io_handler);
     signal(SIGSEGV, old_segv_handler);
-    return;
+    return HaltReason_Halted;
 }

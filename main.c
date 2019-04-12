@@ -22,7 +22,7 @@
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
 
 Boolean Trace = FALSE;
-Boolean EnableIDS = FALSE;
+Boolean EnableIDS = FALSE; // WTF is that?
 Boolean TestFunction = FALSE;
 static pthread_key_t mainThread;
 
@@ -88,10 +88,11 @@ int main(int argc, char **argv)
     Trace = config.tracing.tracePOST;
     InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
 
-    Trace = config.tracing.traceP;
-    if (Trace)
-        InitializeTracing(
-            config.tracing.bufferSize, config.tracing.startPC, config.tracing.stopPC, config.tracing.outputFile);
+    // No tracing for the moment - Not defined in c-emulator
+    // Trace = config.tracing.traceP;
+    // if (Trace)
+    //     InitializeTracing(
+    //         config.tracing.bufferSize, config.tracing.startPC, config.tracing.stopPC, config.tracing.outputFile);
 
     InitializeLifeSupport(&config);
 
@@ -135,8 +136,13 @@ int main(int argc, char **argv)
             "%s\n",
             (config.virtualMemory - worldImageMB), config.worldPath);
 
-    VirtualMemoryWrite(
-        SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? processor->taddress : processor->niladdress);
+#ifdef _C_EMULATOR_
+    VirtualMemoryWrite(SystemCommSlotAddress(enableSysoutAtColdBoot), 
+                                             EnableIDS ? (LispObj *)AddressT : (LispObj *)AddressNIL);
+#else
+    VirtualMemoryWrite(SystemCommSlotAddress(enableSysoutAtColdBoot), 
+                                             EnableIDS ? processor->taddress : processor->niladdress);
+#endif                                             
 
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
@@ -180,7 +186,11 @@ int main(int argc, char **argv)
                 message = "Halted for unknown reason";
             }
             if (message != NULL)
+#ifdef _C_EMULATOR_            
+                vwarn(NULL, "%s at PC %016x (%s)", message, processor->pc.whole >> 1, processor->pc.whole & 1 ? "Odd" : "Even");
+#else                
                 vwarn(NULL, "%s at PC %08x (%s)", message, processor->epc >> 1, (processor->epc & 1) ? "Odd" : "Even");
+#endif
         }
         if (HaltReason_Halted == reason)
             break;

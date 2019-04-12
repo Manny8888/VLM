@@ -7,7 +7,11 @@
 
 typedef unsigned char Byte;
 typedef unsigned char Tag;
+#if (LONG_BIT == 64)
+typedef unsigned long Integer;
+#else
 typedef unsigned int Integer;
+#endif
 typedef int Boolean;
 typedef float Float;
 typedef void *Pointer;
@@ -86,7 +90,9 @@ typedef struct _ProcessorState {
     LispObj *restartsp;
     LispObj *fp;
     LispObj *lp;
-    PC pc;
+    PC pc;                                    // This counter increases 1 by 1 and therefore alternates between even 
+                                              // and odd addresses. The tag memory and data memory spaces are separate. // Therefore, loading 64 bits will load 2 consecutive tags and 2 
+                                              // consecutive addresses (think cons or list structure).
     PC continuation;
     InstructionCacheLine *InstructionCache;
     LispObj *StackCache;
@@ -100,7 +106,7 @@ typedef struct _ProcessorState {
     LispObj StructureCacheArea;
     LispObj StructureCacheAddress;
     LispObj CatchBlockPointer;
-    /* Integer fields are at the end for better alignment */
+    // Integer fields were at the end for better alignment - but their size now matches architecture size (32 or 64 bits
     Integer control;
     Integer StackCacheBase;
     Integer ArrayEventCount;
@@ -147,7 +153,7 @@ Boolean WriteInternalRegister(int regno, LispObj *val);
 extern void SendInterruptToEmulator(void);
 extern void SendInterruptToLifeSupport(void);
 
-extern void InstructionSequencer(void);
+extern int InstructionSequencer(void);
 extern void OutOfMemory(char *Where, int HowMuch);
 extern void StackCacheScrollDown(void);
 extern void StackCacheScrollUp(void);
