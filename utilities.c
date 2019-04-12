@@ -14,7 +14,9 @@
 
 #include "VLM_configuration.h"
 #include "life_types.h"
+#ifndef _C_EMULATOR_
 #include "ivoryrep.h"
+#endif
 
 static char *CommandName = "genera";
 #define CommandClass "Genera"
@@ -79,8 +81,10 @@ void vpunt(char *section, char *format, ...)
 
     va_end(ap);
 
+#ifndef _C_EMULATOR_
     MaybePrintTrace();
-
+#endif
+   
     while (1)
         ;
     exit(EXIT_FAILURE);
@@ -230,8 +234,9 @@ static void MaybeReadConfigurationFile(VLMConfig *config, XrmDatabase *options, 
         if (ENOENT == errno) {
             errno = ESUCCESS;
             return;
-        } else
-            vpunt(NULL, "Unable to verify existence of configuration file %s", pathname);
+        } else {
+            vpunt(NULL, "Unable to verify existence of configuration file %s", pathname); 
+            }
     close(fd);
 
     fileOptions = XrmGetFileDatabase(pathname);
@@ -753,7 +758,7 @@ int pthread_delay_np(const struct timespec *ointerval)
 
     pthread_testcancel();
 
-    while (status = nanosleep(&interval, &rinterval)) {
+    while ((status = nanosleep(&interval, &rinterval))) {
         if (errno != EINTR)
             break;
         interval.tv_sec = rinterval.tv_sec;

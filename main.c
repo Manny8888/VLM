@@ -1,3 +1,4 @@
+
 #include "std.h"
 
 #include "VLM_configuration.h"
@@ -14,8 +15,8 @@
 #else
 #include "ivoryrep.h"
 #endif
-#include "spy.h"
 
+#include "spy.h"
 #include <fenv.h>
 
 #define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?

@@ -12,7 +12,9 @@
 
 #include "life_types.h"
 #include "aihead.h"
+#ifndef _C_EMULATOR_
 #include "ivoryrep.h"
+#endif
 #include "memory.h"
 #include "world_tools.h"
 #include "life_prototypes.h"

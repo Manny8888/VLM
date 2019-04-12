@@ -1,12 +1,14 @@
-#include "emulator.h"
-#include "ivory.h"
-#include "memory.h"
 
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 
 #include <unistd.h>
 #include <string.h>
+
+#include "emulator.h"
+#include "ivory.h"
+#include "memory.h"
 
 /* --- need a better place */
 
@@ -54,12 +56,14 @@ Integer EnsureVirtualAddress(Integer vma)
     tag = (caddr_t)&TagSpace[aligned_vma];
     if (data
         != mmap(data, sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED,
-            -1, 0))
-        punt("Couldn't map data page at %x for VMA %x", data, vma);
+            -1, 0)) {
+        printf("Couldn't map data page at %s for VMA %x", data, vma);
+    }
     if (tag
         != mmap(
-            tag, sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
-        punt("Couldn't map tag page at %x for VMA %x", tag, vma);
+            tag, sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0)) {
+        printf("Couldn't map tag page at %s for VMA %x", tag, vma);
+    }
 
     SetCreated(vma);
     return (vma);
@@ -87,12 +91,12 @@ Integer EnsureVirtualAddressRange(Integer vma, int count)
             if (data
                 != mmap(data, n * sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE,
                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
-                punt("Couldn't map %d data pages at %x for VMA %x", n, data, aligned_vma);
+                printf("Couldn't map %d data pages at %s for VMA %x", n, data, aligned_vma);
 
             if (tag
                 != mmap(tag, n * sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE,
                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
-                punt("Couldn't map %d tag pages at %x for VMA %x", n, tag, aligned_vma);
+                printf("Couldn't map %d tag pages at %s for VMA %x", n, tag, aligned_vma);
             aligned_vma += n * MemoryPageSize;
         }
 
@@ -116,9 +120,9 @@ Integer DestroyVirtualAddress(Integer vma)
     data = (caddr_t)&DataSpace[aligned_vma];
     tag = (caddr_t)&TagSpace[aligned_vma];
     if (munmap(data, sizeof(Integer[MemoryPageSize])))
-        punt("Couldn't unmap data page at %x for VMA %x", data, vma);
+        printf("Couldn't unmap data page at %s for VMA %x", data, vma);
     if (munmap(tag, sizeof(Tag[MemoryPageSize])))
-        punt("Couldn't unmap tag page at %x for VMA %x", tag, vma);
+        printf("Couldn't unmap tag page at %s for VMA %x", tag, vma);
 
     ClearCreated(vma);
     return (vma);
