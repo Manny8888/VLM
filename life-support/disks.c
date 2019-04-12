@@ -11,7 +11,11 @@
 #include "VLM_configuration.h"
 #include "life_prototypes.h"
 #include "utilities.h"
+#ifdef _C_EMULATOR_
+#include "aihead.h"
+#else
 #include "ivoryrep.h"
+#endif
 #include "memory.h"
 
 #ifndef S_DEFFILEMODE

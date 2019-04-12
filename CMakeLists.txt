@@ -5,7 +5,7 @@ include_directories(. life-support c-emulator /usr/include)
 add_definitions(-D_C_EMULATOR_)
 
 # other c sources to build
-set(SRC_C utilities.c c-emulator/memory.c c-emulator/initialization.c c-emulator/emulator.c life-support/initialization.c )
+set(SRC_C utilities.c c-emulator/memory.c c-emulator/initialization.c c-emulator/emulator.c c-emulator/dispatch.c c-emulator/traps.c life-support/cold_load.c life-support/console.c life-support/disks.c life-support/initialization.c life-support/message_channels.c life-support/signals.c)
 add_library(c_emulator_files STATIC ${SRC_C})
 
 
