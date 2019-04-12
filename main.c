@@ -5,6 +5,8 @@
 #include "world_tools.h"
 #include "utilities.h"
 #include "SystemComm.h"
+#include "aihead.h"
+// TODO: Check if really needed #include "aistat.h"
 
 #ifdef _C_EMULATOR_
 #include "emulator.h"
@@ -63,8 +65,9 @@ static void MaybeTerminateVLM(int signal)
         }
     }
 
-    TerminateTracing();
-    TerminateSpy();
+    // Seems useles:
+    //TerminateTracing();
+    // TerminateSpy();
     TerminateLifeSupport();
 
     _exit(EXIT_SUCCESS);

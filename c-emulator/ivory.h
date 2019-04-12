@@ -440,16 +440,20 @@ typedef enum _InternalRegisters {
     InternalRegisterSP = 03,
     InternalRegisterMacroSP = 04,
     InternalRegisterStackCacheLowerBound = 05,
+    
     InternalRegisterBAR0 = 06,
     InternalRegisterBAR1 = 0206,
     InternalRegisterBAR2 = 0406,
     InternalRegisterBAR3 = 0606,
+    
     InternalRegisterPHTHash0 = 07,
     InternalRegisterPHTHash1 = 0207,
     InternalRegisterPHTHash2 = 0407,
     InternalRegisterPHTHash3 = 0607,
+    
     InternalRegisterEPC = 010,
     InternalRegisterDPC = 011,
+    
     InternalRegisterContinuation = 012,
     InternalRegisterAluAndRotateControl = 013,
     InternalRegisterControlRegister = 014,
@@ -554,6 +558,7 @@ typedef enum _TrapVectors {
     DBUnwindFrameTrapVector = 05126,
     DBUnwindCatchTrapVector = 05127
 } TrapVectors;
+
 
 /* ALU */
 

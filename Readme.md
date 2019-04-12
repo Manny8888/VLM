@@ -25,6 +25,7 @@ Nim/Go/Julia work, FreeBSD and Darwin should be easier to port into.
 What do I use:
 - Spacemacs + slime + SBCL for the lisp development
 - VSCode for the C development
+- cmake is used in VSCode to build the c-emulator (add the relevant cmake extensions in VSCode if desired)
 
 ## How to run:
 

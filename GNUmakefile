@@ -47,8 +47,6 @@ COMPILER = /usr/bin/clang
 CPU = $(X86EMULATOR)
 
 genera: MAINOPTIONS = -DGENERA -DAUTOSTART -DUSE_TUN
-minima: MAINOPTIONS = -DMINIMA
-iverify: MAINOPTIONS = -DIVERIFY
 
 # gcc option:
 # OPT = -O -mtune=nocona \

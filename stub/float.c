@@ -1,6 +1,3 @@
-/* --- float2 --- */
-
-//#define LOUD
 
 int fregstate[32];
 int subtrace;
@@ -14,8 +11,7 @@ enum {
   FPS_L,
 };
 
-#define SETFLTT(rn, r, s) \
-	do { r = U64FLTT(s); fregstate[rn] = FPS_T; } while(0)
+#define SETFLTT(rn, r, s) do { r = U64FLTT(s); fregstate[rn] = FPS_T; } while(0)
 
 #define LDS(rn, r, s) r = _LDS(rn, s);
 #define LDT(rn, r, s) r = _LDT(rn, s);
@@ -274,9 +270,6 @@ u64 _CVTTQ(int dr, int rv2, u64 v2)
   }
   fregstate[dr] = FPS_Q;
   u.l = v2;
-#ifdef LOUD
-  if (subtrace) printf("_CVTTQ %p %g %p -> %p\n", v2, u.d, u.l, (u64)u.d);
-#endif
   return (u64)u.d;
 }
 
@@ -293,9 +286,6 @@ if (u.d < 0.0) u.d -= 0.5;
 //if (u.d > 0.0) u.d += 0.5;
   printf("CVTTQVM: %g %d\n", u.d, (int)u.d);
   fregstate[dr] = FPS_Q;
-#ifdef LOUD
-  if (subtrace) printf("_CVTTQVM %p -> %p\n", v2, (long)u.d);
-#endif
   return (long)u.d;
 }
 
@@ -315,9 +305,6 @@ u64 _CVTTS(int dr, int rv2, u64 v2)
   u2.l = 0;
   u2.f = u.d;
 
-#ifdef LOUD
-  if (subtrace) printf("_CVTTS %p -> %p\n", v2, (u64)u2.i);
-#endif
 
   if (fregstate[rv2] != FPS_T && fregstate[rv2] != FPS_LOADT) {
     printf("_CVTTS: f%d %p <- %p(%d)\n",
@@ -382,10 +369,6 @@ u64 _ADDT(int rd, int ra, u64 a, int rb, u64 b)
   double fa, fb;
   fa = fixtfloat(ra, a);
   fb = fixtfloat(rb, b);
-#ifdef LOUD
-  printf("ADDT: %p %p\n", a, b);
-  printf("ADDT: %g %g %g\n", fa, fb, fa + fb);
-#endif
   fregstate[rd] = FPS_T;
   return U64FLTT(fa + fb);
 }
@@ -395,10 +378,6 @@ u64 _SUBS(int rd, int ra, u64 a, int rb, u64 b)
   float fa, fb;
   fa = fixsfloat(ra, a);
   fb = fixsfloat(rb, b);
-#ifdef LOUD
-  printf("SUBS: %p %p\n", a, b);
-  printf("SUBS: %g %g %g\n", fa, fb, fa - fb);
-#endif
   fregstate[rd] = FPS_S;
   return U64FLTS(fa - fb);
 }
@@ -408,10 +387,6 @@ u64 _SUBT(int rd, int ra, u64 a, int rb, u64 b)
   double fa, fb;
   fa = fixtfloat(ra, a);
   fb = fixtfloat(rb, b);
-#ifdef LOUD
-  printf("SUBT: %p %p\n", a, b);
-  printf("SUBT: %g %g %g\n", fa, fb, fa - fb);
-#endif
   fregstate[rd] = FPS_T;
   return U64FLTT(fa - fb);
 }
@@ -421,10 +396,6 @@ u64 _MULS(int rd, int ra, u64 a, int rb, u64 b)
   float fa, fb;
   fa = fixsfloat(ra, a);
   fb = fixsfloat(rb, b);
-#ifdef LOUD
-  printf("MULS: %p %p\n", a, b);
-  printf("MULS: %g %g %g\n", fa, fb, fa * fb);
-#endif
   fregstate[rd] = FPS_S;
   return U64FLTS(fa * fb);
 }
@@ -434,10 +405,6 @@ u64 _MULT(int rd, int ra, u64 a, int rb, u64 b)
   double fa, fb;
   fa = fixtfloat(ra, a);
   fb = fixtfloat(rb, b);
-#ifdef LOUD
-  printf("MULT: %p %p\n", a, b);
-  printf("MULT: %g %g %g\n", fa, fb, fa * fb);
-#endif
   fregstate[rd] = FPS_T;
   return U64FLTT(fa * fb);
 }

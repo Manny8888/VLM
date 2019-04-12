@@ -1,10 +1,6 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
+;;; -*- Mode: LISP; Syntax: Common-Lisp -*-
 
-#+Alpha-AXP-Emulator
 (in-package :alpha-axp-internal)
-
-#+PowerPC-Emulator
-(in-package "POWERPC-INTERNALS")
 
 ;;; *** If you change this file, be sure to change SYS:I-SYS;REV5-ERROR-TABLE.LISP ***
 

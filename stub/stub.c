@@ -146,10 +146,6 @@ hwdispatch      22      ; = T9 (the halfword dispatch table)
 #define fwdispatch r21
 #define hwdispatch r22
 
-#define rdtscll(val) __asm__ __volatile__("rdtsc" : "=A"(val))
-
-static u64 old_rdtsc;
-
 // these need to be in-line for DECODEFAULT to work
 #define LDQ_U(ptr) *(u64 *)(ptr & ~7L)
 #define STQ_U(ptr, v) *(u64 *)(ptr & ~7L) = v
@@ -489,24 +485,7 @@ char *halfwordnames[256 * 4] = {
     "DoSpareOpFP", "DoSpareOpLP", "DoSpareOpSP", "DoSpareOpIM", /*#o0377 */
 };
 
-void dumpstack(void)
-{
-#if 0
-  u64 *p = (u64 *)iSP;
-  int i;
-
-  printf("iPC %p, iSP %p\n", iPC, iSP);
-  for (i = 0; i < 5; i++) {
-    printf("%p: %016llx\n", p, *p);
-    if ((u64)p == 0xfffffc000)
-      break;
-    p--;
-  }
-
-  //  if (iPC == 0x1f000000e) exit(1);
-  //  { static int c = 0; if (++c == 10000) exit(1); }
-#endif
-}
+void dumpstack(void){}
 
 /* idispat */
 int iInterpret(PROCESSORSTATEP ivoryp)

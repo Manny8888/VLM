@@ -8,7 +8,11 @@
 
 #include "life_types.h"
 #include "VLM_configuration.h"
+
+#ifndef _C_EMULATOR_
 #include "ivoryrep.h"
+#endif
+
 #include "memory.h"
 
 /* A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details

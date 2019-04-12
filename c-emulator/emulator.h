@@ -19,6 +19,7 @@ typedef void *Pointer;
 #define dpb(field, ss, pp, background)                                                                                 \
     ((((field) & ((1 << (ss)) - 1)) << (pp)) | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
 #define ceiling(n, d) (((n) + ((d)-1)) / (d))
+
 #if (WORD_BIT == 32)
 #define SignExtend8(i) (((int)((unsigned int)i << 24)) / 16777216)
 #define SignExtend10(i) (((int)((unsigned int)i << 22)) / 4194304)

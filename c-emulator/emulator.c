@@ -6,11 +6,7 @@
 #include <sys/types.h>
 #include <sys/times.h>
 
-#ifdef profile
-#include <prof.h>
-#else
 #define MARK(tag)
-#endif
 
 #include "dispatch.h"
 #include "emulator.h"
