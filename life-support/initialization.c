@@ -112,8 +112,7 @@ EmbPtr MakeEmbString(char *aString)
     return (theStringPtr);
 }
 
-/* Parses a version number into major and minor version numbers */
-
+// Parses a version number into major and minor version numbers 
 static void ParseVersionNumber(char *versionString, int *majorVersion, int *minorVersion)
 {
     char *start, *end;
@@ -123,18 +122,21 @@ static void ParseVersionNumber(char *versionString, int *majorVersion, int *mino
 
     start = versionString;
     major = strtoul(start, &end, 10);
-    if (start == end)
+    if (start == end) {
         return;
+    }   
 
-    if (*end)
+    if (*end) {
         if (*end == '.') {
             start = end + 1;
             minor = strtoul(start, &end, 0);
-            if ((start == end) || *end)
+            if ((start == end) || *end)  {
                 return;
+            }
         } else {
             return;
         }
+    }
 
     *majorVersion = major;
     *minorVersion = minor;
@@ -161,8 +163,10 @@ void InitializeLifeSupport(VLMConfig *config)
 
     /* Initialize the BootComm and BootData */
 
-    VirtualMemoryWriteBlockConstant(
-        BootCommAreaAddress, MakeLispObj(Type_Null, BootCommAreaAddress), (BootCommAreaSize + BootDataAreaSize), 1);
+    VirtualMemoryWriteBlockConstant(BootCommAreaAddress, 
+                                    MakeLispObj(Type_Null, BootCommAreaAddress), 
+                                    (BootCommAreaSize + BootDataAreaSize), 
+                                    1);
 
     WriteBootCommSlot(embCommArea, EmbCommAreaAddress, Type_Locative);
     WriteBootCommSlot(systemType, SystemTypeVLM, Type_Fixnum);

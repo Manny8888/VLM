@@ -29,6 +29,16 @@ static LispObj trap_vma = { TypeLocative, 0 };
 static LispObj trap_microstate = { TypeFixnum, 0 };
 Integer memory_vma;
 
+// Creates a LispObj from tag and data
+LispObj MakeLispObj(uint32_t tag, uint32_t data) 
+{
+    LispObj object;
+    object.whole = (((uint64_t) tag) << 32) | (0xFFFFFFFF & ((uint64_t) data));
+
+    return object;
+
+}
+
 /* General memory trap signalling */
 void TakeMemoryTrap(int vector, Integer vma)
 {

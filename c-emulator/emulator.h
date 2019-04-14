@@ -48,6 +48,8 @@ typedef union {
 #define LispObjTag(lo) (((LispObj *)(&lo))->TAG)
 #define LispObjData(lo) (((LispObj *)(&lo))->DATA.u)
 
+extern LispObj MakeLispObj (uint32_t tag, uint32_t data);
+
 typedef struct _InstructionCacheLine {
     PC pc;
     PC next_pc;
