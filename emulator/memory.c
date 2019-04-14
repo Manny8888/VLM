@@ -10,7 +10,7 @@
 
 /* Forward references */
 void AdjustProtection(Integer vma, VMAttribute attr);
-static int ComputeProtection(register VMAttribute attr);
+static int ComputeProtection(VMAttribute attr);
 #define ceiling(n, d) (((n) + ((d)-1)) / (d))
 #ifndef OS_OSF
 static int mvalid(caddr_t address, size_t count, int access);
@@ -478,9 +478,9 @@ Boolean VirtualMemorySearch(Integer *vma, LispObj object, int count)
 Boolean VirtualMemoryCopy(Integer from, Integer to, int count, int mode)
 {
     Integer *fromdata = &DataSpace[from];
-    register Tag *fromtag = &TagSpace[from];
+    Tag *fromtag = &TagSpace[from];
     Integer *todata = &DataSpace[to];
-    register Tag *totag = &TagSpace[to];
+    Tag *totag = &TagSpace[to];
 
     (void)memmove((unsigned char *)totag, (unsigned char *)fromtag, count * sizeof(Tag));
     (void)memmove((unsigned char *)todata, (unsigned char *)fromdata, count * sizeof(Integer));
@@ -493,11 +493,11 @@ Boolean VirtualMemoryCopy(Integer from, Integer to, int count, int mode)
 /* manually).  Copyspace pages may have their disable bits twiddled on and
 /* off as objects are transported into them and they are subsequently
 /* scavenged. */
-void VirtualMemoryEnable(register Integer vma, int count, Boolean faultp)
+void VirtualMemoryEnable(Integer vma, int count, Boolean faultp)
 {
-    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
-    register VMAttribute *eattr = &VMAttributeTable[MemoryPageNumber(vma + count + MemoryPage_Size - 1)];
-    register VMAttribute oa, a;
+    VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
+    VMAttribute *eattr = &VMAttributeTable[MemoryPageNumber(vma + count + MemoryPage_Size - 1)];
+    VMAttribute oa, a;
 
     if (!processor->zoneoldspace) {
         /* Ephemeral flip */
@@ -554,18 +554,18 @@ void VirtualMemoryEnable(register Integer vma, int count, Boolean faultp)
 }
 
 /* Has hard-wired cycle-type of raw, hence really only useful to GC */
-Boolean VirtualMemorySearchCDR(Integer *vma, int count, register unsigned int cdr_mask)
+Boolean VirtualMemorySearchCDR(Integer *vma, int count, unsigned int cdr_mask)
 {
     /* (semi-) fast pointer scan 8 at a time CAUTION! little-endian
     /* dependent code */
     Boolean forwardp = (count > 0);
-    register uint64_t tagbits;
+    uint64_t tagbits;
     Integer startvma = *vma;
-    register Integer thisvma = forwardp ? (startvma & ~07) : (startvma | 07);
-    register Integer nextvma = thisvma + (forwardp ? 8 : -8);
-    register Integer limitvma = startvma + count;
-    register int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
-    register Integer word;
+    Integer thisvma = forwardp ? (startvma & ~07) : (startvma | 07);
+    Integer nextvma = thisvma + (forwardp ? 8 : -8);
+    Integer limitvma = startvma + count;
+    int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
+    Integer word;
 
     if (forwardp) {
         for (; thisvma < limitvma; tags8++, thisvma = nextvma, nextvma += 8) {
@@ -605,18 +605,18 @@ Boolean VirtualMemorySearchCDR(Integer *vma, int count, register unsigned int cd
 }
 
 /* Has hard-wired cycle-type of raw, hence really only useful to GC */
-Boolean VirtualMemorySearchType(Integer *vma, int count, register uint64_t type_mask)
+Boolean VirtualMemorySearchType(Integer *vma, int count, uint64_t type_mask)
 {
     /* (semi-) fast pointer scan 8 at a time CAUTION! little-endian
     /* dependent code */
     Boolean forwardp = (count > 0);
-    register uint64_t tagbits;
+    uint64_t tagbits;
     Integer startvma = *vma;
-    register Integer thisvma = forwardp ? (startvma & ~07) : (startvma | 07);
-    register Integer nextvma = thisvma + (forwardp ? 8 : -8);
-    register Integer limitvma = startvma + count;
-    register int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
-    register Integer word;
+    Integer thisvma = forwardp ? (startvma & ~07) : (startvma | 07);
+    Integer nextvma = thisvma + (forwardp ? 8 : -8);
+    Integer limitvma = startvma + count;
+    int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
+    Integer word;
 
     if (forwardp) {
         for (; thisvma < limitvma; tags8++, thisvma = nextvma, nextvma += 8) {
@@ -658,12 +658,12 @@ Boolean VirtualMemorySearchType(Integer *vma, int count, register uint64_t type_
 /* otherwise does the copy and forward */
 Boolean VirtualMemoryCopyandForward(Integer from, Integer to, int count)
 {
-    register Integer *fromdata = &DataSpace[from];
+    Integer *fromdata = &DataSpace[from];
     Tag *fromtag = &TagSpace[from];
-    register Integer *todata = &DataSpace[to];
+    Integer *todata = &DataSpace[to];
     Tag *totag = &TagSpace[to];
-    register Integer *edata = &DataSpace[from + count];
-    register Integer forward = to;
+    Integer *edata = &DataSpace[from + count];
+    Integer forward = to;
 
     if (memccpy((unsigned char *)totag, (unsigned char *)fromtag, Type_GCForward, count * sizeof(Tag)) != NULL)
         return (FALSE);
@@ -693,12 +693,12 @@ static Integer previousslowvma, lastslowvma;
 /* for debugging */
 Boolean SlowScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
 {
-    register Byte *tag = &TagSpace[scanvma];
-    register Byte *etag = tag + count;
-    register Integer *data = &DataSpace[scanvma];
-    register uint64_t pointertypes = 0x0000FFF4FFFFF8F7L;
-    register uint64_t ephemeraloldbits;
-    register uint64_t zoneoldbits;
+    Byte *tag = &TagSpace[scanvma];
+    Byte *etag = tag + count;
+    Integer *data = &DataSpace[scanvma];
+    uint64_t pointertypes = 0x0000FFF4FFFFF8F7L;
+    uint64_t ephemeraloldbits;
+    uint64_t zoneoldbits;
 
     if (mvalid((caddr_t)tag, count, PROT_READ)) {
         fprintf(stderr,
@@ -749,16 +749,16 @@ Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
             /* (semi-) fast pointer scan 8 at a time CAUTION! little-endian
             /* dependent code */
             /* --- define in memory.h */
-            register uint64_t pointertypes = 0x0000FFF4FFFFF8F7L;
+            uint64_t pointertypes = 0x0000FFF4FFFFF8F7L;
             /* registers in order of frequency of use */
-            register uint64_t tagbits;
-            register Integer thisvma = (wrapped ? startvma : scanvma) & ~07;
-            register Integer nextvma = thisvma + 8;
-            register Integer limitvma = (wrapped ? scanvma : endvma);
-            register int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
-            register Integer word;
-            register uint64_t ephemeraloldbits;
-            register uint64_t zoneoldbits;
+            uint64_t tagbits;
+            Integer thisvma = (wrapped ? startvma : scanvma) & ~07;
+            Integer nextvma = thisvma + 8;
+            Integer limitvma = (wrapped ? scanvma : endvma);
+            int64_t *tags8 = &((int64_t *)TagSpace)[thisvma >> 3];
+            Integer word;
+            uint64_t ephemeraloldbits;
+            uint64_t zoneoldbits;
 
             ephemeraloldbits = processor->ephemeraloldspace;
             ephemeraloldbits = (ephemeraloldbits << 32) | ((~ephemeraloldbits) & 0xFFFFFFFF);
@@ -803,8 +803,8 @@ Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
     done:
         if (update) {
             {
-                register VMAttribute oa = VMAttributeTable[MemoryPageNumber(scanvma)];
-                register VMAttribute a = oa;
+                VMAttribute oa = VMAttributeTable[MemoryPageNumber(scanvma)];
+                VMAttribute a = oa;
 
                 /* We know we have completed scanning this page, so clear the
                  * fault bit */
@@ -826,13 +826,13 @@ Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
     }
 }
 
-Boolean VirtualMemoryScan(Integer *vma, register int count, Boolean slowp)
+Boolean VirtualMemoryScan(Integer *vma, int count, Boolean slowp)
 {
-    register Integer scanvma = *vma;
-    register VMAttribute *attr;
-    register int whack = MemoryPage_Size - MemoryPageOffset(scanvma);
-    register int mask;
-    register Boolean (*scan)() = slowp ? SlowScanPage : ScanPage;
+    Integer scanvma = *vma;
+    VMAttribute *attr;
+    int whack = MemoryPage_Size - MemoryPageOffset(scanvma);
+    int mask;
+    Boolean (*scan)() = slowp ? SlowScanPage : ScanPage;
     Boolean update = FALSE;
 
     if (slowp)
@@ -860,7 +860,7 @@ Boolean VirtualMemoryScan(Integer *vma, register int count, Boolean slowp)
         whack = count;
 
     for (; count > 0;) {
-        register VMAttribute a = *attr;
+        VMAttribute a = *attr;
         /* Always disable faults, even if you optimize out the scan */
         if (VMTransportFault(a) && !VMTransportDisable(a)) {
             SetVMTransportDisable(a);
@@ -889,13 +889,13 @@ Boolean VirtualMemoryScan(Integer *vma, register int count, Boolean slowp)
 }
 
 /* --- Make this scan faster by operating on longs */
-Boolean VirtualMemoryPHTScan(Integer *vma, Integer count, register VMAttribute mask, register int sense)
+Boolean VirtualMemoryPHTScan(Integer *vma, Integer count, VMAttribute mask, int sense)
 {
-    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(*vma)];
+    VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(*vma)];
     /* Caller is allowed to use a count of -1 to mean "scan 'til done" */
-    register VMAttribute *eattr = &VMAttributeTable[sizeof(VMAttributeTable)];
-    register int64_t n = (int64_t)count + MemoryPageOffset(*vma);
-    register int64_t *wad = &((int64_t *)VMAttributeTable)[MemoryWadNumber(*vma)];
+    VMAttribute *eattr = &VMAttributeTable[sizeof(VMAttributeTable)];
+    int64_t n = (int64_t)count + MemoryPageOffset(*vma);
+    int64_t *wad = &((int64_t *)VMAttributeTable)[MemoryWadNumber(*vma)];
 
     /* skip non-existent by wads */
     for (; (wad < (int64_t *)eattr) && (n > 0); wad++, n -= MemoryWad_Size)
@@ -924,11 +924,11 @@ Boolean VirtualMemoryPHTScan(Integer *vma, Integer count, register VMAttribute m
 
 static PHTEntry *ResidentPagesScan = ResidentPages;
 
-Boolean VirtualMemoryResidentScan(Integer *vma, Integer *count, register VMAttribute mask, register int sense)
+Boolean VirtualMemoryResidentScan(Integer *vma, Integer *count, VMAttribute mask, int sense)
 {
-    register PHTEntry *scan = ResidentPagesScan;
-    register PHTEntry *escan = ResidentPagesWrap ? &ResidentPages[ResidentPages_Size] : ResidentPagesPointer;
-    register VMAttribute *attr = VMAttributeTable;
+    PHTEntry *scan = ResidentPagesScan;
+    PHTEntry *escan = ResidentPagesWrap ? &ResidentPages[ResidentPages_Size] : ResidentPagesPointer;
+    VMAttribute *attr = VMAttributeTable;
 
     for (; scan <= escan; scan++) {
         if (sense) {
@@ -957,20 +957,20 @@ VMState VM;
 
 int VMCommand(int command)
 {
-    register VMState *vm = &VM;
+    VMState *vm = &VM;
 
     switch
         VMCommandOpcode(command)
         {
         case VMOpcodeLookup: {
-            register int vpn = MemoryPageNumber(vm->AddressRegister);
+            int vpn = MemoryPageNumber(vm->AddressRegister);
             return (SetVMReplyResult(vpn, VMExists(VMAttributeTable[vpn])));
         }
 
         case VMOpcodeCreate: {
-            register Integer vma = vm->AddressRegister;
-            register int vpn = MemoryPageNumber(vma);
-            register int words = vm->ExtentRegister;
+            Integer vma = vm->AddressRegister;
+            int vpn = MemoryPageNumber(vma);
+            int words = vm->ExtentRegister;
 
             /* Optimization */
             if (WadCreated(vma) && (words <= MemoryPage_Size)) {
@@ -988,7 +988,7 @@ int VMCommand(int command)
             return (SetVMReplyResult(0, TRUE));
 
         case VMOpcodeReadAttributes: {
-            register VMAttribute attr = VMAttributeTable[VMCommandOperand(command)];
+            VMAttribute attr = VMAttributeTable[VMCommandOperand(command)];
 
             if
                 VMExists(attr)
@@ -1001,14 +1001,14 @@ int VMCommand(int command)
         }
 
         case VMOpcodeWriteAttributes: {
-            register VMAttribute attr = VMAttributeTable[VMCommandOperand(command)];
-            register Integer vpn = VMCommandOperand(command);
-            register Integer vma = PageNumberMemory(vpn);
+            VMAttribute attr = VMAttributeTable[VMCommandOperand(command)];
+            Integer vpn = VMCommandOperand(command);
+            Integer vma = PageNumberMemory(vpn);
 
             if
                 VMExists(attr)
                 {
-                    register VMAttribute nattr = vm->AttributesRegister;
+                    VMAttribute nattr = vm->AttributesRegister;
 
                     /* ensure Lisp doesn't mung exists, modified? bits */
                     nattr &= ~(VMAttribute_Exists | VMAttribute_Modified);
@@ -1028,7 +1028,7 @@ int VMCommand(int command)
             return (SetVMReplyResult(0, TRUE));
 
         case VMOpcodeSearch: {
-            register Boolean result = VirtualMemorySearch(&vm->AddressRegister, vm->DataRegister, vm->ExtentRegister);
+            Boolean result = VirtualMemorySearch(&vm->AddressRegister, vm->DataRegister, vm->ExtentRegister);
             return (SetVMReplyResult(0, result));
         }
 
@@ -1039,7 +1039,7 @@ int VMCommand(int command)
         }
 
         case VMOpcodeScan: {
-            register Boolean result
+            Boolean result
                 = VirtualMemoryScan(&vm->AddressRegister, vm->ExtentRegister, VMCommandOperand(command));
             return (SetVMReplyResult(0, result));
         }
@@ -1050,31 +1050,31 @@ int VMCommand(int command)
         }
 
         case VMOpcodePHTScan: {
-            register Boolean result = VirtualMemoryPHTScan(
+            Boolean result = VirtualMemoryPHTScan(
                 &vm->AddressRegister, vm->ExtentRegister, vm->AttributesRegister, VMCommandOperand(command));
             return (SetVMReplyResult(0, result));
         }
 
         case VMOpcodeCopyandForward: {
-            register Boolean result
+            Boolean result
                 = VirtualMemoryCopyandForward(vm->AddressRegister, vm->DestinationRegister, vm->ExtentRegister);
             return (SetVMReplyResult(0, result));
         }
 
         case VMOpcodeResidentScan: {
-            register Boolean result = VirtualMemoryResidentScan(
+            Boolean result = VirtualMemoryResidentScan(
                 &vm->AddressRegister, &vm->ExtentRegister, vm->AttributesRegister, VMCommandOperand(command));
             return (SetVMReplyResult(0, result));
         }
 
         case VMOpcodeSearchType: {
-            register Boolean result = VirtualMemorySearchType(
+            Boolean result = VirtualMemorySearchType(
                 &vm->AddressRegister, vm->ExtentRegister, ((uint64_t)vm->MaskRegisterHigh << 32) | vm->MaskRegisterLow);
             return (SetVMReplyResult(0, result));
         }
 
         case VMOpcodeSearchCDR: {
-            register Boolean result
+            Boolean result
                 = VirtualMemorySearchCDR(&vm->AddressRegister, vm->ExtentRegister, vm->MaskRegisterLow);
             return (SetVMReplyResult(0, result));
         }
@@ -1109,15 +1109,15 @@ static int ComputeProtection(register VMAttribute attr)
 
 void AdjustProtection(Integer vma, VMAttribute new_attr)
 {
-    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
-    register int old, new;
+    VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
+    int old, new;
     VMAttribute oa = *attr;
 
     old = ComputeProtection(oa);
     new = ComputeProtection(new_attr);
 
     if (old != new) {
-        register caddr_t address = (caddr_t)&TagSpace[vma - MemoryPageOffset(vma)];
+        caddr_t address = (caddr_t)&TagSpace[vma - MemoryPageOffset(vma)];
 
         if ((mprotect_result = mprotect(address, sizeof(Tag) * MemoryPage_Size, new)))
             vpunt("AdjustProtection", "mprotect(%lx, #, %lx) for VMA %x", address, new, (uint64_t)vma);
@@ -1142,7 +1142,7 @@ void AdjustProtection(Integer vma, VMAttribute new_attr)
 static jmp_buf trap_environment;
 
 /* Catch SEGV's when poking at memory */
-static void simple_segv_handler(int sigval, register siginfo_t *si, void *uc_p) { _longjmp(trap_environment, -1); }
+static void simple_segv_handler(int sigval, siginfo_t *si, void *uc_p) { _longjmp(trap_environment, -1); }
 
 static int mvalid(caddr_t address, size_t count, int access)
 {
@@ -1196,12 +1196,12 @@ static int times = 0;
 // extern void DECODEFAULT();
 extern void *DECODEFAULT;
 
-void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
+void segv_handler(int sigval, siginfo_t *si, void *uc_p)
 {
-    register struct ucontext_t *uc = (struct ucontext *)uc_p;
-    register uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
-    register Integer vma = (Integer)maybevma;
-    register VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
+    struct ucontext_t *uc = (struct ucontext *)uc_p;
+    uint64_t maybevma = (uint64_t)((Tag *)si->si_addr - TagSpace);
+    Integer vma = (Integer)maybevma;
+    VMAttribute attr = VMAttributeTable[MemoryPageNumber(vma)];
 
     if (maybevma >> 32) {
         /* Not a fault in Lisp space */
@@ -1225,7 +1225,7 @@ void segv_handler(int sigval, register siginfo_t *si, void *uc_p)
     case VMAttribute_Exists | VMAttribute_TransportDisable:
     case VMAttribute_Exists | VMAttribute_TransportDisable | VMAttribute_TransportFault: {
         /* no Lisp fault, just note ephemeral and modified and retry */
-        register PHTEntry *ptr = ResidentPagesPointer;
+        PHTEntry *ptr = ResidentPagesPointer;
 
         *ptr = vma;
         if (++ptr >= &ResidentPages[ResidentPages_Size]) {

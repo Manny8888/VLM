@@ -20,7 +20,7 @@ static boolean VLMIsRunningLisp(EmbCommArea *ep) { return (VLMIsRunning(ep) && (
 /* Updates the VLM guest status to reflect its current true status */
 static void UpdateVLMStatus()
 {
-    register EmbCommArea *ep = EmbCommAreaPtr;
+    EmbCommArea *ep = EmbCommAreaPtr;
 
     switch (ep->guestStatus) {
     case NonexistentGuestStatus:
@@ -56,8 +56,8 @@ static void UpdateVLMStatus()
 
 static void ResetCommArea(boolean fullReset)
 {
-    register EmbChannel *channel;
-    register EmbPtr channelP;
+    EmbChannel *channel;
+    EmbPtr channelP;
 
     for (channelP = EmbCommAreaPtr->channel_table; channelP != NullEmbPtr; channelP = channel->next) {
         channel = HostPointer(channelP);

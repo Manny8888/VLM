@@ -93,8 +93,8 @@ EmbPtr EmbCommAreaAlloc(size_t nBytes)
 EmbPtr MakeEmbString(char *aString)
 {
     EmbPtr theStringPtr;
-    register EmbString *theString;
-    register size_t nBytes = (NULL == aString) ? 0 : strlen(aString);
+    EmbString *theString;
+    size_t nBytes = (NULL == aString) ? 0 : strlen(aString);
     uint32_t datum;
 
     if (0 == nBytes)

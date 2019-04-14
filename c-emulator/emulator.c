@@ -69,7 +69,7 @@ void SendInterruptToEmulator() { suspend = SuspendHighPriority; }
 
 static void ProcessSuspend()
 {
-    register SuspendType s = suspend;
+    SuspendType s = suspend;
 
     suspend = SuspendNone;
     switch (s) {
@@ -175,8 +175,8 @@ Boolean EphemeralP(LispObj *obj) { return (PointerTypeP(TagType(obj->TAG)) && Ep
 
 Boolean OldspaceAddressP(Integer vma)
 {
-    register ProcessorState *ps = processor;
-    register int zone = ReadVMAZoneNum(vma);
+    ProcessorState *ps = processor;
+    int zone = ReadVMAZoneNum(vma);
 
     if (zone == 0)
         return (ReadVMAEphemeralHalf(vma) == ((ps->EphemeralOldspaceRegister >> ReadVMAEphemeralDemilevel(vma)) & 01));
@@ -220,7 +220,7 @@ Byte MemoryActionTable[12][64] = { { 014, 06, 014, 010, 05, 05, 05, 05, 0, 0, 0,
 
 Integer MemoryReadInternal(Integer vma, LispObj *object, Byte row[])
 {
-    register int action;
+    int action;
 
 loop:
     ReadVirtualMemory(vma, object);
@@ -504,11 +504,11 @@ static Integer LocateArbitraryInstanceVariable(LispObj *instance, LispObj *offse
 
 int PullApplyArgsQuickly(int count)
 {
-    register ProcessorState *ps = processor;
-    register LispObj *sp = ps->sp;
+    ProcessorState *ps = processor;
+    LispObj *sp = ps->sp;
     LispObj *rest = &ps->StackCache[(*sp--).DATA.u - ps->StackCacheBase];
     int supplied = ReadControlArgumentSize(ps->control);
-    register int i;
+    int i;
 
     for (i = 0; i < count; i++) {
         if (sp >= ps->StackCacheLimit) {
@@ -892,15 +892,15 @@ void IncrementPC(LispObj *pc, int offset)
 int InstructionSequencer(void)
 {
     /* Do not use register decls without considering setjmp/longjmp effects */
-    /* register */ InstructionCacheLine *cp;
-    /* register */ ProcessorState *ps = processor;
-    /* register */ LispObj *sp = ps->sp;
+    InstructionCacheLine *cp;
+    ProcessorState *ps = processor;
+    LispObj *sp = ps->sp;
     LispObj *restartsp = ps->sp;
-    /* register */ LispObj *fp = ps->fp;
-    /* register */ LispObj *lp = ps->lp;
+    LispObj *fp = ps->fp;
+    LispObj *lp = ps->lp;
     PC pc = ps->pc;
     LispObj *op1;
-    /* register */ LispObj *op2;
+    LispObj *op2;
     LispObj scratch_representation;
     LispObj *scratch = &scratch_representation;
     LispObj immediate = { TypeFixnum, 0 };
@@ -3643,9 +3643,9 @@ Dispatch:
 
     case DispatchEntryRestAccepted:
     RetryRestAccepted : {
-        register int supplied;
-        register int minimum = ldb(8, 0, cp->operand);
-        register int maximum = ldb(8, 8, cp->operand);
+        int supplied;
+        int minimum = ldb(8, 0, cp->operand);
+        int maximum = ldb(8, 8, cp->operand);
 
         /* --- debug
         if ((fp[0].TAG&-2) != ((TypeEvenPC&-2)|(3<<6)))
@@ -3706,9 +3706,9 @@ Dispatch:
 
     case DispatchEntryRestNotAccepted:
     RetryRestNotAccepted : {
-        register int supplied = ReadControlArgumentSize(ps->control);
-        register int minimum = ldb(8, 0, cp->operand);
-        register int maximum = ldb(8, 8, cp->operand);
+        int supplied = ReadControlArgumentSize(ps->control);
+        int minimum = ldb(8, 0, cp->operand);
+        int maximum = ldb(8, 8, cp->operand);
 
         /* --- debug
         if ((fp[0].TAG&-2) != ((TypeEvenPC&-2)|(3<<6)))
@@ -4131,7 +4131,7 @@ Dispatch:
     case DispatchCatchClose: {
         /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] == previous */
         LispObj *cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u - ps->StackCacheBase];
-        register Integer control = ps->control;
+        Integer control = ps->control;
 
         if (ps->BindingStackPointer != cbp[1].DATA.u) {
             if (ps->DeepBoundP)
@@ -5434,7 +5434,7 @@ ScratchSpareExceptions:
 HandleUnwindProtect : {
     /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] == previous */
     LispObj *cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u - ps->StackCacheBase];
-    register Integer control = ps->control;
+    Integer control = ps->control;
     sp = restartsp;
 
     if (ps->BindingStackPointer != cbp[1].DATA.u) {

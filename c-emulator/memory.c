@@ -253,10 +253,10 @@ Boolean VirtualMemorySearch(Integer *vma, LispObj *object, int count)
 int VirtualMemoryCopy(Integer from, Integer to, int count, Byte row[])
 {
     Integer *fromdata = &DataSpace[from];
-    register Tag *fromtag = &TagSpace[from];
-    register Tag *etag = &TagSpace[from + count];
+    Tag *fromtag = &TagSpace[from];
+    Tag *etag = &TagSpace[from + count];
     Integer *todata = &DataSpace[to];
-    register Tag *totag = &TagSpace[to];
+    Tag *totag = &TagSpace[to];
     LispObj obj;
     Tag tag;
     int action;
@@ -302,8 +302,8 @@ Boolean VirtualMemoryScan(Integer *vma, int count)
     for (; count > 0; attr++, count -= MemoryPageSize) {
         if (VMTransportFault(*attr)) {
             Integer scanvma = PageNumberMemory(attr - VMAttributeTable);
-            register Tag *tag = &TagSpace[scanvma];
-            register Tag *etag = &TagSpace[scanvma + (MemoryPageSize < count ? MemoryPageSize : count)];
+            Tag *tag = &TagSpace[scanvma];
+            Tag *etag = &TagSpace[scanvma + (MemoryPageSize < count ? MemoryPageSize : count)];
 
             for (; tag < etag; tag++) {
                 if (PointerTypeP(*tag) && (OldspaceAddressP(DataSpace[tag - TagSpace]))) {
@@ -318,11 +318,11 @@ Boolean VirtualMemoryScan(Integer *vma, int count)
 
 void VirtualMemoryEnable(Integer vma, int count)
 {
-    register VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
-    register VMAttribute *eattr = &VMAttributeTable[MemoryPageNumber(vma + count)];
+    VMAttribute *attr = &VMAttributeTable[MemoryPageNumber(vma)];
+    VMAttribute *eattr = &VMAttributeTable[MemoryPageNumber(vma + count)];
 
     for (; attr < eattr; attr++) {
-        register VMAttribute a = *attr;
+        VMAttribute a = *attr;
         if (VMExists(a) && !VMTransportDisable(a))
             *attr = SetVMTransportFault(a);
     }
@@ -332,7 +332,7 @@ VMState VM;
 
 int VMCommand(int command)
 {
-    register VMState *vm = &VM;
+    VMState *vm = &VM;
 
     switch
         VMCommandOpcode(command)

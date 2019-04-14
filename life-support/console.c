@@ -18,7 +18,7 @@
 void InitializeConsoleChannel(VLMConfig *config)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbConsoleChannel));
-    register EmbConsoleChannel *p = (EmbConsoleChannel *)HostPointer(cp);
+    EmbConsoleChannel *p = (EmbConsoleChannel *)HostPointer(cp);
 
     p->type = EmbConsoleChannelType;
     p->unit = 0;
@@ -62,7 +62,7 @@ void InitializeConsoleChannel(VLMConfig *config)
 
 void DoConsoleIO(EmbConsoleChannel *consoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleBuffer *command = pCommand;
+    EmbConsoleBuffer *command = pCommand;
 
     switch (command->opcode) {
     case EmbConsoleCommandOpenDisplay:
@@ -116,9 +116,9 @@ void DoConsoleIO(EmbConsoleChannel *consoleChannel, EmbConsoleBuffer *pCommand)
 
 static void ConsoleDriver(EmbConsoleChannel *consoleChannel, EmbQueue *pRequestQueue, EmbQueue *pReplyQueue)
 {
-    register EmbQueue *requestQueue = pRequestQueue;
-    register EmbQueue *replyQueue = pReplyQueue;
-    register EmbConsoleBuffer *command;
+    EmbQueue *requestQueue = pRequestQueue;
+    EmbQueue *replyQueue = pReplyQueue;
+    EmbConsoleBuffer *command;
     EmbPtr commandPtr;
 
     while (EmbQueueFilled(requestQueue)) {
@@ -154,9 +154,9 @@ static void ConsoleInput(EmbConsoleChannel *consoleChannel)
 
 static int OpenDisplay(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleOpenDisplay *openDisplay = (EmbConsoleOpenDisplay *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleOpenDisplay *openDisplay = (EmbConsoleOpenDisplay *)&command->data[0];
     char displayName[BUFSIZ];
     int result;
 
@@ -203,10 +203,10 @@ static int OpenDisplay(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCo
 
 static int ProcessConnectionRequest(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
     EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
-    register struct _XDisplay *display = (struct _XDisplay *)consoleChannel->display;
+    struct _XDisplay *display = (struct _XDisplay *)consoleChannel->display;
     char *data;
     xConnSetupPrefix setupPrefix;
     xConnSetup setup;
@@ -320,8 +320,8 @@ static int ProcessConnectionRequest(EmbConsoleChannel *pConsoleChannel, EmbConso
 
 static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register struct _XDisplay *display = (struct _XDisplay *)consoleChannel->display;
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    struct _XDisplay *display = (struct _XDisplay *)consoleChannel->display;
     Screen *screen;
     Depth *depth;
 
@@ -407,9 +407,9 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
 
 static int ConsoleWrite(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
     struct pollfd pollDisplay;
     char *data;
     ssize_t nBytes, actualBytes;
@@ -458,9 +458,9 @@ static int ConsoleWrite(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pC
 
 static int ConsoleRead(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
     struct pollfd pollDisplay;
     char *data;
     ssize_t nBytes, actualBytes;
@@ -531,9 +531,9 @@ boolean ConsoleInputAvailableP()
 
 static int ConsoleInputWait(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleInputWait *inputWait = (EmbConsoleInputWait *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleInputWait *inputWait = (EmbConsoleInputWait *)&command->data[0];
     struct pollfd pollDisplay;
     int result;
 
@@ -583,8 +583,8 @@ static void CloseDisplay(EmbConsoleChannel *consoleChannel)
 
 static void EnableRunLights(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
     EmbConsoleRunLights *runLights = (EmbConsoleRunLights *)&command->data[0];
     char displayName[BUFSIZ];
     XGCValues gcValues;
@@ -621,7 +621,7 @@ static void EnableRunLights(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer
 
 static void DrawRunLights(pthread_addr_t argument)
 {
-    register EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)argument;
+    EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)argument;
     pthread_t self = pthread_self();
     struct timespec drlSleep;
     int changed, i, bit, x;
@@ -688,7 +688,7 @@ static void DisableRunLights(EmbConsoleChannel *consoleChannel)
 
 void ResetConsoleChannel(EmbChannel *channel)
 {
-    register EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)channel;
+    EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)channel;
 
     ResetIncomingQueue(consoleChannel->outputRequestQ);
     ResetOutgoingQueue(consoleChannel->outputReplyQ);
@@ -702,7 +702,7 @@ void ResetConsoleChannel(EmbChannel *channel)
 void TerminateConsoleChannel(void)
 {
     void *exit_value;
-    register EmbConsoleChannel *consoleChannel;
+    EmbConsoleChannel *consoleChannel;
 
     if (NullEmbPtr == EmbCommAreaPtr->consoleChannel)
         return;

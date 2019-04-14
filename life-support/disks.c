@@ -39,9 +39,9 @@
 
 void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
 {
-    register AttachDiskChannelRequest *request = pRequest;
-    register EmbDiskChannel *diskChannel = (EmbDiskChannel *)HostPointer(request->diskChannel);
-    register DiskChannelState *diskState;
+    AttachDiskChannelRequest *request = pRequest;
+    EmbDiskChannel *diskChannel = (EmbDiskChannel *)HostPointer(request->diskChannel);
+    DiskChannelState *diskState;
     struct stat fileStatus;
     LispObj filenameHeader;
     size_t filenameSize;
@@ -147,9 +147,9 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
 
 void GrowDiskPartition(GrowDiskPartitionRequest *pRequest)
 {
-    register GrowDiskPartitionRequest *request = pRequest;
-    register EmbDiskChannel *diskChannel = (EmbDiskChannel *)HostPointer(request->diskChannel);
-    register DiskChannelState *diskState = HostState(diskChannel);
+    GrowDiskPartitionRequest *request = pRequest;
+    EmbDiskChannel *diskChannel = (EmbDiskChannel *)HostPointer(request->diskChannel);
+    DiskChannelState *diskState = HostState(diskChannel);
     struct stat fileStatus;
 
     request->result = ESUCCESS; /* Presume success */
@@ -191,10 +191,10 @@ void GrowDiskPartition(GrowDiskPartitionRequest *pRequest)
 
 void DetachDiskChannel(EmbPtr diskChannelPtr)
 {
-    register EmbDiskChannel *diskChannel = (EmbDiskChannel *)HostPointer(diskChannelPtr);
-    register DiskChannelState *diskState = HostState(diskChannel);
-    register EmbPtr channelPtr;
-    register EmbPtr prevChannelPtr;
+    EmbDiskChannel *diskChannel = (EmbDiskChannel *)HostPointer(diskChannelPtr);
+    DiskChannelState *diskState = HostState(diskChannel);
+    EmbPtr channelPtr;
+    EmbPtr prevChannelPtr;
 
     RemoveSignalHandler(diskState->command_queue_ptr->signal);
     diskState->command_queue_ptr->signal = -1;
@@ -226,8 +226,8 @@ void DetachDiskChannel(EmbPtr diskChannelPtr)
 static void DiskLife(EmbDiskChannel *diskChannel)
 {
     DiskChannelState *diskState = HostState(diskChannel);
-    register EmbQueue *commandQueue = diskState->command_queue_ptr;
-    register EmbQueue *statusQueue = diskState->status_queue_ptr;
+    EmbQueue *commandQueue = diskState->command_queue_ptr;
+    EmbQueue *statusQueue = diskState->status_queue_ptr;
     EmbDiskQueueElement *command;
     EmbWord commandPtr;
 
@@ -350,8 +350,8 @@ static int DoDiskIO(EmbDiskChannel *diskChannel, DiskChannelState *diskState, Em
 
 void ResetDiskChannel(EmbChannel *channel)
 {
-    register EmbDiskChannel *diskChannel = (EmbDiskChannel *)channel;
-    register DiskChannelState *diskState = HostState(diskChannel);
+    EmbDiskChannel *diskChannel = (EmbDiskChannel *)channel;
+    DiskChannelState *diskState = HostState(diskChannel);
 
     ResetIncomingQueue(diskState->command_queue_ptr);
     ResetOutgoingQueue(diskState->status_queue_ptr);
@@ -374,7 +374,7 @@ void ResetDiskChannel(EmbChannel *channel)
 
 static void TerminateDiskChannel(EmbDiskChannel *diskChannel)
 {
-    register DiskChannelState *diskState = HostState(diskChannel);
+    DiskChannelState *diskState = HostState(diskChannel);
 
     if (diskState->fd != -1) {
         close(diskState->fd);

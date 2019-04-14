@@ -507,8 +507,8 @@ void ReleaseSpyLock()
 
 void SendMBINBuffers(EmbMBINChannel *mbinChannel)
 {
-    register EmbQueue *gthQ = mbinChannel->guestToHostQueue;
-    register EmbQueue *gthrQ = mbinChannel->guestToHostReturnQueue;
+    EmbQueue *gthQ = mbinChannel->guestToHostQueue;
+    EmbQueue *gthrQ = mbinChannel->guestToHostReturnQueue;
     EmbPtr bufferPtr;
     struct rm_aligned_pkt *buffer;
     struct rm_pkt pkt;

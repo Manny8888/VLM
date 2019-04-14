@@ -269,7 +269,7 @@ const ExceptionInfo InstructionExceptionInfo[0400] = {
 
 static int FetchTrapVectorEntry(Integer index, LispObj *entry)
 {
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     int previous = ReadControlTrapMode(ps->control);
 
     WriteControlTrapMode(ps->control, 3);
@@ -284,7 +284,7 @@ static int FetchTrapVectorEntry(Integer index, LispObj *entry)
 
 int TakePreTrap(Integer index, LispObj *extra1, LispObj *extra2)
 {
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     LispObj *oldfp = ps->fp;
     LispObj *restartsp = ps->restartsp;
     LispObj entry;
@@ -351,7 +351,7 @@ int TakePreTrap(Integer index, LispObj *extra1, LispObj *extra2)
 
 int TakePostTrap(int index, int arity, LispObj *nextpc)
 {
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     LispObj *oldfp = ps->fp;
     LispObj entry;
     int i;
@@ -410,7 +410,7 @@ int TakeInstructionException(int instruction, LispObj *op2, LispObj *nextpc)
 {
     int opcode = ldb(8, 10, instruction);
     const ExceptionInfo *ei = &InstructionExceptionInfo[opcode];
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     int vector;
 
     ps->sp = ps->restartsp;

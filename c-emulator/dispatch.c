@@ -1623,7 +1623,7 @@ int InstructionCacheMiss(void)
             } else {
             DecodePackedWord : {
                 Integer instruction;
-                register const DecoderPair *p;
+                const DecoderPair *p;
 
                 instruction = data & 0777777;
                 even_cp->instruction = instruction;

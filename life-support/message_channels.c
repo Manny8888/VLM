@@ -23,8 +23,8 @@
 void InitializeMessageChannels(VLMConfig *config)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbMessageChannel));
-    register EmbMessageChannel *p = (EmbMessageChannel *)HostPointer(cp);
-    register EmbCommandChannel *cc;
+    EmbMessageChannel *p = (EmbMessageChannel *)HostPointer(cp);
+    EmbCommandChannel *cc;
 
     p->type = EmbMessageChannelType;
     p->unit = 0;
@@ -58,9 +58,9 @@ void InitializeMessageChannels(VLMConfig *config)
 
 void PollMessageChannels()
 {
-    register EmbMessageChannel *messageChannel;
-    register EmbMessageSubtypeData *subtypeData;
-    register EmbQueue *guestToHostQueue;
+    EmbMessageChannel *messageChannel;
+    EmbMessageSubtypeData *subtypeData;
+    EmbQueue *guestToHostQueue;
 
     if (NullEmbPtr == EmbCommAreaPtr->command_channel)
         return;
@@ -79,8 +79,8 @@ void PollMessageChannels()
 
 static void ThreadActiveMessageChannel(EmbMessageChannel *theChannel)
 {
-    register EmbMessageChannel *messageChannel;
-    register EmbMessageSubtypeData *subtypeData;
+    EmbMessageChannel *messageChannel;
+    EmbMessageSubtypeData *subtypeData;
 
     ((EmbMessageSubtypeData *)SubtypeData(theChannel))->header.nextActiveChannel = NULL;
 
@@ -98,8 +98,8 @@ static void ThreadActiveMessageChannel(EmbMessageChannel *theChannel)
 
 void UnthreadMessageChannel(EmbMessageChannel *theChannel)
 {
-    register EmbMessageChannel *messageChannel;
-    register EmbMessageSubtypeData *subtypeData;
+    EmbMessageChannel *messageChannel;
+    EmbMessageSubtypeData *subtypeData;
     EmbMessageSubtypeData *theSubtypeData;
 
     for (messageChannel = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel); messageChannel != NULL;
@@ -118,10 +118,10 @@ void UnthreadMessageChannel(EmbMessageChannel *theChannel)
 
 void ExecuteGuestCommands(EmbCommandChannel *commandChannel)
 {
-    register EmbQueue *commandQueue = commandChannel->guestToHostQueue;
-    register EmbQueue *resultsQueue = commandChannel->guestToHostReturnQueue;
+    EmbQueue *commandQueue = commandChannel->guestToHostQueue;
+    EmbQueue *resultsQueue = commandChannel->guestToHostReturnQueue;
     EmbPtr commandPtr;
-    register EmbCommandBuffer *command;
+    EmbCommandBuffer *command;
     EmbCommandStartMBINBuffer *startMBINCommand;
     EmbMessageChannel *mbinChannel;
     EmbMBINChannel *mbinSubChannel;
@@ -176,8 +176,8 @@ void ExecuteGuestCommands(EmbCommandChannel *commandChannel)
 
 void ResetMessageChannel(EmbChannel *channel)
 {
-    register EmbMessageChannel *messageChannel = (EmbMessageChannel *)channel;
-    register EmbMessageSubtypeData *subtypeData;
+    EmbMessageChannel *messageChannel = (EmbMessageChannel *)channel;
+    EmbMessageSubtypeData *subtypeData;
     boolean allocatedByVLM;
 
     allocatedByVLM = GuestPointer(channel) > EmbCommAreaPtr->host_buffer_start + EmbCommAreaPtr->host_buffer_size;

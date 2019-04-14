@@ -1172,7 +1172,7 @@ void UpdateColdLoadNames()
 void InitializeColdLoadChannel(VLMConfig *config)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbColdLoadChannel));
-    register EmbColdLoadChannel *p = (EmbColdLoadChannel *)HostPointer(cp);
+    EmbColdLoadChannel *p = (EmbColdLoadChannel *)HostPointer(cp);
 
     p->type = EmbColdLoadChannelType;
     p->unit = 0;
@@ -1217,7 +1217,7 @@ void InitializeColdLoadChannel(VLMConfig *config)
 
 void ResetColdLoadChannel(EmbChannel *channel)
 {
-    register EmbColdLoadChannel *coldLoadChannel = (EmbColdLoadChannel *)channel;
+    EmbColdLoadChannel *coldLoadChannel = (EmbColdLoadChannel *)channel;
 
     ResetIncomingQueue((EmbQueue *)HostPointer(coldLoadChannel->display_output_queue));
     ResetOutgoingQueue((EmbQueue *)HostPointer(coldLoadChannel->keyboard_input_queue));

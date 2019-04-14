@@ -88,7 +88,7 @@ void InitializeNetworkChannels(VLMConfig *config)
 static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, int ipSocket, struct ifconf *ifc)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbNetChannel));
-    register EmbNetChannel *p = (EmbNetChannel *)HostPointer(cp);
+    EmbNetChannel *p = (EmbNetChannel *)HostPointer(cp);
     struct ifreq ifr;
     struct if_nameindex *saved_ifs, *ifs;
     int interfaceIndex, i, err;
@@ -221,7 +221,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     {
         if (pInterface->myProtocol == ETHERTYPE_IP) {
             EmbPtr arpReqPtr = EmbCommAreaAlloc(sizeof(EmbNetARPReq));
-            register EmbNetARPReq *pARP = (EmbNetARPReq *)HostPointer(arpReqPtr);
+            EmbNetARPReq *pARP = (EmbNetARPReq *)HostPointer(arpReqPtr);
             pARP->next = p->arpReq;
             p->arpReq = pARP;
 
@@ -318,7 +318,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
 void ResetNetworkChannel(EmbChannel *channel)
 {
-    register EmbNetChannel *netChannel = (EmbNetChannel *)channel;
+    EmbNetChannel *netChannel = (EmbNetChannel *)channel;
 
     ResetIncomingQueue(netChannel->guestToHostQ);
     ResetOutgoingQueue(netChannel->guestToHostReturnQ);
@@ -341,9 +341,9 @@ static int new_packet(char *packet, int size)
 
 static void recv_packet(char *packet, int size)
 {
-    register EmbNetChannel *netChannel = pInputChannel;
-    register EmbQueue *supplyQueue = netChannel->hostToGuestSupplyQ;
-    register EmbQueue *receiveQueue = netChannel->hostToGuestQ;
+    EmbNetChannel *netChannel = pInputChannel;
+    EmbQueue *supplyQueue = netChannel->hostToGuestSupplyQ;
+    EmbQueue *receiveQueue = netChannel->hostToGuestQ;
     EmbPtr netPacketPtr;
     EmbNetPacket *netPacket;
 
@@ -444,9 +444,9 @@ void dump_packet(char *who, unsigned char *pkt, int size)
 
 static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
 {
-    register EmbNetChannel *netChannel = pNetChannel;
-    register EmbQueue *transmitQueue = netChannel->guestToHostQ;
-    register EmbQueue *returnQueue = netChannel->guestToHostReturnQ;
+    EmbNetChannel *netChannel = pNetChannel;
+    EmbQueue *transmitQueue = netChannel->guestToHostQ;
+    EmbQueue *returnQueue = netChannel->guestToHostReturnQ;
     EmbPtr netPacketPtr;
     EmbNetPacket *netPacket;
     ssize_t nBytes, actualBytes;
@@ -515,9 +515,9 @@ static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
 static void NetworkChannelReceiver(pthread_addr_t argument)
 {
     pthread_t self = pthread_self();
-    register EmbNetChannel *netChannel = (EmbNetChannel *)argument;
-    register EmbQueue *supplyQueue = netChannel->hostToGuestSupplyQ;
-    register EmbQueue *receiveQueue = netChannel->hostToGuestQ;
+    EmbNetChannel *netChannel = (EmbNetChannel *)argument;
+    EmbQueue *supplyQueue = netChannel->hostToGuestSupplyQ;
+    EmbQueue *receiveQueue = netChannel->hostToGuestQ;
     struct pollfd pollReceiver;
     struct timespec receiverPause;
     EmbPtr netPacketPtr;
