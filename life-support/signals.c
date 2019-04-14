@@ -39,9 +39,11 @@ SignalNumber InstallSignalHandler(ProcPtrV signalHandler, PtrV signalArgument, b
     int policy, priority, i;
     SignalMask signal;
 
-    if (EmbCommAreaPtr->useSignalLocks)
-        if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock))
+    if (EmbCommAreaPtr->useSignalLocks) {
+        if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock)) {
             vpunt(NULL, "Unable to lock the Life Support signal lock in thread %lx", pthread_self());
+        }   
+    }   
 
     for (i = 0; i < NSignals; i++) {
         signal = 1 << i;
@@ -129,12 +131,15 @@ void WaitForLifeSupport()
 
         /* 8.12 changed cond_wait to cond_timedwait because sometimes got here
          * with signals */
-        if (result = pthread_cond_timedwait(&EmbCommAreaPtr->wakeupSignal, &EmbCommAreaPtr->wakeupLock, &abstime))
-            if (!(result == ETIMEDOUT || result == EINTR))
+        result = pthread_cond_timedwait(&EmbCommAreaPtr->wakeupSignal, &EmbCommAreaPtr->wakeupLock, &abstime);
+        if (result) {
+            if (!(result == ETIMEDOUT || result == EINTR)) {
                 vpunt(NULL, "Unable to wait for a VLM wakeup signal in thread %lx", pthread_self());
-
-        if (pthread_mutex_unlock(&EmbCommAreaPtr->wakeupLock))
+            }
+        }   
+        if (pthread_mutex_unlock(&EmbCommAreaPtr->wakeupLock)) {
             vpunt(NULL, "Unable to unlock the VLM wakeup lock in thread %lx", pthread_self());
+        }
         pthread_cleanup_pop(FALSE);
 
     }

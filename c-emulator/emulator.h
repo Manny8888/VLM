@@ -48,7 +48,7 @@ typedef union {
 #define LispObjTag(lo) (((LispObj *)(&lo))->TAG)
 #define LispObjData(lo) (((LispObj *)(&lo))->DATA.u)
 
-extern LispObj MakeLispObj (uint32_t tag, uint32_t data);
+extern LispObj* MakeLispObj (uint32_t tag, uint32_t data);
 
 typedef struct _InstructionCacheLine {
     PC pc;
@@ -147,7 +147,9 @@ Boolean WriteInternalRegister(int regno, LispObj *val);
 extern void SendInterruptToEmulator(void);
 extern void SendInterruptToLifeSupport(void);
 
+extern void TakeMemoryTrap(int vector, Integer vma);
 extern Boolean OldspaceP(LispObj *obj);
+Boolean OldspaceAddressP(Integer vma);
 extern int InstructionSequencer(void);
 extern void OutOfMemory(char *Where, int HowMuch);
 extern void StackCacheScrollDown(void);
