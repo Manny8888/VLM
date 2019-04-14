@@ -368,8 +368,9 @@ static void DecodeSPOperandFunction(int i, InstructionCacheLine *cp)
     if (offset == 0) {
         cp->code = PopInstructionDecoder[ldb(8, 10, i)];
         cp->operand = 0;
-    } else
+    } else {
         cp->operand = (offset - 255);
+}
 }
 
 static void DecodeBranchOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = SignExtend10(i); }
@@ -1645,17 +1646,22 @@ int InstructionCacheMiss(void)
         assignments we made may actually point out of this cache line.  Go
         back and look at the possibly errant pointers, and force a cache
         lookup if necessary. */
-        if (block_cp->next_pc.DATA.u < block_vma)
+        if (block_cp->next_pc.DATA.u < block_vma) {
             block_cp->next_cp = &InstructionCacheLookupCPRepresentation;
+}
         even_cp = block_cp + InstructionCacheLineSize - 4;
-        if (even_cp->next_pc.DATA.u >= bound_vma)
+        if (even_cp->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
-        if ((++even_cp)->next_pc.DATA.u >= bound_vma)
+}
+        if ((++even_cp)->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
-        if ((++even_cp)->next_pc.DATA.u >= bound_vma)
+}
+        if ((++even_cp)->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
-        if ((++even_cp)->next_pc.DATA.u >= bound_vma)
+}
+        if ((++even_cp)->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
+}
     }
     return (0);
 }

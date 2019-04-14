@@ -485,7 +485,7 @@ char *halfwordnames[256 * 4] = {
     "DoSpareOpFP", "DoSpareOpLP", "DoSpareOpSP", "DoSpareOpIM", /*#o0377 */
 };
 
-void dumpstack(void){}
+void dumpstack(void) {}
 
 /* idispat */
 int iInterpret(PROCESSORSTATEP ivoryp)

@@ -21,7 +21,7 @@ typedef void *Pointer;
     ((((field) & ((1 << (ss)) - 1)) << (pp)) | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
 #define ceiling(n, d) (((n) + ((d)-1)) / (d))
 
-#define WORD_BIT 32 
+#define WORD_BIT 32
 #if (WORD_BIT == 32)
 #define SignExtend8(i) (((int)((unsigned int)i << 24)) / 16777216)
 #define SignExtend10(i) (((int)((unsigned int)i << 22)) / 4194304)
@@ -48,7 +48,7 @@ typedef union {
 #define LispObjTag(lo) (((LispObj *)(&lo))->TAG)
 #define LispObjData(lo) (((LispObj *)(&lo))->DATA.u)
 
-extern LispObj* MakeLispObj (uint32_t tag, uint32_t data);
+extern LispObj *MakeLispObj(uint32_t tag, uint32_t data);
 
 typedef struct _InstructionCacheLine {
     PC pc;
@@ -84,9 +84,9 @@ typedef struct _ProcessorState {
     LispObj *restartsp;
     LispObj *fp;
     LispObj *lp;
-    PC pc;                                    // This counter increases 1 by 1 and therefore alternates between even 
-                                              // and odd addresses. The tag memory and data memory spaces are separate. // Therefore, loading 64 bits will load 2 consecutive tags and 2 
-                                              // consecutive addresses (think cons or list structure).
+    PC pc; // This counter increases 1 by 1 and therefore alternates between even
+           // and odd addresses. The tag memory and data memory spaces are separate. // Therefore, loading 64 bits will
+           // load 2 consecutive tags and 2 consecutive addresses (think cons or list structure).
     PC continuation;
     InstructionCacheLine *InstructionCache;
     LispObj *StackCache;

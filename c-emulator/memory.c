@@ -49,8 +49,9 @@ Integer EnsureVirtualAddress(Integer vma)
     caddr_t data, tag;
     Integer aligned_vma = vma - MemoryPageOffset(vma);
 
-    if (Created(vma))
+    if (Created(vma)) {
         return (vma);
+}
 
     data = (caddr_t)&DataSpace[aligned_vma];
     tag = (caddr_t)&TagSpace[aligned_vma];
@@ -90,13 +91,15 @@ Integer EnsureVirtualAddressRange(Integer vma, int count)
 
             if (data
                 != mmap(data, n * sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE,
-                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0)) {
                 printf("Couldn't map %d data pages at %s for VMA %016lx", n, data, aligned_vma);
+}
 
             if (tag
                 != mmap(tag, n * sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE,
-                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0)) {
                 printf("Couldn't map %d tag pages at %s for VMA %016lx", n, tag, aligned_vma);
+}
             aligned_vma += n * MemoryPageSize;
         }
 
@@ -114,15 +117,18 @@ Integer DestroyVirtualAddress(Integer vma)
     caddr_t data, tag;
     Integer aligned_vma = vma - MemoryPageOffset(vma);
 
-    if (!Created(vma))
+    if (!Created(vma)) {
         return (vma);
+}
 
     data = (caddr_t)&DataSpace[aligned_vma];
     tag = (caddr_t)&TagSpace[aligned_vma];
-    if (munmap(data, sizeof(Integer[MemoryPageSize])))
+    if (munmap(data, sizeof(Integer[MemoryPageSize]))) {
         printf("Couldn't unmap data page at %s for VMA %016lx", data, vma);
-    if (munmap(tag, sizeof(Tag[MemoryPageSize])))
+}
+    if (munmap(tag, sizeof(Tag[MemoryPageSize]))) {
         printf("Couldn't unmap tag page at %s for VMA %016lx", tag, vma);
+}
 
     ClearCreated(vma);
     return (vma);
@@ -132,8 +138,9 @@ Integer DestroyVirtualAddressRange(Integer vma, int count)
 {
     int pages = ceiling(count, MemoryPageSize);
 
-    for (; pages--; vma += MemoryPageSize)
+    for (; pages--; vma += MemoryPageSize) {
         DestroyVirtualAddress(vma);
+}
 
     return (vma);
 }
@@ -209,19 +216,23 @@ int VirtualMemoryWriteBlockConstant(Integer vma, LispObj *object, int count, int
 
     switch (increment) {
     case 0:
-        if (cdata == 0)
+        if (cdata == 0) {
             (void)memset((unsigned char *)data, (unsigned char)0, count * sizeof(Integer));
-        else
-            for (; data < edata; *data++ = cdata, memory_vma++)
+        } else {
+            for (; data < edata; *data++ = cdata, memory_vma++) {
                 ;
+}
+}
         break;
     case 1:
-        for (; data < edata; *data++ = cdata++, memory_vma++)
+        for (; data < edata; *data++ = cdata++, memory_vma++) {
             ;
+}
         break;
     default:
-        for (; data < edata; *data++ = cdata, cdata += increment, memory_vma++)
+        for (; data < edata; *data++ = cdata, cdata += increment, memory_vma++) {
             ;
+}
     }
     return (0);
 }
@@ -236,8 +247,9 @@ Boolean VirtualMemorySearch(Integer *vma, LispObj *object, int count)
 
     for (; tag < etag;) {
         tag = (Tag *)memchr((unsigned char *)tag, (unsigned char)ctag, (etag - tag) * sizeof(Tag));
-        if (tag == NULL)
+        if (tag == NULL) {
             return (False);
+}
 
         /* set memory_vma for SEGV handler */
         memory_vma = tag - TagSpace;
@@ -323,8 +335,9 @@ void VirtualMemoryEnable(Integer vma, int count)
 
     for (; attr < eattr; attr++) {
         VMAttribute a = *attr;
-        if (VMExists(a) && !VMTransportDisable(a))
+        if (VMExists(a) && !VMTransportDisable(a)) {
             *attr = SetVMTransportFault(a);
+}
     }
 }
 
@@ -402,5 +415,5 @@ int VMCommand(int command)
             VirtualMemoryEnable(vm->AddressRegister, vm->ExtentRegister);
             return (SetVMReplyResult(0, True));
         }
-    }
+        }
 }

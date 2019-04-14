@@ -5,287 +5,267 @@
  * File translated:      ../alpha-emulator/ifunfull.as
  ************************************************************************/
 
-  /* The full word instructions */
+/* The full word instructions */
 /* start DoIStageError */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - DoIStageError */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - DoIStageError */
+/* ======================= */
 
-doistageerror:
-  if (_trace) printf("doistageerror:\n");
-  arg5 = 0;
-  arg2 = 38;
-  goto illegaloperand;
+doistageerror : if (_trace) printf("doistageerror:\n");
+arg5 = 0;
+arg2 = 38;
+goto illegaloperand;
 
 /* end DoIStageError */
-  /* End of Fullword instruction - DoIStageError */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - DoIStageError */
+/* ============================== */
+/*  */
 /* start nullfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - nullfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - nullfw */
+/* ======================= */
 
-nullfw:
-  if (_trace) printf("nullfw:\n");
-  arg5 = 0;
-  arg2 = 47;
-  goto illegaloperand;
+nullfw : if (_trace) printf("nullfw:\n");
+arg5 = 0;
+arg2 = 47;
+goto illegaloperand;
 
 /* end nullfw */
-  /* End of Fullword instruction - nullfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - nullfw */
+/* ============================== */
+/*  */
 /* start monitorforwardfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - monitorforwardfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - monitorforwardfw */
+/* ======================= */
 
-monitorforwardfw:
-  if (_trace) printf("monitorforwardfw:\n");
-  arg5 = 0;
-  arg2 = 46;
-  goto illegaloperand;
+monitorforwardfw : if (_trace) printf("monitorforwardfw:\n");
+arg5 = 0;
+arg2 = 46;
+goto illegaloperand;
 
 /* end monitorforwardfw */
-  /* End of Fullword instruction - monitorforwardfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - monitorforwardfw */
+/* ============================== */
+/*  */
 /* start headerpfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - headerpfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - headerpfw */
+/* ======================= */
 
-headerpfw:
-  if (_trace) printf("headerpfw:\n");
-  arg5 = 0;
-  arg2 = 44;
-  goto illegaloperand;
+headerpfw : if (_trace) printf("headerpfw:\n");
+arg5 = 0;
+arg2 = 44;
+goto illegaloperand;
 
 /* end headerpfw */
-  /* End of Fullword instruction - headerpfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - headerpfw */
+/* ============================== */
+/*  */
 /* start headerifw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - headerifw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - headerifw */
+/* ======================= */
 
-headerifw:
-  if (_trace) printf("headerifw:\n");
-  arg5 = 0;
-  arg2 = 43;
-  goto illegaloperand;
+headerifw : if (_trace) printf("headerifw:\n");
+arg5 = 0;
+arg2 = 43;
+goto illegaloperand;
 
 /* end headerifw */
-  /* End of Fullword instruction - headerifw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - headerifw */
+/* ============================== */
+/*  */
 /* start oneqforwardfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - oneqforwardfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - oneqforwardfw */
+/* ======================= */
 
-oneqforwardfw:
-  if (_trace) printf("oneqforwardfw:\n");
-  arg5 = 0;
-  arg2 = 48;
-  goto illegaloperand;
+oneqforwardfw : if (_trace) printf("oneqforwardfw:\n");
+arg5 = 0;
+arg2 = 48;
+goto illegaloperand;
 
 /* end oneqforwardfw */
-  /* End of Fullword instruction - oneqforwardfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - oneqforwardfw */
+/* ============================== */
+/*  */
 /* start headerforwardfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - headerforwardfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - headerforwardfw */
+/* ======================= */
 
-headerforwardfw:
-  if (_trace) printf("headerforwardfw:\n");
-  arg5 = 0;
-  arg2 = 42;
-  goto illegaloperand;
+headerforwardfw : if (_trace) printf("headerforwardfw:\n");
+arg5 = 0;
+arg2 = 42;
+goto illegaloperand;
 
 /* end headerforwardfw */
-  /* End of Fullword instruction - headerforwardfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - headerforwardfw */
+/* ============================== */
+/*  */
 /* start elementforwardfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - elementforwardfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - elementforwardfw */
+/* ======================= */
 
-elementforwardfw:
-  if (_trace) printf("elementforwardfw:\n");
-  arg5 = 0;
-  arg2 = 40;
-  goto illegaloperand;
+elementforwardfw : if (_trace) printf("elementforwardfw:\n");
+arg5 = 0;
+arg2 = 40;
+goto illegaloperand;
 
 /* end elementforwardfw */
-  /* End of Fullword instruction - elementforwardfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - elementforwardfw */
+/* ============================== */
+/*  */
 /* start gcforwardfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - gcforwardfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - gcforwardfw */
+/* ======================= */
 
-gcforwardfw:
-  if (_trace) printf("gcforwardfw:\n");
-  arg5 = 0;
-  arg2 = 41;
-  goto illegaloperand;
+gcforwardfw : if (_trace) printf("gcforwardfw:\n");
+arg5 = 0;
+arg2 = 41;
+goto illegaloperand;
 
 /* end gcforwardfw */
-  /* End of Fullword instruction - gcforwardfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - gcforwardfw */
+/* ============================== */
+/*  */
 /* start boundlocationfw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - boundlocationfw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - boundlocationfw */
+/* ======================= */
 
-boundlocationfw:
-  if (_trace) printf("boundlocationfw:\n");
-  arg5 = 0;
-  arg2 = 39;
-  goto illegaloperand;
+boundlocationfw : if (_trace) printf("boundlocationfw:\n");
+arg5 = 0;
+arg2 = 39;
+goto illegaloperand;
 
 /* end boundlocationfw */
-  /* End of Fullword instruction - boundlocationfw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - boundlocationfw */
+/* ============================== */
+/*  */
 /* start logicvariablefw */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - logicvariablefw */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - logicvariablefw */
+/* ======================= */
 
-logicvariablefw:
-  if (_trace) printf("logicvariablefw:\n");
-  arg5 = 0;
-  arg2 = 45;
-  goto illegaloperand;
+logicvariablefw : if (_trace) printf("logicvariablefw:\n");
+arg5 = 0;
+arg2 = 45;
+goto illegaloperand;
 
 /* end logicvariablefw */
-  /* End of Fullword instruction - logicvariablefw */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - logicvariablefw */
+/* ============================== */
+/*  */
 /* start pushsparepointer3 */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - pushsparepointer3 */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - pushsparepointer3 */
+/* ======================= */
 
-pushsparepointer3:
-  if (_trace) printf("pushsparepointer3:\n");
-  arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);   		// Get operand 
-  /* This instruction has not been written yet. */
-  arg5 = 0;
-  arg2 = 38;
-  goto illegaloperand;
+pushsparepointer3 : if (_trace) printf("pushsparepointer3:\n");
+arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction); // Get operand
+/* This instruction has not been written yet. */
+arg5 = 0;
+arg2 = 38;
+goto illegaloperand;
 
 /* end pushsparepointer3 */
-  /* End of Fullword instruction - pushsparepointer3 */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - pushsparepointer3 */
+/* ============================== */
+/*  */
 /* start pushsparepointer4 */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - pushsparepointer4 */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - pushsparepointer4 */
+/* ======================= */
 
-pushsparepointer4:
-  if (_trace) printf("pushsparepointer4:\n");
-  arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction);   		// Get operand 
-  /* This instruction has not been written yet. */
-  arg5 = 0;
-  arg2 = 38;
-  goto illegaloperand;
+pushsparepointer4 : if (_trace) printf("pushsparepointer4:\n");
+arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction); // Get operand
+/* This instruction has not been written yet. */
+arg5 = 0;
+arg2 = 38;
+goto illegaloperand;
 
 /* end pushsparepointer4 */
-  /* End of Fullword instruction - pushsparepointer4 */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - pushsparepointer4 */
+/* ============================== */
+/*  */
 /* start callcompiledodd */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - callcompiledodd */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - callcompiledodd */
+/* ======================= */
 
-callcompiledodd:
-  if (_trace) printf("callcompiledodd:\n");
+callcompiledodd : if (_trace) printf("callcompiledodd:\n");
 
-callcompiledoddprefetch:
-  if (_trace) printf("callcompiledoddprefetch:\n");
-  arg6 = arg3;		// Get operand 
-  arg5 = Type_OddPC;
-  arg3 = zero;		// No extra arg 
-  goto startcallcompiledmerge;   
+callcompiledoddprefetch : if (_trace) printf("callcompiledoddprefetch:\n");
+arg6 = arg3; // Get operand
+arg5 = Type_OddPC;
+arg3 = zero; // No extra arg
+goto startcallcompiledmerge;
 
 /* end callcompiledodd */
-  /* End of Fullword instruction - callcompiledodd */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - callcompiledodd */
+/* ============================== */
+/*  */
 /* start nativeinstruction */
 
-  /*  */
-  /*  */
-  /* Fullword instruction - nativeinstruction */
-  /* ======================= */
+/*  */
+/*  */
+/* Fullword instruction - nativeinstruction */
+/* ======================= */
 
-nativeinstruction:
-  if (_trace) printf("nativeinstruction:\n");
-  arg1 = iPC & ~1L;		// arg1 is instruction address*2 here 
-  arg1 = arg1 + arg1;		// Select the DATA address 
-  arg1 = (ivory * 4) + arg1;   		// Add in the memory base 
-    r0 = (*( u64 (*)(u64, u64) )arg1)(arg1, arg2); /* jsr */  		// Jump into the Ivory code 
+nativeinstruction : if (_trace) printf("nativeinstruction:\n");
+arg1 = iPC & ~1L; // arg1 is instruction address*2 here
+arg1 = arg1 + arg1; // Select the DATA address
+arg1 = (ivory * 4) + arg1; // Add in the memory base
+r0 = (*(u64(*)(u64, u64))arg1)(arg1, arg2); /* jsr */ // Jump into the Ivory code
 
 /* end nativeinstruction */
-  /* End of Fullword instruction - nativeinstruction */
-  /* ============================== */
-  /*  */
+/* End of Fullword instruction - nativeinstruction */
+/* ============================== */
+/*  */
 /* start resumeemulated */
 
-
-resumeemulated:
-  if (_trace) printf("resumeemulated:\n");
-  arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);   
-  iPC = (ivory * 4) - arg1;   
-  iPC = zero - iPC;   
-  iPC = iPC >> 1;   
-  if (arg2 != 0)   
+resumeemulated : if (_trace) printf("resumeemulated:\n");
+arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
+iPC = (ivory * 4) - arg1;
+iPC = zero - iPC;
+iPC = iPC >> 1;
+if (arg2 != 0)
     goto interpretinstructionpredicted;
-  goto interpretinstructionforbranch;   
+goto interpretinstructionforbranch;
 
 /* end resumeemulated */
-  /* Fin. */
-
-
+/* Fin. */
 
 /* End of file automatically generated from ../alpha-emulator/ifunfull.as */

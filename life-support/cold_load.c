@@ -125,14 +125,16 @@ static int open_cold_load_display(XParams *params, boolean noWaiting)
     if (display != NULL) {
         replay_command_history();
         return (XConnectionNumber(display));
-    } else
+    } else {
         return (-1);
+}
 }
 
 static int manage_x_input(XParams *params)
 {
-    while (display != NULL && XPending(display))
+    while (display != NULL && XPending(display)) {
         handle_input();
+}
     if (display == NULL) {
         /* Display must have closed */
         close_display();
@@ -143,8 +145,9 @@ static int manage_x_input(XParams *params)
 
 static void manage_cold_load_output()
 {
-    while (EmbQueueFilled(display_queue))
+    while (EmbQueueFilled(display_queue)) {
         handle_output();
+}
 }
 
 static void update_cold_load_blinkers()
@@ -178,21 +181,23 @@ static void open_display(XParams *params, boolean noWaiting)
     struct timespec openSleep;
 
     BuildXDisplayName(display_name, params->xpHostName, params->xpDisplay, params->xpScreen);
-    if ((display = XOpenDisplay(display_name)) == NULL)
-        if (noWaiting)
+    if ((display = XOpenDisplay(display_name)) == NULL) {
+        if (noWaiting) {
             return;
-        else {
+        } else {
             verror("Cold Load", NULL);
             vwarn("Cold Load", "Waiting for X server... ");
             while (display == NULL) {
                 openSleep.tv_sec = 5;
                 openSleep.tv_nsec = 0;
-                if (pthread_delay_np(&openSleep))
+                if (pthread_delay_np(&openSleep)) {
                     vpunt(NULL, "Unable to sleep in thread %lx", pthread_self());
+}
                 display = XOpenDisplay(display_name);
             }
             fprintf(stderr, "Done.\n");
         }
+}
 
     screen_no = XDefaultScreen(display);
     screen = XDefaultScreenOfDisplay(display);
@@ -207,8 +212,9 @@ static void open_display(XParams *params, boolean noWaiting)
     if (fontinfo) {
         gcv.font = fontinfo->fid;
         XFreeFontInfo(NULL, fontinfo, 0);
-    } else
+    } else {
         gcv.font = 0;
+}
     char_width = 8;
     char_height = 12;
     roff = rmarg - 0;
@@ -229,10 +235,10 @@ static void open_display(XParams *params, boolean noWaiting)
         w_h = 400;
     }
 #else
-    if (params->xpGeometry)
+    if (params->xpGeometry) {
         g_flags = XGeometry(display, screen_no, params->xpGeometry, "800x800+100+100", border_width, char_width,
             char_height, roff + loff, toff + boff, &w_x, &w_y, &w_w, &w_h);
-    else {
+    } else {
         g_flags = 0;
         w_x = 100;
         w_y = 100;
@@ -242,21 +248,24 @@ static void open_display(XParams *params, boolean noWaiting)
 #endif
 
     if ((params->xpForegroundColor != NULL)
-        && XAllocNamedColor(display, colormap, params->xpForegroundColor, &color, &color))
+        && XAllocNamedColor(display, colormap, params->xpForegroundColor, &color, &color)) {
         gcv.foreground = color.pixel;
-    else
+    } else {
         gcv.foreground = XBlackPixelOfScreen(screen);
+}
 
     if ((params->xpBackgroundColor != NULL)
-        && XAllocNamedColor(display, colormap, params->xpBackgroundColor, &color, &color))
+        && XAllocNamedColor(display, colormap, params->xpBackgroundColor, &color, &color)) {
         gcv.background = color.pixel;
-    else
+    } else {
         gcv.background = XWhitePixelOfScreen(screen);
+}
 
-    if ((params->xpBorderColor != NULL) && XAllocNamedColor(display, colormap, params->xpBorderColor, &color, &color))
+    if ((params->xpBorderColor != NULL) && XAllocNamedColor(display, colormap, params->xpBorderColor, &color, &color)) {
         attributes.border_pixel = color.pixel;
-    else
+    } else {
         attributes.border_pixel = XBlackPixelOfScreen(screen);
+}
 
     attributes.background_pixel = gcv.background;
     attributes.event_mask = KeyPressMask | ExposureMask | StructureNotifyMask | FocusChangeMask | VisibilityChangeMask;
@@ -269,9 +278,10 @@ static void open_display(XParams *params, boolean noWaiting)
     gc = XCreateGC(display, window, GCForeground | GCBackground | (gcv.font ? GCFont : 0), &gcv);
     icon_gc = XCreateGC(display, icon_window, GCForeground | GCBackground, &gcv);
 
-    if (!gcv.font)
+    if (!gcv.font) {
         cptfont_bitmap
             = XCreateBitmapFromData(display, root, GENERA_CPTFONT_bits, GENERA_CPTFONT_width, GENERA_CPTFONT_height);
+}
 
     if (XCellsOfScreen(screen) < 16) {
         icon_bitmap
@@ -285,24 +295,27 @@ static void open_display(XParams *params, boolean noWaiting)
         if (XAllocColor(display, colormap, &color)) {
             gcv.foreground = color.pixel;
             icon_gc_s = XCreateGC(display, icon_window, GCForeground, &gcv);
-        } else
+        } else {
             icon_gc_s = icon_gc;
+}
         color.red = 65535;
         color.green = 0;
         color.blue = 0;
         if (XAllocColor(display, colormap, &color)) {
             gcv.foreground = color.pixel;
             icon_gc_c = XCreateGC(display, icon_window, GCForeground, &gcv);
-        } else
+        } else {
             icon_gc_c = icon_gc;
+}
         color.red = 65535;
         color.green = 0;
         color.blue = 65535;
         if (XAllocColor(display, colormap, &color)) {
             gcv.foreground = color.pixel;
             icon_gc_t = XCreateGC(display, icon_window, GCForeground, &gcv);
-        } else
+        } else {
             icon_gc_t = icon_gc;
+}
     }
 
     SetColdLoadNames();
@@ -338,8 +351,9 @@ static void close_display()
 
 static void close_display_child_hook()
 {
-    if (display != NULL)
+    if (display != NULL) {
         close(XConnectionNumber(display));
+}
 }
 
 static void handle_input()
@@ -353,25 +367,27 @@ static void handle_input()
     XNextEvent(display, &event);
     switch (event.type) {
     case ConfigureNotify:
-        if (event.xconfigure.window == window)
+        if (event.xconfigure.window == window) {
             alloc_screen_array(event.xconfigure.width, event.xconfigure.height);
-        else if (event.xconfigure.window == icon_window) {
+        } else if (event.xconfigure.window == icon_window) {
             icon_width = event.xconfigure.width;
             icon_height = event.xconfigure.height;
         }
         break;
     case Expose:
         if (event.xexpose.window == window) {
-            if (event.xexpose.y < tmarg)
+            if (event.xexpose.y < tmarg) {
                 show_lights(1);
+}
             hide_cursor();
             redisplay_screen_array((event.xexpose.x - lmarg) / char_width, (event.xexpose.y - tmarg) / char_height,
                 (event.xexpose.x - lmarg + event.xexpose.width - 1) / char_width + 1,
                 (event.xexpose.y - tmarg + event.xexpose.height - 1) / char_height + 1);
             reset_light_state(True);
             show_lights(1);
-        } else if (event.xexpose.window == icon_window)
+        } else if (event.xexpose.window == icon_window) {
             show_icon();
+}
         break;
     case KeyPress:
         if (first_keypress) {
@@ -380,33 +396,41 @@ static void handle_input()
             alarm(0);
         }
         keysym = XLookupKeysym(&event.xkey, 0);
-        if (IsModifierKey(keysym) || (XK_Multi_key == keysym) || (XK_KP_F4 == keysym))
+        if (IsModifierKey(keysym) || (XK_Multi_key == keysym) || (XK_KP_F4 == keysym)) {
             break;
-        if (event.xkey.state & ControlMask)
+}
+        if (event.xkey.state & ControlMask) {
             bits |= 1;
-        if (event.xkey.state & meta_mask)
+}
+        if (event.xkey.state & meta_mask) {
             bits |= 2;
-        if (event.xkey.state & super_mask)
+}
+        if (event.xkey.state & super_mask) {
             bits |= 4;
-        if (event.xkey.state & hyper_mask)
+}
+        if (event.xkey.state & hyper_mask) {
             bits |= 8;
+}
         if ((XK_a <= keysym) && (keysym <= XK_z)) {
             key = (keysym - XK_a) + 65;
-            if ((bits == 0) ? ((event.xkey.state & (ShiftMask | LockMask)) == 0) : (event.xkey.state & ShiftMask))
+            if ((bits == 0) ? ((event.xkey.state & (ShiftMask | LockMask)) == 0) : (event.xkey.state & ShiftMask)) {
                 key = key + 32;
+}
         } else if ((XK_F1 <= keysym) && (keysym <= XK_F23)) {
             key = fkMap[2 * (keysym - XK_F1) + ((event.xkey.state & ShiftMask) ? 1 : 0)];
         } else {
-            if (event.xkey.state & ShiftMask)
-                if (XK_KP_Enter == keysym)
+            if (event.xkey.state & ShiftMask) {
+                if (XK_KP_Enter == keysym) {
                     /* Special case Shift-Keypad-Enter: Generate Return
                      * instead of End */
                     key = SK_Return;
-                else
+                } else {
                     keysym = XLookupKeysym(&event.xkey, 1);
-            if ((XK_space <= keysym) && (keysym <= XK_asciitilde))
+}
+}
+            if ((XK_space <= keysym) && (keysym <= XK_asciitilde)) {
                 key = keysym;
-            else if (key == -1) {
+            } else if (key == -1) {
                 for (mapp = skMap; mapp->code != -1; mapp++) {
                     if (keysym == mapp->keysym) {
                         key = mapp->code;
@@ -415,24 +439,27 @@ static void handle_input()
                 }
             }
         }
-        if (key == -1)
+        if (key == -1) {
             XBell(display, 0);
-        else {
+        } else {
             EmbQueuePutWord(keyboard_queue, (clsoInputChar << 24) | ((uEmbWord)bits << 12) | (uEmbWord)key);
-            if ((key == SK_Function) && (bits & 9) == 9)
+            if ((key == SK_Function) && (bits & 9) == 9) {
                 EmbCommAreaPtr->stop_request = TRUE;
+}
         }
         break;
     case MappingNotify:
         XRefreshKeyboardMapping(&event.xmapping);
-        if (event.xmapping.request == MappingModifier)
+        if (event.xmapping.request == MappingModifier) {
             setup_modifier_mapping();
+}
         break;
     case VisibilityNotify:
-        if (event.xvisibility.window == window)
+        if (event.xvisibility.window == window) {
             visibility = (event.xvisibility.state != VisibilityFullyObscured);
-        else if (event.xvisibility.window == icon_window)
+        } else if (event.xvisibility.window == icon_window) {
             icon_visibility = (event.xvisibility.state != VisibilityFullyObscured);
+}
         break;
     case FocusIn:
         cursor_frozen = 0;
@@ -457,8 +484,9 @@ static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
     new_width = (new_width_pixels - (roff + loff)) / char_width;
     new_height = (new_height_pixels - (toff + char_height + RUN_LIGHT_Y_SPACE + boff)) / char_height;
 
-    if ((new_width == old_width) && (new_height == old_height))
+    if ((new_width == old_width) && (new_height == old_height)) {
         return;
+}
 
     screen_array = (line *)malloc(new_height * sizeof(line));
     while (y < new_height) {
@@ -472,8 +500,9 @@ static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
         y++;
     }
     if (old_screen_array != NULL) {
-        for (y = 0; y < old_height; y++)
+        for (y = 0; y < old_height; y++) {
             free(old_screen_array[y].chars);
+}
         free(old_screen_array);
     }
     cold_channel->character_width = 1;
@@ -496,15 +525,16 @@ static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
 
 static void redisplay_line(int y, int x, int xlim)
 {
-    if (!cptfont_bitmap)
+    if (!cptfont_bitmap) {
         XDrawImageString(
             display, window, gc, x * char_width + loff, y * char_height + toff, &screen_array[y].chars[x], xlim - x);
-    else {
+    } else {
         int cx, wx, wy = y * char_height + tmarg;
 
-        for (cx = x, wx = x * char_width + lmarg; cx < xlim; cx++, wx += char_width)
+        for (cx = x, wx = x * char_width + lmarg; cx < xlim; cx++, wx += char_width) {
             XCopyPlane(display, cptfont_bitmap, window, gc, (char_width - 1) * screen_array[y].chars[cx], 0,
                 (char_width - 1), char_height, wx, wy, 1);
+}
     }
 }
 
@@ -518,21 +548,24 @@ static void redisplay_screen_array(int minx, int miny, int maxx, int maxy)
     for (y = this_miny; y < this_maxy; y++) {
         int this_maxx = ((screen_array[y].length < maxx) ? screen_array[y].length : maxx);
 
-        if (this_minx < this_maxx)
+        if (this_minx < this_maxx) {
             redisplay_line(y, this_minx, this_maxx);
+}
     }
 }
 
 static void show_cursor_internal(int new_state)
 {
     if (visibility && !cursor_frozen) {
-        if (cursor_visible && (cursor_state != new_state))
+        if (cursor_visible && (cursor_state != new_state)) {
             hide_cursor();
+}
         if (!cursor_visible) {
             cursor_state = EmbCommAreaPtr->fep.cursor;
-            if (cursor_state)
+            if (cursor_state) {
                 XFillRectangle(display, window, gc, current_x * char_width + lmarg, current_y * char_height + tmarg,
                     char_width - 1, char_height - 1);
+}
             XDrawRectangle(display, window, gc, current_x * char_width + lmarg, current_y * char_height + tmarg,
                 char_width - 1, char_height - 1);
             cursor_visible = 1;
@@ -555,9 +588,9 @@ static void show_icon()
     XPoint tri[3];
     int xoff = icon_width > 32 ? (icon_width - 32) / 2 : 0;
 
-    if (icon_bitmap)
+    if (icon_bitmap) {
         XCopyPlane(display, icon_bitmap, icon_window, icon_gc, 0, 0, 32, 32, xoff, 0, 1);
-    else {
+    } else {
         XFillRectangle(display, icon_window, icon_gc_s, xoff + 10, 3, 9, 9);
         XFillArc(display, icon_window, icon_gc_c, xoff + 15, 9, 14, 14, 0, 360 * 64);
         tri[0].x = xoff + 3;
@@ -580,89 +613,98 @@ static void show_lights(int force)
     light_state = EmbCommAreaPtr->run_lights;
     if (visibility) {
         /* Update run bars in cold-load window */
-        if (force || changed)
-            for (i = run_light_first_x, bit = 1; bit < 32; i += RUN_LIGHT_SPACING, bit = bit << 1)
-                if (force || (changed & bit))
-                    if (light_state & bit)
+        if (force || changed) {
+            for (i = run_light_first_x, bit = 1; bit < 32; i += RUN_LIGHT_SPACING, bit = bit << 1) {
+                if (force || (changed & bit)) {
+                    if (light_state & bit) {
                         XFillRectangle(display, window, gc, i, run_light_y, RUN_LIGHT_WIDTH, 1);
-                    else
-                        XClearArea(display, window, i, run_light_y, RUN_LIGHT_WIDTH, 1, False);
-        /* Update progress bar */
-        cls = HostPointer(EmbCommAreaPtr->cold_load_channel);
-        if (cls != NULL) {
-            if (cls->progress_note.string_length == 0) {
-                if (progress_label != NULL) {
-                    /* Clear progress label */
-                    XClearArea(display, window, run_light_first_x, run_label_y - run_label_height + 1, run_label_width,
-                        run_label_height, FALSE);
-                    free(progress_label);
-                    progress_label = NULL;
+}
+                } else {
+                    XClearArea(display, window, i, run_light_y, RUN_LIGHT_WIDTH, 1, False);
                 }
-                if (progress_bar_length_state != 0) {
-                    /* Clear progress bar */
-                    XClearArea(display, window, progress_bar_first_x, run_light_y, progress_bar_width, 1, FALSE);
-                    progress_bar_numerator_state = progress_bar_denominator_state = progress_bar_length_state = 0;
-                }
-            } else {
-                /* Update progress label */
-                if (progress_label == NULL) {
-                    /* Draw run bar labels */
-                    XDrawString(display, window, gc, run_light_first_x + (PROCESS_RUN_LIGHT * RUN_LIGHT_SPACING),
-                        run_label_y, "Run", 3);
-                    XDrawString(display, window, gc, run_light_first_x + (DISK_RUN_LIGHT * RUN_LIGHT_SPACING),
-                        run_label_y, "Disk", 4);
-                    XDrawString(display, window, gc, run_light_first_x + (NETWORK_RUN_LIGHT * RUN_LIGHT_SPACING),
-                        run_label_y, "Net", 3);
-                    /* Allocate memory for progress label cache */
-                    progress_label = (char *)calloc(cls->progress_note.string_total_size, sizeof(char));
-                    progress_label_length = 0;
-                }
-                if (progress_label_length != cls->progress_note.string_length
-                    || strcmp(progress_label, cls->progress_note.string)) {
-                    /* Recache progress label */
-                    progress_label_length = cls->progress_note.string_length;
-                    strncpy(progress_label, cls->progress_note.string, progress_label_length);
-                    /* Draw new label
-                     * Erase old label first so no overwrite */
-                    XClearArea(display, window, progress_bar_first_x, run_label_y - run_label_height + 1,
-                        progress_bar_width, run_label_height, FALSE);
-                    XDrawString(
-                        display, window, gc, progress_bar_first_x, run_label_y, progress_label, progress_label_length);
-                }
-                if (cls->progress_note.denominator > 0) {
-                    /* Update progress bar */
-                    if (progress_bar_numerator_state != cls->progress_note.numerator
-                        || progress_bar_denominator_state != cls->progress_note.denominator) {
-                        progress_bar_numerator_state = cls->progress_note.numerator;
-                        progress_bar_denominator_state = cls->progress_note.denominator;
-                        pb_length
-                            = (progress_bar_numerator_state * progress_bar_width) / progress_bar_denominator_state;
-                        pb_length_change = pb_length - progress_bar_length_state;
-                        if (pb_length_change < 0) {
-                            /* Shorten the progress bar */
-                            XClearArea(display, window, progress_bar_first_x + pb_length, run_light_y,
-                                -pb_length_change, 1, FALSE);
-                            progress_bar_length_state = pb_length;
-                        } else if (pb_length_change > 0) {
-                            /* Lengthen the progress bar */
-                            XFillRectangle(display, window, gc, progress_bar_first_x + progress_bar_length_state,
-                                run_light_y, pb_length_change, 1);
-                            progress_bar_length_state = pb_length;
-                        }
+            }
+        }
+    }
+
+    /* Update progress bar */
+    cls = HostPointer(EmbCommAreaPtr->cold_load_channel);
+    if (cls != NULL) {
+        if (cls->progress_note.string_length == 0) {
+            if (progress_label != NULL) {
+                /* Clear progress label */
+                XClearArea(display, window, run_light_first_x, run_label_y - run_label_height + 1, run_label_width,
+                    run_label_height, FALSE);
+                free(progress_label);
+                progress_label = NULL;
+            }
+            if (progress_bar_length_state != 0) {
+                /* Clear progress bar */
+                XClearArea(display, window, progress_bar_first_x, run_light_y, progress_bar_width, 1, FALSE);
+                progress_bar_numerator_state = progress_bar_denominator_state = progress_bar_length_state = 0;
+            }
+        } else {
+            /* Update progress label */
+            if (progress_label == NULL) {
+                /* Draw run bar labels */
+                XDrawString(display, window, gc, run_light_first_x + (PROCESS_RUN_LIGHT * RUN_LIGHT_SPACING),
+                    run_label_y, "Run", 3);
+                XDrawString(display, window, gc, run_light_first_x + (DISK_RUN_LIGHT * RUN_LIGHT_SPACING), run_label_y,
+                    "Disk", 4);
+                XDrawString(display, window, gc, run_light_first_x + (NETWORK_RUN_LIGHT * RUN_LIGHT_SPACING),
+                    run_label_y, "Net", 3);
+                /* Allocate memory for progress label cache */
+                progress_label = (char *)calloc(cls->progress_note.string_total_size, sizeof(char));
+                progress_label_length = 0;
+            }
+            if (progress_label_length != cls->progress_note.string_length
+                || strcmp(progress_label, cls->progress_note.string)) {
+                /* Recache progress label */
+                progress_label_length = cls->progress_note.string_length;
+                strncpy(progress_label, cls->progress_note.string, progress_label_length);
+                /* Draw new label
+                 * Erase old label first so no overwrite */
+                XClearArea(display, window, progress_bar_first_x, run_label_y - run_label_height + 1,
+                    progress_bar_width, run_label_height, FALSE);
+                XDrawString(
+                    display, window, gc, progress_bar_first_x, run_label_y, progress_label, progress_label_length);
+            }
+            if (cls->progress_note.denominator > 0) {
+                /* Update progress bar */
+                if (progress_bar_numerator_state != cls->progress_note.numerator
+                    || progress_bar_denominator_state != cls->progress_note.denominator) {
+                    progress_bar_numerator_state = cls->progress_note.numerator;
+                    progress_bar_denominator_state = cls->progress_note.denominator;
+                    pb_length = (progress_bar_numerator_state * progress_bar_width) / progress_bar_denominator_state;
+                    pb_length_change = pb_length - progress_bar_length_state;
+                    if (pb_length_change < 0) {
+                        /* Shorten the progress bar */
+                        XClearArea(display, window, progress_bar_first_x + pb_length, run_light_y, -pb_length_change, 1,
+                            FALSE);
+                        progress_bar_length_state = pb_length;
+                    } else if (pb_length_change > 0) {
+                        /* Lengthen the progress bar */
+                        XFillRectangle(display, window, gc, progress_bar_first_x + progress_bar_length_state,
+                            run_light_y, pb_length_change, 1);
+                        progress_bar_length_state = pb_length;
                     }
                 }
             }
         }
     }
+
     if (icon_visibility) {
         /* Update run bars in icon */
-        if (force || changed)
-            for (i = 2, bit = 1; bit < 32; i += 6, bit = bit << 1)
-                if (force || (changed & bit))
-                    if (light_state & bit)
+        if (force || changed) {
+            for (i = 2, bit = 1; bit < 32; i += 6, bit = bit << 1) {
+                if (force || (changed & bit)) {
+                    if (light_state & bit) {
                         XFillRectangle(display, icon_window, icon_gc, i, 32, 4, 4);
-                    else
+                    } else {
                         XClearArea(display, icon_window, i, 32, 4, 4, False);
+}
+}
+}
+}
     }
 }
 
@@ -682,22 +724,26 @@ static void replay_command_history()
 {
     int i, have_pos = FALSE;
 
-    if (cold_channel->command_history_wrapped)
+    if (cold_channel->command_history_wrapped) {
         i = cold_channel->command_history_top + 1;
-    else
+    } else {
         i = 0;
+}
     for (; i != cold_channel->command_history_top; i++) {
         /* Watch for history wraparound */
-        if (i == ColdLoadCommandHistorySize)
+        if (i == ColdLoadCommandHistorySize) {
             i = 0;
+}
 
         /* Don't do any output until we know where to put it */
-        if (!have_pos && ((cold_channel->command_history[i] >> 24) & 0xff) == clsoSetCursorpos)
+        if (!have_pos && ((cold_channel->command_history[i] >> 24) & 0xff) == clsoSetCursorpos) {
             have_pos = TRUE;
+}
 
         /* Do output */
-        if (have_pos)
+        if (have_pos) {
             handle_output_command(cold_channel->command_history[i]);
+}
     }
 
     reset_light_state(False);
@@ -734,8 +780,9 @@ static void handle_output_command(uEmbWord command)
     case clsoLozengedChar:
         if ((current_y < height) && (current_x < width)) {
             if (screen_array[current_y].length <= current_x) {
-                for (x = screen_array[current_y].length; x < current_x; x++)
+                for (x = screen_array[current_y].length; x < current_x; x++) {
                     screen_array[current_y].chars[x] = ' ';
+}
                 screen_array[current_y].length = current_x + 1;
             }
             c = (char)(command & 0xff);
@@ -749,8 +796,9 @@ static void handle_output_command(uEmbWord command)
         current_y = (command >> 12) & 0xfff;
         break;
     case clsoClearRestOfWindow:
-        for (y = current_y + 1; y < height; y++)
+        for (y = current_y + 1; y < height; y++) {
             screen_array[y].length = 0;
+}
         XClearArea(display, window, lmarg, (current_y + 1) * char_height + tmarg, width * char_width,
             (height - (current_y + 1)) * char_height, False);
         reset_light_state(True);
@@ -819,9 +867,10 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
                "clear" so it's safe to remove the modifier mapping to make
                room for Super/Hyper */
             removeNumLockModifier = TRUE;
-        } else
+        } else {
             /* ---*** TODO: Find out what KeySym is labelled CLEAR */
             skMap->keysym = 0; /* Apple X11 */
+}
         *super_code = XKeysymToKeycode(display, XK_Down);
         *hyper_code = XKeysymToKeycode(display, XK_Left);
     }
@@ -845,8 +894,9 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
         printf("dec keyboard\n");
         printf("keycode1 %d, keycode2 %d\n", keycode1, keycode2);
 
-        if (keycode1 == keycode2)
+        if (keycode1 == keycode2) {
             *hyper_code = 0;
+}
 
         /* If XK_Multi_key's code is 0, then we must have the PC-style DEC
          * keyboard. */
@@ -866,8 +916,9 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
         }
     }
 
-    if ((*meta_l_code == 0) && (*meta_r_code == 0) && *alt_l_code)
+    if ((*meta_l_code == 0) && (*meta_r_code == 0) && *alt_l_code) {
         *meta_l_code = *alt_l_code;
+}
 
     // hack
     *control_r_code = *control_l_code;
@@ -880,12 +931,16 @@ static int find_modifier(XModifierKeymap *modmap, KeyCode code)
 {
     int modifier, i;
 
-    if (code == 0)
+    if (code == 0) {
         return -1;
-    for (modifier = 0; modifier < 8; modifier++)
-        for (i = 0; i < modmap->max_keypermod; i++)
-            if (modmap->modifiermap[i + modifier * modmap->max_keypermod] == code)
+}
+    for (modifier = 0; modifier < 8; modifier++) {
+        for (i = 0; i < modmap->max_keypermod; i++) {
+            if (modmap->modifiermap[i + modifier * modmap->max_keypermod] == code) {
                 return modifier;
+}
+}
+}
     return -1;
 }
 
@@ -895,9 +950,11 @@ static int find_unused_modifier(XModifierKeymap **modmapp)
     KeyCode num_lock_code;
 
     for (modifier = 0; modifier < 8; modifier++) {
-        for (i = 0; i < (*modmapp)->max_keypermod; i++)
-            if ((*modmapp)->modifiermap[i + modifier * (*modmapp)->max_keypermod] != 0)
+        for (i = 0; i < (*modmapp)->max_keypermod; i++) {
+            if ((*modmapp)->modifiermap[i + modifier * (*modmapp)->max_keypermod] != 0) {
                 goto next_modifier;
+}
+}
         return modifier;
     next_modifier:
         continue;
@@ -923,17 +980,22 @@ static int do_modifier(XModifierKeymap **modmapp, int *changedp, KeyCode code1, 
     int mod = -1;
 
     mod = find_modifier(*modmapp, code1);
-    if (mod == -1)
+    if (mod == -1) {
         mod = find_modifier(*modmapp, code2);
-    if (mod == -1)
+}
+    if (mod == -1) {
         mod = find_modifier(*modmapp, code3);
-    if (mod != -1)
+}
+    if (mod != -1) {
         return 1 << mod;
-    if ((code1 == 0) && (code2 == 0) && (code3 == 0))
+}
+    if ((code1 == 0) && (code2 == 0) && (code3 == 0)) {
         return 0;
+}
     mod = find_unused_modifier(modmapp);
-    if (mod == -1)
+    if (mod == -1) {
         return 0;
+}
     if (code1 != 0) {
         *modmapp = XInsertModifiermapEntry(*modmapp, code1, mod);
         *changedp = 1;
@@ -972,27 +1034,31 @@ static void setup_modifier_mapping()
     modmap = XGetModifierMapping(display);
     do_modifier(&modmap, &changed, control_l_code, control_r_code, 0);
     meta_mask = do_modifier(&modmap, &changed, meta_l_code, meta_r_code, 0);
-    if (meta_mask == 0)
+    if (meta_mask == 0) {
         vwarn("Cold Load", "Unable to allocate a modifier for the Meta key.");
+}
 
     super_mask = do_modifier(&modmap, &changed, super_code, 0, 0);
-    if (super_mask == 0)
+    if (super_mask == 0) {
         vwarn("Cold Load", "Unable to allocate a modifier for the Super key.");
+}
     hyper_mask = do_modifier(&modmap, &changed, hyper_code, 0, 0);
-    if (hyper_mask == 0)
+    if (hyper_mask == 0) {
         vwarn("Cold Load", "Unable to allocate a modifier for the Hyper key.");
-    else if (hyper_mask == super_mask) {
+    } else if (hyper_mask == super_mask) {
         modmap = XDeleteModifiermapEntry(modmap, hyper_code, mask_to_modifier(super_mask));
         hyper_mask = do_modifier(&modmap, &changed, super_code, 0, 0);
-        if (hyper_mask == 0)
+        if (hyper_mask == 0) {
             vwarn("Cold Load", "Unable to allocate a modifier for the Hyper key.");
-        else
+        } else {
             modmap = XDeleteModifiermapEntry(modmap, super_code, mask_to_modifier(hyper_mask));
+}
         changed = TRUE;
     }
 
-    if (changed)
+    if (changed) {
         XSetModifierMapping(display, modmap);
+}
     XUngrabServer(display);
     XFreeModifiermap(modmap);
 }
@@ -1004,14 +1070,16 @@ static XErrorHandler XErrorDefaultHandler = NULL;
 static void SetColdXErrorHandler()
 {
     /* Set error handler */
-    if (XErrorDefaultHandler == NULL)
+    if (XErrorDefaultHandler == NULL) {
         XErrorDefaultHandler = XSetErrorHandler((XErrorHandler)&ColdXErrorHandler);
+}
 }
 
 static int ColdXErrorHandler(Display *display, XErrorEvent *error)
 {
-    if (error->request_code != X_KillClient)
+    if (error->request_code != X_KillClient) {
         return ((*XErrorDefaultHandler)(display, error));
+}
 }
 
 static int initialize_cold(XParams *cl_params, boolean noWaiting)
@@ -1087,8 +1155,9 @@ static char *concatenate_string(char *string1, char *string2)
 {
     int total_size = strlen(string1) + strlen(string2) + 1;
     char *new_string = malloc(total_size);
-    if (0 == new_string)
+    if (0 == new_string) {
         vpunt(NULL, "No room for concatenated string.");
+}
     strcpy(new_string, string1);
     return (strcat(new_string, string2));
 }
@@ -1101,8 +1170,9 @@ static void SetupColdLoadNameStrings(VLMConfig *config)
     char *longHostName, *shortHostName, buffer[128], *pp, *aName;
 
     interface = &config->interfaces[0];
-    while (!interface->present)
+    while (!interface->present) {
         interface++;
+}
 
     switch (interface->myProtocol) {
     case ETHERTYPE_IP:
@@ -1113,16 +1183,19 @@ static void SetupColdLoadNameStrings(VLMConfig *config)
         } else {
             longHostName = strdup(theHost->h_name);
             pp = strchr(longHostName, '.');
-            if (pp)
+            if (pp) {
                 *pp = 0;
+}
             shortHostName = longHostName;
             while (*theHost->h_aliases) {
                 aName = strdup(*theHost->h_aliases);
                 pp = strchr(aName, '.');
-                if (pp)
+                if (pp) {
                     *pp = 0;
-                if (strlen(aName) < strlen(shortHostName))
+}
+                if (strlen(aName) < strlen(shortHostName)) {
                     shortHostName = aName;
+}
                 theHost->h_aliases++;
             }
         }
@@ -1204,12 +1277,14 @@ void InitializeColdLoadChannel(VLMConfig *config)
         vwarn("Cold Load",
             "Will wait for X server but cold load may not function "
             "properly.");
-    } else
+    } else {
         setup_x_io_error_handler();
+}
 
     if (pthread_create(&p->coldLoadInput, &EmbCommAreaPtr->inputThreadAttrs, (pthread_startroutine_t)&ColdLoadInput,
-            (pthread_addr_t)config))
+            (pthread_addr_t)config)) {
         vpunt(NULL, "Unable to create the cold load window's input thread");
+}
     p->coldLoadInputSetup = TRUE;
 }
 

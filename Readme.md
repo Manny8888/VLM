@@ -16,7 +16,8 @@ In the meantime, simplification/changes are ongoing with an ongoing integration
 test of merely compiling the genera runtime (i.e.not even running it - just
 successful compile).
 
-Only one compile target: genera. No iVerify or Minima. Only one platform: Linux.
+Only 2 compile targets: genera (the current one) via the old makefile and 
+genera_c, the C emulator via cmake. No iVerify or Minima. Only one platform: Linux.
 No FreeBSD, Darwin or MacOSF since I have no access to them. In due time, if
 Nim/Go/Julia work, FreeBSD and Darwin should be easier to port into.
 
@@ -33,8 +34,11 @@ What do I use:
 
 From an SBCL prompt:
 - load/compile stub/convert-asm-to-c.lisp
+  *WARNING*: output4.c had to be patched following the supplied diff file. Checked this is OK!
+
 - go into: (in-package :alpha-axp-internals)
 - run: (build)
+
 
 ### Step 2: compile the Genera runtime
 
@@ -46,12 +50,20 @@ In the top directory:
 
 Cross fingers...
 
+
+### Alternative Step 2: compile the Genera_c runtime
+
+Ensure the following is available: usual build packages, clang, libpcap-dev, cmake, ninja
+Click the VSCode build button... 
+
+
 # Structure of the emulator 
 
-The emulator is split into 2 parts:
+The emulator is split into 3 parts:
 - the "life support" that emulates the hardware environment (console, FEP,
   disks, network)
-- the emulator proper which emulates the CPU
+- the emulator proper which emulates everything but the CPU
+- the CPU
 
 ## Life support
 
@@ -73,6 +85,7 @@ assembled by a lisp assembler. The Brian P. C version basically takes the Alpha
 version and assembles it into C instructions (instead of generating Alpha
 binary).
 
+The CPU is provided by the Aplha assembly, the Alpha assembly compiled to C, or the C emulator (emulator.c).
 
 # Build system
 

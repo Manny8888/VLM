@@ -32,7 +32,6 @@ void InitializeNetworkChannels(VLMConfig *config)
             InitializeNetChannel(&config->interfaces[i], i);
         }
     }
-
 }
 
 /* Create a single network channel */
@@ -102,12 +101,14 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber)
 
     for (pInterface = interface, firstInterface = TRUE; pInterface != NULL;
          pInterface = pInterface->anotherAddress, firstInterface = FALSE) {
-        if (firstInterface)
+        if (firstInterface) {
             addressAsString[0] = 0;
-        else
+        } else {
             sprintf(addressAsString, "%s,", addressAsString);
-        if (pInterface->device[0])
+}
+        if (pInterface->device[0]) {
             sprintf(addressAsString, "%s%s:", addressAsString, pInterface->device);
+}
         switch (pInterface->myProtocol) {
         case ETHERTYPE_IP:
             guestAddress.s_addr = htonl(pInterface->myAddress.s_addr);
@@ -117,18 +118,20 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber)
             sprintf(addressAsString, "%sCHAOS|%o", addressAsString, htonl(pInterface->myAddress.s_addr));
             break;
         }
-        if (pInterface->myOptions[0])
+        if (pInterface->myOptions[0]) {
             sprintf(addressAsString, "%s;%s", addressAsString, pInterface->myOptions);
+}
     }
     printf("Initialize network interface #%d as \"%s\"\n", unitNumber, addressAsString);
     p->addressString = MakeEmbString(addressAsString);
 
     if (pthread_create(&p->receiverThread, &EmbCommAreaPtr->inputThreadAttrs,
-            (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p))
+            (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p)) {
         vpunt(NULL,
             "Unable to create thread to receive packets for VLM network "
             "interface #%d",
             unitNumber);
+}
     p->receiverThreadSetup = TRUE;
 
     p->status |= EmbNetStatusHostReady;
@@ -151,8 +154,9 @@ static char last_packet[1560];
 
 static int new_packet(char *packet, int size)
 {
-    if (memcmp(last_packet, packet, size) == 0)
+    if (memcmp(last_packet, packet, size) == 0) {
         return 0;
+}
 
     memcpy(last_packet, packet, size);
 
@@ -186,8 +190,9 @@ void answer_arp(char *pkt, int size)
     memcpy(tmp, &pkt[22], 10);
     memcpy(&pkt[22], &pkt[32], 10);
 
-    for (i = 0; i < 6; i++)
+    for (i = 0; i < 6; i++) {
         tmp[i] = i;
+}
 
     memcpy(&pkt[32], tmp, 10);
 
@@ -356,33 +361,35 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
         pollReceiver.revents = 0;
         poll(&pollReceiver, 1, 1000);
 
-        if (0 == (pollReceiver.revents & POLLIN))
+        if (0 == (pollReceiver.revents & POLLIN)) {
             continue;
+}
 
         sllLen = sizeof(sll);
         actualBytes
             = recvfrom(netChannel->fd, &netChannel->receiveBuffer, MaxEmbNetPacketSize, MSG_TRUNC, &sll, &sllLen);
         dump_packet("rx", (unsigned char *)&netChannel->receiveBuffer, actualBytes);
 
-        if (actualBytes < 0)
+        if (actualBytes < 0) {
             netChannel->nReceiveFailures++;
 
-        else if (0 == actualBytes)
+        } else if (0 == actualBytes) {
             netChannel->nFalseReceiverWakeups++;
 
         //		else if (!(netChannel->status &
         // EmbNetStatusGuestReady))
         //			;
 
-        else if ((0 == EmbQueueSpace(supplyQueue)) || (0 == EmbQueueSpace(receiveQueue)))
+        } else if ((0 == EmbQueueSpace(supplyQueue)) || (0 == EmbQueueSpace(receiveQueue))) {
             netChannel->nReceivedPacketsLost++;
 
-        else {
+        } else {
             while (0 == (netPacketPtr = EmbQueueTakeWord(supplyQueue))) {
                 receiverPause.tv_sec = 0;
                 receiverPause.tv_nsec = OneMillisecond;
-                if (pthread_delay_np(&receiverPause))
+                if (pthread_delay_np(&receiverPause)) {
                     vpunt(NULL, "Unable to sleep in thread %lx", self);
+}
             }
             netPacket = (EmbNetPacket *)HostPointer(netPacketPtr);
             netPacket->nBytes = (EmbWord)actualBytes;
@@ -435,10 +442,12 @@ void TerminateNetworkChannels()
 
     for (channel = EmbCommAreaPtr->channel_table; channel != NullEmbPtr; channel = netChannel->next) {
         netChannel = (EmbNetChannel *)HostPointer(channel);
-        if (EmbNetworkChannelType == netChannel->type)
+        if (EmbNetworkChannelType == netChannel->type) {
             TerminateNetChannel(netChannel, ipSocket);
+}
     }
 
-    if (ipSocket > -1)
+    if (ipSocket > -1) {
         close(ipSocket);
+}
 }

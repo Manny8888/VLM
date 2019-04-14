@@ -5,9 +5,7 @@
  * File translated:      ../alpha-emulator/ifunhead.as
  ************************************************************************/
 
-  /* Entry points into the interpretation loop. */
-  /* Fin. */
-
-
+/* Entry points into the interpretation loop. */
+/* Fin. */
 
 /* End of file automatically generated from ../alpha-emulator/ifunhead.as */

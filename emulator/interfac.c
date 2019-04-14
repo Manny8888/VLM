@@ -112,7 +112,8 @@ int InstructionSequencer(void)
         if (reason != HaltReason_SpyCalled) {
         }
         return (reason);
-    } else if (pthread_delay_np(&interpreterSleep))
+    } else { if 
+}(pthread_delay_np(&interpreterSleep))
         vpunt(NULL, "Unable to sleep in the main interpreter thread.");
     return (0);
 }
@@ -274,8 +275,9 @@ static void ComputeSpeed(int64_t *speed)
         times(&tms);
         timeafter = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
         t1 = timeafter - timebefore;
-        if (t1 < tmin)
+        if (t1 < tmin) {
             tmin = t1;
+}
     };
     *speed = ((((int64_t)tmin) * 1000000L) / 0x4000000L);
     processor->mscmultiplier = (*speed << 24) / 1000000;
@@ -288,10 +290,11 @@ static void RunPOST(int64_t speed)
     int64_t tps = sysconf(_SC_CLK_TCK);
 
     printf("RunPOST\n");
-    if (TestFunction)
+    if (TestFunction) {
         InitializeTestFunction();
-    else
+    } else {
         InitializeFIBTest(); /* This is the Power on self test */
+}
     if (Trace)
         InitializeTracing(1000, processor->epc >> 1, 0, NULL);
     times(&tms);
@@ -303,8 +306,9 @@ static void RunPOST(int64_t speed)
         mstimea = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
         vwarn("POST", "OK %d %ld", mstimea - mstimeb, speed);
     }
-    if (Trace)
+    if (Trace) {
         PrintTrace();
+}
     processor->trace_hook = 0;
 }
 
@@ -419,8 +423,9 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
              * cycle */
             for (e = &MemoryActionTable[i][0], j = 0; e < &MemoryActionTable[i][64]; e++, j++) {
                 *e &= ~MemoryAction_Transport;
-                if (*e)
+                if (*e) {
                     mask |= (1L << j); /* accumulate mask of types with action */
+}
                 matline[j] = *e; /* copy bits into copymat */
             }
             *maskPointer = mask;
@@ -538,8 +543,9 @@ void ResetMachine(void)
 
 void StartMachine(Boolean resumeP)
 {
-    if (!resumeP)
+    if (!resumeP) {
         flushicache();
+}
     processor->please_stop = 0;
     processor->please_trap = 0; /* ????? */
     processor->runningp = 1;

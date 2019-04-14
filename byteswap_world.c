@@ -23,24 +23,27 @@ int main(int argc, char **argv)
 
     for (i = 1; i < argc; i++) {
         argLength = strlen(argv[i]);
-        if (0 == strncmp(argv[i], "-searchpath", (argLength < 7) ? 7 : argLength))
-            if (i < argc - 1)
+        if (0 == strncmp(argv[i], "-searchpath", (argLength < 7) ? 7 : argLength)) {
+            if (i < argc - 1) {
                 searchPath = argv[++i];
-            else
+            } else {
                 vpunt(NULL, "A search path must follow %s", argv[i]);
+}
+}
     }
 
     for (i = 1; i < argc; i++) {
         argLength = strlen(argv[i]);
-        if (0 == strncmp(argv[i], "-searchpath", (argLength < 7) ? 7 : argLength))
+        if (0 == strncmp(argv[i], "-searchpath", (argLength < 7) ? 7 : argLength)) {
             i++;
-        else if (0 == strncmp(argv[i], "-", 1))
+        } else if (0 == strncmp(argv[i], "-", 1)) {
             vpunt(NULL, "Unrecognized option: %s", argv[i]);
-        else {
+        } else {
             sawWorld = TRUE;
             worldPath = argv[i];
-            if (NULL == strchr(worldPath, '/'))
+            if (NULL == strchr(worldPath, '/')) {
                 worldPath = strncat(strdup("./"), argv[i], argLength);
+}
             ByteSwapWorld(worldPath, searchPath);
         }
     }

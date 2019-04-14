@@ -1,7 +1,9 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
 #include <signal.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/times.h>
@@ -13,6 +15,7 @@
 #include "emulator.h"
 #include "ivory.h"
 #include "memory.h"
+#include "traps.h"
 
 volatile int suspend = 0;
 
@@ -30,13 +33,12 @@ static LispObj trap_microstate = { TypeFixnum, 0 };
 Integer memory_vma;
 
 // Creates a LispObj from tag and data
-LispObj* MakeLispObj(uint32_t tag, uint32_t data) 
+LispObj *MakeLispObj(uint32_t tag, uint32_t data)
 {
     LispObj object;
-    object.whole = (((uint64_t) tag) << 32) | (0xFFFFFFFF & ((uint64_t) data));
+    object.whole = (((uint64_t)tag) << 32) | (0xFFFFFFFF & ((uint64_t)data));
 
     return &object;
-
 }
 
 /* General memory trap signalling */
@@ -102,8 +104,9 @@ int WriteVirtualMemory(Integer vma, LispObj *object)
 {
     Integer stack_cache_index = vma - processor->StackCacheBase;
 
-    if (stack_cache_index < StackCacheSize * PageSize)
+    if (stack_cache_index < StackCacheSize * PageSize) {
         processor->StackCache[stack_cache_index] = *object;
+}
     VirtualMemoryWrite(vma, object);
     return (0);
 }
@@ -113,8 +116,9 @@ int ReadVirtualMemoryBlock(Integer vma, LispObj *object, int count)
     Integer stack_cache_index = vma - processor->StackCacheBase;
 
     if (stack_cache_index < StackCacheSize * PageSize) {
-        for (; count--; vma++, object++)
+        for (; count--; vma++, object++) {
             ReadVirtualMemory(vma, object);
+}
         return (0);
     }
     VirtualMemoryReadBlock(vma, object, count);
@@ -126,8 +130,9 @@ int WriteVirtualMemoryBlock(Integer vma, LispObj *object, int count)
     Integer stack_cache_index = vma - processor->StackCacheBase;
 
     if (stack_cache_index < StackCacheSize * PageSize) {
-        for (; count--; vma++, object++)
+        for (; count--; vma++, object++) {
             WriteVirtualMemory(vma, object);
+}
         return (0);
     }
     VirtualMemoryWriteBlock(vma, object, count);
@@ -138,8 +143,9 @@ void StackCacheScrollUp(void)
     Integer shadow;
     int i;
 
-    if (Trace)
+    if (Trace) {
         fprintf(stderr, "StackCacheScrollUp\n");
+}
     /* --- PageSize s/b StackCacheScrollAmount */
     VirtualMemoryWriteBlock(processor->StackCacheBase, processor->StackCache, PageSize);
 
@@ -157,8 +163,9 @@ void StackCacheScrollDown(void)
 {
     int i;
 
-    if (Trace)
+    if (Trace) {
         fprintf(stderr, "StackCacheScrollDown\n");
+}
     /* --- PageSize s/b StackCacheScrollAmount */
     for (i = (StackCacheSize - 1); i--;) {
         memcpy((char *)&processor->StackCache[(1 + i) * PageSize], (char *)&processor->StackCache[i * PageSize],
@@ -178,15 +185,14 @@ Boolean OldspaceAddressP(Integer vma)
     ProcessorState *ps = processor;
     int zone = ReadVMAZoneNum(vma);
 
-    if (zone == 0)
+    if (zone == 0) {
         return (ReadVMAEphemeralHalf(vma) == ((ps->EphemeralOldspaceRegister >> ReadVMAEphemeralDemilevel(vma)) & 01));
-    else
+    } else {
         return (ps->ZoneOldspaceRegister & (1 << zone));
 }
+}
 
-Boolean OldspaceP(LispObj *obj) { 
-    return (PointerTypeP(TagType(obj->TAG)) && OldspaceAddressP(obj->DATA.u)); 
-    }
+Boolean OldspaceP(LispObj *obj) { return (PointerTypeP(TagType(obj->TAG)) && OldspaceAddressP(obj->DATA.u)); }
 
 Byte MemoryActionTable[12][64] = { { 014, 06, 014, 010, 05, 05, 05, 05, 0, 0, 0, 04, 04, 04, 04, 04, 04, 04, 04, 04, 04,
                                        04, 04, 04, 04, 04, 04, 04, 04, 04, 04, 04, 0, 0, 044, 0, 024, 010, 04, 04, 04,
@@ -228,8 +234,9 @@ loop:
 
     /* Transport takes precedence over anything but trap */
     if ((action & (MemoryActionTransport | MemoryActionTrap)) == MemoryActionTransport) {
-        if (OldspaceAddressP(object->DATA.u))
+        if (OldspaceAddressP(object->DATA.u)) {
             TakeMemoryTrap(TransportTrapVector, vma);
+}
     }
     switch (action & ~MemoryActionTransport) {
     case 0:
@@ -338,8 +345,9 @@ static int CarCdrInternal(LispObj *l, LispObj *car, LispObj *cdr)
 
     /* CarCdr is not allowed on Locatives */
     if (!TypeEqualP(l->TAG, TypeLocative) && !CarInternal(l, car)) {
-        if (!CdrInternal(&templ, cdr))
+        if (!CdrInternal(&templ, cdr)) {
             return (0);
+}
     }
     return (1);
 }
@@ -361,10 +369,12 @@ static void Aref1Internal(Integer vma, int packing, int offset, ArrayElementType
 
     index += offset;
     MemoryReadData(vma + (index >> packing), &q);
-    if (!TypeFixnumP(q.TAG))
+    if (!TypeFixnumP(q.TAG)) {
         TakeMemoryTrap(ErrorTrapVector, vma + (index >> packing));
-    if (packing)
+}
+    if (packing) {
         q.DATA.u = ArrayElementLdb(packing, index, q.DATA.u);
+}
 
     switch (type) {
     case ArrayElementTypeFixnum:
@@ -376,10 +386,11 @@ static void Aref1Internal(Integer vma, int packing, int offset, ArrayElementType
         result->DATA = q.DATA;
         break;
     case ArrayElementTypeBoolean:
-        if (q.DATA.u)
+        if (q.DATA.u) {
             *result = ObjectT;
-        else
+        } else {
             *result = ObjectNIL;
+}
         break;
     case ArrayElementTypeObject:
         TakeMemoryTrap(ErrorTrapVector, vma - 1);
@@ -402,18 +413,21 @@ static void Aset1Internal(Integer vma, int packing, int offset, ArrayElementType
 
         switch (type) {
         case ArrayElementTypeFixnum:
-            if (!TypeFixnumP(value->TAG))
+            if (!TypeFixnumP(value->TAG)) {
                 TakeIllegalOperandTrap(0, value);
+}
             break;
         case ArrayElementTypeCharacter:
-            if (!TypeEqualP(value->TAG, TypeCharacter) || ArrayElementLdb(packing, 0, data) != data)
+            if (!TypeEqualP(value->TAG, TypeCharacter) || ArrayElementLdb(packing, 0, data) != data) {
                 TakeIllegalOperandTrap(0, value);
+}
             break;
         case ArrayElementTypeBoolean:
-            if (TypeEqualP(value->TAG, TypeNIL))
+            if (TypeEqualP(value->TAG, TypeNIL)) {
                 data = 0;
-            else
+            } else {
                 data = -1;
+}
             break;
         case ArrayElementTypeObject:
             TakeMemoryTrap(ErrorTrapVector, vma - 1);
@@ -421,12 +435,14 @@ static void Aset1Internal(Integer vma, int packing, int offset, ArrayElementType
 
         index += offset;
         vma = MemoryReadData(vma + (index >> packing), &q);
-        if (!TypeFixnumP(q.TAG))
+        if (!TypeFixnumP(q.TAG)) {
             TakeMemoryTrap(ErrorTrapVector, vma);
-        if (packing)
+}
+        if (packing) {
             q.DATA.u = ArrayElementDpb(data, packing, index, q.DATA.u);
-        else
+        } else {
             q.DATA.u = data;
+}
         WriteVirtualMemory(vma, &q);
     }
 }
@@ -440,10 +456,12 @@ static void RecomputeArrayRegister(LispObj *areg, int count)
         Integer vma;
 
         vma = MemoryReadHeader(areg[-1].DATA.u, &header);
-        if (header.TAG != ArrayHeaderTag)
+        if (header.TAG != ArrayHeaderTag) {
             TakeIllegalOperandTrap(0, areg);
-        if (ArrayLongPrefixP(header.DATA.u))
+}
+        if (ArrayLongPrefixP(header.DATA.u)) {
             TakeInstructionExceptionTrap();
+}
         areg[0].DATA.u = SetArrayRegisterEventCount(count, header.DATA.u);
         areg[1].DATA.u = vma + 1;
         areg[2].DATA.s = ArrayShortLength(header.DATA.u);
@@ -452,8 +470,9 @@ static void RecomputeArrayRegister(LispObj *areg, int count)
     case TypeStringInstance:
         TakeInstructionExceptionTrap();
     default:
-        if (TypeSpareP(areg[-1].TAG))
+        if (TypeSpareP(areg[-1].TAG)) {
             TakeInstructionExceptionTrap();
+}
         TakeIllegalOperandTrap(0, areg);
     }
 }
@@ -465,21 +484,27 @@ static Integer LocateInstanceVariableMapped(LispObj *map, LispObj *self, Integer
     LispObj header, offset;
     Integer vma;
 
-    if (!TypeEqualP(map->TAG, TypeArray))
+    if (!TypeEqualP(map->TAG, TypeArray)) {
         TakeIllegalOperandTrap(0, map);
+}
     MemoryReadHeader(map->DATA.u, &header);
-    if (n >= ArrayShortLength(header.DATA.u))
+    if (n >= ArrayShortLength(header.DATA.u)) {
         TakeIllegalOperandTrap(0, map); /* --- should be op2 */
+}
     MemoryReadData(map->DATA.u + n + 1, &offset);
-    if (!TypeFixnumP(offset.TAG))
+    if (!TypeFixnumP(offset.TAG)) {
         TakeInstructionExceptionTrap();
-    if (ldb(4, 2, self->TAG) != ldb(4, 2, TypeInstance))
+}
+    if (ldb(4, 2, self->TAG) != ldb(4, 2, TypeInstance)) {
         TakeIllegalOperandTrap(0, self);
-    if (TagCdr(self->TAG) == 1)
+}
+    if (TagCdr(self->TAG) == 1) {
         return (self->DATA.u + offset.DATA.u);
+}
     vma = MemoryReadHeader(self->DATA.u, &header);
-    if (vma == self->DATA.u)
+    if (vma == self->DATA.u) {
         self->TAG = SetTagCdr(self->TAG, 1);
+}
     return (vma + offset.DATA.u);
 }
 
@@ -488,17 +513,21 @@ static Integer LocateArbitraryInstanceVariable(LispObj *instance, LispObj *offse
     LispObj flavor, size;
     Integer vma;
 
-    if (ldb(4, 2, instance->TAG) != ldb(4, 2, TypeInstance))
-        if (TypeSpareP(instance->TAG))
+    if (ldb(4, 2, instance->TAG) != ldb(4, 2, TypeInstance)) {
+        if (TypeSpareP(instance->TAG)) {
             TakeInstructionExceptionTrap();
-        else
+        } else {
             TakeIllegalOperandTrap(0, instance);
-    if (!TypeFixnumP(offset->TAG))
+}
+}
+    if (!TypeFixnumP(offset->TAG)) {
         TakeIllegalOperandTrap(0, offset);
+}
     vma = MemoryReadHeader(instance->DATA.u, &flavor);
     MemoryReadData(flavor.DATA.u - 1, &size);
-    if (!TypeFixnumP(size.TAG) || offset->DATA.u >= size.DATA.s)
+    if (!TypeFixnumP(size.TAG) || offset->DATA.u >= size.DATA.s) {
         TakeIllegalOperandTrap(0, offset);
+}
     return (vma + offset->DATA.u);
 }
 
@@ -575,18 +604,21 @@ static int Unbind(void)
     LispObj old, loc;
     Integer bsp = processor->BindingStackPointer;
 
-    if (!ReadControlCleanupBindings(processor->control))
+    if (!ReadControlCleanupBindings(processor->control)) {
         return (-1);
-    if (Trace)
+}
+    if (Trace) {
         fprintf(stderr, "Unbind\n");
+}
     MemoryRead(bsp, &old, CycleBindRead);
     MemoryRead(bsp - 1, &loc, CycleBindRead);
     StoreContents(loc.DATA.u, &old, CycleBindWrite);
     /* no more chance of pclsr-ing */
     processor->BindingStackPointer = bsp - 2;
     WriteControlCleanupBindings(processor->control, ldb(1, 6, loc.TAG));
-    if (ldb(1, 1, processor->PreemptRegister))
+    if (ldb(1, 1, processor->PreemptRegister)) {
         processor->PreemptRegister |= 1;
+}
     return (0);
 }
 
@@ -653,14 +685,16 @@ Integer ALUFunctionByte(Integer ALU, Integer op1, Integer op2)
     case ALUByteFunctionDpb:
         rotated = op2 << rotate;
         mask = (~(-2 << size)) << rotate;
-        if (ReadALUByteRotateLatch(ALU))
+        if (ReadALUByteRotateLatch(ALU)) {
             processor->RotateLatch = rotated | ((unsigned)op2 >> ((32 - rotate) & 0x1f));
+}
         return ((rotated & mask) | (background & ~mask));
     case ALUByteFunctionLdb:
         rotated = (unsigned)op2 >> ((32 - rotate) & 0x1f);
         mask = ~(-2 << size);
-        if (ReadALUByteRotateLatch(ALU))
+        if (ReadALUByteRotateLatch(ALU)) {
             processor->RotateLatch = rotated | (op2 << rotate);
+}
         return ((rotated & mask) | (background & ~mask));
     }
 }
@@ -757,7 +791,7 @@ Boolean ALUComputeCondition(Integer ALU, LispObj *op1, LispObj *op2, int result)
 #define AddressPopOperand() (op2 = sp--)
 #define AddressBAR(n) (bar = &processor->bar[n])
 
-/* 
+/*
  * Be careful not to side-effect TOS before setting (in case TOS is your arg!)
  */
 #define PushObject(object)                                                                                             \
@@ -877,16 +911,18 @@ Boolean ALUComputeCondition(Integer ALU, LispObj *op1, LispObj *op2, int result)
 void IncrementPC(LispObj *pc, int offset)
 {
     pc->DATA.u += (offset >> 1);
-    if (pc->TAG & 1)
+    if (pc->TAG & 1) {
         if (offset & 1) {
             pc->TAG = TypeEvenPC;
             pc->DATA.u++;
-        } else
+        } else {
             pc->TAG = TypeOddPC;
-    else if (offset & 1)
+}
+    } else if (offset & 1) {
         pc->TAG = TypeOddPC;
-    else
+    } else {
         pc->TAG = TypeEvenPC;
+}
 }
 
 int InstructionSequencer(void)
@@ -910,58 +946,70 @@ int InstructionSequencer(void)
     void (*old_segv_handler)() = signal(SIGSEGV, segv_handler);
     int vector;
 
-    if (vector = setjmp(trap_environment)) {
+    vector = setjmp(trap_environment);
+    if (vector) {
         DecacheRegisters();
         switch (vector) {
         /* Special "Spy" vector */
         case -1:
-            if (Trace)
+            if (Trace) {
                 fprintf(stderr, "Spy\n");
+}
             return HaltReason_SpyCalled; // CHECK: Not sure that this is the right HaltReason
 
         /* Traps with no arguments */
         case HighPrioritySequenceBreakTrapVector:
         case LowPrioritySequenceBreakTrapVector:
         case ResetTrapVector:
-            if (Trace)
+            if (Trace) {
                 fprintf(stderr, "%08x Trap at PC %08x, VMA %08x, #%d\n", vector, pc.DATA.u, trap_vma.DATA.u,
                     ps->instruction_count);
-            if (!TakePreTrap(vector, 0, 0))
+}
+            if (!TakePreTrap(vector, 0, 0)) {
                 goto halt;
+}
             break;
 
         /* ErrorTrap takes an two arguments */
         case ErrorTrapVector:
-            if (Trace)
+            if (Trace) {
                 fprintf(stderr, "Illegal operand at PC %08x, VMA %08x, #%d\n", pc.DATA.u, trap_vma.DATA.u,
                     ps->instruction_count);
+}
             /* Check for errors in a bad spot */
-            if (!((trap_vma.DATA.u ^ (TrapVectorBase + ResetTrapVector)) & PageNumberMask))
+            if (!((trap_vma.DATA.u ^ (TrapVectorBase + ResetTrapVector)) & PageNumberMask)) {
                 goto halt;
-            if (!TakePreTrap(vector, &trap_microstate, &trap_vma))
+}
+            if (!TakePreTrap(vector, &trap_microstate, &trap_vma)) {
                 goto halt;
+}
             break;
 
         /* Memory traps with one argument */
         case MonitorTrapVector:
         case TransportTrapVector:
         case PageNotResidentTrapVector:
-            if (Trace)
+            if (Trace) {
                 fprintf(stderr, "%08x Trap at PC %08x, VMA %08x, #%d\n", vector, pc.DATA.u, trap_vma.DATA.u,
                     ps->instruction_count);
+}
             /* Check for errors in a bad spot */
-            if (!((trap_vma.DATA.u ^ (TrapVectorBase + ResetTrapVector)) & PageNumberMask))
+            if (!((trap_vma.DATA.u ^ (TrapVectorBase + ResetTrapVector)) & PageNumberMask)) {
                 goto halt;
-            if (!TakePreTrap(vector, &trap_vma, 0))
+}
+            if (!TakePreTrap(vector, &trap_vma, 0)) {
                 goto halt;
+}
             break;
 
         /* InstructionExceptions */
         case InstructionExceptionVector:
-            if (Trace)
+            if (Trace) {
                 fprintf(stderr, "Instruction exception at PC %08x, #%d\n", pc.DATA.u, ps->instruction_count);
-            if (!TakeInstructionException(cp->instruction, op2, &cp->next_pc))
-                goto halt; 
+}
+            if (!TakeInstructionException(cp->instruction, op2, &cp->next_pc)) {
+                goto halt;
+}
             break;
 
         default:
@@ -972,11 +1020,11 @@ int InstructionSequencer(void)
     }
     goto InstructionCacheLookup;
 
-    BranchNotTaken:
-        MARK(NextInstruction);
-    NextInstructionTag:
-        pc = cp->next_pc;
-        cp = cp->next_cp;
+BranchNotTaken:
+    MARK(NextInstruction);
+NextInstructionTag:
+    pc = cp->next_pc;
+    cp = cp->next_cp;
 
 Dispatch:
     /* Here for things that advance the PC non-sequentially, e.g., branch */
@@ -987,7 +1035,7 @@ Dispatch:
     if (cp->code != DispatchInstructionCacheLookup) {
         ps->instruction_count++;
         if (Trace) {
-            fprintf(stderr, "PC %08x(%s), SP: %08x, TOS: %x.%02x.%08x, %s(%d)\n", cp->pc.DATA.u,
+            fprintf(stderr, "PC %08x(%s), SP: %08lx, TOS: %x.%02x.%08x, %s(%d)\n", cp->pc.DATA.u,
                 (cp->pc.TAG & 1) ? "Odd " : "Even", ps->StackCacheBase + (sp - ps->StackCache), TagCdr(sp->TAG),
                 TagType(sp->TAG), sp->DATA.u, ivory_dispatch_names[cp->code], cp->operand);
         }
@@ -996,19 +1044,22 @@ Dispatch:
     case DispatchInstructionCacheLookup:
     InstructionCacheLookup:
         /* --- debug:  returned to top frame */
-        if (TypeEqualP(pc.TAG, TypeNIL))
+        if (TypeEqualP(pc.TAG, TypeNIL)) {
             goto save_and_halt;
+}
         /* --- debug */
-        if (!(TypeEqualP(pc.TAG, TypeEvenPC) || TypeEqualP(pc.TAG, TypeOddPC)))
+        if (!(TypeEqualP(pc.TAG, TypeEvenPC) || TypeEqualP(pc.TAG, TypeOddPC))) {
             InstructionException;
+}
         if (Trace) {
             fprintf(stderr, "Icache lookup at PC %08x(%s)\n", pc.DATA.u, (pc.TAG & 1) ? "Odd " : "Even");
         }
         cp = ps->InstructionCache + ((pc.DATA.u << 1) & (InstructionCacheSize - 1)) + (pc.TAG & 1);
         if (cp->pc.DATA.u != pc.DATA.u) {
             DecacheRegisters();
-            if (InstructionCacheMiss())
-                goto halt; 
+            if (InstructionCacheMiss()) {
+                goto halt;
+}
             EncacheRegisters();
         }
         goto Dispatch;
@@ -1018,19 +1069,22 @@ Dispatch:
 
     case DispatchBranch:
     BranchTaken:
-        if (!cp->operand)
+        if (!cp->operand) {
             IllegalOperand;
+}
         pc.DATA.u += (cp->operand >> 1);
-        if (pc.TAG & 1)
+        if (pc.TAG & 1) {
             if (cp->operand & 1) {
                 pc.TAG = TypeEvenPC;
                 pc.DATA.u++;
-            } else
+            } else {
                 pc.TAG = TypeOddPC;
-        else if (cp->operand & 1)
+}
+        } else if (cp->operand & 1) {
             pc.TAG = TypeOddPC;
-        else
+        } else {
             pc.TAG = TypeEvenPC;
+}
         goto InstructionCacheLookup;
 
     case DispatchCarSP:
@@ -1207,9 +1261,10 @@ Dispatch:
         goto ExecuteRgetf;
     ExecuteRgetf:
         MARK(Rgetf);
-        if ((TypeDoubleFloat <= (TagType(sp->TAG))) && ((TagType(sp->TAG)) <= TypeSpareNumber))
+        if ((TypeDoubleFloat <= (TagType(sp->TAG))) && ((TagType(sp->TAG)) <= TypeSpareNumber)) {
             /* EQL is different from EQ for these, so trap */
             InstructionException;
+}
         *scratch = *op2;
         for (;;) {
             LispObj car_rep, cdr_rep;
@@ -1220,13 +1275,15 @@ Dispatch:
                 PushNIL();
                 NextInstruction;
             }
-            if (CarCdrInternal(scratch, car, cdr))
+            if (CarCdrInternal(scratch, car, cdr)) {
                 goto ScratchListExceptions;
-            if (ObjectEqP(*car, *sp))
+}
+            if (ObjectEqP(*car, *sp)) {
                 switch (TagType(cdr->TAG)) {
                 case TypeList:
-                    if (CarInternal(cdr, sp))
+                    if (CarInternal(cdr, sp)) {
                         InstructionException;
+}
                     PushObject(cdr);
                     NextInstruction;
                 case TypeNIL:
@@ -1235,11 +1292,13 @@ Dispatch:
                 default:
                     IllegalOperand;
                 }
-            else if (CdrInternal(cdr, scratch))
-                if (TypeEqualP(cdr->TAG, TypeListInstance) || TypeSpareP(cdr->TAG))
+            } else if (CdrInternal(cdr, scratch)) {
+                if (TypeEqualP(cdr->TAG, TypeListInstance) || TypeSpareP(cdr->TAG)) {
                     InstructionException;
-                else
+                } else {
                     IllegalOperand;
+}
+}
             AllowSequenceBreaks;
         }
 
@@ -1257,9 +1316,10 @@ Dispatch:
         goto ExecuteMember;
     ExecuteMember:
         MARK(Member);
-        if ((TypeDoubleFloat <= (TagType(sp->TAG))) && ((TagType(sp->TAG)) <= TypeSpareNumber))
+        if ((TypeDoubleFloat <= (TagType(sp->TAG))) && ((TagType(sp->TAG)) <= TypeSpareNumber)) {
             /* EQL is different from EQ for these, so trap */
             InstructionException;
+}
         *scratch = *op2;
         for (;;) {
             LispObj car_rep, cdr_rep;
@@ -1269,13 +1329,15 @@ Dispatch:
                 SetNIL();
                 NextInstruction;
             }
-            if (CarCdrInternal(scratch, car, cdr))
+            if (CarCdrInternal(scratch, car, cdr)) {
                 goto ScratchListExceptions;
+}
             if (ObjectEqP(*car, *sp)) {
                 SetObject(scratch);
                 NextInstruction;
-            } else
+            } else {
                 *scratch = *cdr;
+}
             AllowSequenceBreaks;
         }
 
@@ -1297,9 +1359,10 @@ Dispatch:
          * (assoc x list)
          * x is at TOS, list is in op2.
          */
-        if ((TypeDoubleFloat <= (TagType(sp->TAG))) && ((TagType(sp->TAG)) <= TypeSpareNumber))
+        if ((TypeDoubleFloat <= (TagType(sp->TAG))) && ((TagType(sp->TAG)) <= TypeSpareNumber)) {
             /* EQL is different from EQ for these, so trap */
             InstructionException;
+}
         *scratch = *op2;
         for (;;) {
             LispObj car_rep, cdr_rep;
@@ -1309,8 +1372,9 @@ Dispatch:
                 SetNIL();
                 NextInstruction;
             }
-            if (CarCdrInternal(scratch, car, cdr))
+            if (CarCdrInternal(scratch, car, cdr)) {
                 goto ScratchListExceptions;
+}
             switch (TagType(car->TAG)) {
             case TypeNIL:
                 break;
@@ -1318,8 +1382,9 @@ Dispatch:
                 LispObj keyrep;
                 LispObj *key = &keyrep;
 
-                if (CarInternal(car, key))
+                if (CarInternal(car, key)) {
                     InstructionException;
+}
                 if (ObjectEqP(*key, *sp)) {
                     SetObject(car);
                     NextInstruction;
@@ -1453,7 +1518,7 @@ Dispatch:
         {
             PushT(); /* push T (return value) */
             NextInstruction; /* next insn please */
-        } else
+        } else {
             switch (TagType(sp->TAG)) {
             case TypeDoubleFloat:
             case TypeBignum:
@@ -1470,6 +1535,7 @@ Dispatch:
                 PushNIL(); /* push NIL (return value) */
                 NextInstruction;
             }
+}
 
     case DispatchEqualNumberImmediate:
         SetPredicate(TypeFixnumP(sp->TAG) && (sp->DATA.s == cp->operand));
@@ -1944,10 +2010,12 @@ Dispatch:
     ExecuteQuotient:
         MARK(Quotient);
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
-            if (!op2->DATA.s)
+            if (!op2->DATA.s) {
                 IllegalOperand;
-            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1)
+}
+            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1) {
                 InstructionException;
+}
             sp->DATA.s = sp->DATA.s / op2->DATA.s;
             NextInstruction;
         }
@@ -1973,10 +2041,12 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             int quotient, remainder;
 
-            if (!op2->DATA.s)
+            if (!op2->DATA.s) {
                 IllegalOperand;
-            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1)
+}
+            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1) {
                 InstructionException;
+}
             quotient = sp->DATA.s / op2->DATA.s;
             remainder = sp->DATA.s - (op2->DATA.s * quotient);
             if (remainder == 0) {
@@ -2014,10 +2084,12 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             int quotient, remainder;
 
-            if (!op2->DATA.s)
+            if (!op2->DATA.s) {
                 IllegalOperand;
-            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1)
+}
+            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1) {
                 InstructionException;
+}
             quotient = sp->DATA.s / op2->DATA.s;
             remainder = sp->DATA.s - (op2->DATA.s * quotient);
             if (remainder == 0) {
@@ -2055,10 +2127,12 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             int quotient, remainder;
 
-            if (!op2->DATA.s)
+            if (!op2->DATA.s) {
                 IllegalOperand;
-            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1)
+}
+            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1) {
                 InstructionException;
+}
             quotient = sp->DATA.s / op2->DATA.s;
             remainder = sp->DATA.s - (op2->DATA.s * quotient);
             SetFixnum(quotient);
@@ -2087,10 +2161,12 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             int quotient, remainder, temp;
 
-            if (!op2->DATA.s)
+            if (!op2->DATA.s) {
                 IllegalOperand;
-            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1)
+}
+            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1) {
                 InstructionException;
+}
             quotient = sp->DATA.s / op2->DATA.s;
             remainder = sp->DATA.s - (op2->DATA.s * quotient);
             temp = op2->DATA.s - remainder - remainder;
@@ -2126,10 +2202,12 @@ Dispatch:
         if (BinaryTypeFixnumP(sp->TAG, op2->TAG)) {
             int quotient, remainder;
 
-            if (!op2->DATA.s)
+            if (!op2->DATA.s) {
                 IllegalOperand;
-            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1)
+}
+            if (sp->DATA.s == (-1 << 31) && op2->DATA.s == -1) {
                 InstructionException;
+}
             quotient = sp->DATA.s / op2->DATA.s;
             remainder = sp->DATA.s - (op2->DATA.s * quotient);
             if (!remainder) {
@@ -2158,8 +2236,9 @@ Dispatch:
     ExecuteMax:
         MARK(Max);
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
-            if (op2->DATA.s > sp->DATA.s)
+            if (op2->DATA.s > sp->DATA.s) {
                 SetObject(op2);
+}
             NextInstruction;
         }
         goto BinaryTypeFixnumExceptions;
@@ -2183,8 +2262,9 @@ Dispatch:
     ExecuteMin:
         MARK(Min);
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
-            if (op2->DATA.s < sp->DATA.s)
+            if (op2->DATA.s < sp->DATA.s) {
                 SetObject(op2);
+}
             NextInstruction;
         }
         goto BinaryTypeFixnumExceptions;
@@ -2278,11 +2358,12 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             int places = op2->DATA.s;
 
-            if (places == 0 || sp->DATA.s == 0)
+            if (places == 0 || sp->DATA.s == 0) {
                 NextInstruction;
-            else if (places > 0) {
+            } else if (places > 0) {
                 if ((sp->DATA.s < 0) == ((i = sp->DATA.s << places) < 0) && i != 0)
-                    SetFixnum(i) else InstructionException;
+                    SetFixnum(i) else { InstructionException;
+}
             } else
                 SetFixnum(sp->DATA.s >> (-places));
             NextInstruction;
@@ -2309,14 +2390,15 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             int places = op2->DATA.s;
 
-            if (places == 0)
+            if (places == 0) {
                 NextInstruction;
-            else if ((places > 31) || (places < -31))
+            } else if ((places > 31) || (places < -31))
                 SetFixnum(0) else if (places > 0)
                     SetFixnum(sp->DATA.u << places) else SetFixnum(sp->DATA.u >> (-places));
             NextInstruction;
-        } else
+        } else {
             IllegalOperand;
+}
 
     case DispatchRotImmediate:
         AddressImmediateOperand();
@@ -2338,19 +2420,22 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             int places = op2->DATA.s & 0x1F;
 
-            if (places == 0)
+            if (places == 0) {
                 NextInstruction;
+}
             sp->DATA.u = ((sp->DATA.u << places) | (sp->DATA.u >> (32 - places)));
             NextInstruction;
-        } else
+        } else {
             IllegalOperand;
+}
 
     case Dispatch32BitPlusImmediate:
         if (TypeFixnumP(sp->TAG)) {
             sp->DATA.u += cp->operand;
             NextInstruction;
-        } else
+        } else {
             IllegalOperand;
+}
     case Dispatch32BitPlusSP:
         AddressSPOperand();
         goto Execute32BitPlus;
@@ -2368,15 +2453,17 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             sp->DATA.u += op2->DATA.u;
             NextInstruction;
-        } else
+        } else {
             IllegalOperand;
+}
 
     case Dispatch32BitDifferenceImmediate:
         if (TypeFixnumP(sp->TAG)) {
             sp->DATA.u -= cp->operand;
             NextInstruction;
-        } else
+        } else {
             IllegalOperand;
+}
     case Dispatch32BitDifferenceSP:
         AddressSPOperand();
         goto Execute32BitDifference;
@@ -2394,8 +2481,9 @@ Dispatch:
         if (BinaryTypeFixnumP(op2->TAG, sp->TAG)) {
             sp->DATA.u -= op2->DATA.u;
             NextInstruction;
-        } else
+        } else {
             IllegalOperand;
+}
 
     case DispatchMultiplyDoubleImmediate:
         AddressImmediateOperand();
@@ -2502,8 +2590,9 @@ Dispatch:
             long divisor = (long)op2->DATA.u;
             long quotient = dividend / divisor;
 
-            if (quotient >> 32)
+            if (quotient >> 32) {
                 IllegalOperand;
+}
             sp[-1].DATA.u = (unsigned int)quotient;
             sp->DATA.u = (unsigned int)(dividend - (quotient * divisor));
             NextInstruction;
@@ -2645,8 +2734,9 @@ Dispatch:
              * operand pop */
             PushConstant(TypeLocative, ps->StackCacheBase + (restartsp - ps->StackCache) - op2->DATA.u - 1);
             NextInstruction;
-        } else
+        } else {
             IllegalOperand;
+}
 
     case DispatchStackBltSP:
         AddressSPOperand();
@@ -2662,8 +2752,9 @@ Dispatch:
         goto ExecuteStackBlt;
     ExecuteStackBlt:
         MARK(StackBlt);
-        if (!TypeEqualP(op2->TAG, TypeLocative))
+        if (!TypeEqualP(op2->TAG, TypeLocative)) {
             goto Op2SpareExceptions;
+}
         op2 = &ps->StackCache[op2->DATA.u - ps->StackCacheBase];
         goto ExecuteStackBltAddress;
 
@@ -2681,16 +2772,19 @@ Dispatch:
         goto ExecuteStackBltAddress;
     ExecuteStackBltAddress:
         MARK(StackBltAddress);
-        if (!TypeEqualP(sp->TAG, TypeLocative))
+        if (!TypeEqualP(sp->TAG, TypeLocative)) {
             goto SpSpareExceptions;
+}
 
         i = sp - op2;
         op1 = &ps->StackCache[sp[0].DATA.u - ps->StackCacheBase];
 
-        if ((op1 > op2) || (op1 < fp) || (op2 >= sp))
+        if ((op1 > op2) || (op1 < fp) || (op2 >= sp)) {
             IllegalOperand;
-        for (; i--;)
+}
+        for (; i--;) {
             *op1++ = *op2++;
+}
         sp = op1 - 1;
         NextInstruction;
 
@@ -2726,8 +2820,9 @@ Dispatch:
          * TOS -> ptr
          * ppss encoded in 10bit immed arg
          */
-        if (TypeEqualP(sp->TAG, TypePhysicalAddress))
+        if (TypeEqualP(sp->TAG, TypePhysicalAddress)) {
             InstructionException;
+}
         {
             short pp = (32 - cp->operand) & 0x1F;
             short ss = ((cp->operand >> 5) & 0x1F);
@@ -2743,8 +2838,9 @@ Dispatch:
         }
 
     case DispatchPTagLdb:
-        if (TypeEqualP(sp->TAG, TypePhysicalAddress))
+        if (TypeEqualP(sp->TAG, TypePhysicalAddress)) {
             InstructionException;
+}
         {
             short pp = (32 - cp->operand) & 0x1F;
             short ss = ((cp->operand >> 5) & 0x1F);
@@ -2777,14 +2873,16 @@ Dispatch:
             sp[0].DATA.u = (sp[1].DATA.u & (~newbyte_mask)) | ((sp[0].DATA.u << pp) & newbyte_mask);
             NextInstruction;
         }
-        if (BinaryTypeNumericP(sp->TAG, sp[-1].TAG))
+        if (BinaryTypeNumericP(sp->TAG, sp[-1].TAG)) {
             InstructionException;
-        else
+        } else {
             IllegalOperand;
+}
 
     case DispatchCharDpb:
-        if (!TypeFixnumP(sp[-1].TAG))
+        if (!TypeFixnumP(sp[-1].TAG)) {
             IllegalOperand;
+}
         if (TypeEqualP(sp->TAG, TypeCharacter)) {
             short pp = (cp->operand & 0x1F);
             short ss = ((cp->operand >> 5) & 0x1F);
@@ -2805,10 +2903,12 @@ Dispatch:
          * SP|1 -> newbyte
          * ppss encoded in 10 bit immediate arg
          */
-        if (!TypeFixnumP(sp[-1].TAG))
+        if (!TypeFixnumP(sp[-1].TAG)) {
             IllegalOperand;
-        if (TypeEqualP(sp->TAG, TypePhysicalAddress))
+}
+        if (TypeEqualP(sp->TAG, TypePhysicalAddress)) {
             InstructionException;
+}
         {
             short pp = (cp->operand & 0x1F);
             short ss = ((cp->operand >> 5) & 0x1F);
@@ -2824,10 +2924,12 @@ Dispatch:
         }
 
     case DispatchPTagDpb:
-        if (!TypeFixnumP(sp[-1].TAG))
+        if (!TypeFixnumP(sp[-1].TAG)) {
             IllegalOperand;
-        if (TypeEqualP(sp->TAG, TypePhysicalAddress))
+}
+        if (TypeEqualP(sp->TAG, TypePhysicalAddress)) {
             InstructionException;
+}
         {
             short pp = (cp->operand & 0x1F);
             short ss = ((cp->operand >> 5) & 0x1F);
@@ -2859,19 +2961,23 @@ Dispatch:
         goto ExecuteAref1;
     ExecuteAref1:
         MARK(Aref1);
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
+}
         if (TypeArrayP(sp->TAG)) {
             LispObj header;
             Integer vma;
 
             vma = MemoryReadHeader(sp->DATA.u, &header);
-            if (header.TAG != ArrayHeaderTag)
+            if (header.TAG != ArrayHeaderTag) {
                 IllegalOperand;
-            if (ArrayLongPrefixP(header.DATA.u))
+}
+            if (ArrayLongPrefixP(header.DATA.u)) {
                 InstructionException;
-            if (op2->DATA.u >= ArrayShortLength(header.DATA.u))
+}
+            if (op2->DATA.u >= ArrayShortLength(header.DATA.u)) {
                 IllegalOperand;
+}
             Aref1Internal(
                 vma + 1, ArrayBytePacking(header.DATA.u), 0, ArrayElementType(header.DATA.u), op2->DATA.u, sp);
             NextInstruction;
@@ -2895,19 +3001,23 @@ Dispatch:
         goto ExecuteAset1;
     ExecuteAset1:
         MARK(Aset1);
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
+}
         if (TypeArrayP(sp->TAG)) {
             LispObj header;
             Integer vma;
 
             vma = MemoryReadHeader(sp->DATA.u, &header);
-            if (header.TAG != ArrayHeaderTag)
+            if (header.TAG != ArrayHeaderTag) {
                 IllegalOperand;
-            if (ArrayLongPrefixP(header.DATA.u))
+}
+            if (ArrayLongPrefixP(header.DATA.u)) {
                 InstructionException;
-            if (op2->DATA.u >= ArrayShortLength(header.DATA.u))
+}
+            if (op2->DATA.u >= ArrayShortLength(header.DATA.u)) {
                 IllegalOperand;
+}
             Aset1Internal(
                 vma + 1, ArrayBytePacking(header.DATA.u), 0, ArrayElementType(header.DATA.u), op2->DATA.u, &sp[-1]);
             sp -= 2;
@@ -2932,20 +3042,24 @@ Dispatch:
         goto ExecuteAloc1;
     ExecuteAloc1:
         MARK(Aloc1);
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
+}
         if (TypeArrayP(sp->TAG)) {
             LispObj header;
             Integer vma;
 
             vma = MemoryReadHeader(sp->DATA.u, &header);
-            if (header.TAG != ArrayHeaderTag)
+            if (header.TAG != ArrayHeaderTag) {
                 IllegalOperand;
-            if (ArrayLongPrefixP(header.DATA.u))
+}
+            if (ArrayLongPrefixP(header.DATA.u)) {
                 InstructionException;
+}
             if (op2->DATA.u >= ArrayShortLength(header.DATA.u)
-                || ArrayElementType(header.DATA.u) != ArrayElementTypeObject)
+                || ArrayElementType(header.DATA.u) != ArrayElementTypeObject) {
                 IllegalOperand;
+}
 
             SetConstant(TypeLocative, vma + 1 + op2->DATA.u);
             NextInstruction;
@@ -2999,10 +3113,12 @@ Dispatch:
             Integer vma;
 
             vma = MemoryReadHeader(op2->DATA.u, &header);
-            if (header.TAG != ArrayHeaderTag)
+            if (header.TAG != ArrayHeaderTag) {
                 IllegalOperand;
-            if (ArrayLongPrefixP(header.DATA.u))
+}
+            if (ArrayLongPrefixP(header.DATA.u)) {
                 InstructionException;
+}
             PushConstant(TagType(op2->TAG), vma);
             PushFixnum(SetArrayRegisterEventCount(ps->ArrayEventCount, header.DATA.u));
             PushConstant(TypeLocative, vma + 1);
@@ -3030,16 +3146,18 @@ Dispatch:
          * the stack someplace.  Need to do by-hand addressing to get
          * hold of the other pieces.
          */
-        if (!TypeFixnumP(sp->TAG))
+        if (!TypeFixnumP(sp->TAG)) {
             IllegalOperand;
+}
         /* --- Check array-register format? */
         {
             Integer control = op2[0].DATA.u;
             Integer vma = op2[1].DATA.u;
             int length = op2[2].DATA.s;
 
-            if (sp->DATA.u >= length)
+            if (sp->DATA.u >= length) {
                 IllegalOperand;
+}
             if (ArrayRegisterEventCount(control) != ps->ArrayEventCount) {
                 RecomputeArrayRegister(op2, ps->ArrayEventCount);
                 goto ExecuteFastAref1;
@@ -3069,16 +3187,18 @@ Dispatch:
          * the stack someplace.  Need to do by-hand addressing to get
          * hold of the other pieces.
          */
-        if (!TypeFixnumP(sp->TAG))
+        if (!TypeFixnumP(sp->TAG)) {
             IllegalOperand;
+}
         /* --- Check array-register format? */
         {
             Integer control = op2[0].DATA.u;
             Integer vma = op2[1].DATA.u;
             int length = op2[2].DATA.s;
 
-            if (sp->DATA.u >= length)
+            if (sp->DATA.u >= length) {
                 IllegalOperand;
+}
             if (ArrayRegisterEventCount(control) != ps->ArrayEventCount) {
                 RecomputeArrayRegister(op2, ps->ArrayEventCount);
                 goto ExecuteFastAset1;
@@ -3111,15 +3231,17 @@ Dispatch:
          * TOS -> array
          * op2 -> index
          */
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
+}
         if (TypeArrayP(sp->TAG)) {
             LispObj header, q;
             Integer vma;
 
             vma = MemoryReadHeader(sp[0].DATA.u, &header);
-            if (header.TAG != ArrayHeaderTag || op2->DATA.u >= ArrayLeaderLength(header.DATA.u))
+            if (header.TAG != ArrayHeaderTag || op2->DATA.u >= ArrayLeaderLength(header.DATA.u)) {
                 IllegalOperand;
+}
 
             MemoryReadData(vma - (1 + op2->DATA.u), &q);
             SetObject(&q);
@@ -3150,15 +3272,17 @@ Dispatch:
          * SP|1 -> value
          * op2 ->  index
          */
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
+}
         if (TypeArrayP(sp->TAG)) {
             LispObj header;
             Integer vma;
 
             vma = MemoryReadHeader(sp[0].DATA.u, &header);
-            if (header.TAG != ArrayHeaderTag || op2->DATA.u >= ArrayLeaderLength(header.DATA.u))
+            if (header.TAG != ArrayHeaderTag || op2->DATA.u >= ArrayLeaderLength(header.DATA.u)) {
                 IllegalOperand;
+}
 
             StoreContents(vma - (1 + op2->DATA.u), &sp[-1], CycleDataWrite);
             sp -= 2;
@@ -3188,15 +3312,17 @@ Dispatch:
          * TOS -> array
          * op2 -> index
          */
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
+}
         if (TypeArrayP(sp->TAG)) {
             LispObj header;
             Integer vma;
 
             vma = MemoryReadHeader(sp[0].DATA.u, &header);
-            if (header.TAG != ArrayHeaderTag || op2->DATA.u >= ArrayLeaderLength(header.DATA.u))
+            if (header.TAG != ArrayHeaderTag || op2->DATA.u >= ArrayLeaderLength(header.DATA.u)) {
                 IllegalOperand;
+}
 
             SetConstant(TypeLocative, vma - (1 + op2->DATA.u));
             NextInstruction;
@@ -3276,19 +3402,21 @@ Dispatch:
                 TakeBranch(0);
             DontTakeBranch(0);
         }
-        if (TypeNumericP(sp->TAG))
+        if (TypeNumericP(sp->TAG)) {
         FollowPCInstructionException : {
             /* Exceptions see followed PC as continuation */
             LispObj next_pc = pc;
 
             IncrementPC(&next_pc, cp->operand);
             DecacheRegisters();
-            if (!TakeInstructionException(cp->instruction, op2, &next_pc))
+            if (!TakeInstructionException(cp->instruction, op2, &next_pc)) {
                 goto halt;
+}
             EncacheRegisters();
             goto InstructionCacheLookup;
         }
-            else IllegalOperand;
+            } else { IllegalOperand;
+}
 
     case DispatchLoopIncrementTosLessThan:
         op2 = sp - 1;
@@ -3323,13 +3451,16 @@ Dispatch:
             Integer vma = bar->address.DATA.u;
 
             MemoryRead(vma, &sp[1], cycle);
-            if (fixnum_only && !TypeFixnumP(sp[1].TAG))
+            if (fixnum_only && !TypeFixnumP(sp[1].TAG)) {
                 InstructionException;
+}
             sp++;
-            if (cdr_next)
+            if (cdr_next) {
                 sp->TAG = TagType(sp->TAG);
-            if (!(cp->operand & 0x004))
+}
+            if (!(cp->operand & 0x004)) {
                 bar->address.DATA.u++;
+}
             NextInstruction;
         }
 
@@ -3666,7 +3797,7 @@ Dispatch:
                 lp++;
                 WriteControlArgumentSize(ps->control, 1 + supplied);
                 pc.DATA.u += (maximum - minimum + 2);
-            } else if (supplied < maximum)
+            } else if (supplied < maximum) {
                 switch (TagType(sp[0].TAG)) {
                 case TypeNIL:
                     sp--;
@@ -3679,27 +3810,30 @@ Dispatch:
                         i = PullApplyArgsQuickly(i);
                         EncacheRegisters();
                     }
-                    if (i)
+                    if (i) {
                         goto PullApplyArgsTrap;
-                    else
+                    } else {
                         goto RetryRestAccepted;
+}
                 /* Always trap to handler, not IllegalOperand */
                 default:
                     i = maximum - supplied;
                     goto PullApplyArgsTrap;
                 }
-            else
+            } else {
                 pc.DATA.u += (supplied - minimum + 2);
+}
         } else {
         applynil:
             if (supplied > maximum) {
                 sp[0].TAG = SetTagCdr(sp[0].TAG, CdrNil);
                 PushConstant(TypeList, ps->StackCacheBase + (fp - ps->StackCache) + maximum);
                 pc.DATA.u += (maximum - minimum + 2);
-            } else if (supplied < minimum)
+            } else if (supplied < minimum) {
                 IllegalOperand;
-            else
+            } else {
                 pc.DATA.u += (supplied - minimum + 1);
+}
         }
         goto InstructionCacheLookup;
     }
@@ -3721,8 +3855,9 @@ Dispatch:
                 WriteControlApply(ps->control, 0);
                 goto applynil2;
             }
-            if (supplied >= maximum)
+            if (supplied >= maximum) {
                 IllegalOperand;
+}
             if (TypeEqualP(sp->TAG, TypeList)) {
                 i = maximum - supplied;
                 if ((sp[0].DATA.u - ps->StackCacheBase) < StackCacheSize * PageSize) {
@@ -3730,10 +3865,11 @@ Dispatch:
                     i = PullApplyArgsQuickly(maximum - supplied);
                     EncacheRegisters();
                 }
-                if (i)
+                if (i) {
                     goto PullApplyArgsTrap;
-                else
+                } else {
                     goto RetryRestNotAccepted;
+}
             } else {
                 /* Always trap to handler, not IllegalOperand */
                 i = maximum - supplied;
@@ -3744,8 +3880,9 @@ Dispatch:
             if ((minimum <= supplied) && (supplied <= maximum)) {
                 pc.DATA.u += (supplied - minimum + 1);
                 goto InstructionCacheLookup;
-            } else
+            } else {
                 IllegalOperand;
+}
         }
     }
 
@@ -3784,27 +3921,32 @@ Dispatch:
                 LispObj *cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u - ps->StackCacheBase];
                 Integer control = ps->control;
 
-                if (ldb(1, 6, cbp[1].TAG))
+                if (ldb(1, 6, cbp[1].TAG)) {
                     goto HandleUnwindProtect;
+}
                 WriteControlExtraArgument(control, ldb(1, 7, cbp[2].TAG));
                 ps->control = WriteControlCleanupCatch(control, ldb(1, 6, cbp[2].TAG));
                 StoreCdrNext(ps->CatchBlockPointer, cbp[2]);
             }
             if (ReadControlCleanupBindings(ps->control)) {
-                if (ps->DeepBoundP)
+                if (ps->DeepBoundP) {
                     UnimplementedInstruction;
-                for (; ReadControlCleanupBindings(ps->control);)
+}
+                for (; ReadControlCleanupBindings(ps->control);) {
                     Unbind();
+}
             }
-            if (ReadControlTrapOnExit(ps->control))
+            if (ReadControlTrapOnExit(ps->control)) {
                 IllegalOperand;
+}
         }
         /* --- debug
         if (TypeEqualP (fp[0].TAG, TypeNIL))
           goto save_and_halt;
          */
-        if (disp != ValueDispositionReturn)
+        if (disp != ValueDispositionReturn) {
             pc = ps->continuation;
+}
         ps->continuation = fp[0];
         sp = fp - 1;
         fp = fp - ReadControlCallerFrameSize(ps->control);
@@ -3847,8 +3989,9 @@ Dispatch:
         goto ExecuteReturnMultiple;
     ExecuteReturnMultiple:
         MARK(ReturnMultiple);
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
+}
         {
             int count = op2->DATA.s;
             IvoryValueDisposition disp;
@@ -3866,8 +4009,9 @@ Dispatch:
             framesize = ReadControlCallerFrameSize(ps->control);
             control = fp[1].DATA.u;
             valueblock = &sp[-(count - 1)];
-            if ((disp == ValueDispositionMultiple || disp == ValueDispositionReturn) && (framesize + count + 1 > 112))
+            if ((disp == ValueDispositionMultiple || disp == ValueDispositionReturn) && (framesize + count + 1 > 112)) {
                 IllegalOperand;
+}
 
             if (ReadControlCleanupBits(ps->control)) {
                 for (; ReadControlCleanupCatch(ps->control);) {
@@ -3876,28 +4020,33 @@ Dispatch:
                     LispObj *cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u - ps->StackCacheBase];
                     Integer control = ps->control;
 
-                    if (ldb(1, 6, cbp[1].TAG))
+                    if (ldb(1, 6, cbp[1].TAG)) {
                         goto HandleUnwindProtect;
+}
                     WriteControlExtraArgument(control, ldb(1, 7, cbp[2].TAG));
                     ps->control = WriteControlCleanupCatch(control, ldb(1, 6, cbp[2].TAG));
                     StoreCdrNext(ps->CatchBlockPointer, cbp[2]);
                 }
                 if (ReadControlCleanupBindings(ps->control)) {
-                    if (ps->DeepBoundP)
+                    if (ps->DeepBoundP) {
                         UnimplementedInstruction;
-                    for (; ReadControlCleanupBindings(ps->control);)
+}
+                    for (; ReadControlCleanupBindings(ps->control);) {
                         Unbind();
+}
                 }
-                if (ReadControlTrapOnExit(ps->control))
+                if (ReadControlTrapOnExit(ps->control)) {
                     IllegalOperand;
+}
             }
 
             /* --- debug
             if (TypeEqualP (fp[0].TAG, TypeNIL))
               goto save_and_halt;
              */
-            if (disp != ValueDispositionReturn)
+            if (disp != ValueDispositionReturn) {
                 pc = ps->continuation;
+}
             ps->continuation = fp[0];
             sp = fp - 1;
             fp -= framesize;
@@ -3911,13 +4060,15 @@ Dispatch:
                     PushObject(valueblock) else PushNIL();
                 break;
             case ValueDispositionMultiple:
-                for (i = count; i--;)
+                for (i = count; i--;) {
                     StoreCdrNext(*++sp, *valueblock++);
+}
                 PushFixnum(count);
                 break;
             case ValueDispositionReturn:
-                for (i = count; i--;)
+                for (i = count; i--;) {
                     *++sp = *valueblock++;
+}
             }
             if (fp < ps->StackCache) {
                 DecacheRegisters();
@@ -3947,8 +4098,9 @@ Dispatch:
             Integer control = fp[1].DATA.u;
             LispObj *valueblock = &sp[-(count - 1)];
 
-            if (framesize + count + 1 > 112)
+            if (framesize + count + 1 > 112) {
                 IllegalOperand;
+}
             if (ReadControlCleanupBits(ps->control)) {
                 for (; ReadControlCleanupCatch(ps->control);) {
                     /* cbp[0] == pc, cbp[1] == binding stack, cbp[2] ==
@@ -3956,20 +4108,24 @@ Dispatch:
                     LispObj *cbp = &ps->StackCache[ps->CatchBlockPointer.DATA.u - ps->StackCacheBase];
                     Integer control = ps->control;
 
-                    if (ldb(1, 6, cbp[1].TAG))
+                    if (ldb(1, 6, cbp[1].TAG)) {
                         goto HandleUnwindProtect;
+}
                     WriteControlExtraArgument(control, ldb(1, 7, cbp[2].TAG));
                     ps->control = WriteControlCleanupCatch(control, ldb(1, 6, cbp[2].TAG));
                     StoreCdrNext(ps->CatchBlockPointer, cbp[2]);
                 }
                 if (ReadControlCleanupBindings(ps->control)) {
-                    if (ps->DeepBoundP)
+                    if (ps->DeepBoundP) {
                         UnimplementedInstruction;
-                    for (; ReadControlCleanupBindings(ps->control);)
+}
+                    for (; ReadControlCleanupBindings(ps->control);) {
                         Unbind();
+}
                 }
-                if (ReadControlTrapOnExit(ps->control))
+                if (ReadControlTrapOnExit(ps->control)) {
                     IllegalOperand;
+}
             }
             /* --- debug
             if (TypeEqualP (fp[0].TAG, TypeNIL))
@@ -3980,8 +4136,9 @@ Dispatch:
             sp = fp - 1;
             fp -= framesize;
             lp = fp + ReadControlArgumentSize(ps->control = control);
-            for (i = count; i--;)
+            for (i = count; i--;) {
                 *++sp = *valueblock++;
+}
 
             /* --- goto StackCacheUnderflowCheck; */
             if (fp < ps->StackCache) {
@@ -3996,14 +4153,17 @@ Dispatch:
         IllegalOperand;
 
     case DispatchTakeValues:
-        if (!TypeFixnumP(sp->TAG))
+        if (!TypeFixnumP(sp->TAG)) {
             IllegalOperand;
+}
         i = cp->operand - sp->DATA.s;
         sp--;
-        if (i > 0)
+        if (i > 0) {
             goto PushNNilsInternal;
-        if (i < 0)
+}
+        if (i < 0) {
             sp += i;
+}
         NextInstruction;
 
     case DispatchBindLocativeToValueImmediate:
@@ -4026,8 +4186,9 @@ Dispatch:
         if (TypeEqualP(sp->TAG, TypeLocative)) {
             LispObj loc = *sp--;
 
-            if (ps->BindingStackPointer >= ps->BindingStackLimit || ps->DeepBoundP)
+            if (ps->BindingStackPointer >= ps->BindingStackLimit || ps->DeepBoundP) {
                 IllegalOperand;
+}
             MemoryRead(loc.DATA.u, scratch, CycleBindRead);
             loc.TAG |= (ReadControlCleanupBindings(ps->control) << 6);
             WriteVirtualMemory(ps->BindingStackPointer + 1, &loc);
@@ -4057,8 +4218,9 @@ Dispatch:
         if (TypeEqualP(op2->TAG, TypeLocative)) {
             LispObj loc = *op2;
 
-            if (ps->BindingStackPointer >= ps->BindingStackLimit || ps->DeepBoundP)
+            if (ps->BindingStackPointer >= ps->BindingStackLimit || ps->DeepBoundP) {
                 IllegalOperand;
+}
             MemoryRead(loc.DATA.u, scratch, CycleBindRead);
             loc.TAG |= (ReadControlCleanupBindings(ps->control) << 6);
             WriteVirtualMemory(ps->BindingStackPointer + 1, &loc);
@@ -4078,11 +4240,14 @@ Dispatch:
         goto ExecuteUnbindN;
     ExecuteUnbindN:
         MARK(UnbindN);
-        if (!TypeFixnumP(op2->TAG) || ps->DeepBoundP)
+        if (!TypeFixnumP(op2->TAG) || ps->DeepBoundP) {
             IllegalOperand;
-        for (i = op2->DATA.u; i--;)
-            if (Unbind())
+}
+        for (i = op2->DATA.u; i--;) {
+            if (Unbind()) {
                 IllegalOperand;
+}
+}
         NextInstruction;
 
     case DispatchRestoreBindingStackImmediate:
@@ -4103,11 +4268,14 @@ Dispatch:
     ExecuteRestoreBindingStack:
         MARK(RestoreBindingStack);
         if (TypeEqualP(op2->TAG, TypeLocative)) {
-            if (ps->DeepBoundP)
+            if (ps->DeepBoundP) {
                 IllegalOperand;
-            for (; ps->BindingStackPointer > op2->DATA.u;)
-                if (Unbind())
+}
+            for (; ps->BindingStackPointer > op2->DATA.u;) {
+                if (Unbind()) {
                     IllegalOperand;
+}
+}
             NextInstruction;
         }
         goto Op2SpareExceptions;
@@ -4134,12 +4302,15 @@ Dispatch:
         Integer control = ps->control;
 
         if (ps->BindingStackPointer != cbp[1].DATA.u) {
-            if (ps->DeepBoundP)
+            if (ps->DeepBoundP) {
                 UnimplementedInstruction;
-            else
-                for (; ps->BindingStackPointer > cbp[1].DATA.u;)
-                    if (Unbind())
+            } else {
+                for (; ps->BindingStackPointer > cbp[1].DATA.u;) {
+                    if (Unbind()) {
                         IllegalOperand;
+}
+}
+}
         }
         WriteControlExtraArgument(control, ldb(1, 7, cbp[2].TAG));
         ps->control = WriteControlCleanupCatch(control, ldb(1, 6, cbp[2].TAG));
@@ -4251,28 +4422,32 @@ Dispatch:
         NextInstruction;
 
     case DispatchPushInstanceVariableOrdered:
-        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance))
+        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance)) {
             IllegalOperand;
+}
         MemoryReadData(fp[3].DATA.u + cp->operand, &sp[1]);
         sp++;
         NextInstruction;
 
     case DispatchPopInstanceVariableOrdered:
-        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance))
+        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance)) {
             IllegalOperand;
+}
         StoreContents(fp[3].DATA.u + cp->operand, &sp[0], CycleDataWrite);
         sp--;
         NextInstruction;
 
     case DispatchMovemInstanceVariableOrdered:
-        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance))
+        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance)) {
             IllegalOperand;
+}
         StoreContents(fp[3].DATA.u + cp->operand, &sp[0], CycleDataWrite);
         NextInstruction;
 
     case DispatchPushAddressInstanceVariableOrdered:
-        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance))
+        if (ldb(4, 2, fp[3].TAG) != ldb(4, 2, TypeInstance)) {
             IllegalOperand;
+}
         PushConstant(TypeLocative, fp[3].DATA.u + cp->operand);
         NextInstruction;
 
@@ -4421,8 +4596,9 @@ Dispatch:
 
             ps->ALUOverflow = 0;
             result = (*(ps->AluOp))(ps->AluAndRotateControl, sp->DATA.u, op2->DATA.u);
-            if (ps->ALUOverflow)
+            if (ps->ALUOverflow) {
                 InstructionException;
+}
             sp->DATA.u = result;
             NextInstruction;
         }
@@ -4445,14 +4621,17 @@ Dispatch:
         goto ExecuteAllocateListBlock;
     ExecuteAllocateListBlock:
         MARK(AllocateListBlock);
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
-        if (!ObjectEqP(ps->ListCacheArea, *sp) || (op2->DATA.u > ps->ListCacheLength))
+}
+        if (!ObjectEqP(ps->ListCacheArea, *sp) || (op2->DATA.u > ps->ListCacheLength)) {
             InstructionException;
+}
         SetObject(&(ps->ListCacheAddress));
         ps->bar[1].address = ps->ListCacheAddress;
-        if (ReadControlTrapMode(ps->control) < 1)
+        if (ReadControlTrapMode(ps->control) < 1) {
             WriteControlTrapMode(ps->control, 1);
+}
         ps->ListCacheLength -= op2->DATA.u;
         ps->ListCacheAddress.DATA.u += op2->DATA.u;
         NextInstruction;
@@ -4474,14 +4653,17 @@ Dispatch:
         goto ExecuteAllocateStructureBlock;
     ExecuteAllocateStructureBlock:
         MARK(AllocateStructureBlock);
-        if (!TypeFixnumP(op2->TAG))
+        if (!TypeFixnumP(op2->TAG)) {
             IllegalOperand;
-        if (!ObjectEqP(ps->StructureCacheArea, *sp) || (op2->DATA.u > ps->StructureCacheLength))
+}
+        if (!ObjectEqP(ps->StructureCacheArea, *sp) || (op2->DATA.u > ps->StructureCacheLength)) {
             InstructionException;
+}
         SetObject(&(ps->StructureCacheAddress));
         ps->bar[1].address = ps->StructureCacheAddress;
-        if (ReadControlTrapMode(ps->control) < 1)
+        if (ReadControlTrapMode(ps->control) < 1) {
             WriteControlTrapMode(ps->control, 1);
+}
         ps->StructureCacheLength -= op2->DATA.u;
         ps->StructureCacheAddress.DATA.u += op2->DATA.u;
         NextInstruction;
@@ -4963,11 +5145,13 @@ Dispatch:
         int cdr_next = (cp->operand & 020);
 
         MemoryRead(sp->DATA.u, scratch, cycle);
-        if (fixnum_only && !TypeFixnumP(scratch->TAG))
+        if (fixnum_only && !TypeFixnumP(scratch->TAG)) {
             IllegalOperand;
+}
         *sp = *scratch;
-        if (cdr_next)
+        if (cdr_next) {
             sp->TAG = TagType(sp->TAG);
+}
         NextInstruction;
     }
 
@@ -4978,11 +5162,13 @@ Dispatch:
         Integer vma = sp->DATA.u;
 
         vma = MemoryRead(vma, scratch, cycle);
-        if (fixnum_only && !TypeFixnumP(scratch->TAG))
+        if (fixnum_only && !TypeFixnumP(scratch->TAG)) {
             IllegalOperand;
+}
         sp->DATA.u = (unsigned int)vma;
-        if (cdr_next)
+        if (cdr_next) {
             sp->TAG = TagType(sp->TAG);
+}
         NextInstruction;
     }
 
@@ -5026,8 +5212,9 @@ Dispatch:
         if (TypeEqualP(op2->TAG, TypeFixnum)) {
             sp->TAG = op2->DATA.u;
             NextInstruction;
-        } else
+        } else {
             InstructionException;
+}
 
     case DispatchStoreConditionalImmediate:
         AddressImmediateOperand();
@@ -5059,8 +5246,9 @@ Dispatch:
             }
             NextInstruction;
         }
-        if (TypeSpareP(sp[-1].TAG))
+        if (TypeSpareP(sp[-1].TAG)) {
             InstructionException;
+}
         IllegalOperand;
 
     case DispatchMemoryWriteImmediate:
@@ -5177,8 +5365,9 @@ Dispatch:
         case TypeEvenPC:
         case TypeOddPC:
             pc = *op2;
-            if (ldb(1, 7, op2->TAG))
+            if (ldb(1, 7, op2->TAG)) {
                 WriteControlCleanupInProgress(processor->control, ldb(1, 6, op2->TAG));
+}
             goto InstructionCacheLookup;
         }
         InstructionException;
@@ -5371,13 +5560,15 @@ Dispatch:
     }
 
 Op2FixnumExceptions:
-    if (TypeNumericP(op2->TAG))
+    if (TypeNumericP(op2->TAG)) {
         InstructionException;
+}
     IllegalOperand;
 
 Op2ListExceptions:
-    if (TypeEqualP(op2->TAG, TypeListInstance))
+    if (TypeEqualP(op2->TAG, TypeListInstance)) {
         InstructionException;
+}
     goto Op2SpareExceptions;
 
 Op2ArrayExceptions:
@@ -5389,8 +5580,9 @@ Op2ArrayExceptions:
     goto Op2SpareExceptions;
 
 Op2SpareExceptions:
-    if (TypeSpareP(op2->TAG))
+    if (TypeSpareP(op2->TAG)) {
         InstructionException;
+}
     IllegalOperand;
 
 BinaryTypeFixnumExceptions:
@@ -5399,13 +5591,15 @@ BinaryTypeFixnumExceptions:
     IllegalOperand;
 
 SpFixnumExceptions:
-    if (TypeNumericP(sp->TAG))
+    if (TypeNumericP(sp->TAG)) {
         InstructionException;
+}
     IllegalOperand;
 
 SpListExceptions:
-    if (TypeEqualP(sp->TAG, TypeListInstance))
+    if (TypeEqualP(sp->TAG, TypeListInstance)) {
         InstructionException;
+}
     goto SpSpareExceptions;
 
 SpArrayExceptions:
@@ -5417,18 +5611,21 @@ SpArrayExceptions:
     goto SpSpareExceptions;
 
 SpSpareExceptions:
-    if (TypeSpareP(sp->TAG))
+    if (TypeSpareP(sp->TAG)) {
         InstructionException;
+}
     IllegalOperand;
 
 ScratchListExceptions:
-    if (TypeEqualP(scratch->TAG, TypeListInstance))
+    if (TypeEqualP(scratch->TAG, TypeListInstance)) {
         InstructionException;
+}
     goto ScratchSpareExceptions;
 
 ScratchSpareExceptions:
-    if (TypeSpareP(scratch->TAG))
+    if (TypeSpareP(scratch->TAG)) {
         InstructionException;
+}
     IllegalOperand;
 
 HandleUnwindProtect : {
@@ -5438,12 +5635,15 @@ HandleUnwindProtect : {
     sp = restartsp;
 
     if (ps->BindingStackPointer != cbp[1].DATA.u) {
-        if (ps->DeepBoundP)
+        if (ps->DeepBoundP) {
             UnimplementedInstruction;
-        else
-            for (; ps->BindingStackPointer > cbp[1].DATA.u;)
-                if (Unbind())
+        } else {
+            for (; ps->BindingStackPointer > cbp[1].DATA.u;) {
+                if (Unbind()) {
                     IllegalOperand;
+}
+}
+}
     }
     PushConstant(SetTagCdr(pc.TAG, dpb(ReadControlCleanupInProgress(control), 1, 0, 2)), pc.DATA.u);
     WriteControlCleanupInProgress(control, 1);
@@ -5461,15 +5661,17 @@ PullApplyArgsTrap : {
     restartsp = sp;
     pull.DATA.s = i;
     DecacheRegisters();
-    if (!TakePreTrap(PullApplyArgsTrapVector, &pull, &apply))
+    if (!TakePreTrap(PullApplyArgsTrapVector, &pull, &apply)) {
         goto halt;
+}
     EncacheRegisters();
     goto InstructionCacheLookup;
 }
 
 UnimplementedInstructionTag:
-    if (Trace)
+    if (Trace) {
         fprintf(stderr, "Unimplemented instruction at PC %08x, #%d\n", pc.DATA.u, ps->instruction_count);
+}
     {
         LispObj microstate;
 
@@ -5477,15 +5679,17 @@ UnimplementedInstructionTag:
         /* --- pass a microstate somehow */
         microstate.DATA.s = 0;
         DecacheRegisters();
-        if (!TakePreTrap(ErrorTrapVector, &microstate, &pc))
+        if (!TakePreTrap(ErrorTrapVector, &microstate, &pc)) {
             goto halt;
+}
         EncacheRegisters();
         goto InstructionCacheLookup;
     }
 
 IllegalOperandTag:
-    if (Trace)
+    if (Trace) {
         fprintf(stderr, "Illegal operand at PC %08x, #%d\n", pc.DATA.u, ps->instruction_count);
+}
     {
         LispObj microstate, vma;
 
@@ -5497,19 +5701,22 @@ IllegalOperandTag:
          * anyways? */
         vma.DATA.u = ps->StackCacheBase + (op2 - ps->StackCache);
         DecacheRegisters();
-        if (!TakePreTrap(ErrorTrapVector, &microstate, &vma))
+        if (!TakePreTrap(ErrorTrapVector, &microstate, &vma)) {
             goto halt;
+}
         EncacheRegisters();
         goto InstructionCacheLookup;
     }
 
 InstructionExceptionTag:
-    if (Trace)
+    if (Trace) {
         fprintf(stderr, "Instruction exception at PC %08x, #%d\n", pc.DATA.u, ps->instruction_count);
+}
     {
         DecacheRegisters();
-        if (!TakeInstructionException(cp->instruction, op2, &cp->next_pc))
+        if (!TakeInstructionException(cp->instruction, op2, &cp->next_pc)) {
             goto halt;
+}
         EncacheRegisters();
         goto InstructionCacheLookup;
     }

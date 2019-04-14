@@ -23,7 +23,6 @@ Tag *TagSpace = (Tag *)((int64_t)1 << 36); /* 1<<32 bytes of tages */
 /* Data space must be TagSpace*4 for Ivory-based address scheme */
 Integer *DataSpace = (Integer *)((int64_t)1 << 38); /* 4<<32 bytes of data */
 
-
 /* Initially, just a record of the pages that have faulted recently */
 typedef Integer PHTEntry;
 #define ResidentPages_Size 16384
@@ -85,8 +84,9 @@ Integer EnsureVirtualAddress(Integer vma, Boolean faultp)
 
     if (attr & VMAttribute_Exists) {
         /* All "created" pages are modified for our purposes */
-        if (!(attr & VMAttribute_Modified))
+        if (!(attr & VMAttribute_Modified)) {
             AdjustProtection(vma, attr | VMAttribute_Modified);
+}
         return (MemoryPage_Size);
     }
 
@@ -124,9 +124,9 @@ Integer DestroyVirtualAddress(Integer vma)
 {
     Integer result;
 
-    if (!Created(vma))
+    if (!Created(vma)) {
         result = 0;
-    else {
+    } else {
         ClearCreated(vma);
         result = (Integer)MemoryPage_Size;
     }
@@ -154,8 +154,9 @@ Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp)
     Integer result = 0;
     int pages = ceiling(count + MemoryPageOffset(vma), MemoryPage_Size);
 
-    for (; pages--; vma += MemoryPage_Size)
+    for (; pages--; vma += MemoryPage_Size) {
         result += EnsureVirtualAddress(vma, faultp);
+}
 
     return (result);
 }
@@ -166,8 +167,9 @@ Integer DestroyVirtualAddressRange(Integer vma, Integer count)
     int pages = ceiling(count + MemoryPageOffset(vma), MemoryPage_Size);
 
     for (; pages--; vma += MemoryPage_Size) {
-        if (Created(vma))
+        if (Created(vma)) {
             result += DestroyVirtualAddress(vma);
+}
     }
 
     return (result);
@@ -197,8 +199,9 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
         /* (e.g., shared FEP page) */
         for (; (length > 0) && (MemoryWadOffset(vma) || Created(vma) || (length < MemoryWad_Size));) {
             words = MemoryPage_Size - MemoryPageOffset(vma);
-            if (words > length)
+            if (words > length) {
                 words = length;
+}
             EnsureVirtualAddress(vma, FALSE);
 
             dataCount = sizeof(Integer) * words;
@@ -291,8 +294,7 @@ LispObj VirtualMemoryReadUncached(Integer vma)
 LispObj VirtualMemoryRead(unsigned int address)
 {
     if (VMAinStackCacheP(address))
-        /* We have got a stack cache hit, read the bits form the stack cache.
-         */
+        /* We have got a stack cache hit, read the bits form the stack cache. */
         return (((LispObj *)processor->stackcachedata)[address - processor->stackcachebasevma]);
     else
         return (VirtualMemoryReadUncached(address));
@@ -360,8 +362,9 @@ void VirtualMemoryReadBlock(unsigned int address, LispObj *object, int count)
         count--;
     }
 
-    if (count > 0)
+    if (count > 0) {
         VirtualMemoryReadBlockUncached(address, object, count);
+}
 }
 
 void VirtualMemoryWriteBlockUncached(Integer vma, LispObj *object, int count)
@@ -395,8 +398,9 @@ void VirtualMemoryWriteBlock(unsigned int address, LispObj *object, int count)
         count--;
     }
 
-    if (count > 0)
+    if (count > 0) {
         VirtualMemoryWriteBlockUncached(address, object, count);
+}
 }
 
 void VirtualMemoryWriteBlockConstantUncached(Integer vma, LispObj object, int count, int increment)
@@ -412,19 +416,23 @@ void VirtualMemoryWriteBlockConstantUncached(Integer vma, LispObj object, int co
 
     switch (increment) {
     case 0:
-        if (cdata == 0)
+        if (cdata == 0) {
             (void)memset((unsigned char *)data, (unsigned char)0, count * sizeof(Integer));
-        else
-            for (; data < edata; *data++ = cdata)
+        } else {
+            for (; data < edata; *data++ = cdata) {
                 ;
+}
+}
         break;
     case 1:
-        for (; data < edata; *data++ = cdata++)
+        for (; data < edata; *data++ = cdata++) {
             ;
+}
         break;
     default:
-        for (; data < edata; *data++ = cdata, cdata += increment)
+        for (; data < edata; *data++ = cdata, cdata += increment) {
             ;
+}
     }
 }
 
@@ -446,8 +454,9 @@ void VirtualMemoryWriteBlockConstant(unsigned int address, LispObj object, int c
         count--;
     }
 
-    if (count > 0)
+    if (count > 0) {
         VirtualMemoryWriteBlockConstantUncached(address, object, count, increment);
+}
 }
 
 /* --- bleah, this probably has to use data-read cycles */
@@ -501,7 +510,7 @@ void VirtualMemoryEnable(Integer vma, int count, Boolean faultp)
 
     if (!processor->zoneoldspace) {
         /* Ephemeral flip */
-        for (; attr < eattr; attr++, vma += MemoryPage_Size)
+        for (; attr < eattr; attr++, vma += MemoryPage_Size) {
             if (VMExists(oa = *attr)) {
                 /* On an ephemeral flip, we would like to not enable pages
                  * that can't possibly need scavenging, to minimize the number
@@ -528,12 +537,14 @@ void VirtualMemoryEnable(Integer vma, int count, Boolean faultp)
                     ClearVMTransportDisable(a);
                     ClearVMTransportFault(a);
                 }
-                if (a != oa)
+                if (a != oa) {
                     AdjustProtection(vma, a);
+}
             }
+}
     } else {
         /* Dynamic flip */
-        for (; attr < eattr; attr++, vma += MemoryPage_Size)
+        for (; attr < eattr; attr++, vma += MemoryPage_Size) {
             if (VMExists(oa = *attr)) {
 #ifdef notdef /* --- some day */
                 if (VMDynamic(a = oa))
@@ -542,14 +553,17 @@ void VirtualMemoryEnable(Integer vma, int count, Boolean faultp)
 #endif
                     SetVMTransportFault(a);
 
-                if (!faultp)
+                if (!faultp) {
                     SetVMTransportDisable(a);
-                else
+                } else {
                     ClearVMTransportDisable(a);
+}
 
-                if (a != oa)
+                if (a != oa) {
                     AdjustProtection(vma, a);
+}
             }
+}
     }
 }
 
@@ -571,7 +585,7 @@ Boolean VirtualMemorySearchCDR(Integer *vma, int count, unsigned int cdr_mask)
         for (; thisvma < limitvma; tags8++, thisvma = nextvma, nextvma += 8) {
             /* get to first cdr */
             tagbits = ((*tags8) >> 6);
-            for (; thisvma < nextvma; tagbits >>= 8, thisvma++)
+            for (; thisvma < nextvma; tagbits >>= 8, thisvma++) {
                 if ((cdr_mask >> (tagbits & 0x3)) & 01) {
                     {
                         /* Don't return on addresses you weren't asked to
@@ -582,12 +596,13 @@ Boolean VirtualMemorySearchCDR(Integer *vma, int count, unsigned int cdr_mask)
                         }
                     }
                 }
+}
         }
     } else {
         for (; thisvma > limitvma; tags8--, thisvma = nextvma, nextvma -= 8) {
             /* get to first cdr */
             tagbits = ((*tags8) >> 6);
-            for (; thisvma > nextvma; tagbits <<= 8, thisvma--)
+            for (; thisvma > nextvma; tagbits <<= 8, thisvma--) {
                 if ((cdr_mask >> ((tagbits >> 56) & 0x3)) & 01) {
                     {
                         /* Don't return on addresses you weren't asked to
@@ -598,6 +613,7 @@ Boolean VirtualMemorySearchCDR(Integer *vma, int count, unsigned int cdr_mask)
                         }
                     }
                 }
+}
         }
     }
 
@@ -621,7 +637,7 @@ Boolean VirtualMemorySearchType(Integer *vma, int count, uint64_t type_mask)
     if (forwardp) {
         for (; thisvma < limitvma; tags8++, thisvma = nextvma, nextvma += 8) {
             tagbits = *tags8;
-            for (; thisvma < nextvma; tagbits >>= 8, thisvma++)
+            for (; thisvma < nextvma; tagbits >>= 8, thisvma++) {
                 if ((type_mask >> (tagbits & 0x3f)) & 01) {
                     {
                         /* Don't return on addresses you weren't asked to
@@ -632,11 +648,12 @@ Boolean VirtualMemorySearchType(Integer *vma, int count, uint64_t type_mask)
                         }
                     }
                 }
+}
         }
     } else {
         for (; thisvma > limitvma; tags8--, thisvma = nextvma, nextvma -= 8) {
             tagbits = *tags8;
-            for (; thisvma > nextvma; tagbits <<= 8, thisvma--)
+            for (; thisvma > nextvma; tagbits <<= 8, thisvma--) {
                 if ((type_mask >> ((tagbits >> 56) & 0x3f)) & 01) {
                     {
                         /* Don't return on addresses you weren't asked to
@@ -647,6 +664,7 @@ Boolean VirtualMemorySearchType(Integer *vma, int count, uint64_t type_mask)
                         }
                     }
                 }
+}
         }
     }
 
@@ -768,14 +786,15 @@ Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
                 tagbits = *tags8;
                 /* --- could use compare-bytes to test for all tags being
                 /* packed instructions */
-                for (; thisvma < nextvma; tagbits >>= 8, thisvma++)
+                for (; thisvma < nextvma; tagbits >>= 8, thisvma++) {
                     if (PointerP(tagbits)) {
                         if (update) {
                             /* In update phase, just scan for ephemeral
                             references.  You are
                             /* done as soon as you find one */
-                            if (ephemeral || (ephemeral = EphemeralAddressP(word = DataSpace[thisvma])))
+                            if (ephemeral || (ephemeral = EphemeralAddressP(word = DataSpace[thisvma]))) {
                                 goto done;
+}
                         } else {
                             if (EphemeralAddressP(word = DataSpace[thisvma])) {
                                 ephemeral = TRUE;
@@ -797,6 +816,7 @@ Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
                             }
                         }
                     }
+}
             }
         }
 
@@ -812,13 +832,15 @@ Boolean ScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
                 ClearVMTransportDisable(a);
 
                 /* We have finished the page and can update ephemeral */
-                if (ephemeral)
+                if (ephemeral) {
                     SetVMEphemeral(a);
-                else
+                } else {
                     ClearVMEphemeral(a);
+}
 
-                if (a != oa)
+                if (a != oa) {
                     AdjustProtection(scanvma, a);
+}
             }
 
             return (FALSE);
@@ -835,9 +857,9 @@ Boolean VirtualMemoryScan(Integer *vma, int count, Boolean slowp)
     Boolean (*scan)() = slowp ? SlowScanPage : ScanPage;
     Boolean update = FALSE;
 
-    if (slowp)
+    if (slowp) {
         mask = VMAttribute_Exists;
-    else if (!processor->zoneoldspace)
+    } else if (!processor->zoneoldspace)
         mask = VMAttribute_Ephemeral | VMAttribute_TransportFault;
     else
         /* --- some day do a dynamic bit */
@@ -856,8 +878,9 @@ Boolean VirtualMemoryScan(Integer *vma, int count, Boolean slowp)
     }
 
     attr = &VMAttributeTable[MemoryPageNumber(scanvma)];
-    if (whack > count)
+    if (whack > count) {
         whack = count;
+}
 
     for (; count > 0;) {
         VMAttribute a = *attr;
@@ -866,7 +889,6 @@ Boolean VirtualMemoryScan(Integer *vma, int count, Boolean slowp)
             SetVMTransportDisable(a);
             AdjustProtection(scanvma, a);
         }
-
 
         if ((a & mask) == mask) {
             if ((*scan)(scanvma, vma, whack, update)) {
@@ -1014,8 +1036,9 @@ int VMCommand(int command)
                     nattr &= ~(VMAttribute_Exists | VMAttribute_Modified);
                     nattr |= (attr & (VMAttribute_Exists | VMAttribute_Modified));
 
-                    if (attr ^ nattr)
+                    if (attr ^ nattr) {
                         AdjustProtection(vma, nattr);
+}
                     return (SetVMReplyResult(command, TRUE));
                 }
             else
@@ -1039,8 +1062,7 @@ int VMCommand(int command)
         }
 
         case VMOpcodeScan: {
-            Boolean result
-                = VirtualMemoryScan(&vm->AddressRegister, vm->ExtentRegister, VMCommandOperand(command));
+            Boolean result = VirtualMemoryScan(&vm->AddressRegister, vm->ExtentRegister, VMCommandOperand(command));
             return (SetVMReplyResult(0, result));
         }
 
@@ -1074,8 +1096,7 @@ int VMCommand(int command)
         }
 
         case VMOpcodeSearchCDR: {
-            Boolean result
-                = VirtualMemorySearchCDR(&vm->AddressRegister, vm->ExtentRegister, vm->MaskRegisterLow);
+            Boolean result = VirtualMemorySearchCDR(&vm->AddressRegister, vm->ExtentRegister, vm->MaskRegisterLow);
             return (SetVMReplyResult(0, result));
         }
 
@@ -1090,19 +1111,22 @@ int VMCommand(int command)
 static int ComputeProtection(register VMAttribute attr)
 {
     /* Don't cause transport faults if they are overridden */
-    if (VMTransportDisable(attr))
+    if (VMTransportDisable(attr)) {
         ClearVMTransportFault(attr);
+}
 
     /* We would have liked Transport to use write-only pages, but that is
     /* not guaranteed by OSF/Unix, so we just use none */
-    if ((attr & (VMAttribute_Exists | VMAttribute_TransportFault | VMAttribute_AccessFault)) != VMAttribute_Exists)
+    if ((attr & (VMAttribute_Exists | VMAttribute_TransportFault | VMAttribute_AccessFault)) != VMAttribute_Exists) {
         return (PROT_NONE);
+}
 
     /* Unless the modified and ephemeral bits are set, use read-only, so
     /* we can update them */
     if ((attr & (VMAttribute_Modified | VMAttribute_Ephemeral | VMAttribute_WriteFault))
-        != (VMAttribute_Modified | VMAttribute_Ephemeral))
+        != (VMAttribute_Modified | VMAttribute_Ephemeral)) {
         return (PROT_READ | PROT_EXEC);
+}
 
     return (PROT_READ | PROT_WRITE | PROT_EXEC);
 }
@@ -1165,8 +1189,9 @@ static int mvalid(caddr_t address, size_t count, int access)
 
     if (_setjmp(trap_environment)) {
         sigprocmask(SIG_SETMASK, &oldmask, NULL);
-        if (reading & !check_read)
+        if (reading & !check_read) {
             goto CONTINUE;
+}
         result = NO;
         goto FINISH;
     }

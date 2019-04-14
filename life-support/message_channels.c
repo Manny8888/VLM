@@ -37,8 +37,9 @@ void InitializeMessageChannels(VLMConfig *config)
     p->hostToGuestSupplyQueue = NullEmbPtr; /* ... */
 
     cc = malloc(sizeof(EmbCommandChannel));
-    if (NULL == cc)
+    if (NULL == cc) {
         vpunt(NULL, "Couldn't allocate master command message channel");
+}
     SetSubtypeData(p, cc);
 
     cc->header.nextActiveChannel = NULL;
@@ -62,15 +63,17 @@ void PollMessageChannels()
     EmbMessageSubtypeData *subtypeData;
     EmbQueue *guestToHostQueue;
 
-    if (NullEmbPtr == EmbCommAreaPtr->command_channel)
+    if (NullEmbPtr == EmbCommAreaPtr->command_channel) {
         return;
+}
 
     for (messageChannel = (EmbMessageChannel *)HostPointer(EmbCommAreaPtr->command_channel); messageChannel != NULL;
          messageChannel = subtypeData->header.nextActiveChannel) {
         subtypeData = (EmbMessageSubtypeData *)SubtypeData(messageChannel);
         guestToHostQueue = (EmbQueue *)HostPointer(messageChannel->guestToHostQueue);
-        if (messageChannel->guestToHostImpulse && (guestToHostQueue->signal != -1))
+        if (messageChannel->guestToHostImpulse && (guestToHostQueue->signal != -1)) {
             EmbCommAreaPtr->guest_to_host_signals |= 1 << guestToHostQueue->signal;
+}
     }
 }
 
@@ -142,9 +145,9 @@ void ExecuteGuestCommands(EmbCommandChannel *commandChannel)
                 startMBINCommand = (EmbCommandStartMBINBuffer *)command;
                 mbinChannel = (EmbMessageChannel *)HostPointer(startMBINCommand->mbinChannel);
                 mbinSubChannel = malloc(sizeof(EmbMBINChannel));
-                if (NULL == mbinSubChannel)
+                if (NULL == mbinSubChannel) {
                     command->resultCode = ENOMEM;
-                else {
+                } else {
                     mbinSubChannel->header.commArea = EmbCommAreaPtr;
                     mbinSubChannel->header.messageChannel = mbinChannel;
                     mbinSubChannel->guestToHostQueue = (EmbQueue *)HostPointer(mbinChannel->guestToHostQueue);

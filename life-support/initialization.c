@@ -76,11 +76,13 @@ EmbPtr EmbCommAreaAlloc(size_t nBytes)
     size_t nWords = (nBytes + sizeof(EmbWord) - 1) / sizeof(EmbWord);
     EmbPtr thePtr = EmbCommAreaAllocPtr;
 
-    if (nWords & 1)
+    if (nWords & 1) {
         nWords++; /* Must ensure quadword alignment */
+}
 
-    if ((nWords > EmbCommAreaAllocSize) || (nBytes <= 0))
+    if ((nWords > EmbCommAreaAllocSize) || (nBytes <= 0)) {
         vpunt(NULL, "Couldn't allocate %d words in the embedded communications area", nWords);
+}
 
     EmbCommAreaAllocSize -= nWords;
     EmbCommAreaAllocPtr += nWords;
@@ -97,8 +99,9 @@ EmbPtr MakeEmbString(char *aString)
     size_t nBytes = (NULL == aString) ? 0 : strlen(aString);
     uint32_t datum;
 
-    if (0 == nBytes)
+    if (0 == nBytes) {
         return (NullEmbPtr);
+}
 
     theStringPtr = EmbCommAreaAlloc(sizeof(EmbString) + nBytes);
     theString = (EmbString *)HostPointer(theStringPtr);
@@ -112,7 +115,7 @@ EmbPtr MakeEmbString(char *aString)
     return (theStringPtr);
 }
 
-// Parses a version number into major and minor version numbers 
+// Parses a version number into major and minor version numbers
 static void ParseVersionNumber(char *versionString, int *majorVersion, int *minorVersion)
 {
     char *start, *end;
@@ -124,13 +127,13 @@ static void ParseVersionNumber(char *versionString, int *majorVersion, int *mino
     major = strtoul(start, &end, 10);
     if (start == end) {
         return;
-    }   
+    }
 
     if (*end) {
         if (*end == '.') {
             start = end + 1;
             minor = strtoul(start, &end, 0);
-            if ((start == end) || *end)  {
+            if ((start == end) || *end) {
                 return;
             }
         } else {
@@ -163,10 +166,8 @@ void InitializeLifeSupport(VLMConfig *config)
 
     /* Initialize the BootComm and BootData */
 
-    VirtualMemoryWriteBlockConstant(BootCommAreaAddress, 
-                                    MakeLispObj(Type_Null, BootCommAreaAddress), 
-                                    (BootCommAreaSize + BootDataAreaSize), 
-                                    1);
+    VirtualMemoryWriteBlockConstant(
+        BootCommAreaAddress, MakeLispObj(Type_Null, BootCommAreaAddress), (BootCommAreaSize + BootDataAreaSize), 1);
 
     WriteBootCommSlot(embCommArea, EmbCommAreaAddress, Type_Locative);
     WriteBootCommSlot(systemType, SystemTypeVLM, Type_Fixnum);
@@ -179,11 +180,11 @@ void InitializeLifeSupport(VLMConfig *config)
     /* Ask the emulator to establish the FEPComm area mapping and initialize
      * the area */
 
-    #ifdef _C_EMULATOR_
+#ifdef _C_EMULATOR_
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize);
-    #else
+#else
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
-    #endif
+#endif
     VirtualMemoryWriteBlockConstant(FEPCommAreaAddress, MakeLispObj(Type_Null, FEPCommAreaAddress), FEPCommAreaSize, 1);
     FEPCommAreaPtr = (FEPCommArea *)MapVirtualAddressData(FEPCommAreaAddress);
 
@@ -219,13 +220,13 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaPtr->generaVersion.major = GeneraMajorVersion;
     EmbCommAreaPtr->generaVersion.minor = GeneraMinorVersion;
 
-    if (uname(&osfName) < 0)
+    if (uname(&osfName) < 0) {
         EmbCommAreaPtr->osfVersion.majorRelease = 0; /* Couldn't determine the version */
-    else {
+    } else {
         EmbCommAreaPtr->osfVersion.testReleaseP = 0;
-        if (isdigit(osfName.release[0]))
+        if (isdigit(osfName.release[0])) {
             ParseVersionNumber(osfName.release, &major, &minor);
-        else {
+        } else {
             EmbCommAreaPtr->osfVersion.testReleaseP = (osfName.release[0] != 'V');
             ParseVersionNumber(&osfName.release[1], &major, &minor);
         }
@@ -247,13 +248,15 @@ void InitializeLifeSupport(VLMConfig *config)
 
     InitializeSignalHandlers();
 
-    if (pthread_key_create(&mainThread, NULL))
+    if (pthread_key_create(&mainThread, NULL)) {
         vpunt(NULL, "Unable to establish per-thread data.");
+}
 
     pthread_setspecific(mainThread, (void *)TRUE);
 
-    if (atexit(&TerminateLifeSupport))
+    if (atexit(&TerminateLifeSupport)) {
         vpunt(NULL, "Unable to establish cleanup handler for Life Support");
+}
 
     /* Life Support uses threads to implement handlers for signals from the
        VLM -- Each handler will run in its on thread and, effectively, is
@@ -271,45 +274,55 @@ void InitializeLifeSupport(VLMConfig *config)
 
     SetupThreadAttrs("input", 3, &EmbCommAreaPtr->inputThreadAttrs, &EmbCommAreaPtr->inputThreadAttrsSetup);
 
-    if (pthread_mutex_init(&EmbCommAreaPtr->signalLock, NULL))
+    if (pthread_mutex_init(&EmbCommAreaPtr->signalLock, NULL)) {
         vpunt(NULL, "Unable to create the Life Support signal lock");
+}
     EmbCommAreaPtr->signalLockSetup = TRUE;
 
-    if (pthread_cond_init(&EmbCommAreaPtr->signalSignal, NULL))
+    if (pthread_cond_init(&EmbCommAreaPtr->signalSignal, NULL)) {
         vpunt(NULL, "Unable to create the Life Support signal signal");
+}
     EmbCommAreaPtr->signalSignalSetup = TRUE;
 
-    if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock))
+    if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock)) {
         vpunt(NULL, "Unable to lock the Life Support signal lock in thread %lx", pthread_self());
+}
 
     if (pthread_create(&EmbCommAreaPtr->pollingThread, &EmbCommAreaPtr->pollThreadAttrs,
-            (pthread_startroutine_t)&IvoryLifePolling, NULL))
+            (pthread_startroutine_t)&IvoryLifePolling, NULL)) {
         vpunt(NULL, "Unable to create the Life Support polling thread");
+}
     EmbCommAreaPtr->pollingThreadSetup = TRUE;
 
-    if (pthread_mutex_init(&EmbCommAreaPtr->clockLock, NULL))
+    if (pthread_mutex_init(&EmbCommAreaPtr->clockLock, NULL)) {
         vpunt(NULL, "Unable to create the Life Support clock lock");
+}
     EmbCommAreaPtr->clockLockSetup = TRUE;
 
-    if (pthread_cond_init(&EmbCommAreaPtr->clockSignal, NULL))
+    if (pthread_cond_init(&EmbCommAreaPtr->clockSignal, NULL)) {
         vpunt(NULL, "Unable to create the Life Support clock signal");
+}
     EmbCommAreaPtr->clockSignalSetup = TRUE;
 
     if (pthread_create(&EmbCommAreaPtr->clockThread, &EmbCommAreaPtr->pollThreadAttrs,
-            (pthread_startroutine_t)&IntervalTimerDriver, NULL))
+            (pthread_startroutine_t)&IntervalTimerDriver, NULL)) {
         vpunt(NULL, "Unable to create the Life Support interval timer thread");
+}
     EmbCommAreaPtr->clockThreadSetup = TRUE;
 
-    if (pthread_mutex_init(&EmbCommAreaPtr->XLock, NULL))
+    if (pthread_mutex_init(&EmbCommAreaPtr->XLock, NULL)) {
         vpunt(NULL, "Unable to create the Life Support X library lock");
+}
     EmbCommAreaPtr->XLockSetup = TRUE;
 
-    if (pthread_mutex_init(&EmbCommAreaPtr->wakeupLock, NULL))
+    if (pthread_mutex_init(&EmbCommAreaPtr->wakeupLock, NULL)) {
         vpunt(NULL, "Unable to create the VLM wakeup lock");
+}
     EmbCommAreaPtr->wakeupLockSetup = TRUE;
 
-    if (pthread_cond_init(&EmbCommAreaPtr->wakeupSignal, NULL))
+    if (pthread_cond_init(&EmbCommAreaPtr->wakeupSignal, NULL)) {
         vpunt(NULL, "Unable to create the VLM wakeup signal");
+}
     EmbCommAreaPtr->wakeupSignalSetup = TRUE;
 
     /* Create the channels, their data structures, and threads */
@@ -317,17 +330,19 @@ void InitializeLifeSupport(VLMConfig *config)
     EmbCommAreaAllocPtr = sizeof(EmbCommArea) / sizeof(EmbWord);
     EmbCommAreaAllocSize = EmbCommAreaPtr->comm_memory_size - EmbCommAreaAllocPtr;
 
-    if (config->worldPath[0])
+    if (config->worldPath[0]) {
         sprintf(worldPathname, "HOST:%s", config->worldPath);
-    else
+    } else {
         worldPathname[0] = 0;
+}
     EmbCommAreaPtr->worldPathname = MakeEmbString(worldPathname);
 
     loginName = getlogin();
-    if (loginName != NULL)
+    if (loginName != NULL) {
         EmbCommAreaPtr->unixLoginName = MakeEmbString(loginName);
-    else
+    } else {
         EmbCommAreaPtr->unixLoginName = NullEmbPtr;
+}
     EmbCommAreaPtr->unixUID = getuid();
     EmbCommAreaPtr->unixGID = getgid();
 
@@ -352,18 +367,20 @@ void InitializeLifeSupport(VLMConfig *config)
         = EmbCommAreaAllocPtr + EmbCommAreaPtr->host_buffer_size + EmbCommAreaPtr->fep_buffer_size;
     EmbCommAreaPtr->guest_buffer_size
         = EmbCommAreaAllocSize - EmbCommAreaPtr->host_buffer_size - EmbCommAreaPtr->fep_buffer_size;
-    if (EmbCommAreaPtr->guest_buffer_size < config->guestBufferSpace)
+    if (EmbCommAreaPtr->guest_buffer_size < config->guestBufferSpace) {
         vpunt(NULL,
             "Couldn't allocate %d words for guest buffers in the "
             "communcations area; only %d words are available.",
             config->guestBufferSpace, EmbCommAreaPtr->guest_buffer_size);
+}
 
     /* Release the signal lock to let Life Support threads run */
 
     EmbCommAreaPtr->useSignalLocks = TRUE;
 
-    if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock))
+    if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock)) {
         vpunt(NULL, "Unable to unlock the Life Support signal lock in thread %lx", pthread_self());
+}
 }
 
 /* Cleanup Life Support on exit -- Kill existing threads, close disk channels,
@@ -374,8 +391,9 @@ void TerminateLifeSupport()
     struct timespec killSleep;
     void *exit_code;
 
-    if (NULL == pthread_getspecific(mainThread))
+    if (NULL == pthread_getspecific(mainThread)) {
         return;
+}
 
     TerminateSignalHandlers();
 
@@ -461,18 +479,19 @@ static void SetupThreadAttrs(char *class, int priorityBoost, pthread_attr_t *thr
     size_t stackSize;
     int priority;
 
-    if (pthread_attr_init(threadAttrs))
+    if (pthread_attr_init(threadAttrs)) {
         vpunt(NULL, "Unable to create attributes for Life Support %s threads", class);
+}
     *threadAttrsSetup = TRUE;
 
     pthread_attr_getstacksize(threadAttrs, &stackSize);
-    if (pthread_attr_setstacksize(threadAttrs, (4 * stackSize)))
+    if (pthread_attr_setstacksize(threadAttrs, (4 * stackSize))) {
         vpunt(NULL,
             "Unable to set stack size attribute for Life Support %s threads "
             "to %d bytes",
             class, (4 * stackSize));
+}
 
-        /* Can't change the priority of a regular thread in Linux and Mac OS X
-         */
-
+    /* Can't change the priority of a regular thread in Linux and Mac OS X
+     */
 }

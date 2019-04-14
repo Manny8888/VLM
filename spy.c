@@ -92,12 +92,14 @@ static int divine_port_number(unsigned long diagnosticAddress)
     unsigned long port;
 
     port = htonl(diagnosticAddress) - 0x80512900; /* 128.81.41.00 */
-    if (port < 0)
+    if (port < 0) {
         port = -port;
-    if (port > 256)
+}
+    if (port > 256) {
         port = port % 256 + 256;
-    else
+    } else {
         port = port % 256;
+}
     port += 2900;
     return port;
 }
@@ -108,8 +110,9 @@ static void bind_a_port(int spy, struct sockaddr_in *sin, int len)
         verror("spy", NULL);
         sin->sin_port = htons(ntohs(sin->sin_port) + 1);
         bind_a_port(spy, sin, len);
-    } else
+    } else {
         vwarn(NULL, "Spy started on port %d.", ntohs(sin->sin_port));
+}
 }
 
 static void signal_handler(int x) { HaltMachine(); }
@@ -118,14 +121,16 @@ static int spy_transmit(struct rm_pkt *pkt, int rm_length, struct sockaddr_in *s
 {
     int result = 0;
     pthread_cleanup_push((pthread_cleanuproutine_t)pthread_mutex_unlock, (void *)&spyLock);
-    if (pthread_mutex_lock(&spyLock))
+    if (pthread_mutex_lock(&spyLock)) {
         vpunt("spy", "Unable to lock the spy lock in thread %x", pthread_self());
+}
     if (sendto(spy, &pkt->rm_pad[0], rm_length, 0, (struct sockaddr *)sin, sizeof(struct sockaddr_in)) < 0) {
         verror("spy", NULL);
         result = 1;
     }
-    if (pthread_mutex_unlock(&spyLock))
+    if (pthread_mutex_unlock(&spyLock)) {
         vpunt("spy", "Unable to unlock the spy lock in thread %x", pthread_self());
+}
     pthread_cleanup_pop(FALSE);
     return (result);
 }
@@ -157,10 +162,12 @@ static void SpyTopLevel(pthread_addr_t argument)
     pthread_t self = pthread_self();
 
     pthread_cleanup_push((pthread_cleanuproutine_t)pthread_detach, (void *)self);
-    if (pthread_mutex_lock(&spyLock))
+    if (pthread_mutex_lock(&spyLock)) {
         vpunt("spy", "Unable to lock the spy lock in thread %x", self);
-    if (pthread_mutex_unlock(&spyLock))
+}
+    if (pthread_mutex_unlock(&spyLock)) {
         vpunt("spy", "Unable to unlock the spy lock in thread %x", self);
+}
 
     RemoteMemorySpyLoop(); /* Returns iff the spy port has closed */
 
@@ -212,20 +219,22 @@ static void RemoteMemorySpyLoop()
             }
         }
 
-        if (0 == (i = poll(&pollSpy, 1, 1000)))
+        if (0 == (i = poll(&pollSpy, 1, 1000))) {
             continue;
-        else if (i < 0)
+        } else if (i < 0) {
             vpunt("spy", "Waiting for a packet from the remote debugger");
-        else if (pollSpy.revents & (POLLHUP | POLLNVAL))
+        } else if (pollSpy.revents & (POLLHUP | POLLNVAL)) {
             /* Spy port has vanished -- Assume that the emulator is shutting
              * down ... */
             break;
+}
 
         sinlen = sizeof(struct sockaddr_in);
         if ((pkt_length = recvfrom(spy, &pkt.rm_pad[0], REMOTE_MEMORY_PACKET_HEADER + REMOTE_MEMORY_PACKET_DATA, 0,
                  (struct sockaddr *)&pkt_source, &sinlen))
-            < 0)
+            < 0) {
             vpunt("spy", "Reading packet from remote debugger");
+}
 
         reply.rm_operand[0] = 0;
         reply.rm_operand[1] = 0;
@@ -357,8 +366,9 @@ static void RemoteMemorySpyLoop()
             trap_sinValid = TRUE;
             memcpy(&mbin_sin, &pkt_source, sizeof(struct sockaddr_in));
             mbin_sinValid = TRUE;
-            if (!IvoryProcessorSystemStartup(booted))
+            if (!IvoryProcessorSystemStartup(booted)) {
                 vwarn("spy", "Bad start routine.");
+}
             send_trap = 1;
             break;
 
@@ -470,16 +480,18 @@ void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress)
     struct sockaddr_in sin;
     int ipport_remote_memory;
 
-    if (pthread_key_create(&mainThread, NULL))
+    if (pthread_key_create(&mainThread, NULL)) {
         vpunt(NULL, "Unable to establish per-thread data.");
+}
     pthread_setspecific(mainThread, (void *)TRUE);
 
     atexit(&TerminateSpy);
 
     ipport_remote_memory = divine_port_number(diagnosticAddress);
 
-    if ((spy = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    if ((spy = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         vpunt("spy", "Unable to create spy socket");
+}
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = INADDR_ANY;
     sin.sin_port = htons(ipport_remote_memory);
@@ -488,8 +500,9 @@ void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress)
 
     memset((char *)&MBINHistory[0], 0, sizeof(MBINHistory));
 
-    if (pthread_mutex_init(&spyLock, NULL))
+    if (pthread_mutex_init(&spyLock, NULL)) {
         vpunt("spy", "Unable to create the spy lock");
+}
     spyLockSetup = TRUE;
 
     if (pthread_create(&spyThread, &EmbCommAreaPtr->pollThreadAttrs, (pthread_startroutine_t)&SpyTopLevel, NULL))
@@ -501,8 +514,9 @@ void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress)
 
 void ReleaseSpyLock()
 {
-    if (pthread_mutex_unlock(&spyLock))
+    if (pthread_mutex_unlock(&spyLock)) {
         vpunt("spy", "Unable to unlock the spy lock in thread %x", pthread_self());
+}
 }
 
 void SendMBINBuffers(EmbMBINChannel *mbinChannel)
@@ -560,8 +574,9 @@ void TerminateSpy()
     struct timespec killSleep;
     void *exit_code;
 
-    if (NULL == pthread_getspecific(mainThread))
+    if (NULL == pthread_getspecific(mainThread)) {
         return;
+}
 
     if (spyThreadSetup) {
         pthread_cancel(spyThread);

@@ -9,12 +9,20 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 
+#ifdef _C_EMULATOR_
+#include "c-emulator/aihead.h"
+#else
+#include "emulator/aihead.h"
+#endif
+
 #include "life_types.h"
 #include "embed.h"
-#include "VLM_configuration.h"
 #include "life_prototypes.h"
-#include "utilities.h"
 #include "FEPComm.h"
+
+#include "../utilities.h"
+#include "../VLM_configuration.h"
+#include "../std.h"
 
 static EmbNetChannel *pInputChannel;
 
@@ -29,10 +37,11 @@ void InitializeNetworkChannels(VLMConfig *config)
     printf("InitializeNetworkChannels()\n");
 
     ipSocket = socket(PF_INET, SOCK_STREAM, 0);
-    if (ipSocket == -1)
+    if (ipSocket == -1) {
         vpunt(NULL,
             "Unable to open IP socket to gather network interface "
             "information");
+}
 
     ifc.ifc_len = 32 * sizeof(struct ifreq);
     ifc.ifc_buf = NULL;
@@ -40,19 +49,22 @@ void InitializeNetworkChannels(VLMConfig *config)
 
     while (tryAgain) {
         ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len);
-        if (ifc.ifc_buf == NULL)
+        if (ifc.ifc_buf == NULL) {
             vpunt(NULL,
                 "Unable to obtain space to read IP addresses of network "
                 "interfaces");
+}
         savedLen = ifc.ifc_len;
-        if (ioctl(ipSocket, SIOCGIFCONF, &ifc) < 0)
+        if (ioctl(ipSocket, SIOCGIFCONF, &ifc) < 0) {
             vpunt(NULL,
                 "Unable to obtain IP addresses assigned to network "
                 "interfaces");
-        if (ifc.ifc_len == savedLen)
+}
+        if (ifc.ifc_len == savedLen) {
             ifc.ifc_len = 2 * ifc.ifc_len;
-        else
+        } else {
             tryAgain = FALSE;
+}
     }
 
     ifc.ifc_len = ifc.ifc_len / sizeof(struct ifreq);
@@ -138,33 +150,39 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
         strncpy(ifr.ifr_name, interface->device, IFNAMSIZ);
 
-        if (ioctl(ipSocket, SIOCGIFINDEX, &ifr) < 0)
+        if (ioctl(ipSocket, SIOCGIFINDEX, &ifr) < 0) {
             vpunt(NULL, "Unable to determine interface index of network device %s", interface->device);
+}
         interfaceIndex = ifr.ifr_ifindex;
 
-        if (ioctl(ipSocket, SIOCGIFFLAGS, &ifr) < 0)
+        if (ioctl(ipSocket, SIOCGIFFLAGS, &ifr) < 0) {
             vpunt(NULL, "Unable to determine attributes of network device %s", interface->device);
-        if (ifr.ifr_flags & IFF_LOOPBACK)
+}
+        if (ifr.ifr_flags & IFF_LOOPBACK) {
             vpunt(NULL,
                 "Unable to attach VLM network interface #%d to device %s"
                 " as it is a loopback device",
                 unitNumber, interface->device);
-        if ((ifr.ifr_flags & (IFF_UP | IFF_RUNNING)) != (IFF_UP | IFF_RUNNING))
+}
+        if ((ifr.ifr_flags & (IFF_UP | IFF_RUNNING)) != (IFF_UP | IFF_RUNNING)) {
             vpunt(NULL,
                 "Unable to attach VLM network interface #%d to device %s"
                 " as it is not up and running",
                 unitNumber, interface->device);
+}
 
-        if (ioctl(ipSocket, SIOCGIFHWADDR, &ifr) < 0)
+        if (ioctl(ipSocket, SIOCGIFHWADDR, &ifr) < 0) {
             vpunt(NULL,
                 "Unable to determine hardware interface address for network "
                 "device %s",
                 interface->device);
-        if (ifr.ifr_hwaddr.sa_family != ARPHRD_ETHER)
+}
+        if (ifr.ifr_hwaddr.sa_family != ARPHRD_ETHER) {
             vpunt(NULL,
                 "Unable to attach VLM network interface #%d to device %s"
                 " as it does not use Ethernet packet formats",
                 unitNumber, interface->device);
+}
         p->hardwareAddressHigh = p->hardwareAddressLow = 0;
         memcpy((char *)&p->hardwareAddressHigh, ifr.ifr_hwaddr.sa_data, 2 * sizeof(EmbWord));
         printf("hw address %p %p\n", p->hardwareAddressHigh, p->hardwareAddressLow);
@@ -179,14 +197,16 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
         while (ifs->if_index != 0 && ifs->if_name != NULL) {
             strncpy(ifr.ifr_name, ifs->if_name, IFNAMSIZ);
-            if (ioctl(ipSocket, SIOCGIFFLAGS, &ifr) < 0)
+            if (ioctl(ipSocket, SIOCGIFFLAGS, &ifr) < 0) {
                 vpunt(NULL, "Unable to determine attributes of network device %s", ifr.ifr_name);
+}
             if ((ifr.ifr_flags & (IFF_UP | IFF_RUNNING | IFF_LOOPBACK)) == (IFF_UP | IFF_RUNNING)) {
-                if (ioctl(ipSocket, SIOCGIFHWADDR, &ifr) < 0)
+                if (ioctl(ipSocket, SIOCGIFHWADDR, &ifr) < 0) {
                     vpunt(NULL,
                         "Unable to determine hardware address for network "
                         "device %s",
                         ifr.ifr_name);
+}
                 if (ifr.ifr_hwaddr.sa_family == ARPHRD_ETHER) {
                     interfaceIndex = ifs->if_index;
                     strncpy(interface->device, ifs->if_name, IFNAMSIZ);
@@ -202,11 +222,12 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
         if_freenameindex(saved_ifs);
 
-        if (interfaceIndex < 0)
+        if (interfaceIndex < 0) {
             vpunt(NULL,
                 "Unable to find an Ethernet interface to attach"
                 " to VLM network interface #%d",
                 unitNumber);
+}
     }
 
     /* Get IP address of interface */
@@ -225,8 +246,9 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
         }
     }
 
-    if (p->hostPrimaryProtocol == -1)
+    if (p->hostPrimaryProtocol == -1) {
         vpunt(NULL, "Unable to determine IP address assigned to network device %s", interface->device);
+}
 
         /* Open a packet socket and bind it to the interface */
 
@@ -236,8 +258,9 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     printf("guestPrimaryAddress %p\n", p->guestPrimaryAddress);
 
     p->fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if (p->fd < 0)
+    if (p->fd < 0) {
         vpunt(NULL, "Unable to open packet socket for VLM network interface #%d", unitNumber);
+}
 #endif
 
     memset(&p->sll, 0, sizeof(p->sll));
@@ -246,8 +269,9 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     p->sll.sll_protocol = htons(ETH_P_ALL);
 
 #ifndef NOROOT
-    if (bind(p->fd, (struct sockaddr *)&p->sll, sizeof(p->sll)) < 0)
+    if (bind(p->fd, (struct sockaddr *)&p->sll, sizeof(p->sll)) < 0) {
         vpunt(NULL, "Unable to attach VLM network interface #%d to device %s", unitNumber, interface->device);
+}
 #endif
 
     p->sll.sll_protocol = 0; /* Transmission requires this value be zero... */
@@ -270,11 +294,12 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
 #ifndef NOROOT
     printf("attach filter\n");
-    if (setsockopt(p->fd, SOL_SOCKET, SO_ATTACH_FILTER, &p->filter.fprog, sizeof(struct sock_fprog)))
+    if (setsockopt(p->fd, SOL_SOCKET, SO_ATTACH_FILTER, &p->filter.fprog, sizeof(struct sock_fprog))) {
         vpunt(NULL,
             "Unable to set packet filter program for VLM network interface "
             "#%d",
             unitNumber);
+}
 #endif
 
     /* Create entries in the host's ARP table for each IP address assigned to
@@ -282,8 +307,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
     p->arpReq = NULL;
 
-    for (pInterface = interface; pInterface != NULL; pInterface = pInterface->anotherAddress)
-    {
+    for (pInterface = interface; pInterface != NULL; pInterface = pInterface->anotherAddress) {
         if (pInterface->myProtocol == ETHERTYPE_IP) {
             EmbPtr arpReqPtr = EmbCommAreaAlloc(sizeof(EmbNetARPReq));
             EmbNetARPReq *pARP = (EmbNetARPReq *)HostPointer(arpReqPtr);
@@ -301,11 +325,12 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
             /* Only first interface structure has the device */
 
 #ifndef NOROOT
-            if (ioctl(ipSocket, SIOCSARP, &pARP->arp) < 0)
+            if (ioctl(ipSocket, SIOCSARP, &pARP->arp) < 0) {
                 vpunt(NULL,
                     "Unable to establish ARP mappings for VLM network "
                     "interface #%d",
                     unitNumber);
+}
 #endif
         }
     }
@@ -341,12 +366,14 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
     for (pInterface = interface, firstInterface = TRUE; pInterface != NULL;
          pInterface = pInterface->anotherAddress, firstInterface = FALSE) {
-        if (firstInterface)
+        if (firstInterface) {
             addressAsString[0] = 0;
-        else
+        } else {
             sprintf(addressAsString, "%s,", addressAsString);
-        if (pInterface->device[0])
+}
+        if (pInterface->device[0]) {
             sprintf(addressAsString, "%s%s:", addressAsString, pInterface->device);
+}
         switch (pInterface->myProtocol) {
         case ETHERTYPE_IP:
             guestAddress.s_addr = htonl(pInterface->myAddress.s_addr);
@@ -356,17 +383,19 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
             sprintf(addressAsString, "%sCHAOS|%o", addressAsString, htonl(pInterface->myAddress.s_addr));
             break;
         }
-        if (pInterface->myOptions[0])
+        if (pInterface->myOptions[0]) {
             sprintf(addressAsString, "%s;%s", addressAsString, pInterface->myOptions);
+}
     }
     p->addressString = MakeEmbString(addressAsString);
 
     if (pthread_create(&p->receiverThread, &EmbCommAreaPtr->inputThreadAttrs,
-            (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p))
+            (pthread_startroutine_t)&NetworkChannelReceiver, (pthread_addr_t)p)) {
         vpunt(NULL,
             "Unable to create thread to receive packets for VLM network "
             "interface #%d",
             unitNumber);
+}
     p->receiverThreadSetup = TRUE;
 
     p->status |= EmbNetStatusHostReady;
@@ -389,8 +418,9 @@ static char last_packet[1560];
 
 static int new_packet(char *packet, int size)
 {
-    if (memcmp(last_packet, packet, size) == 0)
+    if (memcmp(last_packet, packet, size) == 0) {
         return 0;
+}
 
     memcpy(last_packet, packet, size);
 
@@ -424,8 +454,9 @@ void answer_arp(char *pkt, int size)
     memcpy(tmp, &pkt[22], 10);
     memcpy(&pkt[22], &pkt[32], 10);
 
-    for (i = 0; i < 6; i++)
+    for (i = 0; i < 6; i++) {
         tmp[i] = i;
+}
 
     memcpy(&pkt[32], tmp, 10);
 
@@ -518,8 +549,9 @@ static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
         }
 
         netPacketPtr = EmbQueueTakeWord(transmitQueue);
-        if (NULL == (void *)(uint64_t)netPacketPtr)
+        if (NULL == (void *)(uint64_t)netPacketPtr) {
             netPacketPtr = NullEmbPtr;
+}
 
         if (netPacketPtr != NullEmbPtr) {
             if (/*netChannel->status & EmbNetStatusHostReady*/ 1) {
@@ -545,12 +577,14 @@ static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
                 }
 #if 1
                 if (new_packet((char *)new_packet, nBytes) || 1) {
-                    if (0)
+                    if (0) {
                         printf("NetworkChannelTransmitter() %p %d\n", netPacket, nBytes);
-                    if (0)
+}
+                    if (0) {
                         printf("%02x:%02x:%02x:%02x:%02x:%02x ", netChannel->sll.sll_addr[0],
                             netChannel->sll.sll_addr[1], netChannel->sll.sll_addr[2], netChannel->sll.sll_addr[3],
                             netChannel->sll.sll_addr[4], netChannel->sll.sll_addr[5]);
+}
                     dump_packet("tx", (unsigned char *)&netPacket->data[0], nBytes);
                 }
 #endif
@@ -592,33 +626,35 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
         pollReceiver.revents = 0;
         poll(&pollReceiver, 1, 1000);
 
-        if (0 == (pollReceiver.revents & POLLIN))
+        if (0 == (pollReceiver.revents & POLLIN)) {
             continue;
+}
 
         sllLen = sizeof(sll);
         actualBytes = recvfrom(netChannel->fd, &netChannel->receiveBuffer, MaxEmbNetPacketSize, MSG_TRUNC,
             (struct sockaddr *)&sll, &sllLen);
         dump_packet("rx", &netChannel->receiveBuffer, actualBytes);
 
-        if (actualBytes < 0)
+        if (actualBytes < 0) {
             netChannel->nReceiveFailures++;
 
-        else if (0 == actualBytes)
+        } else if (0 == actualBytes) {
             netChannel->nFalseReceiverWakeups++;
 
         //		else if (!(netChannel->status &
         // EmbNetStatusGuestReady))
         //			;
 
-        else if ((0 == EmbQueueSpace(supplyQueue)) || (0 == EmbQueueSpace(receiveQueue)))
+        } else if ((0 == EmbQueueSpace(supplyQueue)) || (0 == EmbQueueSpace(receiveQueue))) {
             netChannel->nReceivedPacketsLost++;
 
-        else {
+        } else {
             while (0 == (netPacketPtr = EmbQueueTakeWord(supplyQueue))) {
                 receiverPause.tv_sec = 0;
                 receiverPause.tv_nsec = OneMillisecond;
-                if (pthread_delay_np(&receiverPause))
+                if (pthread_delay_np(&receiverPause)) {
                     vpunt(NULL, "Unable to sleep in thread %lx", self);
+}
             }
             netPacket = (EmbNetPacket *)HostPointer(netPacketPtr);
             netPacket->nBytes = (EmbWord)actualBytes;
@@ -647,8 +683,9 @@ static void TerminateNetChannel(EmbNetChannel *netChannel, int ipSocket)
     }
 
 #ifndef NOROOT
-    for (embARPReq = netChannel->arpReq; embARPReq != NULL; embARPReq->next)
+    for (embARPReq = netChannel->arpReq; embARPReq != NULL; embARPReq->next) {
         ioctl(ipSocket, SIOCDARP, &embARPReq->arp);
+}
 #endif
 
     if (netChannel->fd != -1) {
@@ -669,12 +706,14 @@ void TerminateNetworkChannels()
 
     for (channel = EmbCommAreaPtr->channel_table; channel != NullEmbPtr; channel = netChannel->next) {
         netChannel = (EmbNetChannel *)HostPointer(channel);
-        if (EmbNetworkChannelType == netChannel->type)
+        if (EmbNetworkChannelType == netChannel->type) {
             TerminateNetChannel(netChannel, ipSocket);
+}
     }
 
-    if (ipSocket > -1)
+    if (ipSocket > -1) {
         close(ipSocket);
+}
 }
 
 #endif /* USE_TUN */

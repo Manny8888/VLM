@@ -42,8 +42,8 @@ SignalNumber InstallSignalHandler(ProcPtrV signalHandler, PtrV signalArgument, b
     if (EmbCommAreaPtr->useSignalLocks) {
         if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock)) {
             vpunt(NULL, "Unable to lock the Life Support signal lock in thread %lx", pthread_self());
-        }   
-    }   
+        }
+    }
 
     for (i = 0; i < NSignals; i++) {
         signal = 1 << i;
@@ -61,7 +61,7 @@ SignalNumber InstallSignalHandler(ProcPtrV signalHandler, PtrV signalArgument, b
                         "(%lx)",
                         i, signalHandler, signalArgument);
                 }
-                
+
                 EmbCommAreaPtr->signalHandler[i].handlerThreadSetup = TRUE;
             }
             break;
@@ -86,8 +86,9 @@ SignalNumber InstallSignalHandler(ProcPtrV signalHandler, PtrV signalArgument, b
 
 void SendInterruptToLifeSupport()
 {
-    if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal))
+    if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal)) {
         vpunt(NULL, "Unable to send Life Support an interrupt from the VLM");
+}
 }
 
 /* Called by the emulator to wait until life support detects an event which
@@ -116,11 +117,13 @@ void WaitForLifeSupport()
 
     else {
         pthread_cleanup_push((pthread_cleanuproutine_t)pthread_mutex_unlock, (void *)&EmbCommAreaPtr->wakeupLock);
-        if (pthread_mutex_lock(&EmbCommAreaPtr->wakeupLock))
+        if (pthread_mutex_lock(&EmbCommAreaPtr->wakeupLock)) {
             vpunt(NULL, "Unable to lock the VLM wakeup lock in thread %lx", pthread_self());
+}
 
-        if (pthread_get_expiration_np(&delta, &abstime))
+        if (pthread_get_expiration_np(&delta, &abstime)) {
             vpunt(NULL, "Unable to get absolute time");
+}
 
         /* 8.12 changed cond_wait to cond_timedwait because sometimes got here
          * with signals */
@@ -129,12 +132,11 @@ void WaitForLifeSupport()
             if (!(result == ETIMEDOUT || result == EINTR)) {
                 vpunt(NULL, "Unable to wait for a VLM wakeup signal in thread %lx", pthread_self());
             }
-        }   
+        }
         if (pthread_mutex_unlock(&EmbCommAreaPtr->wakeupLock)) {
             vpunt(NULL, "Unable to unlock the VLM wakeup lock in thread %lx", pthread_self());
         }
         pthread_cleanup_pop(FALSE);
-
     }
 }
 
@@ -154,19 +156,22 @@ void EmbSendSignal(SignalNumber signal)
         // return;
     }
 
-    if (pthread_mutex_lock(&EmbCommAreaPtr->wakeupLock))
+    if (pthread_mutex_lock(&EmbCommAreaPtr->wakeupLock)) {
         vpunt(NULL, "Unable to lock the VLM wakeup lock in thread %lx", pthread_self());
+}
 
     if ((signal > -1) && (signal < NSignals)) {
         EmbCommAreaPtr->host_to_guest_signals |= (1 << signal);
         SendInterruptToEmulator();
     }
 
-    if (pthread_cond_broadcast(&EmbCommAreaPtr->wakeupSignal))
+    if (pthread_cond_broadcast(&EmbCommAreaPtr->wakeupSignal)) {
         vpunt(NULL, "Unable to wakeup the VLM from Life Support");
+}
 
-    if (pthread_mutex_unlock(&EmbCommAreaPtr->wakeupLock))
+    if (pthread_mutex_unlock(&EmbCommAreaPtr->wakeupLock)) {
         vpunt(NULL, "Unable to unlock the VLM wakeup lock in thread %lx", pthread_self());
+}
 }
 
 /* Called by a signal handler when it can't handle the signal now and wishes
@@ -177,13 +182,15 @@ void SignalLater(SignalNumber signal)
 {
     pthread_t self = pthread_self();
 
-    if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock))
+    if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock)) {
         vpunt(NULL, "Unable to lock the Life Support signal lock in thread %lx", self);
+}
 
     EmbCommAreaPtr->reawaken |= (SignalMask)(1 << signal);
 
-    if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock))
+    if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock)) {
         vpunt(NULL, "Unable to unlock the Life Support signal lock in thread %lx", self);
+}
 }
 
 /* Installed when removing a signal handler to render its thread benign */
@@ -196,12 +203,15 @@ void RemoveSignalHandler(SignalNumber signal)
 {
     SignalMask mask = 1 << signal;
 
-    if ((signal < 0) || (signal >= NSignals))
+    if ((signal < 0) || (signal >= NSignals)) {
         return;
+}
 
-    if (EmbCommAreaPtr->useSignalLocks)
-        if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock))
+    if (EmbCommAreaPtr->useSignalLocks) {
+        if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock)) {
             vpunt(NULL, "Unable to lock the Life Support signal lock in thread %lx", pthread_self());
+}
+}
 
     EmbCommAreaPtr->live_guest_to_host_signals &= ~mask;
     EmbCommAreaPtr->reawaken &= ~mask;
@@ -215,9 +225,11 @@ void RemoveSignalHandler(SignalNumber signal)
         EmbCommAreaPtr->signalHandler[signal].handlerArgument = NULL;
     }
 
-    if (EmbCommAreaPtr->useSignalLocks)
-        if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock))
+    if (EmbCommAreaPtr->useSignalLocks) {
+        if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock)) {
             vpunt(NULL, "Unable to unlock the Life Support signal lock in thread %lx", pthread_self());
+}
+}
 }
 
 /* Remove all signal handlers, including their threads, on exit */
@@ -227,12 +239,13 @@ void TerminateSignalHandlers()
     int i;
     void *exit_value;
 
-    for (i = 0; i < NSignals; i++)
+    for (i = 0; i < NSignals; i++) {
         if (EmbCommAreaPtr->signalHandler[i].handlerThreadSetup) {
             pthread_cancel(EmbCommAreaPtr->signalHandler[i].handlerThread);
             pthread_join(EmbCommAreaPtr->signalHandler[i].handlerThread, &exit_value);
             EmbCommAreaPtr->signalHandler[i].handlerThreadSetup = FALSE;
         }
+}
 }
 
 /* Top level function for a signal handler thread -- We wait for our signal to
@@ -251,24 +264,27 @@ static void SignalHandlerTopLevel(pthread_addr_t argument)
         if (EmbCommAreaPtr->guest_to_host_signals & signalHandler->signal) {
             EmbCommAreaPtr->guest_to_host_signals &= ~signalHandler->signal;
             pthread_testcancel();
-            if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock))
+            if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock)) {
                 vpunt(NULL,
                     "Unable to unlock the Life Support signal lock in thread "
                     "%lx",
                     self);
+}
             (*(signalHandler->handlerFunction))(signalHandler->handlerArgument);
-            if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock))
+            if (pthread_mutex_lock(&EmbCommAreaPtr->signalLock)) {
                 vpunt(NULL,
                     "Unable to lock the Life Support signal lock in thread "
                     "%lx",
                     self);
+}
         }
 
-        else if (pthread_cond_wait(&EmbCommAreaPtr->signalSignal, &EmbCommAreaPtr->signalLock))
+        else if (pthread_cond_wait(&EmbCommAreaPtr->signalSignal, &EmbCommAreaPtr->signalLock)) {
             vpunt(NULL,
                 "Unable to wait for the Life Support signal signal in thread "
                 "%lx",
                 self);
+}
     }
 
     end_MUTEX_LOCKED(signalLock);

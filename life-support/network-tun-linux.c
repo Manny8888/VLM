@@ -80,7 +80,6 @@ void InitializeNetworkChannels(VLMConfig *config)
     }
 
     close(ipSocket);
-
 }
 
 /* Create a single network channel */
@@ -217,8 +216,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
     p->arpReq = NULL;
 
-    for (pInterface = interface; pInterface != NULL; pInterface = pInterface->anotherAddress)
-    {
+    for (pInterface = interface; pInterface != NULL; pInterface = pInterface->anotherAddress) {
         if (pInterface->myProtocol == ETHERTYPE_IP) {
             EmbPtr arpReqPtr = EmbCommAreaAlloc(sizeof(EmbNetARPReq));
             EmbNetARPReq *pARP = (EmbNetARPReq *)HostPointer(arpReqPtr);

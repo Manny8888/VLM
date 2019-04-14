@@ -53,8 +53,9 @@ void InitializeConsoleChannel(VLMConfig *config)
     p->openingState = OpeningStateNone;
     p->rlDisplay = NULL;
 
-    if (pthread_create(&p->drawRunLights, &EmbCommAreaPtr->pollThreadAttrs, (pthread_startroutine_t)&DrawRunLights, p))
+    if (pthread_create(&p->drawRunLights, &EmbCommAreaPtr->pollThreadAttrs, (pthread_startroutine_t)&DrawRunLights, p)) {
         vpunt(NULL, "Unable to create the console channel polling thread");
+}
     p->drawRunLightsSetup = TRUE;
 }
 
@@ -79,25 +80,28 @@ void DoConsoleIO(EmbConsoleChannel *consoleChannel, EmbConsoleBuffer *pCommand)
         break;
 
     case EmbConsoleCommandWrite:
-        if (OpeningStatePrefix == consoleChannel->openingState)
+        if (OpeningStatePrefix == consoleChannel->openingState) {
             command->result = ESUCCESS;
-        else
+        } else {
             command->result = ConsoleWrite(consoleChannel, command);
+}
         break;
 
     case EmbConsoleCommandRead:
-        if (consoleChannel->openingState != OpeningStateNone)
+        if (consoleChannel->openingState != OpeningStateNone) {
             command->result = ProcessConnectionRequest(consoleChannel, command);
-        else
+        } else {
             command->result = ConsoleRead(consoleChannel, command);
+}
         break;
 
     case EmbConsoleCommandInputWait:
         if (consoleChannel->openingState != OpeningStateNone) {
             ((EmbConsoleInputWait *)&command->data[0])->availableP = TRUE;
             command->result = ESUCCESS;
-        } else
+        } else {
             command->result = ConsoleInputWait(consoleChannel, command);
+}
         break;
 
     case EmbConsoleCommandEnableRunLights:
@@ -160,8 +164,9 @@ static int OpenDisplay(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCo
     char displayName[BUFSIZ];
     int result;
 
-    if (consoleChannel->display != NULL)
+    if (consoleChannel->display != NULL) {
         return (EBUSY);
+}
 
     BuildXDisplayName(
         displayName, consoleChannel->hostName, consoleChannel->displayNumber, consoleChannel->screenNumber);
@@ -341,18 +346,21 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
         } else if (display->nscreens > 0) {
             consoleChannel->openingState = OpeningStateRoot;
             consoleChannel->nextRoot = 0;
-        } else
+        } else {
             consoleChannel->openingState = OpeningStateNone;
+}
         break;
 
     case OpeningStatePixmapFormat:
         consoleChannel->nextPixmapFormat++;
-        if (consoleChannel->nextPixmapFormat >= display->nformats)
+        if (consoleChannel->nextPixmapFormat >= display->nformats) {
             if (display->nscreens > 0) {
                 consoleChannel->openingState = OpeningStateRoot;
                 consoleChannel->nextRoot = 0;
-            } else
+            } else {
                 consoleChannel->openingState = OpeningStateNone;
+}
+}
         break;
 
     case OpeningStateRoot:
@@ -362,8 +370,9 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
             consoleChannel->nextRootDepth = 0;
         } else {
             consoleChannel->nextRoot++;
-            if (consoleChannel->nextRoot >= display->nscreens)
+            if (consoleChannel->nextRoot >= display->nscreens) {
                 consoleChannel->openingState = OpeningStateNone;
+}
         }
         break;
 
@@ -377,8 +386,9 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
             consoleChannel->nextRootDepth++;
             if (consoleChannel->nextRootDepth >= screen->ndepths) {
                 consoleChannel->nextRoot++;
-                if (consoleChannel->nextRoot >= display->nscreens)
+                if (consoleChannel->nextRoot >= display->nscreens) {
                     consoleChannel->openingState = OpeningStateNone;
+}
             }
         }
         break;
@@ -391,10 +401,11 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
             consoleChannel->nextRootDepth++;
             if (consoleChannel->nextRootDepth >= screen->ndepths) {
                 consoleChannel->nextRoot++;
-                if (consoleChannel->nextRoot >= display->nscreens)
+                if (consoleChannel->nextRoot >= display->nscreens) {
                     consoleChannel->openingState = OpeningStateNone;
-                else
+                } else {
                     consoleChannel->openingState = OpeningStateRoot;
+}
             } else {
                 consoleChannel->openingState = OpeningStateRootDepth;
             }
@@ -431,9 +442,9 @@ static int ConsoleWrite(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pC
 
         if (pollDisplay.revents & POLLOUT) {
             actualBytes = write(consoleChannel->fd, data, nBytes);
-            if (actualBytes == nBytes)
+            if (actualBytes == nBytes) {
                 result = ESUCCESS;
-            else {
+            } else {
                 /* Might be a partial write */
                 result = (actualBytes < 0) ? errno : EWOULDBLOCK;
                 nBytes -= (actualBytes < 0) ? 0 : actualBytes;
@@ -441,14 +452,15 @@ static int ConsoleWrite(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pC
             }
         }
 
-        else if (pollDisplay.revents & POLLNVAL)
+        else if (pollDisplay.revents & POLLNVAL) {
             result = EBADF;
 
-        else if (pollDisplay.revents & POLLHUP)
+        } else if (pollDisplay.revents & POLLHUP) {
             result = ENXIO;
 
-        else if (pollDisplay.revents & POLLERR)
+        } else if (pollDisplay.revents & POLLERR) {
             result = EIO;
+}
     }
 
     return (result);
@@ -482,11 +494,11 @@ static int ConsoleRead(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCo
 
         if (pollDisplay.revents & POLLIN) {
             actualBytes = read(consoleChannel->fd, data, nBytes);
-            if (actualBytes == nBytes)
+            if (actualBytes == nBytes) {
                 result = ESUCCESS;
-            else if ((0 == actualBytes) && (EWOULDBLOCK != errno))
+            } else if ((0 == actualBytes) && (EWOULDBLOCK != errno)) {
                 result = ENOSPC; /* End-of-File */
-            else {
+            } else {
                 /* Might be a partial read */
                 result = (actualBytes < 0) ? errno : EWOULDBLOCK;
                 nBytes -= (actualBytes < 0) ? 0 : actualBytes;
@@ -494,14 +506,15 @@ static int ConsoleRead(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCo
             }
         }
 
-        else if (pollDisplay.revents & POLLNVAL)
+        else if (pollDisplay.revents & POLLNVAL) {
             result = EBADF;
 
-        else if (pollDisplay.revents & POLLHUP)
+        } else if (pollDisplay.revents & POLLHUP) {
             result = ENXIO;
 
-        else if (pollDisplay.revents & POLLERR)
+        } else if (pollDisplay.revents & POLLERR) {
             result = EIO;
+}
     }
 
     return (result);
@@ -514,11 +527,12 @@ boolean ConsoleInputAvailableP()
     EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)HostPointer(EmbCommAreaPtr->consoleChannel);
     struct pollfd pollDisplay;
 
-    if (NULL == consoleChannel->display)
+    if (NULL == consoleChannel->display) {
         return (FALSE);
 
-    else if (consoleChannel->openingState != OpeningStateNone)
+    } else if (consoleChannel->openingState != OpeningStateNone) {
         return (TRUE);
+}
 
     pollDisplay.fd = consoleChannel->fd;
     pollDisplay.events = POLLIN;
@@ -553,14 +567,15 @@ static int ConsoleInputWait(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer
         inputWait->availableP = TRUE;
     }
 
-    else if (pollDisplay.revents & POLLNVAL)
+    else if (pollDisplay.revents & POLLNVAL) {
         result = EBADF;
 
-    else if (pollDisplay.revents & POLLHUP)
+    } else if (pollDisplay.revents & POLLHUP) {
         result = ENXIO;
 
-    else if (pollDisplay.revents & POLLERR)
+    } else if (pollDisplay.revents & POLLERR) {
         result = EIO;
+}
 
     return (result);
 }
@@ -642,24 +657,28 @@ static void DrawRunLights(pthread_addr_t argument)
             x = consoleChannel->runLights.firstLightX;
 
             for (i = 0, bit = 1, x = consoleChannel->runLights.firstLightX; i < consoleChannel->runLights.nLights;
-                 i++, bit = bit << 1, x += consoleChannel->runLights.lightXSpacing)
-                if (changed & bit)
-                    if (consoleChannel->lastRunLights & bit)
+                 i++, bit = bit << 1, x += consoleChannel->runLights.lightXSpacing) {
+                if (changed & bit) {
+                    if (consoleChannel->lastRunLights & bit) {
                         XFillRectangle(consoleChannel->rlDisplay, consoleChannel->runLights.windowID,
                             *(GC *)consoleChannel->rlGC, x, consoleChannel->runLights.firstLightY,
                             consoleChannel->runLights.lightWidth, consoleChannel->runLights.lightHeight);
-                    else
+                    } else {
                         XClearArea(consoleChannel->rlDisplay, consoleChannel->runLights.windowID, x,
                             consoleChannel->runLights.firstLightY, consoleChannel->runLights.lightWidth,
                             consoleChannel->runLights.lightHeight, FALSE);
+}
+}
+}
 
             XFlush(consoleChannel->rlDisplay);
 
             end_MUTEX_LOCKED(XLock);
         }
 
-        if (pthread_delay_np(&drlSleep))
+        if (pthread_delay_np(&drlSleep)) {
             vpunt(NULL, "Unable to sleep in thread %lx", self);
+}
     }
 
     pthread_cleanup_pop(TRUE);
@@ -704,10 +723,11 @@ void TerminateConsoleChannel(void)
     void *exit_value;
     EmbConsoleChannel *consoleChannel;
 
-    if (NullEmbPtr == EmbCommAreaPtr->consoleChannel)
+    if (NullEmbPtr == EmbCommAreaPtr->consoleChannel) {
         return;
-    else
+    } else {
         consoleChannel = (EmbConsoleChannel *)HostPointer(EmbCommAreaPtr->consoleChannel);
+}
 
     if (consoleChannel->drawRunLightsSetup) {
         pthread_cancel(consoleChannel->drawRunLights);

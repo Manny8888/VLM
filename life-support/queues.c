@@ -29,10 +29,11 @@ int EmbQueueSpace(EmbQueue *qp)
     EmbWord put = qp->put_index;
     EmbWord take = qp->take_index;
 
-    if (take > put)
+    if (take > put) {
         return (take - put - 1);
-    else
+    } else {
         return (take - put - 1 + qp->queue_size);
+}
 }
 
 /* Number of non-free elements */
@@ -42,10 +43,11 @@ int EmbQueueFilled(EmbQueue *qp)
     EmbWord put = qp->put_index;
     EmbWord take = qp->take_index;
 
-    if (put >= take)
+    if (put >= take) {
         return (put - take);
-    else
+    } else {
         return (put - take + qp->queue_size);
+}
 }
 
 /* Put element into queue */
@@ -62,20 +64,23 @@ void EmbQueuePut(EmbQueue *qp_arg, PtrV ep)
 
     /* Compute the incremented put index */
     put++;
-    if (put >= qp->queue_size)
+    if (put >= qp->queue_size) {
         put = 0;
+}
 
     /* Wait if queue is full -- Queue sizes will be chosen so that this is
      * rare */
-    while (put == qp->take_index)
+    while (put == qp->take_index) {
         ;
+}
 
     /* Store the incremented put index into the queue header */
     qp->put_index = put;
 
     /* If the queue had been empty, send a signal to the taker */
-    if (original_put == qp->take_index)
+    if (original_put == qp->take_index) {
         EmbSendSignal(qp->signal);
+}
 }
 
 /* Put element into word queue */
@@ -92,20 +97,23 @@ void EmbQueuePutWord(EmbQueue *qp_arg, EmbWord elt)
 
     /* Compute the incremented put index */
     put++;
-    if (put >= qp->queue_size)
+    if (put >= qp->queue_size) {
         put = 0;
+}
 
     /* Wait if queue is full -- Queue sizes will be chosen so that this is
      * rare */
-    while (put == qp->take_index)
+    while (put == qp->take_index) {
         ;
+}
 
     /* Store the incremented put index into the queue header */
     qp->put_index = put;
 
     /* If the queue had been empty, send a signal to the taker */
-    if (original_put == qp->take_index)
+    if (original_put == qp->take_index) {
         EmbSendSignal(qp->signal);
+}
 }
 
 /* Put element into byte queue */
@@ -122,20 +130,23 @@ void EmbQueuePutByte(EmbQueue *qp_arg, byte elt)
 
     /* Compute the incremented put index */
     put++;
-    if (put >= qp->queue_size)
+    if (put >= qp->queue_size) {
         put = 0;
+}
 
     /* Wait if queue is full -- Queue sizes will be chosen so that this is
      * rare */
-    while (put == qp->take_index)
+    while (put == qp->take_index) {
         ;
+}
 
     /* Store the incremented put index into the queue header */
     qp->put_index = put;
 
     /* If the queue had been empty, send a signal to the taker */
-    if (original_put == qp->take_index)
+    if (original_put == qp->take_index) {
         EmbSendSignal(qp->signal);
+}
 }
 
 /* Take element from queue */
@@ -148,16 +159,18 @@ bool EmbQueueTake(EmbQueue *qp_arg, PtrV ep)
     byte *element_array = (byte *)(&qp->first_element);
 
     /* Check for empty queue */
-    if (put == take)
+    if (put == take) {
         return (FALSE);
+}
 
     /* Copy the element at the take index */
     memcpy(ep, &element_array[take * qp->element_size], (size_t)qp->element_size);
 
     /* Increment the take index and store it back */
     take++;
-    if (take >= qp->queue_size)
+    if (take >= qp->queue_size) {
         take = 0;
+}
     qp->take_index = take;
 
     return (TRUE);
@@ -174,16 +187,18 @@ EmbWord EmbQueueTakeWord(EmbQueue *qp_arg)
     EmbWord elt;
 
     /* Check for empty queue--should not happen */
-    if (put == take)
+    if (put == take) {
         return (FALSE);
+}
 
     /* Copy the element at the take index */
     elt = element_array[take];
 
     /* Increment the take index and store it back */
     take++;
-    if (take >= qp->queue_size)
+    if (take >= qp->queue_size) {
         take = 0;
+}
     qp->take_index = take;
 
     return (elt);
@@ -200,16 +215,18 @@ byte EmbQueueTakeByte(EmbQueue *qp_arg)
     byte elt;
 
     /* Check for empty queue--should not happen */
-    if (put == take)
+    if (put == take) {
         return (FALSE);
+}
 
     /* Copy the element at the take index */
     elt = element_array[take];
 
     /* Increment the take index and store it back */
     take++;
-    if (take >= qp->queue_size)
+    if (take >= qp->queue_size) {
         take = 0;
+}
     qp->take_index = take;
 
     return (elt);
@@ -237,27 +254,31 @@ int EmbQueuePutBytes(EmbQueue *qp_arg, byte *buffer, int length)
     while (length > 0) {
         /* Fill in as many elements as we can */
         take = qp->take_index;
-        if (take > put)
+        if (take > put) {
             count = take - put - 1;
-        else if (take == 0)
+        } else if (take == 0) {
             count = qp->queue_size - put - 1;
-        else
+        } else {
             count = qp->queue_size - put;
-        if (count > length)
+}
+        if (count > length) {
             count = length;
+}
         memcpy(&element_array[put], buffer, (size_t)count);
         buffer += count;
         length -= count;
         actual_length += count;
         put += count;
-        if (put == qp->queue_size)
+        if (put == qp->queue_size) {
             put = 0;
+}
         qp->put_index = put;
     }
 
     /* If the queue had been empty, send a signal to the taker */
-    if (original_put == qp->take_index)
+    if (original_put == qp->take_index) {
         EmbSendSignal(qp->signal);
+}
 
     return (actual_length);
 }
@@ -278,27 +299,31 @@ int EmbQueuePutWords(EmbQueue *qp_arg, EmbWord *buffer, int length)
     while (length > 0) {
         /* Fill in as many elements as we can */
         take = qp->take_index;
-        if (take > put)
+        if (take > put) {
             count = take - put - 1;
-        else if (take == 0)
+        } else if (take == 0) {
             count = qp->queue_size - put - 1;
-        else
+        } else {
             count = qp->queue_size - put;
-        if (count > length)
+}
+        if (count > length) {
             count = length;
+}
         memcpy(&element_array[put], buffer, (size_t)count * sizeof(EmbWord));
         buffer += count;
         length -= count;
         actual_length += count;
         put += count;
-        if (put == qp->queue_size)
+        if (put == qp->queue_size) {
             put = 0;
+}
         qp->put_index = put;
     }
 
     /* If the queue had been empty, send a signal to the taker */
-    if (original_put == qp->take_index)
+    if (original_put == qp->take_index) {
         EmbSendSignal(qp->signal);
+}
 
     return (actual_length);
 }
@@ -318,19 +343,22 @@ int EmbQueueTakeBytes(EmbQueue *qp_arg, byte *buffer, int length)
     while (length > 0) {
         /* Fill in as many elements as we can */
         put = qp->put_index;
-        if (put >= take)
+        if (put >= take) {
             count = put - take;
-        else
+        } else {
             count = qp->queue_size - take;
-        if (count > length)
+}
+        if (count > length) {
             count = length;
+}
         memcpy(buffer, &element_array[take], (size_t)count);
         buffer += count;
         length -= count;
         actual_length += count;
         take += count;
-        if (take == qp->queue_size)
+        if (take == qp->queue_size) {
             take = 0;
+}
         qp->take_index = take;
     }
 
@@ -352,19 +380,22 @@ int EmbQueueTakeWords(EmbQueue *qp_arg, EmbWord *buffer, int length)
     while (length > 0) {
         /* Fill in as many elements as we can */
         put = qp->put_index;
-        if (put >= take)
+        if (put >= take) {
             count = put - take;
-        else
+        } else {
             count = qp->queue_size - take;
-        if (count > length)
+}
+        if (count > length) {
             count = length;
+}
         memcpy(buffer, &element_array[take], (size_t)count * sizeof(EmbWord));
         buffer += count;
         length -= count;
         actual_length += count;
         take += count;
-        if (take == qp->queue_size)
+        if (take == qp->queue_size) {
             take = 0;
+}
         qp->take_index = take;
     }
 

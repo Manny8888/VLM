@@ -98,11 +98,13 @@ void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase)
     if (!allocatedCaches) {
         processor->InstructionCache
             = (InstructionCacheLine *)malloc(sizeof(InstructionCacheLine) * InstructionCacheSize);
-        if (!processor->InstructionCache)
+        if (!processor->InstructionCache) {
             OutOfMemory("Initialize InstructionCache", sizeof(InstructionCacheLine) * InstructionCacheSize);
+}
         processor->StackCache = (LispObj *)malloc(sizeof(LispObj) * PageSize * StackCacheSize);
-        if (!processor->StackCache)
+        if (!processor->StackCache) {
             OutOfMemory("Initialize StackCache", sizeof(LispObj) * PageSize * StackCacheSize);
+}
         processor->StackCacheLimit = processor->StackCache + PageSize * StackCacheSize - 128;
         allocatedCaches = TRUE;
     }
@@ -200,10 +202,12 @@ Boolean WriteInternalRegister(int regno, LispObj *val)
     switch (regno) {
     case InternalRegisterFP:
         processor->fp = processor->StackCache + (val->DATA.u - processor->StackCacheBase);
-        while (processor->fp < processor->StackCache)
+        while (processor->fp < processor->StackCache) {
             StackCacheScrollDown();
-        while (processor->fp > processor->StackCacheLimit)
+}
+        while (processor->fp > processor->StackCacheLimit) {
             StackCacheScrollUp();
+}
         break;
 
     case InternalRegisterSP:

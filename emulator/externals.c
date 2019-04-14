@@ -193,8 +193,9 @@ LispObj CoprocessorRead(unsigned int operand)
             if (basems == 0) {
                 basems = ((int64_t)mstime * 1000000L / tps);
                 mstimenumber = 0;
-            } else
+            } else {
                 mstimenumber -= basems;
+}
         }
         inttimenum = mstimenumber << MSclock_UnitsToMSShift;
         if (inttimenum > processor->msclockcache)
@@ -243,8 +244,9 @@ LispObj CoprocessorRead(unsigned int operand)
                 | ((int64_t)(ut->tm_hour & 0x1F) << 12) | ((int64_t)(ut->tm_mday & 0x1F) << 17)
                 | ((int64_t)((ut->tm_mon + 1) & 0xF) << 22) | ((int64_t)((ut->tm_year + 1900 - 1990) & 0x3F) << 26);
             return (MakeLispObj(Type_Fixnum, (unsigned int)(encodedUT & 0xFFFFFFFFL)));
-        } else
+        } else {
             return (INVALID); /* Couldn't decode the clock reading */
+}
 
     case CoprocessorRegister_FlipToStack:
         /* This register is write-only ... */
@@ -326,7 +328,6 @@ void InitializeTracing(int bufferSize, unsigned int startPC, unsigned int stopPC
     processor->trace_hook = (char *)&traceData;
 }
 
-
 #define DecodeObject(object)                                                                                           \
     (((LispObjRecord *)&object)->tag & 0xC0) >> 6, ((LispObjRecord *)&object)->tag & 0x3F,                             \
         ((LispObjRecord *)&object)->data
@@ -372,8 +373,9 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
         fprintf(traceS, "(%08x)", traceRecord->instruction_data);
         break;
     case 0x83:
-        if (immediateFromStackOperand > 127)
+        if (immediateFromStackOperand > 127) {
             immediateFromStackOperand -= 256;
+}
     case 0x82:
         fprintf(traceS, "(%d)", immediateFromStackOperand);
         break;
@@ -391,8 +393,9 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
         fprintf(traceS, "(%03x)", immediate10BitOperand);
         break;
     case 0xA1:
-        if (immediate10BitOperand > 511)
+        if (immediate10BitOperand > 511) {
             immediate10BitOperand -= 1024;
+}
         fprintf(traceS, "(%d)", immediate10BitOperand);
         break;
     case 0xB0:
@@ -423,8 +426,9 @@ void PrintTrace()
 
 void MaybePrintTrace()
 {
-    if (Trace)
+    if (Trace) {
         PrintTrace();
+}
     return;
 }
 

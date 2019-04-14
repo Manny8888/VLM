@@ -3,8 +3,8 @@
  * made to it will be lost. */
 
 // Changes from the original automatically generated file
-// - Formatting 
-// - 
+// - Formatting
+// -
 
 #ifndef _AIHEAD_
 #define _AIHEAD_

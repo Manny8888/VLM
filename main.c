@@ -1,4 +1,6 @@
 
+#include <fenv.h>
+
 #include "std.h"
 
 #include "VLM_configuration.h"
@@ -17,7 +19,6 @@
 #endif
 
 #include "spy.h"
-#include <fenv.h>
 
 #define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
@@ -33,8 +34,9 @@ static void MaybeTerminateVLM(int signal)
     size_t answerSize = 0, *answerSize_p = &answerSize;
     ssize_t nRead;
 
-    if (NULL == pthread_getspecific(mainThread))
+    if (NULL == pthread_getspecific(mainThread)) {
         return;
+}
 
     if (EmbCommAreaPtr->guestStatus > StartedGuestStatus) {
         if (RunningGuestStatus == EmbCommAreaPtr->guestStatus)
@@ -52,14 +54,15 @@ static void MaybeTerminateVLM(int signal)
 
         while (TRUE) {
             nRead = getline(&answer, answerSize_p, stdin);
-            if (nRead < 0)
+            if (nRead < 0) {
                 vpunt(NULL, "Unexpected EOF on standard input");
+}
             answer[nRead - 1] = '\0';
-            if (0 == strcmp(answer, "yes"))
+            if (0 == strcmp(answer, "yes")) {
                 break;
-            else if (0 == strcmp(answer, "no"))
+            } else if (0 == strcmp(answer, "no")) {
                 return;
-            else {
+            } else {
                 fprintf(stderr, "Please answer 'yes' or 'no'.  ");
                 fflush(stderr);
             }
@@ -67,7 +70,7 @@ static void MaybeTerminateVLM(int signal)
     }
 
     // Seems useles:
-    //TerminateTracing();
+    // TerminateTracing();
     // TerminateSpy();
     TerminateLifeSupport();
 
@@ -103,23 +106,27 @@ int main(int argc, char **argv)
     feenableexcept(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID);
 #endif
 
-
-    if (pthread_key_create(&mainThread, NULL))
+    if (pthread_key_create(&mainThread, NULL)) {
         vpunt(NULL, "Unable to establish per-thread data.");
+}
 
     pthread_setspecific(mainThread, (void *)TRUE);
 
     sigAction.sa_handler = (sa_handler_t)MaybeTerminateVLM;
     sigemptyset(&sigAction.sa_mask);
     sigAction.sa_flags = 0;
-    if (sigaction(SIGINT, &sigAction, NULL))
+    if (sigaction(SIGINT, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGINT handler.");
-    if (sigaction(SIGTERM, &sigAction, NULL))
+}
+    if (sigaction(SIGTERM, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGTERM handler.");
-    if (sigaction(SIGHUP, &sigAction, NULL))
+}
+    if (sigaction(SIGHUP, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGHUP handler.");
-    if (sigaction(SIGQUIT, &sigAction, NULL))
+}
+    if (sigaction(SIGQUIT, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGQUIT handler.");
+}
 
     worldImageSize = LoadWorld(&config);
 
@@ -138,12 +145,12 @@ int main(int argc, char **argv)
             (config.virtualMemory - worldImageMB), config.worldPath);
 
 #ifdef _C_EMULATOR_
-    VirtualMemoryWrite(SystemCommSlotAddress(enableSysoutAtColdBoot), 
-                                             EnableIDS ? (LispObj *)AddressT : (LispObj *)AddressNIL);
+    VirtualMemoryWrite(
+        SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? (LispObj *)AddressT : (LispObj *)AddressNIL);
 #else
-    VirtualMemoryWrite(SystemCommSlotAddress(enableSysoutAtColdBoot), 
-                                             EnableIDS ? processor->taddress : processor->niladdress);
-#endif                                             
+    VirtualMemoryWrite(
+        SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? processor->taddress : processor->niladdress);
+#endif
 
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
@@ -187,9 +194,10 @@ int main(int argc, char **argv)
                 message = "Halted for unknown reason";
             }
             if (message != NULL)
-#ifdef _C_EMULATOR_            
-                vwarn(NULL, "%s at PC %016x (%s)", message, processor->pc.whole >> 1, processor->pc.whole & 1 ? "Odd" : "Even");
-#else                
+#ifdef _C_EMULATOR_
+                vwarn(NULL, "%s at PC %016x (%s)", message, processor->pc.whole >> 1,
+                    processor->pc.whole & 1 ? "Odd" : "Even");
+#else
                 vwarn(NULL, "%s at PC %08x (%s)", message, processor->epc >> 1, (processor->epc & 1) ? "Odd" : "Even");
 #endif
         }

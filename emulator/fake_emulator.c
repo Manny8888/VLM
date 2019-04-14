@@ -21,8 +21,9 @@ int iInterpret(PROCESSORSTATEP ivory)
 void SpinWheels()
 {
     int i;
-    for (i = 0; i < 0x2000000; i++)
+    for (i = 0; i < 0x2000000; i++) {
         ;
+}
 }
 
 void ARITHMETICEXCEPTION() {}

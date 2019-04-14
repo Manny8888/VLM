@@ -71,7 +71,7 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
         return;
     }
 
-    filenameHeader = VirtualMemoryRead(request->filename);
+    VirtualMemoryRead(request->filename, &filenameHeader);
     if (Type_HeaderI != (LispObjTag(filenameHeader) & 0x3F)) {
         verror("AttachDiskChannel", "Disk partition filename is not a simple string");
         request->result = EINVAL;
@@ -97,13 +97,15 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
     memcpy(filename, MapVirtualAddressData(request->filename + 1), filenameSize);
     filename[filenameSize] = 0;
 
-    if (diskChannel->flags.read_only)
+    if (diskChannel->flags.read_only) {
         openFlags = O_RDONLY;
-    else
+    } else {
         openFlags = O_RDWR;
+}
 
-    if (CreateIfNotFound == request->ifNotFoundAction)
+    if (CreateIfNotFound == request->ifNotFoundAction) {
         openFlags |= O_CREAT;
+}
 
     printf("AttachDiskChannel open '%s'\n", filename);
     diskState->fd = open(filename, openFlags, S_DEFFILEMODE);
@@ -120,7 +122,7 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
         return;
     }
 
-    if (request->minimumLength > 0)
+    if (request->minimumLength > 0) {
         if (request->minimumLength > fileStatus.st_size) {
             if (ftruncate(diskState->fd, (off_t)request->minimumLength)) {
                 verror("AttachDiskChannel", "Unable to set size of disk partition %s to %d bytes", filename,
@@ -131,6 +133,7 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
             }
             fileStatus.st_size = request->minimumLength;
         }
+}
 
     diskChannel->number_of_pages = fileStatus.st_size / DiskPageSize;
 
@@ -209,10 +212,11 @@ void DetachDiskChannel(EmbPtr diskChannelPtr)
 
     while (channelPtr != NullEmbPtr) {
         if (diskChannelPtr == channelPtr) {
-            if (NullEmbPtr == prevChannelPtr)
+            if (NullEmbPtr == prevChannelPtr) {
                 EmbCommAreaPtr->channel_table = diskChannel->next;
-            else
+            } else {
                 ((EmbChannel *)HostPointer(prevChannelPtr))->next = diskChannel->next;
+}
             break;
         }
         prevChannelPtr = channelPtr;
@@ -256,9 +260,9 @@ static void DiskLife(EmbDiskChannel *diskChannel)
             case ReadCmd:
                 /* Read one or more pages from disk -- The WriteCmd case
                  * shares this code */
-                if (diskState->error_pending)
+                if (diskState->error_pending) {
                     command->status = AbortStatus;
-                else if (-1 == diskState->fd) {
+                } else if (-1 == diskState->fd) {
                     command->status = LostStatus;
                     command->error_code = ENXIO;
                 } else {
@@ -266,8 +270,9 @@ static void DiskLife(EmbDiskChannel *diskChannel)
                     if (command->error_code) {
                         command->status = LostStatus;
                         diskState->error_pending = TRUE; /* Flush until reset */
-                    } else
+                    } else {
                         command->status = WonStatus;
+}
                 }
                 break;
 
@@ -303,12 +308,14 @@ static int DoDiskIO(EmbDiskChannel *diskChannel, DiskChannelState *diskState, Em
     off_t startingOffset;
     int nAddresses, nVectors, i;
 
-    if ((command->page < 0) || (command->page + command->count > diskChannel->number_of_pages))
+    if ((command->page < 0) || (command->page + command->count > diskChannel->number_of_pages)) {
         return (EINVAL);
+}
 
     startingOffset = (off_t)command->page * DiskPageSize;
-    if (-1 == lseek(diskState->fd, startingOffset, SEEK_SET))
+    if (-1 == lseek(diskState->fd, startingOffset, SEEK_SET)) {
         return (errno);
+}
 
     nAddresses = command->n_addresses;
     addressPair = &command->addresses[0];
@@ -336,11 +343,12 @@ static int DoDiskIO(EmbDiskChannel *diskChannel, DiskChannelState *diskState, Em
             return (EINVAL);
         }
 
-        if (-1 == actualBytes)
+        if (-1 == actualBytes) {
             return (errno);
 
-        else if (actualBytes != nBytes)
+        } else if (actualBytes != nBytes) {
             return (EINTR);
+}
     }
 
     return (0);
@@ -391,7 +399,8 @@ void TerminateDiskChannels()
 
     for (channel = EmbCommAreaPtr->channel_table; channel != NullEmbPtr; channel = diskChannel->next) {
         diskChannel = (EmbDiskChannel *)HostPointer(channel);
-        if (EmbDiskChannelType == diskChannel->type)
+        if (EmbDiskChannelType == diskChannel->type) {
             TerminateDiskChannel(diskChannel);
+}
     }
 }

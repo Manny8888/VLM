@@ -63,16 +63,19 @@ static void ResetCommArea(boolean fullReset)
         channel = HostPointer(channelP);
         switch (channel->type) {
         case EmbDiskChannelType:
-            if (fullReset)
+            if (fullReset) {
                 ResetDiskChannel(channel);
+}
             break;
         case EmbConsoleChannelType:
-            if (fullReset)
+            if (fullReset) {
                 ResetConsoleChannel(channel);
+}
             break;
         case EmbNetworkChannelType:
-            if (fullReset)
+            if (fullReset) {
                 ResetNetworkChannel(channel);
+}
             break;
 #ifdef UNIMPLEMENTED
         case EmbRPCChannelType:
@@ -94,8 +97,9 @@ static void ResetCommArea(boolean fullReset)
             break;
 #endif
         case EmbMessageChannelType:
-            if (fullReset)
+            if (fullReset) {
                 ResetMessageChannel(channel);
+}
             break;
         }
     }
@@ -169,21 +173,23 @@ void IvoryLifePolling(pthread_addr_t argument)
 
         PollMessageChannels();
 
-        if (EmbCommAreaPtr->reset_request != NoResetRequest)
+        if (EmbCommAreaPtr->reset_request != NoResetRequest) {
             ProcessResetRequest();
 
-        else if (EmbCommAreaPtr->pollTime > OneQuarterSecond) {
+        } else if (EmbCommAreaPtr->pollTime > OneQuarterSecond) {
             EmbCommAreaPtr->pollTime = 0;
             EmbCommAreaPtr->guest_to_host_signals |= EmbCommAreaPtr->live_guest_to_host_signals;
-            if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal))
+            if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal)) {
                 vpunt(NULL, "Unable to send Life Support signal signal in thread %lx", self);
+}
         }
 
         else if (EmbCommAreaPtr->reawaken) {
             EmbCommAreaPtr->guest_to_host_signals |= EmbCommAreaPtr->reawaken;
             EmbCommAreaPtr->reawaken = 0;
-            if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal))
+            if (pthread_cond_broadcast(&EmbCommAreaPtr->signalSignal)) {
                 vpunt(NULL, "Unable to send Life Support signal signal in thread %lx", self);
+}
         }
 
         end_MUTEX_LOCKED(signalLock);
@@ -194,14 +200,16 @@ void IvoryLifePolling(pthread_addr_t argument)
                 EmbSendSignal(EmbCommAreaPtr->clock_signal);
                 EmbCommAreaPtr->pollClockTime = 1000 * EmbCommAreaPtr->clock_interval;
             }
-            if (EmbCommAreaPtr->pollClockTime > OneQuarterSecond)
+            if (EmbCommAreaPtr->pollClockTime > OneQuarterSecond) {
                 pollingSleep.tv_nsec = OneQuarterSecond;
-            else
+            } else {
                 pollingSleep.tv_nsec = EmbCommAreaPtr->pollClockTime;
+}
         }
 
-        else
+        else {
             pollingSleep.tv_nsec = OneSixteenthSecond;
+}
 
         UpdateVLMStatus();
 
@@ -213,8 +221,9 @@ void IvoryLifePolling(pthread_addr_t argument)
         pollingSleep.tv_sec = 1;
         pollingSleep.tv_nsec = 0;
 
-        if (pthread_delay_np(&pollingSleep))
+        if (pthread_delay_np(&pollingSleep)) {
             vpunt(NULL, "Unable to sleep in thread %lx", self);
+}
     }
 
     pthread_cleanup_pop(TRUE);
@@ -249,14 +258,16 @@ void IntervalTimerDriver(pthread_addr_t argument)
                 expirationInterval.tv_sec++;
                 expirationInterval.tv_nsec -= OneSecond;
             }
-            if (pthread_get_expiration_np(&expirationInterval, &expirationTime) < 0)
+            if (pthread_get_expiration_np(&expirationInterval, &expirationTime) < 0) {
                 vpunt(NULL, "Unable to compute interval timer expiration time");
+}
             result = pthread_cond_timedwait(&EmbCommAreaPtr->clockSignal, &EmbCommAreaPtr->clockLock, &expirationTime);
         }
 
-        else
+        else {
             /* Wait indefinitely for someone to program the interval timer */
             result = pthread_cond_wait(&EmbCommAreaPtr->clockSignal, &EmbCommAreaPtr->clockLock);
+}
 
         if (result == ETIMEDOUT) {
             EmbSendSignal(EmbCommAreaPtr->clock_signal);
@@ -281,8 +292,9 @@ void SetIntervalTimer(Integer relativeTimeout)
 
     EmbCommAreaPtr->clockTime = relativeTimeout;
 
-    if (pthread_cond_broadcast(&EmbCommAreaPtr->clockSignal) < 0)
+    if (pthread_cond_broadcast(&EmbCommAreaPtr->clockSignal) < 0) {
         vpunt(NULL, "Unable to send Life Support clock signal in thread %lx", pthread_self());
+}
 
     end_MUTEX_LOCKED(clockLock);
 

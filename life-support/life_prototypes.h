@@ -5,6 +5,8 @@
 
 #include "life_types.h"
 #include "embed.h"
+
+#include "../std.h"
 #include "../VLM_configuration.h"
 #include "../world_tools.h"
 
