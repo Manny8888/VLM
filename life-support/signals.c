@@ -52,40 +52,33 @@ SignalNumber InstallSignalHandler(ProcPtrV signalHandler, PtrV signalArgument, b
             EmbCommAreaPtr->signalHandler[i].signal = signal;
             EmbCommAreaPtr->signalHandler[i].handlerFunction = signalHandler;
             EmbCommAreaPtr->signalHandler[i].handlerArgument = signalArgument;
-            if (EmbCommAreaPtr->signalHandler[i].handlerThreadSetup) {
-#ifdef USING_REALTIME_KERNEL
-                policy = pthread_attr_getsched(
-                    (inputP) ? EmbCommAreaPtr->inputThreadAttrs : EmbCommAreaPtr->outputThreadAttrs);
-                priority = pthread_attr_getprio(
-                    (inputP) ? EmbCommAreaPtr->inputThreadAttrs : EmbCommAreaPtr->outputThreadAttrs);
-                if (pthread_setscheduler(EmbCommAreaPtr->signalHandler[i].handlerThread, policy, priority))
-                    vpunt(NULL,
-                        "Unable to set scheduler policy/priority of thread "
-                        "%lx to %d/%d",
-                        EmbCommAreaPtr->signalHandler[i].handlerThread, policy, priority);
-#endif
-            } else {
+            if (!EmbCommAreaPtr->signalHandler[i].handlerThreadSetup) {
                 if (pthread_create(&EmbCommAreaPtr->signalHandler[i].handlerThread,
                         (inputP) ? &EmbCommAreaPtr->inputThreadAttrs : &EmbCommAreaPtr->outputThreadAttrs,
-                        (pthread_startroutine_t)&SignalHandlerTopLevel, &EmbCommAreaPtr->signalHandler[i]))
+                        (pthread_startroutine_t)&SignalHandlerTopLevel, &EmbCommAreaPtr->signalHandler[i])) {
                     vpunt(NULL,
                         "Unable to create thread to handle signal %d for %lx "
                         "(%lx)",
                         i, signalHandler, signalArgument);
+                }
+                
                 EmbCommAreaPtr->signalHandler[i].handlerThreadSetup = TRUE;
             }
             break;
         }
     }
 
-    if (EmbCommAreaPtr->useSignalLocks)
-        if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock))
+    if (EmbCommAreaPtr->useSignalLocks) {
+        if (pthread_mutex_unlock(&EmbCommAreaPtr->signalLock)) {
             vpunt(NULL, "Unable to unlock the Life Support signal lock in thread %lx", pthread_self());
+        }
+    }
 
-    if (i < NSignals)
+    if (i < NSignals) {
         return (i);
-    else
+    } else {
         vpunt(NULL, "Signal table overflow");
+    }
 }
 
 /* Called by the emulator to inform us that the VLM has sent us an interrupt
