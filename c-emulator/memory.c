@@ -6,9 +6,11 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "aihead.h"
 #include "emulator.h"
 #include "ivory.h"
 #include "memory.h"
+#include "utilities.h"
 
 /* --- need a better place */
 
@@ -28,11 +30,12 @@ Integer *DataSpace = (Integer *)((long)3 << 32); /* 4<<32 bytes of data */
    to create a page of tags at a time
  */
 
-#define MemoryPageSize 0x2000
+#define MemoryPageSize 0x2000     // 8,192 = 2^13
+#define MemoryPageMask (MemoryPageSize - 1)
 #define MemoryAddressPageShift 13
 
 #define MemoryPageNumber(vma) ((vma) >> MemoryAddressPageShift)
-#define MemoryPageOffset(vma) ((vma) & (MemoryPageSize - 1))
+#define MemoryPageOffset(vma) ((vma) & MemoryPageMask)
 #define PageNumberMemory(vpn) ((vpn) << MemoryAddressPageShift)
 
 /* This could be a sparse array, should someone want to implement it */
@@ -41,23 +44,6 @@ VMAttribute VMAttributeTable[1 << (32 - MemoryAddressPageShift)];
 #define Created(vma) VMExists(VMAttributeTable[MemoryPageNumber(vma)])
 #define SetCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = VMCreatedDefault)
 #define ClearCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = 0)
-
-
-uint32_t LispObjTag(LispObj lo){
-        return (&lo)->parts.tag;
-    }
-
-uint32_t LispObjData(LispObj lo){
-    return (&lo)->parts.data.u;
-}
-
-void WriteLispObjectTag(LispObj *lo, uint32_t newtag){
-    lo->parts.tag = newtag;
-}
-
-void WriteLispObjData(LispObj *lo, uint32_t newdata){
-    lo->parts.data.u = newdata;
-}
 
 
 /**** Virtual memory system ****/
@@ -88,20 +74,20 @@ Integer EnsureVirtualAddress(Integer vma)
     return (vma);
 }
 
-Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp)
+Integer EnsureVirtualAddressRange(Integer virtualaddress, int count, Boolean faultp)
 {
     int pages = ceiling(count, MemoryPageSize);
     caddr_t data, tag;
-    Integer aligned_vma = vma - MemoryPageOffset(vma);
+    Integer aligned_vma = virtualaddress - MemoryPageOffset(virtualaddress);
     int n;
 
     while (pages) {
         n = 0;
-        while (!Created(vma) && pages) {
+        while (!Created(virtualaddress) && pages) {
             n++;
             pages--;
-            SetCreated(vma);
-            vma += MemoryPageSize;
+            SetCreated(virtualaddress);
+            virtualaddress += MemoryPageSize;
         }
         if (n) {
             data = (caddr_t)&DataSpace[aligned_vma];
@@ -121,13 +107,13 @@ Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp)
             aligned_vma += n * MemoryPageSize;
         }
 
-        while (Created(vma) && pages) {
+        while (Created(virtualaddress) && pages) {
             pages--;
-            vma += MemoryPageSize;
+            virtualaddress += MemoryPageSize;
             aligned_vma += MemoryPageSize;
         }
     }
-    return (vma);
+    return (virtualaddress);
 }
 
 Integer DestroyVirtualAddress(Integer vma)
@@ -435,3 +421,109 @@ int VMCommand(int command)
         }
         }
 }
+
+
+
+/* Wads are clusters of pages for swap contiguity.  The current value is
+/* chosen so that all the attributes of a wad fit in one long */
+/* Note that MemoryWad_AddressShift = MemoryPage_AddressShift + 3 */
+#define MemoryWad_AddressShift 16
+#define MemoryWad_Size (1 << MemoryWad_AddressShift)
+#define MemoryWad_Mask (MemoryWad_Size - 1)
+#define MemoryWadNumber(vma) ((vma) >> MemoryWad_AddressShift)
+#define MemoryWadOffset(vma) ((vma) & MemoryWad_Mask)
+#define WadNumberMemory(vwn) ((vwn) << MemoryWad_AddressShift)
+
+#define WadExistsMask 0x4040404040404040 /* f-ing poor excuse for a macro language */
+#define WadCreated(vma) ((((int64_t *)VMAttributeTable)[MemoryWadNumber(vma)]) & WadExistsMask)
+
+
+static int unmapped_world_words = 0;
+static int mapped_world_words = 0;
+static int file_map_entries = 0;
+static int swap_map_entries = 0;
+static int ComputeProtection(VMAttribute attr);
+
+Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset)
+{
+    caddr_t data;
+    caddr_t tag;
+
+    /* According to the doc, by mapping PRIVATE, writes to the address
+    /* will not go to the file, so we get copy-on-write for free.  The
+    /* only reason we map read-only, is to catch modified for IDS */
+
+    /* --- for now, we don't try to discover modified: it seems to run us
+    /* out of map entries */
+    VMAttribute attr = DefaultAttributes(False, True);
+    int prot = ComputeProtection(attr);
+    size_t dataCount, tagCount;
+    int words;
+
+    for (; length > 0;) {
+        /* sigh, have to copy partial pages and pages that already exist
+        /* (e.g., shared FEP page) */
+        for (; (length > 0) && (MemoryWadOffset(vma) || Created(vma) || (length < MemoryWad_Size));) {
+            words = MemoryPage_Size - MemoryPageOffset(vma);
+            if (words > length) {
+                words = length;
+            }
+            EnsureVirtualAddress(vma);
+
+            dataCount = sizeof(Integer) * words;
+            if (dataoffset != lseek(worldfile, dataoffset, SEEK_SET))
+                vpunt(NULL, "Unable to seek to data offset %d in world file", dataoffset);
+            if (dataCount != read(worldfile, MapVirtualAddressData(vma), dataCount))
+                vpunt(NULL, "Unable to read data page %d from world file", MemoryPageNumber(vma));
+
+            tagCount = sizeof(Tag) * words;
+            if (tagoffset != lseek(worldfile, tagoffset, SEEK_SET))
+                vpunt(NULL, "Unable to seek to tag offset %d in world file", tagoffset);
+            if (tagCount != read(worldfile, MapVirtualAddressTag(vma), tagCount))
+                vpunt(NULL, "Unable to read tag page %d from world file", MemoryPageNumber(vma));
+
+            /* Adjust the protection to catch modifications to world pages */
+            SetCreated(vma);
+
+            vma += words;
+            dataoffset += dataCount;
+            tagoffset += tagCount;
+            length -= words;
+            unmapped_world_words += words;
+        }
+        swap_map_entries += 1;
+
+        if (length > 0) {
+            int limit = length - MemoryWadOffset(length);
+
+            /* Set the attributes for mapped in pages */
+            for (words = 0; (words < limit) && !WadCreated(vma + words);) {
+                int wadlimit = words + MemoryWad_Size;
+                VMAttribute *pattr = &VMAttributeTable[MemoryPageNumber(vma + words)];
+
+                for (; words < wadlimit; words += MemoryPage_Size, pattr++)
+                    *pattr = attr;
+            }
+
+            data = (caddr_t)&DataSpace[vma];
+            tag = (caddr_t)&TagSpace[vma];
+            if (data
+                != mmap(data, dataCount = sizeof(Integer) * words, PROT_READ | PROT_WRITE | PROT_EXEC,
+                        MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile, dataoffset))
+                vpunt(NULL, "Couldn't map %d world data pages at %lx for VMA %x", MemoryPageNumber(words), data, vma);
+            if (tag
+                != mmap(tag, tagCount = sizeof(Tag) * words, prot, MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile,
+                        tagoffset))
+                vpunt(NULL, "Couldn't map %d world tag pages at %lx for VMA %x", MemoryPageNumber(words), tag, vma);
+
+            vma += words;
+            dataoffset += dataCount;
+            tagoffset += tagCount;
+            length -= words;
+            mapped_world_words += words;
+            file_map_entries += 2;
+        }
+    }
+    return (vma);
+}
+

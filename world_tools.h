@@ -1,3 +1,4 @@
+
 /* Ivory and VLM World File Format */
 
 #ifndef _WORLD_TOOLS_
@@ -15,10 +16,9 @@
 
 #include "memory.h"
 
-/* A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details
- */
+// A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details
 
-typedef struct {
+struct _LoadMapEntry {
     Integer address; /* VMA to be filled in by this load map entry */
     struct {
 #if BYTE_ORDER == LITTLE_ENDIAN
@@ -31,7 +31,9 @@ typedef struct {
     } op;
     LispObj data; /* Interpretation is based on the opcode */
     PtrV world; /* -> World from which this entry was obtained */
-} LoadMapEntry;
+} ;
+
+typedef struct _LoandMapEntry LoadMapEntry;
 
 /* Load map operation codes */
 enum LoadMapEntryOpcode {
@@ -42,7 +44,7 @@ enum LoadMapEntryOpcode {
 };
 
 /* Description of an open world file */
-typedef struct World {
+typedef struct {
     char *pathname; /* -> Pathname of the world file */
     int fd; /* Unix filedes # if the world file is open */
     int format; /* A LoadFileFormat indicating the type of file */
@@ -109,7 +111,7 @@ enum LoadFileFormat {
 /* Block numbers of the first page of data and tags for a VLM world as stored
  * in its header */
 
-typedef struct {
+struct _VLMPageBases {
 #if BYTE_ORDER == LITTLE_ENDIAN
     Integer dataPageBase : 28;
     Integer tagsPageBase : 4; /* Limits header and load maps to 112K bytes */
@@ -117,7 +119,8 @@ typedef struct {
     Integer tagsPageBase : 4; /* Limits header and load maps to 112K bytes */
     Integer dataPageBase : 28;
 #endif
-} VLMPageBases;
+};
+typedef struct _VLMPageBases VLMPageBases;
 
 /* Ivory world file format definitions */
 #define IvoryWorldSuffix ".ilod"
@@ -135,12 +138,12 @@ typedef struct {
 #define IvoryWorldFileFirstMapQ 8
 
 /* Data structures passed by Lisp via the SaveWorld coprocessor register */
-typedef struct {
+typedef struct _SaveWorldEntry {
     Integer address; /* VMA of data (usually a region) to be saved */
     Integer extent; /* Number of words starting at this address to save */
 } SaveWorldEntry;
 
-typedef struct {
+typedef struct _SaveWorldData {
     Integer pathname; /* Pathname of the world file (a DTP-STRING) */
     Integer entryCount; /* Number of address/extent pairs to follow */
     SaveWorldEntry entries[1];

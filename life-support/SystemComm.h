@@ -5,17 +5,18 @@
 
 #include <stddef.h>
 #include "life_types.h"
+#include "emulator.h"
 
 #define SystemCommAreaAddress 0xF8041100L
 #define SystemCommAreaSize 256
 
 /* Returns the address of a slot in the SystemComm area */
-#define SystemCommSlotAddress(slot)                                                                                    \
-    ((ptrdiff_t)SystemCommAreaAddress + (ptrdiff_t)offsetof(SystemCommArea, slot) / sizeof(EmbWord))
+#define SystemCommSlotAddress(slot) (((ptrdiff_t)SystemCommAreaAddress) / sizeof(EmbWord) + ((ptrdiff_t)(slot)))
 
 // Reads a slot of the SystemComm area using the emulator's VM implementation
 #ifdef _C_EMULATOR_
-#define ReadSystemCommSlot(slot, objectPointer) VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer)
+//#define ReadSystemCommSlot(slot, objectPointer) VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer)
+void ReadSystemCommSlot(int slot, LispObj *objectPointer);
 #else
 #define ReadSystemCommSlot(slot) VirtualMemoryRead(SystemCommSlotAddress(slot))
 #endif
@@ -35,87 +36,102 @@
     VirtualMemoryWrite(SystemCommSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
 #endif
 
-#ifndef MINIMA
+// Genera version of System Communications area
+// Define SYS:I-SYS;SYSDF1 line 403+
+// Location 0x041100 / Size 0x100 (256) EmbWords
+enum SystemCommAreaSlot {
+    syscomMajorVersionNumber,
+    syscomMinorVersionNumber,
+    systemStartup,
 
-/* Genera version of System Communications area */
+    // Address Spacemap
+    addressSpaceMapAddress, // Maps quanta to regions.  See STORAGE for format info.
+    oblastFreeSize, // Contiguous free quanta in each oblast.
 
-typedef struct {
-    EmbWord syscomMajorVersionNumber;
-    EmbWord syscomMinorVersionNumber;
-    EmbWord systemStartup;
-    EmbWord addressSpaceMapAddress;
-    EmbWord oblastFreeSize;
-    EmbWord areaName;
-    EmbWord areaMaximumQuantumSize;
-    EmbWord areaRegionQuantumSize;
-    EmbWord areaRegionList;
-    EmbWord areaRegionBits;
-    EmbWord regionQuantumOrigin;
-    EmbWord regionQuantumLength;
-    EmbWord regionFreePointer;
-    EmbWord regionGCPointer;
-    EmbWord regionBits;
-    EmbWord regionListThread;
-    EmbWord regionArea;
-    EmbWord regionCreatedPages;
-    EmbWord regionFreePointerBeforeFlip;
-    EmbWord regionConsAlarm;
-    EmbWord pageConsAlarm;
-    EmbWord structureCacheRegion;
-    EmbWord listCacheRegion;
-    EmbWord defaultConsArea;
-    EmbWord pht;
-    EmbWord mmptY;
-    EmbWord mmpt;
-    EmbWord smpt;
-    EmbWord loadBitmaps;
-    EmbWord loadMap; /* Red herring */
-    EmbWord loadMapDPN; /* Red herring */
-    EmbWord swapMap; /* Red herring */
-    EmbWord swapMapDPN; /* Red herring */
-    EmbWord sysoutBitmaps;
-    EmbWord phtCollisionCounts;
-    EmbWord mmpt1;
-    EmbWord storageColdBoot;
-    EmbWord flushableQueueHead;
-    EmbWord flushableQueueTail;
-    EmbWord flushableQueueModified;
-    EmbWord wiredPhysicalAddressHigh;
-    EmbWord wiredVirtualAddressHigh;
-    EmbWord enableSysoutAtColdBoot;
-    EmbWord sysoutGenerationNumber;
-    EmbWord sysoutTimestamp1;
-    EmbWord sysoutTimestamp2;
-    EmbWord sysoutParentTimestamp1;
-    EmbWord sysoutParentTimestamp2;
-    EmbWord initialStackGroup;
-    EmbWord currentStackGroup;
-    EmbWord stackGroupLock;
-    EmbWord currentStackGroupStatusBits;
-    EmbWord inhibitSchedulingFlag;
-    EmbWord controlStackLow;
-    EmbWord bindingStackLow;
-    EmbWord floatOperatingMode;
-    EmbWord floatOperationStatus;
-    EmbWord packageNameTable;
-    EmbWord lispReleaseString;
-    EmbWord busMode;
-} SystemCommArea;
+    // Per-area tables.  These are arrays.  They are here for the console program.
+    areaName, // A symbol
+    areaMaximumQuantumSize,
+    areaRegionQuantumSize,
+    areaRegionList,
+    areaRegionBits,
 
-#else
+    // Per-region tables.  These are arrays.  They are here for the console program.
+    regionQuantumOrigin,
+    regionQuantumLength,
+    regionFreePointer, // Number of words actually used
+    regionGCPointer, // Number of words scanned by (long-term) GC
+    regionBits, // Fixnum of random fields (see %%REGION- bytes)
+    regionListThread,
+    regionArea,
+    regionCreatedPages,
+    regionFreePointerBeforeFlip,
+    regionConsAlarm,
+    pageConsAlarm,
+    structureCacheRegion,
+    listCacheRegion,
+    defaultConsArea,
 
-/* Minima version of System Communications Area */
+    // Pointers to critical storage-system tables (these are displaced arrays)
+    pht, // Page hash table
+    mmptY, // Main Memory Y subscript table
+    mmpt, // Main Memory page table
+    smpt, // Secondary Memory page table
+    loadBitmaps,
 
-typedef struct {
-    EmbWord systemStartup;
-    EmbWord allAreas;
-    EmbWord allPackages;
-    EmbWord saveWorldHeader;
-    EmbWord kernelUseROMEthernet;
-} SystemCommArea;
+    //  The following are red herrings for functionality that is really in FEPCOM.
+    //  Presumably they leaked in from L-world during the IMach project.
+    loadMap, /* Red herring */
+    loadMapDPN, /* Red herring */
+    swapMap, /* Red herring */
+    swapMapDPN, /* Red herring */
+    sysoutBitmaps,
 
-#endif
+    // Dynamic storage array, 4 bits per PHT bucket.
+    phtCollisionCounts,
+    mmpt1,
+    storageColdBoot,
+    flushableQueueHead,
+    flushableQueueTail,
+    flushableQueueModified,
+    wiredPhysicalAddressHigh,
+    wiredVirtualAddressHigh,
+    enableSysoutAtColdBoot,
+    sysoutGenerationNumber,
+    sysoutTimestamp1,
+    sysoutTimestamp2,
 
-extern SystemCommArea *SystemCommAreaPtr;
+    // microsecond clock at some convenient time
+    // of disk-save/sysout.
+    sysoutParentTimestamp1,
+    sysoutParentTimestamp2,
+    initialStackGroup,
+    currentStackGroup,
+    stackGroupLock,
+    currentStackGroupStatusBits,
+    inhibitSchedulingFlag,
+    controlStackLow,
+    bindingStackLow,
+
+    // Floating-point control registers
+    floatOperatingMode,
+    floatOperationStatus,
+
+    packageNameTable,
+    lispReleaseString,
+    busMode,
+};
+
+typedef EmbWord SystemCommArea[60];
+
+// Minima version of System Communications Area
+// typedef struct {
+//    EmbWord systemStartup;
+//    EmbWord allAreas;
+//    EmbWord allPackages;
+//    EmbWord saveWorldHeader;
+//    EmbWord kernelUseROMEthernet;
+//} SystemCommArea;
+
+// extern SystemCommArea *SystemCommAreaPtr;
 
 #endif

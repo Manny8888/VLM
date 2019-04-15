@@ -147,7 +147,9 @@ int main(int argc, char **argv)
 #ifdef _C_EMULATOR_
     VirtualMemoryWrite(
         SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? (LispObj *)AddressT : (LispObj *)AddressNIL);
-#else
+
+//    VirtualMemoryWrite(&(SystemCommArea))
+    #else
     VirtualMemoryWrite(
         SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? processor->taddress : processor->niladdress);
 #endif

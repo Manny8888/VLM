@@ -6,9 +6,9 @@
 #include "life_types.h"
 #include "embed.h"
 
-#include "../std.h"
-#include "../VLM_configuration.h"
-#include "../world_tools.h"
+#include "std.h"
+#include "VLM_configuration.h"
+#include "world_tools.h"
 
 /* When executing code which may call a function that is a thread cancellation
    point (e.g., nanosleep, read, write) while under the protection of a mutex
@@ -146,5 +146,4 @@ void TerminateSignalHandlers(void);
 static void NullSignalHandler(PtrV ignore);
 static void SignalHandlerTopLevel(pthread_addr_t argument);
 
-/* The prototypes for SendInterruptToLifeSupport and WaitForLifeSupport are in
- * ivoryrep.h */
+/* The prototypes for SendInterruptToLifeSupport and WaitForLifeSupport are in ivoryrep.h */

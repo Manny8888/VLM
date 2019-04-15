@@ -550,16 +550,7 @@
 #define TrapReason_HighPrioritySequenceBreak 1
 #define TrapReason_LowPrioritySequenceBreak 2
 
-#define VMAttribute_AccessFault 1
-#define VMAttribute_WriteFault 2
-#define VMAttribute_TransportFault 4
-#define VMAttribute_TransportDisable 8
-#define VMAttribute_Ephemeral 16
-#define VMAttribute_Modified 32
-#define VMAttribute_Exists 64
-#define VMAttribute_CreatedDefault 69
-
-#define MemoryPage_Size 8192
+#define MemoryPage_Size 02000   /* 8,192 */
 #define MemoryPage_AddressShift 13
 
 #define DoubleFloatOp_Add 0

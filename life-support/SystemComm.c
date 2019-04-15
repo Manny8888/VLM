@@ -6,10 +6,9 @@
 #include "emulator.h"
 #include "SystemComm.h"
 
-// void ReadSystemCommSlot(Integer slot, LispObj *objectPointer) {
-//
-//    VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer);
-//
-// }
+void ReadSystemCommSlot(int slot, LispObj *objectPointer)
+{
+    VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer);
+}
 
 #endif

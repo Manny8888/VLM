@@ -47,6 +47,9 @@ typedef union {
 
 uint32_t LispObjTag(LispObj lo);
 uint32_t LispObjData(LispObj lo);
+void WriteLispObjectTag(LispObj *lo, uint32_t newtag);
+void WriteLispObjData(LispObj *lo, uint32_t newdata);
+
 
 //((LispObj *)(&lo)->TAG)
 // #define LispObjData(lo) ((LispObj *)(&lo))->DATA.u)

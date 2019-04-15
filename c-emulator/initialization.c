@@ -3,6 +3,7 @@
 #include <signal.h>
 
 #include "../std.h"
+#include "SystemComm.h"
 #include "emulator.h"
 #include "ivory.h"
 #include "memory.h"
@@ -44,7 +45,7 @@ Boolean IvoryProcessorSystemStartup(Boolean bootingP)
         InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
         if ((!ReadVirtualMemory(0xf8041002L, &q) && (LispObjTag(q) == TypeCompiledFunction)) ||
 #ifndef MINIMA
-            (!ReadVirtualMemory(0xf8041102L, &q) && (LispObjTag(q) == TypeCompiledFunction))
+            (!ReadVirtualMemory(SystemCommAreaAddress, &q) && (LispObjTag(q) == TypeCompiledFunction))
 #else
             (!ReadVirtualMemory(0xf8041100L, &q) && (LispObjTag(q) == TypeCompiledFunction))
 #endif
