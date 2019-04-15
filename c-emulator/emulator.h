@@ -3,6 +3,7 @@
 #ifndef _EMULATOR_H
 #define _EMULATOR_H
 
+#include <stdio.h>
 #include <stdint.h>
 #include <limits.h>
 

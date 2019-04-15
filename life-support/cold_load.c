@@ -6,6 +6,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "pthread.h"
+#include <X11/Xlib.h>
+#include <X11/Xproto.h>
+#include <X11/Xutil.h>
+
 #include "life_types.h"
 #include "embed.h"
 #include "VLM_configuration.h"
@@ -15,13 +20,11 @@
 #include "genera-icon-32.c"
 #include "genera-cptfont.c"
 
+#include "cold_load_keymappings.h"
+
 int manage_run_lights = 0;
 int run_lights_state  = 0;
 
-#include <X11/Xlib.h>
-#include <X11/Xproto.h>
-#include <X11/Xutil.h>
-#include "cold_load_keymappings.h"
 
 #define RUN_LIGHT_Y_SPACE 3 /* Pixels to leave for run bars in cold-load window */
 #define RUN_LIGHT_Y_OFFSET (RUN_LIGHT_Y_SPACE - 1)
@@ -280,12 +283,12 @@ static void open_display(XParams *params, boolean noWaiting)
 
     if (!gcv.font) {
         cptfont_bitmap
-            = XCreateBitmapFromData(display, root, GENERA_CPTFONT_bits, GENERA_CPTFONT_width, GENERA_CPTFONT_height);
+            = XCreateBitmapFromData(display, root, (char *)GENERA_CPTFONT_bits, GENERA_CPTFONT_width, GENERA_CPTFONT_height);
     }
 
     if (XCellsOfScreen(screen) < 16) {
         icon_bitmap
-            = XCreateBitmapFromData(display, icon_window, GeneraIcon32_bits, GeneraIcon32_width, GeneraIcon32_height);
+            = XCreateBitmapFromData(display, icon_window, (char *)GeneraIcon32_bits, GeneraIcon32_width, GeneraIcon32_height);
         icon_gc_s = icon_gc_c = icon_gc_t = NULL;
     } else {
         icon_bitmap = 0;

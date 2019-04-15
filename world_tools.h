@@ -54,7 +54,7 @@ typedef struct _World {
     byte *ivoryDataPage; /* -> The data of the current Ivory format page */
     int currentPageNumber; /* Page number of the page in the buffer, if any */
     int currentQNumber; /* Q number within the page to be read */
-    struct World *parentWorld; /* -> Parent of this world if it's an IDS */
+    struct _World *parentWorld; /* -> Parent of this world if it's an IDS */
     Integer sysoutGeneration; /* Generation number of this world (> 0 if IDS) */
     Integer sysoutTimestamp1; /* Unique ID of this world, part 1 ... */
     Integer sysoutTimestamp2; /* ... part 2 */
@@ -109,7 +109,7 @@ typedef enum _LoadFileFormat {
 /* Block numbers of the first page of data and tags for a VLM world as stored
  * in its header */
 
-struct _VLMPageBases {
+typedef struct _VLMPageBases {
 #if BYTE_ORDER == LITTLE_ENDIAN
     Integer dataPageBase : 28;
     Integer tagsPageBase : 4; /* Limits header and load maps to 112K bytes */

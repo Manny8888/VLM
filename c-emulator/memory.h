@@ -6,6 +6,8 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
+#include <stdio.h>
+
 #include "ivory.h"
 
 extern int VirtualMemoryWriteBlockConstant(Integer vma, LispObj *object, int count, int increment);
@@ -90,6 +92,7 @@ typedef enum _VMOpcode {
 
 typedef enum _VMResultCode { VMResultSuccess, VMResultFailure } VMResultCode;
 
+int VMCommand(int command);
 #define VMCommandOpcode(command) ((VMOpcode)ldb(13, 19, command))
 #define VMCommandOperand(command) ((int)ldb(19, 0, command))
 
@@ -106,6 +109,7 @@ typedef struct _VMState {
 
 extern VMState VM;
 
-Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset)
+static int ComputeProtection(VMAttribute attr);
+Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset);
 
 #endif

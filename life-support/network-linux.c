@@ -633,7 +633,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
         sllLen = sizeof(sll);
         actualBytes = recvfrom(netChannel->fd, &netChannel->receiveBuffer, MaxEmbNetPacketSize, MSG_TRUNC,
             (struct sockaddr *)&sll, &sllLen);
-        dump_packet("rx", &netChannel->receiveBuffer, actualBytes);
+        dump_packet("rx", (unsigned char *)&netChannel->receiveBuffer, actualBytes);
 
         if (actualBytes < 0) {
             netChannel->nReceiveFailures++;

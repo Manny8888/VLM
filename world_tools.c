@@ -141,7 +141,7 @@ void SaveWorld(Integer saveWorldDataVMA)
     fflush(stderr);
 #endif
 
-    world.pathname = malloc(pathnameSize + 1);
+    world.pathname = (char *) malloc(pathnameSize + 1);
     if (NULL == world.pathname) {
         vpunt(NULL,
             "Unable to allocate space for local copy of destination "
@@ -232,12 +232,14 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     } else
         return (FALSE);
 
-    world->ivoryDataPage = malloc(IvoryPageSizeBytes);
-    if (NULL == world->ivoryDataPage)
+    world->ivoryDataPage = (byte *) malloc(IvoryPageSizeBytes);
+    if (NULL == world->ivoryDataPage) {
         if (puntOnErrors) {
             PuntWorld(world, "Unable to allocate space for data buffer for world file %s", world->pathname);
-        } else
+        } else {
             return (FALSE);
+        }
+    }
     world->currentPageNumber = -1;
 
     /* The header and load maps for both VLM and Ivory world files are stored
@@ -265,7 +267,7 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     ReadIvoryWorldFileQ(world, wiredCountQ, &q);
     world->nWiredMapEntries = LispObjData(q);
     if (world->nWiredMapEntries) {
-        world->wiredMapEntries = malloc(world->nWiredMapEntries * sizeof(LoadMapEntry));
+        world->wiredMapEntries = (LoadMapEntry *)malloc(world->nWiredMapEntries * sizeof(LoadMapEntry));
         if (NULL == world->wiredMapEntries) {
             if (puntOnErrors) {
                 PuntWorld(world,
@@ -285,7 +287,7 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     }
 
     if (world->nUnwiredMapEntries) {
-        world->unwiredMapEntries = malloc(world->nUnwiredMapEntries * sizeof(LoadMapEntry));
+        world->unwiredMapEntries = (LoadMapEntry *)malloc(world->nUnwiredMapEntries * sizeof(LoadMapEntry));
         if (NULL == world->unwiredMapEntries) {
             if (puntOnErrors) {
                 PuntWorld(world,
@@ -352,13 +354,13 @@ static void CreateWorldFile(World *world)
         vpunt(NULL, "Unable to create world file %s", world->pathname);
     }
 
-    world->ivoryDataPage = malloc(IvoryPageSizeBytes);
+    world->ivoryDataPage = (byte *)malloc(IvoryPageSizeBytes);
     if (NULL == world->ivoryDataPage)
         PuntWorld(world, "Unable to allocate space for data buffer for world file %s", world->pathname);
     world->currentPageNumber = -1;
 
     if (world->nWiredMapEntries) {
-        world->wiredMapEntries = malloc(world->nWiredMapEntries * sizeof(LoadMapEntry));
+        world->wiredMapEntries = (LoadMapEntry *)malloc(world->nWiredMapEntries * sizeof(LoadMapEntry));
         if (NULL == world->wiredMapEntries)
             PuntWorld(world,
                 "Unable to allocate space for wired load map for world file "
@@ -367,7 +369,7 @@ static void CreateWorldFile(World *world)
     }
 
     if (world->nUnwiredMapEntries) {
-        world->unwiredMapEntries = malloc(world->nUnwiredMapEntries * sizeof(LoadMapEntry));
+        world->unwiredMapEntries = (LoadMapEntry *)malloc(world->nUnwiredMapEntries * sizeof(LoadMapEntry));
         if (NULL == world->unwiredMapEntries)
             PuntWorld(world,
                 "Unable to allocate space for unwired load map for world "
@@ -712,7 +714,7 @@ static int WorldP(const struct dirent *candidateWorld)
         if (OpenWorldFile(&aWorld, FALSE)) {
             if (nWorlds == totalWorlds) {
                 newTotalWorlds = totalWorlds + 32;
-                newWorlds = malloc(sizeof(World *) * newTotalWorlds);
+                newWorlds = (World **)malloc(sizeof(World *) * newTotalWorlds);
                 if (NULL == newWorlds) {
                     CloseExtraWorlds();
                     CloseWorldFile(&aWorld, TRUE);
@@ -726,7 +728,7 @@ static int WorldP(const struct dirent *candidateWorld)
                 worlds = newWorlds;
                 totalWorlds = newTotalWorlds;
             }
-            worlds[nWorlds] = malloc(sizeof(World));
+            worlds[nWorlds] = (World *)malloc(sizeof(World));
             if (NULL == worlds[nWorlds]) {
                 CloseExtraWorlds();
                 CloseWorldFile(&aWorld, TRUE);
@@ -1432,7 +1434,7 @@ static void ByteSwapOneWorld(World *world)
     char *bakPathname;
     char  block[VLMBlockSize];
     struct stat worldStat;
-    size_t dataStart
+    size_t dataStart;
     size_t dataEnd;
     size_t offset;
     uint32_t *wordBlockStart;

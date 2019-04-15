@@ -442,7 +442,34 @@ static int unmapped_world_words = 0;
 static int mapped_world_words = 0;
 static int file_map_entries = 0;
 static int swap_map_entries = 0;
-static int ComputeProtection(VMAttribute attr);
+
+/* Computes the PROT_XXX setting for a particular combination of
+/* VMAttribute's.  C.f., segv_handler, which translates resulting segfault
+/* back to appropriate Lisp fault */
+static int ComputeProtection(VMAttribute attr)
+{
+    /* Don't cause transport faults if they are overridden */
+    if (VMTransportDisable(attr)) {
+        ClearVMTransportFault(attr);
+    }
+
+    /* We would have liked Transport to use write-only pages, but that is
+    /* not guaranteed by OSF/Unix, so we just use none */
+    if ((attr & (VMAttributeExists | VMAttributeTransportFault | VMAttributeAccessFault)) != VMAttributeExists) {
+        return (PROT_NONE);
+    }
+
+    /* Unless the modified and ephemeral bits are set, use read-only, so
+    /* we can update them */
+    if ((attr & (VMAttributeModified | VMAttributeEphemeral | VMAttributeWriteFault))
+        != (VMAttributeModified | VMAttributeEphemeral)) {
+        return (PROT_READ | PROT_EXEC);
+    }
+
+    return (PROT_READ | PROT_WRITE | PROT_EXEC);
+}
+
+
 
 Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset)
 {
@@ -471,16 +498,20 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
             EnsureVirtualAddress(vma);
 
             dataCount = sizeof(Integer) * words;
-            if (dataoffset != lseek(worldfile, dataoffset, SEEK_SET))
+            if (dataoffset != lseek(worldfile, dataoffset, SEEK_SET)) {
                 vpunt(NULL, "Unable to seek to data offset %d in world file", dataoffset);
-            if (dataCount != read(worldfile, MapVirtualAddressData(vma), dataCount))
+}
+            if (dataCount != read(worldfile, MapVirtualAddressData(vma), dataCount)) {
                 vpunt(NULL, "Unable to read data page %d from world file", MemoryPageNumber(vma));
+}
 
             tagCount = sizeof(Tag) * words;
-            if (tagoffset != lseek(worldfile, tagoffset, SEEK_SET))
+            if (tagoffset != lseek(worldfile, tagoffset, SEEK_SET)) {
                 vpunt(NULL, "Unable to seek to tag offset %d in world file", tagoffset);
-            if (tagCount != read(worldfile, MapVirtualAddressTag(vma), tagCount))
+}
+            if (tagCount != read(worldfile, MapVirtualAddressTag(vma), tagCount)) {
                 vpunt(NULL, "Unable to read tag page %d from world file", MemoryPageNumber(vma));
+}
 
             /* Adjust the protection to catch modifications to world pages */
             SetCreated(vma);
@@ -501,20 +532,23 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
                 int wadlimit = words + MemoryWad_Size;
                 VMAttribute *pattr = &VMAttributeTable[MemoryPageNumber(vma + words)];
 
-                for (; words < wadlimit; words += MemoryPage_Size, pattr++)
+                for (; words < wadlimit; words += MemoryPage_Size, pattr++) {
                     *pattr = attr;
+}
             }
 
             data = (caddr_t)&DataSpace[vma];
             tag = (caddr_t)&TagSpace[vma];
             if (data
                 != mmap(data, dataCount = sizeof(Integer) * words, PROT_READ | PROT_WRITE | PROT_EXEC,
-                        MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile, dataoffset))
+                        MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile, dataoffset)) {
                 vpunt(NULL, "Couldn't map %d world data pages at %lx for VMA %x", MemoryPageNumber(words), data, vma);
+}
             if (tag
                 != mmap(tag, tagCount = sizeof(Tag) * words, prot, MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile,
-                        tagoffset))
+                        tagoffset)) {
                 vpunt(NULL, "Couldn't map %d world tag pages at %lx for VMA %x", MemoryPageNumber(words), tag, vma);
+}
 
             vma += words;
             dataoffset += dataCount;

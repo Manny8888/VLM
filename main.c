@@ -1,4 +1,5 @@
 
+#include <stdio.h>
 #include <fenv.h>
 
 #include "std.h"
@@ -36,7 +37,7 @@ static void MaybeTerminateVLM(int signal)
 
     if (NULL == pthread_getspecific(mainThread)) {
         return;
-}
+    }
 
     if (EmbCommAreaPtr->guestStatus > StartedGuestStatus) {
         if (RunningGuestStatus == EmbCommAreaPtr->guestStatus)
@@ -56,7 +57,7 @@ static void MaybeTerminateVLM(int signal)
             nRead = getline(&answer, answerSize_p, stdin);
             if (nRead < 0) {
                 vpunt(NULL, "Unexpected EOF on standard input");
-}
+            }
             answer[nRead - 1] = '\0';
             if (0 == strcmp(answer, "yes")) {
                 break;
@@ -100,15 +101,16 @@ int main(int argc, char **argv)
 
     InitializeLifeSupport(&config);
 
-#ifdef FE_NOMASK_ENV
-    fesetenv(FE_NOMASK_ENV);
-#else
-    feenableexcept(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID);
-#endif
+// FIXME FIXME
+// #ifdef FE_NOMASK_ENV
+//    fesetenv(FE_NOMASK_ENV);
+// #else
+//     feenableexcept(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID);
+// #endif
 
     if (pthread_key_create(&mainThread, NULL)) {
         vpunt(NULL, "Unable to establish per-thread data.");
-}
+    }
 
     pthread_setspecific(mainThread, (void *)TRUE);
 
@@ -117,16 +119,16 @@ int main(int argc, char **argv)
     sigAction.sa_flags = 0;
     if (sigaction(SIGINT, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGINT handler.");
-}
+    }
     if (sigaction(SIGTERM, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGTERM handler.");
-}
+    }
     if (sigaction(SIGHUP, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGHUP handler.");
-}
+    }
     if (sigaction(SIGQUIT, &sigAction, NULL)) {
         vpunt(NULL, "Unable to establish SIGQUIT handler.");
-}
+    }
 
     worldImageSize = LoadWorld(&config);
 
@@ -148,8 +150,8 @@ int main(int argc, char **argv)
     VirtualMemoryWrite(
         SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? (LispObj *)AddressT : (LispObj *)AddressNIL);
 
-//    VirtualMemoryWrite(&(SystemCommArea))
-    #else
+    //    VirtualMemoryWrite(&(SystemCommArea))
+#else
     VirtualMemoryWrite(
         SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? processor->taddress : processor->niladdress);
 #endif
@@ -157,18 +159,18 @@ int main(int argc, char **argv)
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
 
-//    if (config.enableSpy)
-//        InitializeSpy(TRUE, config.diagnosticIPAddress.s_addr);
+    //    if (config.enableSpy)
+    //        InitializeSpy(TRUE, config.diagnosticIPAddress.s_addr);
 
 #ifdef AUTOSTART
     if (!IvoryProcessorSystemStartup(TRUE))
         vpunt(NULL, "Unable to start the VLM.");
 #endif
 
-//    if (config.enableSpy)
-//        ReleaseSpyLock();
+    //    if (config.enableSpy)
+    //        ReleaseSpyLock();
 
-//    while (config.enableSpy ? TRUE : Runningp()) {
+    //    while (config.enableSpy ? TRUE : Runningp()) {
     while (Runningp()) {
         reason = InstructionSequencer();
         if (reason) {
