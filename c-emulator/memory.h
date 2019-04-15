@@ -17,7 +17,7 @@ extern Tag *MapVirtualAddressTag(Integer vma);
 extern Integer *MapVirtualAddressData(Integer vma);
 
 // FIXME - deleted ", Boolean faultp" to match source code
-extern Integer EnsureVirtualAddressRange(Integer vma, int count);
+extern Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp);
 // FIXME - deleted ", Boolean faultp" to match source code
 extern Integer EnsureVirtualAddress(Integer vma);
 

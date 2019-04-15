@@ -140,7 +140,7 @@ extern Boolean Runningp(void);
 extern void PushOneFakeFrame(void);
 extern void PopOneFakeFrame(void);
 extern void HaltMachine(void);
-extern void StartMachine(void);
+extern void StartMachine(Boolean resumeP);
 extern void ResetMachine(void);
 Boolean ReadInternalRegister(int regno, LispObj *val);
 Boolean WriteInternalRegister(int regno, LispObj *val);

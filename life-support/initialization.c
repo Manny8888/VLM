@@ -156,7 +156,7 @@ void InitializeLifeSupport(VLMConfig *config)
     /* Ask the emulator to establish the BootComm/BootData/CommArea mapping */
 
 #ifdef _C_EMULATOR_
-    EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize));
+    EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
 #else
     EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
 #endif
@@ -181,7 +181,7 @@ void InitializeLifeSupport(VLMConfig *config)
      * the area */
 
 #ifdef _C_EMULATOR_
-    EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize);
+    EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
 #else
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
 #endif
@@ -192,7 +192,7 @@ void InitializeLifeSupport(VLMConfig *config)
      * initialize the area */
 
 #ifdef _C_EMULATOR_
-    EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize);
+    EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize, FALSE);
 #else
     EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize, FALSE);
 #endif

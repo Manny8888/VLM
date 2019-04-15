@@ -16,7 +16,7 @@
 /* Reads a slot of the SystemComm area using the emulator's VM implementation
  */
 #ifdef _C_EMULATOR_
-#define ReadSystemCommSlot(slot, object) VirtualMemoryRead(SystemCommSlotAddress(slot), &object)
+#define ReadSystemCommSlot(slot, objectPointer) VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer)
 #else
 #define ReadSystemCommSlot(slot) VirtualMemoryRead(SystemCommSlotAddress(slot))
 #endif

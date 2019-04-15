@@ -484,12 +484,12 @@ static Integer VLMLoadMapData(World *world, LoadMapEntry *mapEntry)
             ReadSwappedVLMWorldFilePage(mapWorld, pageNumber);
             mapWorld->currentQNumber = 0;
             //---
-            printf("LoadMapDataPages @ %p, count %d\n", theAddress, mapEntry->op.count);
+            printf("LoadMapDataPages @ %ld, count %d\n", theAddress, mapEntry->op.count);
             //---
             theAddress = mapEntry->address;
             for (i = 0; i < (int)mapEntry->op.count; i++, theAddress++) {
                 ReadSwappedVLMWorldFileNextQ(mapWorld, &q);
-                VirtualMemoryWrite(theAddress, q);
+                VirtualMemoryWrite(theAddress, &q);
             }
         } else {
             dataOffset = VLMBlockSize * (mapWorld->vlmDataPageBase + pageNumber * VLMBlocksPerDataPage);
@@ -504,15 +504,17 @@ static Integer VLMLoadMapData(World *world, LoadMapEntry *mapEntry)
 
     case LoadMapConstant:
         EnsureVirtualAddressRange(mapEntry->address, (int)mapEntry->op.count, FALSE);
-        VirtualMemoryWriteBlockConstant(mapEntry->address, mapEntry->data, (int)mapEntry->op.count, increment);
+        VirtualMemoryWriteBlockConstant(mapEntry->address, &(mapEntry->data), (int)mapEntry->op.count, increment);
         break;
 
     case LoadMapCopy:
         EnsureVirtualAddressRange(mapEntry->address, (int)mapEntry->op.count, FALSE);
         theAddress = mapEntry->address;
         theSourceAddress = LispObjData(mapEntry->data);
-        for (i = 0; i < (int)mapEntry->op.count; i++, theAddress++, theSourceAddress++)
-            VirtualMemoryWrite(theAddress, VirtualMemoryRead(theSourceAddress));
+        for (i = 0; i < (int)mapEntry->op.count; i++, theAddress++, theSourceAddress++) {
+            VirtualMemoryRead(theSourceAddress, &q);
+            VirtualMemoryWrite(theAddress, &q);
+        }
         break;
 
     default:
@@ -538,7 +540,7 @@ static Integer IvoryLoadMapData(World *world, LoadMapEntry *mapEntry)
         theAddress = mapEntry->address;
         for (i = 0; i < (int)mapEntry->op.count; i++, theAddress++) {
             ReadIvoryWorldFileNextQ(world, &q);
-            VirtualMemoryWrite(theAddress, q);
+            VirtualMemoryWrite(theAddress, &q);
         }
         break;
 
@@ -547,14 +549,16 @@ static Integer IvoryLoadMapData(World *world, LoadMapEntry *mapEntry)
         /* Fall through to the LoadMapConstant case */
 
     case LoadMapConstant:
-        VirtualMemoryWriteBlockConstant(mapEntry->address, mapEntry->data, (int)mapEntry->op.count, increment);
+        VirtualMemoryWriteBlockConstant(mapEntry->address, &(mapEntry->data), (int)mapEntry->op.count, increment);
         break;
 
     case LoadMapCopy:
         theAddress = mapEntry->address;
         theSourceAddress = LispObjData(mapEntry->data);
-        for (i = 0; i < (int)mapEntry->op.count; i++, theAddress++, theSourceAddress++)
-            VirtualMemoryWrite(theAddress, VirtualMemoryRead(theSourceAddress));
+        for (i = 0; i < (int)mapEntry->op.count; i++, theAddress++, theSourceAddress++) {
+            VirtualMemoryRead(theSourceAddress, &q);
+            VirtualMemoryWrite(theAddress, &q);
+        }
         break;
 
     default:
@@ -965,6 +969,7 @@ static void CanonicalizeVLMLoadMapEntries(World *world)
     LoadMapEntry *mapEntry, *newWiredMapEntries, *newMapEntry;
     Integer pageNumber, pageCount, blockCount, nQs;
     int newNWiredMapEntries, i, j;
+    LispObj q;
 
 #ifdef DEBUGDISKSAVE
     fprintf(stderr, "Canonicalizing load map entries ... ");
@@ -979,7 +984,7 @@ static void CanonicalizeVLMLoadMapEntries(World *world)
         if (0 == (mapEntry->address & (VLMPageSizeQs - 1))) {
             /* Page Aligned:  Assign the page number within the file */
             pageCount = (mapEntry->op.count + VLMPageSizeQs - 1) / VLMPageSizeQs;
-            mapEntry->data = MakeLispObj(Type_Fixnum, pageNumber);
+            mapEntry->data = *MakeLispObj(Type_Fixnum, pageNumber);
             pageNumber += pageCount;
             i++;
         } else {
@@ -1000,7 +1005,8 @@ static void CanonicalizeVLMLoadMapEntries(World *world)
                 newMapEntry->address = mapEntry->address + j;
                 newMapEntry->op.opcode = LoadMapConstant;
                 newMapEntry->op.count = 1;
-                newMapEntry->data = VirtualMemoryRead(newMapEntry->address);
+                VirtualMemoryRead(newMapEntry->address, &q);
+                newMapEntry->data = q;
             }
             i += mapEntry->op.count;
             free(world->wiredMapEntries);
@@ -1036,6 +1042,7 @@ static void WriteVLMWorldFileHeader(World *world)
 {
     LoadMapEntry *mapEntry;
     LispObj generationQ;
+    LispObj q;
     Integer pageBases;
     off_t nBlocks;
     int i;
@@ -1068,21 +1075,21 @@ static void WriteVLMWorldFileHeader(World *world)
     ((VLMPageBases *)&pageBases)->dataPageBase = world->vlmDataPageBase;
     ((VLMPageBases *)&pageBases)->tagsPageBase = world->vlmTagsPageBase;
 
-    WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_Fixnum, VLMVersion2AndArchitecture));
-    WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_SmallRatio, world->nWiredMapEntries));
-    WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_SingleFloat, pageBases));
+    WriteIvoryWorldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_Fixnum, VLMVersion2AndArchitecture));
+    WriteIvoryWorldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_SmallRatio, world->nWiredMapEntries));
+    WriteIvoryWorldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_SingleFloat, pageBases));
 
     /* Copy the data from SystemComm used to find a world's parents when
        loading an IDS: The first word is written with the wrong tag as it's
        tag is part of the magic cookie. */
 #ifndef MINIMA
-    generationQ = ReadSystemCommSlot(sysoutGenerationNumber);
-    WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_Character, LispObjData(generationQ)));
+    ReadSystemCommSlot(sysoutGenerationNumber, &generationQ);
+    WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_Character, LispObjData(&generationQ)));
 
-    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutTimestamp1));
-    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutTimestamp2));
-    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutParentTimestamp1));
-    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutParentTimestamp2));
+    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutTimestamp1, MakeLispObj(TypeNIL, 0)));
+    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutTimestamp2), MakeLispObj(TypeNIL, 0));
+    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutParentTimestamp1), MakeLispObj(TypeNIL, 0));
+    WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutParentTimestamp2), MakeLispObj(TypeNIL, 0));
 #else
     WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_Character, 0));
     WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_Character, 0));

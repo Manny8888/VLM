@@ -19,7 +19,7 @@ typedef enum _IvoryType {
     TypeHeaderForward, /* 06 Invisible pointer (forwards whole structure) */
     TypeElementForward, /* 07 Invisible pointer in element of structure */
 
-    /* Numeric data types. */
+    /* Numeric data types. - All have the following bits on/off 000001xxxxxx */
     TypeFixnum, /* 10 Small integer */
     TypeSmallRatio, /* 11 Ratio with small numerator and denominator */
     TypeSingleFloat, /* 12 SinglePrecision floating point */
@@ -88,16 +88,18 @@ typedef enum _IvoryType {
 
 typedef enum _IvoryCdr { CdrNext, CdrNil, CdrNormal } IvoryCdr;
 
-#define TagTypeMask 077
+#define TagTypeBits 6
+#define TagCdrBits 3
+#define TagTypeMask ((1 << TagTypeBits ) - 1)
 #define TagCdrMask 0300
-#define TagType(tag) ((tag)&077)
-#define TagCdr(tag) ((tag) >> 6)
-#define SetTagCdr(tag, cdr) ((tag) | (cdr) << 6)
-#define MergeCdr(cdr, type) (((cdr)&TagCdrMask) | ((type)&TagTypeMask))
+#define TagType(tag) ((tag) & TagTypeMask)
+#define TagCdr(tag) ((tag) >> TagTypeBits)
+#define SetTagCdr(tag, cdr) ((tag) | (cdr) << TagTypeBits)
+#define MergeCdr(cdr, type) (((cdr) & TagCdrMask) | ((type) & TagTypeMask))
 #define TypeEqualP(tag1, tag2) ((((tag1) ^ (tag2)) & TagTypeMask) == 0)
 #define TypeFixnumP(tag) TypeEqualP(tag, TypeFixnum)
 #define TypeNumericP(tag) (((tag)&070) == 010)
-#define TypeArrayP(tag) (((tag)&076) == (TypeArray & 076))
+#define TypeArrayP(tag) (((tag) & 076) == (TypeArray & 076))
 #define TypeSpareP(tag)                                                                                                \
     (((tag)&076) == (TypeSparePointer1 & 076) || ((tag)&TagTypeMask) == TypeSpareImmediate1                            \
         || ((tag)&TagTypeMask) == TypeSpareNumber)

@@ -70,7 +70,7 @@ Integer EnsureVirtualAddress(Integer vma)
     return (vma);
 }
 
-Integer EnsureVirtualAddressRange(Integer vma, int count)
+Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp)
 {
     int pages = ceiling(count, MemoryPageSize);
     caddr_t data, tag;
@@ -357,7 +357,7 @@ int VMCommand(int command)
         }
 
         case VMOpcodeCreate:
-            EnsureVirtualAddressRange(vm->AddressRegister, vm->ExtentRegister);
+            EnsureVirtualAddressRange(vm->AddressRegister, vm->ExtentRegister, False);
             return (SetVMReplyResult(0, True));
 
         case VMOpcodeDestroy:

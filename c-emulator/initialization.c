@@ -31,7 +31,7 @@ void HaltMachine(void)
 
 void ResetMachine(void) {}
 
-void StartMachine(void)
+void StartMachine(Boolean resumeP)
 {
     run = 1;
     suspend = 0;
@@ -58,7 +58,7 @@ Boolean IvoryProcessorSystemStartup(Boolean bootingP)
     /* Pop our two fake frames */
     PopOneFakeFrame();
     PopOneFakeFrame();
-    StartMachine();
+    StartMachine(TRUE);
     return (TRUE);
 }
 
@@ -146,8 +146,8 @@ void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase)
     PushOneFakeFrame();
     PushOneFakeFrame();
 
-    EnsureVirtualAddressRange(0xf8000100, 0xf00); /* 0xf8000100 - 0xf8001000 */
-    EnsureVirtualAddressRange(0xf8062000, 0x9e000); /* 0xf8062000 - 0xf8100000 */
+    EnsureVirtualAddressRange(0xf8000100, 0xf00, FALSE); /* 0xf8000100 - 0xf8001000 */
+    EnsureVirtualAddressRange(0xf8062000, 0x9e000, FALSE); /* 0xf8062000 - 0xf8100000 */
 }
 
 void OutOfMemory(char *Where, int HowMuch)

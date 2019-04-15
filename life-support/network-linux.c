@@ -185,7 +185,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 }
         p->hardwareAddressHigh = p->hardwareAddressLow = 0;
         memcpy((char *)&p->hardwareAddressHigh, ifr.ifr_hwaddr.sa_data, 2 * sizeof(EmbWord));
-        printf("hw address %p %p\n", p->hardwareAddressHigh, p->hardwareAddressLow);
+        printf("hw address %d %d\n", p->hardwareAddressHigh, p->hardwareAddressLow);
 
     }
 
@@ -254,8 +254,8 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
 #ifndef NOROOT
 
-    printf("hostPrimaryAddress %p\n", p->hostPrimaryAddress);
-    printf("guestPrimaryAddress %p\n", p->guestPrimaryAddress);
+    printf("hostPrimaryAddress %d\n", p->hostPrimaryAddress);
+    printf("guestPrimaryAddress %d\n", p->guestPrimaryAddress);
 
     p->fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (p->fd < 0) {
@@ -578,7 +578,7 @@ static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
 #if 1
                 if (new_packet((char *)new_packet, nBytes) || 1) {
                     if (0) {
-                        printf("NetworkChannelTransmitter() %p %d\n", netPacket, nBytes);
+                        printf("NetworkChannelTransmitter() %p %ld\n", netPacket, nBytes);
 }
                     if (0) {
                         printf("%02x:%02x:%02x:%02x:%02x:%02x ", netChannel->sll.sll_addr[0],
