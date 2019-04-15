@@ -42,6 +42,24 @@ VMAttribute VMAttributeTable[1 << (32 - MemoryAddressPageShift)];
 #define SetCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = VMCreatedDefault)
 #define ClearCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = 0)
 
+
+uint32_t LispObjTag(LispObj lo){
+        return (&lo)->parts.tag;
+    }
+
+uint32_t LispObjData(LispObj lo){
+    return (&lo)->parts.data.u;
+}
+
+void WriteLispObjectTag(LispObj *lo, uint32_t newtag){
+    lo->parts.tag = newtag;
+}
+
+void WriteLispObjData(LispObj *lo, uint32_t newdata){
+    lo->parts.data.u = newdata;
+}
+
+
 /**** Virtual memory system ****/
 
 Integer EnsureVirtualAddress(Integer vma)

@@ -1084,7 +1084,7 @@ static void WriteVLMWorldFileHeader(World *world)
        tag is part of the magic cookie. */
 #ifndef MINIMA
     ReadSystemCommSlot(sysoutGenerationNumber, &generationQ);
-    WriteIvoryWorldFileNextQ(world, MakeLispObj((Cdr_Normal << 6) + Type_Character, LispObjData(&generationQ)));
+    WriteIvoryWorldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_Character, LispObjData(&generationQ)));
 
     WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutTimestamp1, MakeLispObj(TypeNIL, 0)));
     WriteIvoryWorldFileNextQ(world, ReadSystemCommSlot(sysoutTimestamp2), MakeLispObj(TypeNIL, 0));

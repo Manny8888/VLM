@@ -45,8 +45,11 @@ typedef union {
 #define DATA parts.data
 #define TAG parts.tag
 
-#define LispObjTag(lo) (((LispObj *)(&lo))->TAG)
-#define LispObjData(lo) (((LispObj *)(&lo))->DATA.u)
+uint32_t LispObjTag(LispObj lo);
+uint32_t LispObjData(LispObj lo);
+
+//((LispObj *)(&lo)->TAG)
+// #define LispObjData(lo) ((LispObj *)(&lo))->DATA.u)
 
 extern LispObj *MakeLispObj(uint32_t tag, uint32_t data);
 

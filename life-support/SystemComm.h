@@ -11,10 +11,9 @@
 
 /* Returns the address of a slot in the SystemComm area */
 #define SystemCommSlotAddress(slot)                                                                                    \
-    ((ptrdiff_t)SystemCommAreaAddress + offsetof(SystemCommArea, slot) / sizeof(EmbWord))
+    ((ptrdiff_t)SystemCommAreaAddress + (ptrdiff_t)offsetof(SystemCommArea, slot) / sizeof(EmbWord))
 
-/* Reads a slot of the SystemComm area using the emulator's VM implementation
- */
+// Reads a slot of the SystemComm area using the emulator's VM implementation
 #ifdef _C_EMULATOR_
 #define ReadSystemCommSlot(slot, objectPointer) VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer)
 #else

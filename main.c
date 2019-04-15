@@ -18,7 +18,7 @@
 #include "ivoryrep.h"
 #endif
 
-#include "spy.h"
+// #include "spy.h"
 
 #define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
@@ -155,18 +155,19 @@ int main(int argc, char **argv)
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
 
-    if (config.enableSpy)
-        InitializeSpy(TRUE, config.diagnosticIPAddress.s_addr);
+//    if (config.enableSpy)
+//        InitializeSpy(TRUE, config.diagnosticIPAddress.s_addr);
 
 #ifdef AUTOSTART
     if (!IvoryProcessorSystemStartup(TRUE))
         vpunt(NULL, "Unable to start the VLM.");
 #endif
 
-    if (config.enableSpy)
-        ReleaseSpyLock();
+//    if (config.enableSpy)
+//        ReleaseSpyLock();
 
-    while (config.enableSpy ? TRUE : Runningp()) {
+//    while (config.enableSpy ? TRUE : Runningp()) {
+    while (Runningp()) {
         reason = InstructionSequencer();
         if (reason) {
             switch (reason) {
