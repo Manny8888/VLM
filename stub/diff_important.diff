@@ -1,0 +1,110 @@
+--- xoutput4	2006-08-01 13:30:50.000000000 -0400
++++ output4	2006-08-01 13:07:33.000000000 -0400
+@@ -345,12 +345,12 @@
+   /* Here if argument TypeFixnum */
+   t6 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+   /* compute 64-bit result */
+-  t5 = (u64)((s32)t2 + (s32)t4); /* addl/v */
+-  if (t5 >> 32)
+-    exception();
++  t5 = (s64)(s32)t2 + (s64)(s32)t4; /* addl/v */
++  if (t5 >> 31)
++    exception(1, t5);
+   t7 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+   /* Force the trap to occur here */
+-  /* trapb force the trap to occur here */
++  /* trapb */
+   /* Semi-cheat, we know temp2 has CDRNext/TypeFixnum */
+   *(u32 *)(iSP + 4) = t9;
+   iPC = t6;
+@@ -2740,12 +2740,12 @@
+   /* Here if argument TypeFixnum */
+   t6 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+   /* compute 64-bit result */
+-  t5 = (u64)((s32)t2 - (s32)t4); /* subl/v */
+-  if (t5 >> 32)
+-    exception();
++  t5 = (s64)(s32)t2 - (s64)(s32)t4; /* subl/v */
++  if (t5 >> 31)
++    exception(2, t5);
+   t7 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+   /* Force the trap to occur here */
+-  /* trapb force the trap to occur here */
++  /* trapb */
+   /* Semi-cheat, we know temp2 has CDRNext/TypeFixnum */
+   *(u32 *)(iSP + 4) = t9;
+   iPC = t6;
+@@ -202,12 +202,14 @@
+   t6 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+   /* compute 64-bit result */
+   /* compute 64-bit result */
+-  t5 = (u64)((s32)t2 * (s32)t4); /* mull/v */
+-  if (t5 >> 32)
+-    exception();
++//  t5 = (u64)((s32)t2 * (s32)t4); /* mull/v */
++  t5 = (s64)(s32)t2 * (s64)(s32)t4; /* mull/v */
++//  if (t5 >> 31)
++//    exception(3, t5);
+   t7 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+   /* Force the trap to occur here */
+-  /* trapb force the trap to occur here */
++  CHECK_OFLO32(t5);
++  /* trapb */
+   /* Semi-cheat, we know temp2 has CDRNext/TypeFixnum */
+   *(u32 *)(iSP + 4) = t9;
+   iPC = t6;
+@@ -1014,12 +1018,27 @@
+   r0 = (u64)&&return0060;
+   goto binaryarithmeticdivisionprelude;
+ return0060:
++#if 1
++  {
++    extern double floor(double);
++    double c = floor( FLTU64(1, f1) / FLTU64(2, f2) );
++    double d = FLTU64(1, f1) - (c * FLTU64(2, f2));
++    LDS(0, f0, (int)c);
++    LDT(3, f3, U64FLTT(d));
++//if (FLTU64(2, f2) != 250000.0) {
++//printf("alt: floor f1 %p %g, f2 %p %g\n", f1, FLTU64(1, f1), f2, FLTU64(2, f2));
++//printf("alt: floor c %g d %g, f0 %p, f3 %p\n", c, d, f0, f3);
++//}
++  }
++#else
+   DIVT(0, f0, 1, f1, 2, f2);
+   CVTTQVM(0, f0, f31, 0, f0);
+   CVTQT(3, f3, f31, 0, f0);
+   MULT(3, f3, 3, f3, 2, f2);
+   SUBT(3, f3, 1, f1, 3, f3);
++CHECK_OFLO32(f0);
+   CVTQLV(0, f0, f31, 0, f0);
++#endif
+   /* Strip off any CDR code bits. */
+   t8 = t3 & 63;
+   t9 = (t8 == Type_Fixnum) ? 1 : 0;
+@@ -1158,6 +1177,16 @@
+   r0 = (u64)&&return0062;
+   goto binaryarithmeticdivisionprelude;
+ return0062:
++#if 1
++  {
++    extern double ceil(double);
++    double c = ceil( FLTU64(1, f1) / FLTU64(2, f2) );
++    double d = FLTU64(1, f1) - (c * FLTU64(2, f2));
++    LDS(0, f0, (int)c);
++    LDT(3, f3, U64FLTT(d));
++    //    printf("alt: ceil c %g d %g, f0 %p, f3 %p\n", c, d, f0, f3);
++  }
++#else
+   CPYSN(2, f2, 2, f2, 2, f2);
+   DIVT(0, f0, 1, f1, 2, f2);
+   CVTTQVM(0, f0, f31, 0, f0);
+@@ -1166,7 +1195,9 @@
+   CVTTQ(0, f0, f31, 0, f0);
+   MULT(3, f3, 3, f3, 2, f2);
+   SUBT(3, f3, 1, f1, 3, f3);
++CHECK_OFLO32(f0);
+   CVTQLV(0, f0, f31, 0, f0);
++#endif
+   /* Strip off any CDR code bits. */
+   t8 = t3 & 63;
+   t9 = (t8 == Type_Fixnum) ? 1 : 0;

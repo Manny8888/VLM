@@ -51,7 +51,7 @@ typedef struct NetworkInterface {
 #define DefaultHostBufferSpace 15000
 #define DefaultGuestBufferSpace 100000
 
-#define DefaultVLMConfigFilePathname "/var/lib/symbolics/.VLM"
+#define DefaultVLMConfigFilePathname "VLM.conf"
 
 #define DefaultVLMDebuggerPathname "/usr/lib/symbolics/VLM_debugger"
 

@@ -16,18 +16,15 @@
 
 #define _THREAD_SAFE
 
-#define OS_LINUX
-
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
-
 #include <endian.h>
+#include <pthread.h>
 
 #include "swapbytes.h"
 
-#include <pthread.h>
 
 typedef void *pthread_addr_t;
 typedef void (*pthread_cleanuproutine_t)(void *);

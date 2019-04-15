@@ -1,4 +1,8 @@
+
 /* Function prototypes for all entrypoints in VLM Life Support */
+
+#ifndef _LIFE_PROTOTYPES_H
+#define _LIFE_PROTOTYPES_H
 
 #include <pthread.h>
 #include <netinet/in.h>
@@ -147,3 +151,5 @@ static void NullSignalHandler(PtrV ignore);
 static void SignalHandlerTopLevel(pthread_addr_t argument);
 
 /* The prototypes for SendInterruptToLifeSupport and WaitForLifeSupport are in ivoryrep.h */
+
+#endif

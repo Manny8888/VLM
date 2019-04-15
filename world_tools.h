@@ -9,19 +9,19 @@
 
 #include "life_types.h"
 #include "VLM_configuration.h"
+#include "memory.h"
 
 #ifndef _C_EMULATOR_
 #include "ivoryrep.h"
 #endif
 
-#include "memory.h"
 
 // A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details
 
-struct _LoadMapEntry {
+typedef struct _LoadMapEntry {
     Integer address; /* VMA to be filled in by this load map entry */
     struct {
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if (BYTE_ORDER == LITTLE_ENDIAN)
         Integer count : 24; /* Number of words to be filled in by this entry */
         Integer opcode : 8; /* An LoadMapEntryOpcode specifying how to do so */
 #else
@@ -31,20 +31,18 @@ struct _LoadMapEntry {
     } op;
     LispObj data; /* Interpretation is based on the opcode */
     PtrV world; /* -> World from which this entry was obtained */
-} ;
-
-typedef struct _LoandMapEntry LoadMapEntry;
+} LoadMapEntry;
 
 /* Load map operation codes */
-enum LoadMapEntryOpcode {
+typedef enum _LoadMapEntryOpcode {
     LoadMapDataPages, /* Load data pages from the file */
     LoadMapConstant, /* Store a constant into memory */
     LoadMapConstantIncremented, /* Store an auto-incrementing constant into memory */
     LoadMapCopy /* Copy an existing piece of memory */
-};
+} LoadMapEntryOpcode;
 
 /* Description of an open world file */
-typedef struct {
+typedef struct _World {
     char *pathname; /* -> Pathname of the world file */
     int fd; /* Unix filedes # if the world file is open */
     int format; /* A LoadFileFormat indicating the type of file */
@@ -73,10 +71,10 @@ typedef struct {
 } World;
 
 /* Possible world file formats */
-enum LoadFileFormat {
+typedef enum _LoadFileFormat {
     VLMWorldFormat, /* VLM world file (.VLOD) */
     IvoryWorldFormat /* Ivory world file (.ILOD) */
-};
+} LoadFileFormat;
 
 /* Common world format format definitions */
 #define VersionAndArchitectureQ 0
@@ -119,8 +117,7 @@ struct _VLMPageBases {
     Integer tagsPageBase : 4; /* Limits header and load maps to 112K bytes */
     Integer dataPageBase : 28;
 #endif
-};
-typedef struct _VLMPageBases VLMPageBases;
+} VLMPageBases;
 
 /* Ivory world file format definitions */
 #define IvoryWorldSuffix ".ilod"
