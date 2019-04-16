@@ -3,6 +3,7 @@
 #ifndef _LIFE_TYPES_
 #define _LIFE_TYPES_
 
+#include <stdint.h>
 #include <limits.h>
 
 typedef int32_t EmbWord; /* A word in the communications area */

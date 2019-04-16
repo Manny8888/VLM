@@ -7,7 +7,7 @@
 #include "VLM_configuration.h"
 #include "life_prototypes.h"
 #include "utilities.h"
-// #include "spy.h"
+#include "introspection.h"
 
 #define SetSubtypeData(mc, p)                                                                                          \
     {                                                                                                                  \
