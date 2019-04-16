@@ -35,7 +35,7 @@ Integer memory_vma;
 // Creates a LispObj from tag and data
 LispObj *MakeLispObj(uint32_t tag, uint32_t data)
 {
-    LispObj *object = malloc(sizeof(LispObj));
+    LispObj *object = (LispObj *)malloc(sizeof(LispObj));
     object->whole = (((uint64_t)tag) << 32) | (0xFFFFFFFF & ((uint64_t)data));
 
     return object;

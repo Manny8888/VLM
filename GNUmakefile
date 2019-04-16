@@ -162,7 +162,7 @@ $(EMULATOROBJ): $(ASMS) $(COMPONENTS)
 $(EMULATOR)/externals.o: $(EMULATOR)/externals.c $(EMULATORINCLUDES)
 $(EMULATOR)/interpds.o: $(EMULATOR)/interpds.c $(EMULATORINCLUDES) $(EMULATOR)/asmfuns.h
 $(EMUALTOR)/interfac.o: $(EMULATOR)/interfac.c $(EMULATORINCLUDES)
-spy.o: spy.c $(EMULATORINCLUDES)
+spy.o: environment/spy.c $(EMULATORINCLUDES)
 
 genera: main.o byteswap_world.o $(OBJS) $(OTHEROBJS)
 	$(COMPILER) $(PROFILE) -o genera $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
