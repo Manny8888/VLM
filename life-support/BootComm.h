@@ -13,14 +13,9 @@
 #define BootCommSlotAddress(slot) ((ptrdiff_t)BootCommAreaAddress + offsetof(BootCommArea, slot) / sizeof(EmbWord))
 
 /* Reads a slot of the BootComm area using the emulator's VM implementation */
-#ifdef _C_EMULATOR_
 #define ReadBootCommSlot(slot, object) VirtualMemoryRead(BootCommSlotAddress(slot), &object)
-#else
-#define ReadBootCommSlot(slot) VirtualMemoryRead(BootCommSlotAddress(slot))
-#endif
 
 /* Writes a slot of the BootComm area using the emulator's VM implementation */
-#ifdef _C_EMULATOR_
 #define WriteBootCommSlot(slot, datum, tag)                                                                            \
     {                                                                                                                  \
         LispObj lispDatum;                                                                                             \
@@ -28,10 +23,6 @@
         lispDatum.TAG = (Tag)tag;                                                                                      \
         VirtualMemoryWrite(BootCommSlotAddress(slot), &lispDatum);                                                     \
     }
-#else
-#define WriteBootCommSlot(slot, datum, tag)                                                                            \
-    VirtualMemoryWrite(BootCommSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
-#endif
 
 /* The BootComm area */
 
@@ -65,15 +56,10 @@ extern BootCommArea *BootCommAreaPtr;
     ((ptrdiff_t)BootDataAreaAddress + offsetof(BootDataArea, slot) / sizeof(EmbWord) + BootDataAreaOffset)
 
 /* Reads a slot of the BootData area using the emulator's VM implementation */
-#ifdef _C_EMULATOR_
 #define ReadBootDataSlot(slot, object) VirtualMemoryRead(BootDataSlotAddress(slot), &object)
-#else
-#define ReadBootDataSlot(slot) VirtualMemoryRead(BootDataSlotAddress(slot))
-#endif
 
 /* Writes a slot of the BootData area using the emulator's VM implementation
  */
-#ifdef _C_EMULATOR_
 #define WriteBootDataSlot(slot, datum, tag)                                                                            \
     {                                                                                                                  \
         LispObj lispDatum;                                                                                             \
@@ -81,10 +67,6 @@ extern BootCommArea *BootCommAreaPtr;
         lispDatum.TAG = (Tag)tag;                                                                                      \
         VirtualMemoryWrite(BootDataSlotAddress(slot), &lispDatum);                                                     \
     }
-#else
-#define WriteBootDataSlot(slot, datum, tag)                                                                            \
-    VirtualMemoryWrite(BootDataSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
-#endif
 
 /* The BootData area */
 

@@ -12,9 +12,6 @@
 
 #include "life_types.h"
 #include "aihead.h"
-#ifndef _C_EMULATOR_
-#include "ivoryrep.h"
-#endif
 #include "emulator.h"
 #include "memory.h"
 #include "world_tools.h"

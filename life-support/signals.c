@@ -7,9 +7,6 @@
 #include "embed.h"
 #include "life_prototypes.h"
 #include "utilities.h"
-#ifndef _C_EMULATOR_
-#include "ivoryrep.h"
-#endif
 
 /* Initialize the data structures used for signal handling */
 

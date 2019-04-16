@@ -20,10 +20,4 @@ typedef void (*ProcPtrV)(PtrV); /* ProcPtrV is like ProcPtr but returns nothing 
 /* Possible initial states of an X window */
 enum WindowInitialState { Iconic = -1, Unspecified, Normal };
 
-// #ifdef _C_EMULATOR_
-// // defined as a function in emulator.c
-// #else
-// #define MakeLispObj(tag, data) (((((uint64_t)tag)) << 32) | (0xFFFFFFFF & ((uint64_t)data)))
-// #endif
-
 #endif

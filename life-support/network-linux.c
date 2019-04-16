@@ -9,11 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 
-#ifdef _C_EMULATOR_
 #include "c-emulator/aihead.h"
-#else
-#include "emulator/aihead.h"
-#endif
 
 #include "life_types.h"
 #include "embed.h"

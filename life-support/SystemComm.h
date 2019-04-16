@@ -14,16 +14,11 @@
 #define SystemCommSlotAddress(slot) (((ptrdiff_t)SystemCommAreaAddress) / sizeof(EmbWord) + ((ptrdiff_t)(slot)))
 
 // Reads a slot of the SystemComm area using the emulator's VM implementation
-#ifdef _C_EMULATOR_
 //#define ReadSystemCommSlot(slot, objectPointer) VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer)
 void ReadSystemCommSlot(int slot, LispObj *objectPointer);
-#else
-#define ReadSystemCommSlot(slot) VirtualMemoryRead(SystemCommSlotAddress(slot))
-#endif
 
 /* Writes a slot of the SystemComm area using the emulator's VM implementation
  */
-#ifdef _C_EMULATOR_
 #define WriteSystemCommSlot(slot, datum, tag)                                                                          \
     {                                                                                                                  \
         LispObj lispDatum;                                                                                             \
@@ -31,10 +26,6 @@ void ReadSystemCommSlot(int slot, LispObj *objectPointer);
         lispDatum.TAG = (Tag)tag;                                                                                      \
         VirtualMemoryWrite(SystemCommSlotAddress(slot), &lispDatum);                                                   \
     }
-#else
-#define WriteSystemCommSlot(slot, datum, tag)                                                                          \
-    VirtualMemoryWrite(SystemCommSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
-#endif
 
 // Genera version of System Communications area
 // Define SYS:I-SYS;SYSDF1 line 403+

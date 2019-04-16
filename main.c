@@ -12,12 +12,8 @@
 #include "aihead.h"
 // TODO: Check if really needed #include "aistat.h"
 
-#ifdef _C_EMULATOR_
 #include "emulator.h"
 #include "memory.h"
-#else
-#include "ivoryrep.h"
-#endif
 
 // #include "spy.h"
 
@@ -146,15 +142,10 @@ int main(int argc, char **argv)
             "%s\n",
             (config.virtualMemory - worldImageMB), config.worldPath);
 
-#ifdef _C_EMULATOR_
     VirtualMemoryWrite(
         SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? (LispObj *)AddressT : (LispObj *)AddressNIL);
 
     //    VirtualMemoryWrite(&(SystemCommArea))
-#else
-    VirtualMemoryWrite(
-        SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? processor->taddress : processor->niladdress);
-#endif
 
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
@@ -199,12 +190,8 @@ int main(int argc, char **argv)
                 message = "Halted for unknown reason";
             }
             if (message != NULL)
-#ifdef _C_EMULATOR_
                 vwarn(NULL, "%s at PC %016x (%s)", message, processor->pc.whole >> 1,
                     processor->pc.whole & 1 ? "Odd" : "Even");
-#else
-                vwarn(NULL, "%s at PC %08x (%s)", message, processor->epc >> 1, (processor->epc & 1) ? "Odd" : "Even");
-#endif
         }
         if (HaltReason_Halted == reason)
             break;

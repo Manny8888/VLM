@@ -11,10 +11,6 @@
 #include "VLM_configuration.h"
 #include "memory.h"
 
-#ifndef _C_EMULATOR_
-#include "ivoryrep.h"
-#endif
-
 
 // A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details
 

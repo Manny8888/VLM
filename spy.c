@@ -269,25 +269,8 @@ static void RemoteMemorySpyLoop()
             nchunks = (nwords + 3) / 4;
             switch ((operand >> 10) & 3) {
             case rm_physical:
-#ifdef _C_EMULATOR_
                 goto READ_WRITE_MEMORY_ERROR;
-#else
-                /* Use physical addresses to read uncached data */
-                {
-                    void (*old_segv_handler)() = signal(SIGSEGV, segv_handler);
-                    if (_setjmp(trap_environment)) {
-                        signal(SIGSEGV, old_segv_handler);
-                        goto READ_WRITE_MEMORY_ERROR;
-                    }
-                    for (i = 0; i < nwords; i++) {
-                        if (!CreatedP(vma + i))
-                            goto READ_WRITE_MEMORY_ERROR; /* KLUDGE! */
-                        buffer[i] = (VirtualMemoryReadUncached(vma + i));
-                    }
-                    signal(SIGSEGV, old_segv_handler);
-                }
-                break;
-#endif
+
 
             case rm_virtual: {
                 void (*old_segv_handler)() = signal(SIGSEGV, segv_handler);
@@ -296,42 +279,28 @@ static void RemoteMemorySpyLoop()
                     goto READ_WRITE_MEMORY_ERROR;
                 }
                 for (i = 0; i < nwords; i++) {
-#ifdef _C_EMULATOR_
                     if (ReadVirtualMemory(vma + i, &buffer[i]))
                         goto READ_WRITE_MEMORY_ERROR;
-#else
-                    if (!CreatedP(vma + i))
-                        goto READ_WRITE_MEMORY_ERROR; /* KLUDGE! */
-                    buffer[i] = (VirtualMemoryRead(vma + i));
-#endif
                 }
                 signal(SIGSEGV, old_segv_handler);
             } break;
 
             case rm_register:
                 for (i = 0; i < nwords; i++) {
-#ifdef _C_EMULATOR_
                     ReadInternalRegister(vma + i, &buffer[i]);
-#else
-                    buffer[i] = ReadInternalRegister(vma + i);
-#endif
                 }
                 break;
 
             case rm_coprocessor:
                 for (i = 0; i < nwords; i++) {
-#ifdef _C_EMULATOR_
                     vwarn("spy", "Read of coprocessor register %d failed.", (vma + i));
-#else
-                    buffer[i] = CoprocessorRead(vma + i);
-#endif
                 }
                 break;
             }
             for (i = 0, bufferp = &buffer[0], p = &reply.data[0]; i < nchunks; i++, bufferp += 4, p += 20) {
-                for(j=0; j < 4, j++){
+                for(j=0; j < 4; j++){
                     p[j] = LispObjTag(bufferp[j]);
-                    write_long(&p[4 * (j+1)], LispObjData(bufferp[j]))
+                    write_long(&p[4 * (j+1)], LispObjData(bufferp[j]));
                 }
             }
             reply_length += nchunks * 20;
@@ -394,38 +363,22 @@ static void RemoteMemorySpyLoop()
                     goto READ_WRITE_MEMORY_ERROR;
                 }
                 for (i = 0; i < nwords; i++) {
-#ifdef _C_EMULATOR_
                     if (WriteVirtualMemory(vma + i, &buffer[i]))
                         goto READ_WRITE_MEMORY_ERROR;
-#else
-                    if (!CreatedP(vma + i))
-                        goto READ_WRITE_MEMORY_ERROR; /* KLUDGE! */
-                    VirtualMemoryWrite(vma + i, buffer[i]);
-#endif
                 }
                 signal(SIGSEGV, old_segv_handler);
             } break;
 
             case rm_register:
                 for (i = 0; i < nwords; i++) {
-#ifdef _C_EMULATOR_
                     if (!WriteInternalRegister(vma + i, &buffer[i]))
                         vwarn("spy", "Write of internal register %d failed", vma + i);
-#else
-                    if (WriteInternalRegister(vma + i, buffer[i]) == -1)
-                        vwarn("spy", "Write of internal register %d failed", vma + i);
-#endif
                 }
                 break;
 
             case rm_coprocessor:
                 for (i = 0; i < nwords; i++) {
-#ifdef _C_EMULATOR_
                     vwarn("spy", "Write of coprocessor register %d failed.", (vma + i));
-#else
-                    if (!CoprocessorWrite(vma + i, buffer[i]))
-                        vwarn("spy", "Write of coprocessor register %d failed.", (vma + i));
-#endif
                 }
                 break;
             };
