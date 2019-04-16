@@ -1,13 +1,19 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
+;
+-* - Mode;
+:
+LISP;
+Common - Lisp;
+ALPHA - AXP - INTERNALS;
+10;
+T - * -
+(comment; "Entry points into the interpretation loop.";)
 
-(comment "Entry points into the interpretation loop.")
+(external; "HALTMACHINE";)
+(external; "ILLEGALINSTRUCTION";)
+(external; "ILLEGALOPERAND";)
+(external; "SUSPENDMACHINE";)
+(external; "ICACHEMISS";)
+(external; "INTERPRETINSTRUCTION";)
+(external; "NEXTINSTRUCTION";)
 
-(external "HALTMACHINE")
-(external "ILLEGALINSTRUCTION")
-(external "ILLEGALOPERAND")
-(external "SUSPENDMACHINE")
-(external "ICACHEMISS")
-(external "INTERPRETINSTRUCTION")
-(external "NEXTINSTRUCTION")
-
-(comment "Fin.")
+(comment; "Fin.";)

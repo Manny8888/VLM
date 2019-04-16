@@ -214,20 +214,20 @@ static void RemoteMemorySpyLoop()
             }
         }
 
-        if (0 == (i = poll(&pollSpy, 1, 1000))) {
+        i = poll(&pollSpy, 1, 1000);
+        if (i == 0) {
             continue;
         } else if (i < 0) {
             vpunt("spy", "Waiting for a packet from the remote debugger");
         } else if (pollSpy.revents & (POLLHUP | POLLNVAL)) {
-            /* Spy port has vanished -- Assume that the emulator is shutting
-             * down ... */
+            // Spy port has vanished -- Assume that the emulator is shutting down ...
             break;
         }
 
         sinlen = sizeof(struct sockaddr_in);
-        if ((pkt_length = recvfrom(spy, &pkt.rm_pad[0], REMOTE_MEMORY_PACKET_HEADER + REMOTE_MEMORY_PACKET_DATA, 0,
-                 (struct sockaddr *)&pkt_source, &sinlen))
-            < 0) {
+        pkt_length = recvfrom(spy, &pkt.rm_pad[0], REMOTE_MEMORY_PACKET_HEADER + REMOTE_MEMORY_PACKET_DATA, 0,
+                               (struct sockaddr *)&pkt_source, &sinlen);
+        if (pkt_length < 0) {
             vpunt("spy", "Reading packet from remote debugger");
         }
 
@@ -267,6 +267,7 @@ static void RemoteMemorySpyLoop()
             vma = read_long(&pkt.data[0]);
             nwords = operand & 0x3ff;
             nchunks = (nwords + 3) / 4;
+
             switch ((operand >> 10) & 3) {
             case rm_physical:
                 goto READ_WRITE_MEMORY_ERROR;

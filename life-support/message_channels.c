@@ -7,7 +7,7 @@
 #include "VLM_configuration.h"
 #include "life_prototypes.h"
 #include "utilities.h"
-#include "spy.h"
+// #include "spy.h"
 
 #define SetSubtypeData(mc, p)                                                                                          \
     {                                                                                                                  \
@@ -117,8 +117,7 @@ void UnthreadMessageChannel(EmbMessageChannel *theChannel)
     }
 }
 
-/* Execute incoming commands from the VLM */
-
+// Execute incoming commands from the VLM
 void ExecuteGuestCommands(EmbCommandChannel *commandChannel)
 {
     EmbQueue *commandQueue = commandChannel->guestToHostQueue;

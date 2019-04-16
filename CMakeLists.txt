@@ -22,7 +22,7 @@ set(SRC_C
     life-support/genera-cptfont.c
     life-support/genera-icon-32.c 
     life-support/initialization.c 
-    life-support/message_channels.c 
+    life-support/message_channels.c
 #    life-support/network.c
     life-support/network-linux.c
 #    life-support/network-tun-linux.c
@@ -33,12 +33,12 @@ set(SRC_C
     c-emulator/traps.c 
     c-emulator/dispatch.c
     c-emulator/emulator.c 
-    c-emulator/initialization.c 
+    c-emulator/initialization.c
     c-emulator/memory.c 
     life-support/SystemComm.c 
     c-emulator/traps.c
     
-    spy.c
+#    spy.c
     utilities.c
     world_tools.c)
 
