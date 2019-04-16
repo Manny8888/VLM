@@ -8,14 +8,8 @@
 #include <netdb.h>
 #include <utmp.h>
 
-#ifdef _C_EMULATOR_
 #include "emulator.h"
 #include "ivory.h"
-#else
-#include "aistat.h"
-#include "aihead.h"
-#include "ivoryrep.h"
-#endif
 #include "memory.h"
 #include "spy.h"
 
@@ -192,9 +186,10 @@ static void RemoteMemorySpyLoop()
     struct rm_pkt pkt, reply;
     LispObj buffer[PageSize];
     LispObj *bufferp;
+    LispObj tempObj;
     unsigned char *p;
     unsigned int vma, operand;
-    int nwords, nchunks, i, pkt_length, reply_length, sinlen;
+    int nwords, nchunks, i, j, pkt_length, reply_length, sinlen;
     int booted = 0;
     struct sockaddr_in pkt_source;
     struct pollfd pollSpy;
@@ -334,14 +329,10 @@ static void RemoteMemorySpyLoop()
                 break;
             }
             for (i = 0, bufferp = &buffer[0], p = &reply.data[0]; i < nchunks; i++, bufferp += 4, p += 20) {
-                p[0] = LispObjTag(bufferp[0]);
-                p[1] = LispObjTag(bufferp[1]);
-                p[2] = LispObjTag(bufferp[2]);
-                p[3] = LispObjTag(bufferp[3]);
-                write_long(&p[4], LispObjData(bufferp[0]));
-                write_long(&p[8], LispObjData(bufferp[1]));
-                write_long(&p[12], LispObjData(bufferp[2]));
-                write_long(&p[16], LispObjData(bufferp[3]));
+                for(j=0; j < 4, j++){
+                    p[j] = LispObjTag(bufferp[j]);
+                    write_long(&p[4 * (j+1)], LispObjData(bufferp[j]))
+                }
             }
             reply_length += nchunks * 20;
             spy_transmit(&reply, reply_length, &pkt_source);
@@ -378,6 +369,11 @@ static void RemoteMemorySpyLoop()
             nwords = operand & 0x3ff;
             nchunks = (nwords + 3) / 4;
             for (i = 0, bufferp = &buffer[0], p = &pkt.data[4]; i < nchunks; i++, bufferp += 4, p += 20) {
+//                for(j=0; j<4; j++) {
+//                    VirtualMemoryWrite(bufferp[j])
+//
+//                }
+
                 LispObjTag(bufferp[0]) = p[0];
                 LispObjTag(bufferp[1]) = p[1];
                 LispObjTag(bufferp[2]) = p[2];

@@ -41,7 +41,7 @@ void InitializeNetworkChannels(VLMConfig *config)
         vpunt(NULL,
             "Unable to open IP socket to gather network interface "
             "information");
-}
+    }
 
     ifc.ifc_len = 32 * sizeof(struct ifreq);
     ifc.ifc_buf = NULL;
@@ -53,18 +53,18 @@ void InitializeNetworkChannels(VLMConfig *config)
             vpunt(NULL,
                 "Unable to obtain space to read IP addresses of network "
                 "interfaces");
-}
+        }
         savedLen = ifc.ifc_len;
         if (ioctl(ipSocket, SIOCGIFCONF, &ifc) < 0) {
             vpunt(NULL,
                 "Unable to obtain IP addresses assigned to network "
                 "interfaces");
-}
+        }
         if (ifc.ifc_len == savedLen) {
             ifc.ifc_len = 2 * ifc.ifc_len;
         } else {
             tryAgain = FALSE;
-}
+        }
     }
 
     ifc.ifc_len = ifc.ifc_len / sizeof(struct ifreq);
@@ -152,37 +152,37 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
         if (ioctl(ipSocket, SIOCGIFINDEX, &ifr) < 0) {
             vpunt(NULL, "Unable to determine interface index of network device %s", interface->device);
-}
+        }
         interfaceIndex = ifr.ifr_ifindex;
 
         if (ioctl(ipSocket, SIOCGIFFLAGS, &ifr) < 0) {
             vpunt(NULL, "Unable to determine attributes of network device %s", interface->device);
-}
+        }
         if (ifr.ifr_flags & IFF_LOOPBACK) {
             vpunt(NULL,
                 "Unable to attach VLM network interface #%d to device %s"
                 " as it is a loopback device",
                 unitNumber, interface->device);
-}
+        }
         if ((ifr.ifr_flags & (IFF_UP | IFF_RUNNING)) != (IFF_UP | IFF_RUNNING)) {
             vpunt(NULL,
                 "Unable to attach VLM network interface #%d to device %s"
                 " as it is not up and running",
                 unitNumber, interface->device);
-}
+        }
 
         if (ioctl(ipSocket, SIOCGIFHWADDR, &ifr) < 0) {
             vpunt(NULL,
                 "Unable to determine hardware interface address for network "
                 "device %s",
                 interface->device);
-}
+        }
         if (ifr.ifr_hwaddr.sa_family != ARPHRD_ETHER) {
             vpunt(NULL,
                 "Unable to attach VLM network interface #%d to device %s"
                 " as it does not use Ethernet packet formats",
                 unitNumber, interface->device);
-}
+        }
         p->hardwareAddressHigh = p->hardwareAddressLow = 0;
         memcpy((char *)&p->hardwareAddressHigh, ifr.ifr_hwaddr.sa_data, 2 * sizeof(EmbWord));
         printf("hw address %d %d\n", p->hardwareAddressHigh, p->hardwareAddressLow);
@@ -199,14 +199,14 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
             strncpy(ifr.ifr_name, ifs->if_name, IFNAMSIZ);
             if (ioctl(ipSocket, SIOCGIFFLAGS, &ifr) < 0) {
                 vpunt(NULL, "Unable to determine attributes of network device %s", ifr.ifr_name);
-}
+            }
             if ((ifr.ifr_flags & (IFF_UP | IFF_RUNNING | IFF_LOOPBACK)) == (IFF_UP | IFF_RUNNING)) {
                 if (ioctl(ipSocket, SIOCGIFHWADDR, &ifr) < 0) {
                     vpunt(NULL,
                         "Unable to determine hardware address for network "
                         "device %s",
                         ifr.ifr_name);
-}
+                }
                 if (ifr.ifr_hwaddr.sa_family == ARPHRD_ETHER) {
                     interfaceIndex = ifs->if_index;
                     strncpy(interface->device, ifs->if_name, IFNAMSIZ);
@@ -227,7 +227,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
                 "Unable to find an Ethernet interface to attach"
                 " to VLM network interface #%d",
                 unitNumber);
-}
+        }
     }
 
     /* Get IP address of interface */
@@ -248,9 +248,9 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 
     if (p->hostPrimaryProtocol == -1) {
         vpunt(NULL, "Unable to determine IP address assigned to network device %s", interface->device);
-}
+    }
 
-        /* Open a packet socket and bind it to the interface */
+    /* Open a packet socket and bind it to the interface */
 
 #ifndef NOROOT
 
@@ -260,7 +260,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
     p->fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (p->fd < 0) {
         vpunt(NULL, "Unable to open packet socket for VLM network interface #%d", unitNumber);
-}
+    }
 #endif
 
     memset(&p->sll, 0, sizeof(p->sll));
@@ -271,7 +271,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
 #ifndef NOROOT
     if (bind(p->fd, (struct sockaddr *)&p->sll, sizeof(p->sll)) < 0) {
         vpunt(NULL, "Unable to attach VLM network interface #%d to device %s", unitNumber, interface->device);
-}
+    }
 #endif
 
     p->sll.sll_protocol = 0; /* Transmission requires this value be zero... */
@@ -299,7 +299,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
             "Unable to set packet filter program for VLM network interface "
             "#%d",
             unitNumber);
-}
+    }
 #endif
 
     /* Create entries in the host's ARP table for each IP address assigned to
@@ -330,7 +330,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
                     "Unable to establish ARP mappings for VLM network "
                     "interface #%d",
                     unitNumber);
-}
+            }
 #endif
         }
     }
@@ -370,10 +370,10 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
             addressAsString[0] = 0;
         } else {
             sprintf(addressAsString, "%s,", addressAsString);
-}
+        }
         if (pInterface->device[0]) {
             sprintf(addressAsString, "%s%s:", addressAsString, pInterface->device);
-}
+        }
         switch (pInterface->myProtocol) {
         case ETHERTYPE_IP:
             guestAddress.s_addr = htonl(pInterface->myAddress.s_addr);
@@ -385,7 +385,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
         }
         if (pInterface->myOptions[0]) {
             sprintf(addressAsString, "%s;%s", addressAsString, pInterface->myOptions);
-}
+        }
     }
     p->addressString = MakeEmbString(addressAsString);
 
@@ -395,7 +395,7 @@ static void InitializeNetChannel(NetworkInterface *interface, int unitNumber, in
             "Unable to create thread to receive packets for VLM network "
             "interface #%d",
             unitNumber);
-}
+    }
     p->receiverThreadSetup = TRUE;
 
     p->status |= EmbNetStatusHostReady;
@@ -420,7 +420,7 @@ static int new_packet(char *packet, int size)
 {
     if (memcmp(last_packet, packet, size) == 0) {
         return 0;
-}
+    }
 
     memcpy(last_packet, packet, size);
 
@@ -456,7 +456,7 @@ void answer_arp(char *pkt, int size)
 
     for (i = 0; i < 6; i++) {
         tmp[i] = i;
-}
+    }
 
     memcpy(&pkt[32], tmp, 10);
 
@@ -551,7 +551,7 @@ static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
         netPacketPtr = EmbQueueTakeWord(transmitQueue);
         if (NULL == (void *)(uint64_t)netPacketPtr) {
             netPacketPtr = NullEmbPtr;
-}
+        }
 
         if (netPacketPtr != NullEmbPtr) {
             if (/*netChannel->status & EmbNetStatusHostReady*/ 1) {
@@ -579,12 +579,12 @@ static void NetworkChannelTransmitter(EmbNetChannel *pNetChannel)
                 if (new_packet((char *)new_packet, nBytes) || 1) {
                     if (0) {
                         printf("NetworkChannelTransmitter() %p %ld\n", netPacket, nBytes);
-}
+                    }
                     if (0) {
                         printf("%02x:%02x:%02x:%02x:%02x:%02x ", netChannel->sll.sll_addr[0],
                             netChannel->sll.sll_addr[1], netChannel->sll.sll_addr[2], netChannel->sll.sll_addr[3],
                             netChannel->sll.sll_addr[4], netChannel->sll.sll_addr[5]);
-}
+                    }
                     dump_packet("tx", (unsigned char *)&netPacket->data[0], nBytes);
                 }
 #endif
@@ -628,7 +628,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
 
         if (0 == (pollReceiver.revents & POLLIN)) {
             continue;
-}
+        }
 
         sllLen = sizeof(sll);
         actualBytes = recvfrom(netChannel->fd, &netChannel->receiveBuffer, MaxEmbNetPacketSize, MSG_TRUNC,
@@ -641,9 +641,9 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
         } else if (0 == actualBytes) {
             netChannel->nFalseReceiverWakeups++;
 
-        //		else if (!(netChannel->status &
-        // EmbNetStatusGuestReady))
-        //			;
+            //		else if (!(netChannel->status &
+            // EmbNetStatusGuestReady))
+            //			;
 
         } else if ((0 == EmbQueueSpace(supplyQueue)) || (0 == EmbQueueSpace(receiveQueue))) {
             netChannel->nReceivedPacketsLost++;
@@ -654,7 +654,7 @@ static void NetworkChannelReceiver(pthread_addr_t argument)
                 receiverPause.tv_nsec = OneMillisecond;
                 if (pthread_delay_np(&receiverPause)) {
                     vpunt(NULL, "Unable to sleep in thread %lx", self);
-}
+                }
             }
             netPacket = (EmbNetPacket *)HostPointer(netPacketPtr);
             netPacket->nBytes = (EmbWord)actualBytes;
@@ -685,7 +685,7 @@ static void TerminateNetChannel(EmbNetChannel *netChannel, int ipSocket)
 #ifndef NOROOT
     for (embARPReq = netChannel->arpReq; embARPReq != NULL; embARPReq->next) {
         ioctl(ipSocket, SIOCDARP, &embARPReq->arp);
-}
+    }
 #endif
 
     if (netChannel->fd != -1) {
@@ -708,12 +708,12 @@ void TerminateNetworkChannels()
         netChannel = (EmbNetChannel *)HostPointer(channel);
         if (EmbNetworkChannelType == netChannel->type) {
             TerminateNetChannel(netChannel, ipSocket);
-}
+        }
     }
 
     if (ipSocket > -1) {
         close(ipSocket);
-}
+    }
 }
 
 #endif /* USE_TUN */

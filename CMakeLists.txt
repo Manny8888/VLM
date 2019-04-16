@@ -23,9 +23,9 @@ set(SRC_C
     life-support/genera-icon-32.c 
     life-support/initialization.c 
     life-support/message_channels.c 
-    life-support/network.c
+#    life-support/network.c
     life-support/network-linux.c
-    life-support/network-tun-linux.c
+#    life-support/network-tun-linux.c
     life-support/polling.c
     life-support/queues.c 
     life-support/signals.c 
@@ -38,8 +38,8 @@ set(SRC_C
     life-support/SystemComm.c 
     c-emulator/traps.c
     
-    utilities.c 
-    
+    spy.c
+    utilities.c
     world_tools.c)
 
 add_library(c_emulator_files STATIC ${SRC_C})

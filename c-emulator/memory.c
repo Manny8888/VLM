@@ -443,9 +443,9 @@ static int mapped_world_words = 0;
 static int file_map_entries = 0;
 static int swap_map_entries = 0;
 
-/* Computes the PROT_XXX setting for a particular combination of
-/* VMAttribute's.  C.f., segv_handler, which translates resulting segfault
-/* back to appropriate Lisp fault */
+// Computes the PROT_XXX setting for a particular combination of
+// VMAttribute's.  C.f., segv_handler, which translates resulting segfault
+// back to appropriate Lisp fault
 static int ComputeProtection(VMAttribute attr)
 {
     /* Don't cause transport faults if they are overridden */
