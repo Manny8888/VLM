@@ -21,11 +21,26 @@ genera_c, the C emulator via cmake. No iVerify or Minima. Only one platform: Lin
 No FreeBSD, Darwin or MacOSF since I have no access to them. In due time, if
 Nim/Go/Julia work, FreeBSD and Darwin should be easier to port into.
 
+- The last commit at which Brad's version still compiles is
+  https://github.com/Manny8888/vlm/commit/da42b63bdc4eb1b18f816f7fbb93bccef0f8b028
+
+  After that, changes are targeted to making the c-emulator compile with no
+  attention whatsoever paid to that version.
+
+- Last version got the c-emulator compile, although _NO VERSION HAS BEEN CHECKED
+  THAT THE EMULATOR ACTUALLY RUNS_!
+
+- Having a much reduced code base which is more understandable than Alpha
+  assembly leaves me free to move to the next step: rewrite in Nim in another
+  repo.
+
+
 ## Current environment
 
 What do I use:
 - Spacemacs + slime + SBCL for the lisp development
-- VSCode for the C development
+- VSCode or KDevelop for the C development
+- VSCode for Nim
 - cmake is used in VSCode to build the c-emulator (add the relevant cmake extensions in VSCode if desired)
 
 ## How to run:
@@ -118,93 +133,4 @@ entirely sure that this is a correct explanation, but the point remains.)
 
 Far example ```fcallmac.lisp``` line 42: ```#.1_22``` forces the read-time
 evaluation of ```1_22``` which is a constant defined as ```2^22```.
-
-# CPU
-
-An ancestor of the LM process instruction set comes from the SECD abstract
-machine.
-
-## SECD Abstract machine 
-[fn::[[https://www.cs.utah.edu/~mflatt/past-courses/cs6510/public_html/lispm.pdf][See
-Architecture of Lisp Machines]]]
-
-### Heap
-
-Cells in use start from memory bottom containing values Terminal cell with
-tag+integer value Non-terminal cell + CDR cell address + CAR cell address
-
-Top of memory tracked by Free Pointer f-pointer
-
-### Stack 
-
-* Stack is what instruction operate on.
-* Objects to be processed are pushed on by cons’ing a new cell on top of the
-  current stack and car of this points to object’s value.
-* S-register after such a push points to the new cell.
-* Unlike conventional stack, this does not overwrite original inputs.
-* Cells garbage collected later.
-
-### Environment ###
-
-* tracked by E–Register
-* Points to current value list of function arguments
-  - The list is referenced by m/c when a value for the argument is needed.
-  - List is augmented when a new environment for a function is created.
-  - It’s modified when a previously created closure is unpackedand the pointer
-    from the closure’s cdr.
-  - replaces the contents of E-register.
-
-* Prior value list designated by E is not overwritten.
-
-### C–Register (Control register/pointer) ###
-
-* Acts as the program counter and points to the memory cell that designates
-  through it’s car the next instruction to be executed.
-* The instructions are simple integers specifying desired operation.
-* Instructions do not have any sub-fields for registers etc. If additional
-  information is required, it’s accessed through from the cells chained through
-  the instruction cell’s cdr.
-* “Increment of PC” takes place by replacement of C registers contents by the
-  contents of the last cell used by the instruction.
-* For return from completed applications, new function calls and branches, the C
-  register is replaced by a pointer provided by some other part of the m/c.
-
-
-### D–register (Dump register) ###
-
-* Points to a list in memory called “dump”.
-* This data structure remembers the state of a function application when a new
-  application in that function body is started.
-* That is done by appending onto dump the 3 new cells which record in their cars
-  the value of registers S, E, and C.
-* When the application completes, popping the top of the dump restores those
-  registers. This is very similar to call-return sequence in conventional m/c
-  for procedure return and activation.
-
-### The SECD Abstract Machine Basic Instruction Set ###
-
-Instruction can be classified into following 6 groups:
-
-1. Push object values onto the S stack.
-2. Perform built-in function applications on the S stack and return the result
-   to that stack.
-3. Handle the if-then-else special form.
-4. Build, apply and return from closures representing non-recursive function
-   applications.
-5. Extend the above to handle recursive functions.
-6. Handle I/O and machine control.
-
-
-
-
-Source:
-<https://groups.google.com/forum/?nomobile=true#!topic/comp.lang.lisp/jvZIz-uxAIw>
-
-The MIT CADR, the LMI CADR and Symbolics CADR had 2 bits of CDR codes, 6 bits of
-tags and 24 bit word addresses.
-
-The LMI Lambda and the TI Explorer I had 2 bits of CDR codes 5 bits of tags and
-25 bit word addresses.
-
-The LMI K had no CDR codes, 6 bits of tags and 26 bit word addresses.
 
