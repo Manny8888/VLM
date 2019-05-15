@@ -187,12 +187,14 @@ typedef enum _IvoryOpcode {
     OpcodeRgetf = 0225,
     OpcodeMember = 0226,
     OpcodeAssoc = 0227,
+
     /* AI Instructions */
     OpcodeDereference = 013,
     OpcodeUnify = 0237,
     OpcodePushLocalLogicVariables = 0103,
     OpcodePushGlobalLogicVariable = 055,
     OpcodeLogicTailTest = 014,
+
     /* Binary predicates */
     OpcodeEq = 0270,
     OpcodeEqNoPop = 0274,
@@ -208,11 +210,13 @@ typedef enum _IvoryOpcode {
     OpcodeLogtestNoPop = 0277,
     OpcodeTypeMember = 040, /* 41, 42, 43 */
     OpcodeTypeMemberNoPop = 044, /* 45, 46, 47 */
+
     /* Unary predicates */
     OpcodeEndp = 02,
     OpcodePlusp = 036,
     OpcodeMinusp = 035,
     OpcodeZerop = 034,
+
     /* Numeric operations */
     OpcodeAdd = 0300,
     OpcodeSub = 0301,
@@ -242,6 +246,7 @@ typedef enum _IvoryOpcode {
     OpcodeMultiplyBignumStep = 0306,
     OpcodeDivideBignumStep = 0307,
     OpcodeLshcBignumStep = 0223,
+
     /* Data movement */
     OpcodePush = 0100,
     OpcodePop = 0340,
@@ -253,6 +258,7 @@ typedef enum _IvoryOpcode {
     OpcodePushAddressSpRelative = 0102,
     OpcodeStackBlt = 0224,
     OpcodeStackBltAddress = 0352,
+
     /* FieldExtraction instructions */
     OpcodeLdb = 0170,
     OpcodeDpb = 0370,
@@ -262,6 +268,7 @@ typedef enum _IvoryOpcode {
     OpcodePDpb = 0372,
     OpcodePTagLdb = 0173,
     OpcodePTagDpb = 0373,
+
     /* Array operations */
     OpcodeAref1 = 0312,
     OpcodeAset1 = 0310,
@@ -273,6 +280,7 @@ typedef enum _IvoryOpcode {
     OpcodeArrayLeader = 0316,
     OpcodeStoreArrayLeader = 0314,
     OpcodeAlocLeader = 0317,
+
     /* Branch instructions */
     OpcodeBranch = 0174,
     OpcodeBranchTrue = 060,
@@ -293,6 +301,7 @@ typedef enum _IvoryOpcode {
     OpcodeBranchFalseAndNoPopElseNoPopExtraPop = 077,
     OpcodeLoopDecrementTos = 0175,
     OpcodeLoopIncrementTosLessThan = 0375,
+
     /* Block instructions */
     OpcodeBlock0Read = 0120,
     OpcodeBlock1Read = 0121,
@@ -314,6 +323,7 @@ typedef enum _IvoryOpcode {
     OpcodeBlock1Write = 031,
     OpcodeBlock2Write = 032,
     OpcodeBlock3Write = 033,
+
     /* Function calling */
     OpcodeStartCall = 010,
     OpcodeFinishCallN = 0134,
@@ -327,18 +337,22 @@ typedef enum _IvoryOpcode {
     OpcodeReturnMultiple = 0104,
     OpcodeReturnKludge = 0105,
     OpcodeTakeValues = 0106,
+
     /* Binding instructions */
     OpcodeBindLocativeToValue = 0236,
     OpcodeBindLocative = 05,
     OpcodeUnbindN = 0107,
     OpcodeRestoreBindingStack = 06,
+
     /* Catch */
     OpcodeCatchOpen = 0376,
     OpcodeCatchClose = 051,
+
     /* Lexical variables - Each takes 8 opcodes */
     OpcodePushLexicalVar = 020, /* 21 22 23 24 25 26 27 */
     OpcodePopLexicalVar = 0240, /* 241 242 243 244 245 246 247 */
     OpcodeMovemLexicalVar = 0250, /* 251 252 253 254 255 256 257 */
+
     /* Instance variables */
     OpcodePushInstanceVariable = 0110,
     OpcodePopInstanceVariable = 0320,
@@ -351,6 +365,7 @@ typedef enum _IvoryOpcode {
     OpcodeInstanceRef = 0324,
     OpcodeInstanceSet = 0325,
     OpcodeInstanceLoc = 0326,
+
     /* Subprimitives */
     OpcodeEphemeralp = 07,
     OpcodeUnsignedLessp = 0331,

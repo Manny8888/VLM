@@ -30,12 +30,12 @@ Integer *DataSpace = (Integer *)((long)3 << 32); /* 4<<32 bytes of data */
    to create a page of tags at a time
  */
 
-#define MemoryPageSize 0x2000     // 8,192 = 2^13
+#define MemoryPageSize 0x2000 // 8,192 = 2^13
 #define MemoryPageMask (MemoryPageSize - 1)
 #define MemoryAddressPageShift 13
 
 #define MemoryPageNumber(vma) ((vma) >> MemoryAddressPageShift)
-#define MemoryPageOffset(vma) ((vma) & MemoryPageMask)
+#define MemoryPageOffset(vma) ((vma)&MemoryPageMask)
 #define PageNumberMemory(vpn) ((vpn) << MemoryAddressPageShift)
 
 /* This could be a sparse array, should someone want to implement it */
@@ -44,7 +44,6 @@ VMAttribute VMAttributeTable[1 << (32 - MemoryAddressPageShift)];
 #define Created(vma) VMExists(VMAttributeTable[MemoryPageNumber(vma)])
 #define SetCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = VMCreatedDefault)
 #define ClearCreated(vma) (VMAttributeTable[MemoryPageNumber(vma)] = 0)
-
 
 /**** Virtual memory system ****/
 
@@ -55,7 +54,7 @@ Integer EnsureVirtualAddress(Integer vma)
 
     if (Created(vma)) {
         return (vma);
-}
+    }
 
     data = (caddr_t)&DataSpace[aligned_vma];
     tag = (caddr_t)&TagSpace[aligned_vma];
@@ -97,13 +96,13 @@ Integer EnsureVirtualAddressRange(Integer virtualaddress, int count, Boolean fau
                 != mmap(data, n * sizeof(Integer[MemoryPageSize]), PROT_READ | PROT_WRITE,
                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0)) {
                 printf("Couldn't map %d data pages at %s for VMA %016lx", n, data, aligned_vma);
-}
+            }
 
             if (tag
                 != mmap(tag, n * sizeof(Tag[MemoryPageSize]), PROT_READ | PROT_WRITE,
                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0)) {
                 printf("Couldn't map %d tag pages at %s for VMA %016lx", n, tag, aligned_vma);
-}
+            }
             aligned_vma += n * MemoryPageSize;
         }
 
@@ -123,16 +122,16 @@ Integer DestroyVirtualAddress(Integer vma)
 
     if (!Created(vma)) {
         return (vma);
-}
+    }
 
     data = (caddr_t)&DataSpace[aligned_vma];
     tag = (caddr_t)&TagSpace[aligned_vma];
     if (munmap(data, sizeof(Integer[MemoryPageSize]))) {
         printf("Couldn't unmap data page at %s for VMA %016lx", data, vma);
-}
+    }
     if (munmap(tag, sizeof(Tag[MemoryPageSize]))) {
         printf("Couldn't unmap tag page at %s for VMA %016lx", tag, vma);
-}
+    }
 
     ClearCreated(vma);
     return (vma);
@@ -144,7 +143,7 @@ Integer DestroyVirtualAddressRange(Integer vma, int count)
 
     for (; pages--; vma += MemoryPageSize) {
         DestroyVirtualAddress(vma);
-}
+    }
 
     return (vma);
 }
@@ -225,18 +224,18 @@ int VirtualMemoryWriteBlockConstant(Integer vma, LispObj *object, int count, int
         } else {
             for (; data < edata; *data++ = cdata, memory_vma++) {
                 ;
-}
-}
+            }
+        }
         break;
     case 1:
         for (; data < edata; *data++ = cdata++, memory_vma++) {
             ;
-}
+        }
         break;
     default:
         for (; data < edata; *data++ = cdata, cdata += increment, memory_vma++) {
             ;
-}
+        }
     }
     return (0);
 }
@@ -253,7 +252,7 @@ Boolean VirtualMemorySearch(Integer *vma, LispObj *object, int count)
         tag = (Tag *)memchr((unsigned char *)tag, (unsigned char)ctag, (etag - tag) * sizeof(Tag));
         if (tag == NULL) {
             return (False);
-}
+        }
 
         /* set memory_vma for SEGV handler */
         memory_vma = tag - TagSpace;
@@ -341,7 +340,7 @@ void VirtualMemoryEnable(Integer vma, int count)
         VMAttribute a = *attr;
         if (VMExists(a) && !VMTransportDisable(a)) {
             *attr = SetVMTransportFault(a);
-}
+        }
     }
 }
 
@@ -422,8 +421,6 @@ int VMCommand(int command)
         }
 }
 
-
-
 /* Wads are clusters of pages for swap contiguity.  The current value is
 /* chosen so that all the attributes of a wad fit in one long */
 /* Note that MemoryWad_AddressShift = MemoryPage_AddressShift + 3 */
@@ -431,12 +428,11 @@ int VMCommand(int command)
 #define MemoryWad_Size (1 << MemoryWad_AddressShift)
 #define MemoryWad_Mask (MemoryWad_Size - 1)
 #define MemoryWadNumber(vma) ((vma) >> MemoryWad_AddressShift)
-#define MemoryWadOffset(vma) ((vma) & MemoryWad_Mask)
+#define MemoryWadOffset(vma) ((vma)&MemoryWad_Mask)
 #define WadNumberMemory(vwn) ((vwn) << MemoryWad_AddressShift)
 
 #define WadExistsMask 0x4040404040404040 /* f-ing poor excuse for a macro language */
 #define WadCreated(vma) ((((int64_t *)VMAttributeTable)[MemoryWadNumber(vma)]) & WadExistsMask)
-
 
 static int unmapped_world_words = 0;
 static int mapped_world_words = 0;
@@ -469,8 +465,6 @@ static int ComputeProtection(VMAttribute attr)
     return (PROT_READ | PROT_WRITE | PROT_EXEC);
 }
 
-
-
 Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset)
 {
     caddr_t data;
@@ -500,18 +494,18 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
             dataCount = sizeof(Integer) * words;
             if (dataoffset != lseek(worldfile, dataoffset, SEEK_SET)) {
                 vpunt(NULL, "Unable to seek to data offset %d in world file", dataoffset);
-}
+            }
             if (dataCount != read(worldfile, MapVirtualAddressData(vma), dataCount)) {
                 vpunt(NULL, "Unable to read data page %d from world file", MemoryPageNumber(vma));
-}
+            }
 
             tagCount = sizeof(Tag) * words;
             if (tagoffset != lseek(worldfile, tagoffset, SEEK_SET)) {
                 vpunt(NULL, "Unable to seek to tag offset %d in world file", tagoffset);
-}
+            }
             if (tagCount != read(worldfile, MapVirtualAddressTag(vma), tagCount)) {
                 vpunt(NULL, "Unable to read tag page %d from world file", MemoryPageNumber(vma));
-}
+            }
 
             /* Adjust the protection to catch modifications to world pages */
             SetCreated(vma);
@@ -534,21 +528,21 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
 
                 for (; words < wadlimit; words += MemoryPage_Size, pattr++) {
                     *pattr = attr;
-}
+                }
             }
 
             data = (caddr_t)&DataSpace[vma];
             tag = (caddr_t)&TagSpace[vma];
             if (data
                 != mmap(data, dataCount = sizeof(Integer) * words, PROT_READ | PROT_WRITE | PROT_EXEC,
-                        MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile, dataoffset)) {
+                    MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile, dataoffset)) {
                 vpunt(NULL, "Couldn't map %d world data pages at %lx for VMA %x", MemoryPageNumber(words), data, vma);
-}
+            }
             if (tag
                 != mmap(tag, tagCount = sizeof(Tag) * words, prot, MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile,
-                        tagoffset)) {
+                    tagoffset)) {
                 vpunt(NULL, "Couldn't map %d world tag pages at %lx for VMA %x", MemoryPageNumber(words), tag, vma);
-}
+            }
 
             vma += words;
             dataoffset += dataCount;
@@ -560,4 +554,3 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
     }
     return (vma);
 }
-

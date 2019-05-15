@@ -1,6 +1,6 @@
 /* Configuration parameters for the VLM:
-      Defaults can be overridden by either the user's .VLM file or command
-   line arguments */
+ * Defaults can be overridden by either the user's .VLM file or command line arguments 
+ */
 
 #ifndef _VLM_CONFIG_
 #define _VLM_CONFIG_
@@ -14,7 +14,8 @@
 
 /* X window configuration parameters */
 
-typedef struct {
+typedef struct
+{
     char *xpHostName; /* Name of host where screen will appear; NULL for local
                        */
     long xpHostAddress; /* Protocol address of the above */
@@ -30,7 +31,8 @@ typedef struct {
 
 /* Configuration data for a single network interface */
 
-typedef struct NetworkInterface {
+typedef struct NetworkInterface
+{
     boolean present; /* TRUE => this interface is available */
     char device[_POSIX_PATH_MAX + 1]; /* Optional interface or packet filter name */
     unsigned short myProtocol; /* Primary Ethernet protocol */
@@ -81,7 +83,8 @@ typedef struct NetworkInterface {
 
 /* Instruction tracing configuration data */
 
-typedef struct {
+typedef struct
+{
     boolean traceP; /* TRUE => Enable instruction tracing */
     boolean tracePOST; /* TRUE => Trace the POST test */
     int bufferSize; /* Size of circular trace buffer */
@@ -92,7 +95,8 @@ typedef struct {
 
 /* Main configuration data structure */
 
-typedef struct {
+typedef struct
+{
     boolean enableSpy; /* TRUE => Enable remote memory spy */
     TraceConfig tracing; /* Controls instruction tracing */
     size_t commAreaSize; /* Size of communications area in words */
