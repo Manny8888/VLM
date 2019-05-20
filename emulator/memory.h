@@ -14,7 +14,7 @@ Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp);
 Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset);
 Integer *MapVirtualAddressData(Integer vma);
 Tag *MapVirtualAddressTag(Integer vma);
-LispObj VirtualMemoryRead(Integer vma);
+LispObj VirtualMemoryRead(Integer vma, LispObj *object);
 LispObj VirtualMemoryReadUncached(Integer vma);
 void VirtualMemoryReadBlock(Integer vma, LispObj *object, int count);
 void VirtualMemoryReadBlockUncached(Integer vma, LispObj *object, int count);

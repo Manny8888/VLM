@@ -7,7 +7,7 @@
 #ifndef _IVORYREP_
 #define _IVORYREP_
 
-#include "aistat.h"
+#include "../alpha-emulator/aistat.h"
 
 typedef struct _LispObj {
 #if BYTE_ORDER == LITTLE_ENDIAN

@@ -5,6 +5,8 @@
 #ifndef _AISTAT_
 #define _AISTAT_
 
+#include <stdint.h>
+
 typedef struct processorstate {
     uint64_t transpare3;
     uint64_t transpare2;
