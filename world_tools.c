@@ -1,7 +1,5 @@
 /* VLM World File Tools */
 
-#include "std.h"
-
 #include <fcntl.h>
 #include <sys/stat.h>
 
@@ -10,16 +8,17 @@
 #include <string.h>
 #include <dirent.h>
 
-#include "life_types.h"
-#include "aihead.h"
+#include "std.h"
+#include "life-support/life_types.h"
+#include "emulator/aihead.h"
 #ifndef _C_EMULATOR_
-#include "ivoryrep.h"
+#include "emulator/ivoryrep.h"
 #endif
-#include "memory.h"
+#include "emulator/memory.h"
 #include "world_tools.h"
-#include "life_prototypes.h"
+#include "life-support/life_prototypes.h"
 #include "utilities.h"
-#include "SystemComm.h"
+#include "life-support/SystemComm.h"
 
 #define PuntWorld(world, msg, arg)                                                                                     \
     {                                                                                                                  \
@@ -1075,7 +1074,7 @@ static void WriteVLMWorldFileHeader(World *world)
     ((VLMPageBases *)&pageBases)->dataPageBase = world->vlmDataPageBase;
     ((VLMPageBases *)&pageBases)->tagsPageBase = world->vlmTagsPageBase;
 
-    WriteIvoryWorldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_Fixnum, VLMVersion2AndArchitecture));
+    WriteIvoryW     orldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_Fixnum, VLMVersion2AndArchitecture));
     WriteIvoryWorldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_SmallRatio, world->nWiredMapEntries));
     WriteIvoryWorldFileNextQ(world, *MakeLispObj((Cdr_Normal << 6) + Type_SingleFloat, pageBases));
 

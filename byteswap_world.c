@@ -4,6 +4,7 @@
 
 #include "world_tools.h"
 #include "utilities.h"
+#include <emulator/ivoryrep.h>
 
 #define CommandName "byteswap_world"
 

@@ -13,9 +13,9 @@
 #include <X11/Xresource.h>
 
 #include "VLM_configuration.h"
-#include "life_types.h"
+#include "life-support/life_types.h"
 #ifndef _C_EMULATOR_
-#include "ivoryrep.h"
+#include "emulator/ivoryrep.h"
 #endif
 
 static char *CommandName = "genera";
@@ -811,3 +811,4 @@ int pthread_delay_np(const struct timespec *ointerval)
 
     return (status);
 }
+ 

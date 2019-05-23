@@ -6,11 +6,11 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-#include "life_types.h"
+#include "life-support/life_types.h"
 #include "VLM_configuration.h"
 
 #ifndef _C_EMULATOR_
-#include "ivoryrep.h"
+#include "emulator/ivoryrep.h"
 #endif
 
 #include "memory.h"

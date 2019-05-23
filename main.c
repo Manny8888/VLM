@@ -2,23 +2,24 @@
 #include <fenv.h>
 
 #include "std.h"
-
+#include <signal.h>
 #include "VLM_configuration.h"
-#include "life_prototypes.h"
+#include "life-support/life_prototypes.h"
 #include "world_tools.h"
 #include "utilities.h"
-#include "SystemComm.h"
-#include "aihead.h"
+#include "life-support/SystemComm.h"
+#include "emulator/aihead.h"
 // TODO: Check if really needed #include "aistat.h"
 
 #ifdef _C_EMULATOR_
 #include "emulator.h"
 #include "memory.h"
 #else
-#include "ivoryrep.h"
+#include "emulator/ivoryrep.h"
 #endif
 
 #include "spy.h"
+// #include "emulator/aihead.h"
 
 #define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
