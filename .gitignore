@@ -1,10 +1,21 @@
 *sync-conflict*
 *kate-swp
 .kdev4/*
+
 build/*
 cmake-build-debug/*
+CMakeFiles/*
 
 *.o
+
+CMakeCache.txt
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+CTestTestfile.cmake
+DartConfiguration.tcl
+Makefile
+
 GRTAGS
 GTAGS
 GPATH

@@ -1,0 +1,16 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "types.h": "c",
+            "int-ll64.h": "c",
+            "bitsperlong.h": "c",
+            "life_types.h": "c",
+            "xproto.h": "c"
+        }
+    }
+}
