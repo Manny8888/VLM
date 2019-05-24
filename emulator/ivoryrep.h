@@ -24,7 +24,7 @@ typedef int64_t LispObj;
 
 #define LispObjTag(lo) (((LispObjRecordp) & (lo))->tag)
 #define LispObjData(lo) (((LispObjRecordp) & (lo))->data)
-#define MakeLispObj(tag, data) (((((uint64_t)tag)) << 32) | (0xFFFFFFFF & ((uint64_t)data)))
+#define MakeLispObj(tag, data) (((((uint64_t)tag)) << 32) | (((uint64_t)0xFFFFFFFF) & ((uint64_t)data)))
 
 /* From C-emulator for compatibility */
 typedef int Boolean;

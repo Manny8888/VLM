@@ -1,6 +1,6 @@
 /* VLM Disk Life Support */
 
-#include "std.h"
+#include "../std.h"
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -8,14 +8,10 @@
 
 #include "life_types.h"
 #include "embed.h"
-#include "VLM_configuration.h"
+#include "../VLM_configuration.h"
 #include "life_prototypes.h"
 #include "utilities.h"
-#ifdef _C_EMULATOR_
 #include "aihead.h"
-#else
-#include "ivoryrep.h"
-#endif
 #include "memory.h"
 
 #ifndef S_DEFFILEMODE
@@ -23,14 +19,13 @@
 #endif
 
 #define DiskPageSize 8192
-
 #define SetHostState(dc, p)                                                                                            \
     {                                                                                                                  \
         dc->hostState0 = (((uint64_t)p) >> 32) & 0xFFFFFFFFL;                                                          \
         dc->hostState1 = ((uint64_t)p) & 0xFFFFFFFFL;                                                                  \
     }
 
-#define HostState(dc) (DiskChannelState *)(((uint64_t)dc->hostState0 << 32) | dc->hostState1)
+#define HostState(dc) (DiskChannelState *) (((uint64_t)dc->hostState0 << 32) | dc->hostState1)
 
 /* Attach a disk partition (nee, file) to the disk channel supplied by Lisp
    and add said channel to the list of active embedded channels.  Lisp will
@@ -57,7 +52,7 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
         verror("AttachDiskChannel", "Couldn't allocate disk channel status structure");
         request->result = ENOMEM;
         return;
-    }
+    } 
     SetHostState(diskChannel, diskState);
 
     diskState->fd = -1; /* Needed before linking into channel list */

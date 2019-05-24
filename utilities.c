@@ -14,9 +14,8 @@
 
 #include "VLM_configuration.h"
 #include "life-support/life_types.h"
-#ifndef _C_EMULATOR_
 #include "emulator/ivoryrep.h"
-#endif
+
 
 static char *CommandName = "genera";
 #define CommandClass "Genera"
@@ -82,9 +81,7 @@ void vpunt(char *section, char *format, ...)
 
     va_end(ap);
 
-#ifndef _C_EMULATOR_
     MaybePrintTrace();
-#endif
 
     while (1) {
         ;

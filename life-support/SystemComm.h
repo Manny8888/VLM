@@ -13,28 +13,13 @@
 #define SystemCommSlotAddress(slot)                                                                                    \
     ((ptrdiff_t)SystemCommAreaAddress + offsetof(SystemCommArea, slot) / sizeof(EmbWord))
 
-/* Reads a slot of the SystemComm area using the emulator's VM implementation
- */
-#ifdef _C_EMULATOR_
+// Reads a slot of the SystemComm area using the emulator's VM implementation
 #define ReadSystemCommSlot(slot, objectPointer) VirtualMemoryRead(SystemCommSlotAddress(slot), objectPointer)
-#else
-#define ReadSystemCommSlot(slot) VirtualMemoryRead(SystemCommSlotAddress(slot))
-#endif
 
-/* Writes a slot of the SystemComm area using the emulator's VM implementation
- */
-#ifdef _C_EMULATOR_
-#define WriteSystemCommSlot(slot, datum, tag)                                                                          \
-    {                                                                                                                  \
-        LispObj lispDatum;                                                                                             \
-        lispDatum.DATA.u = (Integer)datum;                                                                             \
-        lispDatum.TAG = (Tag)tag;                                                                                      \
-        VirtualMemoryWrite(SystemCommSlotAddress(slot), &lispDatum);                                                   \
-    }
-#else
+// Writes a slot of the SystemComm area using the emulator's VM implementation
+ 
 #define WriteSystemCommSlot(slot, datum, tag)                                                                          \
     VirtualMemoryWrite(SystemCommSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
-#endif
 
 #ifndef MINIMA
 

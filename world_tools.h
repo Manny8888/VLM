@@ -9,14 +9,11 @@
 #include "life-support/life_types.h"
 #include "VLM_configuration.h"
 
-#ifndef _C_EMULATOR_
 #include "emulator/ivoryrep.h"
-#endif
-
 #include "memory.h"
 
-/* A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details
- */
+// A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details
+
 
 typedef struct {
     Integer address; /* VMA to be filled in by this load map entry */

@@ -10,11 +10,11 @@
 
 #include "std.h"
 #include "life-support/life_types.h"
+
 #include "emulator/aihead.h"
-#ifndef _C_EMULATOR_
 #include "emulator/ivoryrep.h"
-#endif
 #include "emulator/memory.h"
+
 #include "world_tools.h"
 #include "life-support/life_prototypes.h"
 #include "utilities.h"

@@ -13,14 +13,9 @@
 #define FEPCommSlotAddress(slot) ((ptrdiff_t)FEPCommAreaAddress + offsetof(FEPCommArea, slot) / sizeof(EmbWord))
 
 /* Reads a slot of the FEPComm area using the emulator's VM implementation */
-#ifdef _C_EMULATOR_
 #define ReadFEPCommSlot(slot, object) VirtualMemoryRead(FEPCommSlotAddress(slot), &object)
-#else
-#define ReadFEPCommSlot(slot) VirtualMemoryRead(FEPCommSlotAddress(slot))
-#endif
 
 /* Writes a slot of the FEPComm area using the emulator's VM implementation */
-#ifdef _C_EMULATOR_
 #define WriteFEPCommSlot(slot, datum, tag)                                                                             \
     {                                                                                                                  \
         LispObj lispDatum;                                                                                             \
@@ -28,10 +23,6 @@
         lispDatum.TAG = (Tag)tag;                                                                                      \
         VirtualMemoryWrite(FEPCommSlotAddress(slot), &lispDatum);                                                      \
     }
-#else
-#define WriteFEPCommSlot(slot, datum, tag)                                                                             \
-    VirtualMemoryWrite(FEPCommSlotAddress(slot), MakeLispObj((Tag)tag, (Integer)datum))
-#endif
 
 #ifndef MINIMA
 

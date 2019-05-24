@@ -1,6 +1,6 @@
 /* VLM Life Support initialization */
 
-#include "std.h"
+#include "../std.h"
 #include <sys/utsname.h>
 #include <ctype.h>
 
@@ -9,15 +9,13 @@
 #include "BootComm.h"
 #include "FEPComm.h"
 #include "SystemComm.h"
-#include "VLM_configuration.h"
+#include "../VLM_configuration.h"
 #include "life_prototypes.h"
 #include "utilities.h"
 
 #include "aihead.h"
-#ifndef _C_EMULATOR_
-#include "aistat.h"
-#include "ivoryrep.h"
-#endif
+#include "../alpha-emulator/aistat.h"
+#include "../emulator/ivoryrep.h"
 #include "memory.h"
 
 /* Version of the VLM (nee, genera program):  Eventually, this information
@@ -155,11 +153,7 @@ void InitializeLifeSupport(VLMConfig *config)
 
     /* Ask the emulator to establish the BootComm/BootData/CommArea mapping */
 
-#ifdef _C_EMULATOR_
     EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
-#else
-    EnsureVirtualAddressRange(BootCommAreaAddress, (BootCommAreaSize + BootDataAreaSize + config->commAreaSize), FALSE);
-#endif
     BootCommAreaPtr = (BootCommArea *)MapVirtualAddressData(BootCommAreaAddress);
     BootDataAreaPtr = (BootDataArea *)MapVirtualAddressData(BootDataAreaAddress);
     EmbCommAreaPtr = (EmbCommArea *)MapVirtualAddressData(EmbCommAreaAddress);
@@ -179,23 +173,14 @@ void InitializeLifeSupport(VLMConfig *config)
 
     /* Ask the emulator to establish the FEPComm area mapping and initialize
      * the area */
-
-#ifdef _C_EMULATOR_
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
-#else
-    EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
-#endif
     VirtualMemoryWriteBlockConstant(FEPCommAreaAddress, MakeLispObj(Type_Null, FEPCommAreaAddress), FEPCommAreaSize, 1);
     FEPCommAreaPtr = (FEPCommArea *)MapVirtualAddressData(FEPCommAreaAddress);
 
     /* Ask the emulator to establish the SystemComm area mapping and
      * initialize the area */
 
-#ifdef _C_EMULATOR_
     EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize, FALSE);
-#else
-    EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize, FALSE);
-#endif
     VirtualMemoryWriteBlockConstant(
         SystemCommAreaAddress, MakeLispObj(Type_Null, SystemCommAreaAddress), SystemCommAreaSize, 1);
     SystemCommAreaPtr = (SystemCommArea *)MapVirtualAddressData(SystemCommAreaAddress);

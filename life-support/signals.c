@@ -1,15 +1,13 @@
 /* Functions which handle signals between the VLM and host system */
 
-#include "std.h"
+#include "../std.h"
 
-#include "aihead.h"
+#include "../emulator/aihead.h"
 #include "life_types.h"
 #include "embed.h"
 #include "life_prototypes.h"
 #include "utilities.h"
-#ifndef _C_EMULATOR_
-#include "ivoryrep.h"
-#endif
+#include "../emulator/ivoryrep.h"
 
 /* Initialize the data structures used for signal handling */
 
