@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(genera_c VERSION 0.1.0)
 
-include_directories(. life-support alpha-emulator environment /usr/include /usr/include/X11)
+include_directories(. life-support alpha-emulator emulator /usr/include /usr/include/X11)
 
 find_package(Threads REQUIRED)
 find_package(X11 REQUIRED)
@@ -18,26 +18,26 @@ set(SRC_C
         life-support/cold_load.c
         life-support/console.c
         life-support/disks.c
-        life-support/genera-cptfont.c
-        life-support/genera-icon-32.c
+        life-support/genera-cptfont.xbm
+        life-support/genera-icon-32.xbm
         life-support/initialization.c
         life-support/message_channels.c
-        #    life-support/network.c
+        # life-support/network.c
         life-support/network-linux.c
-        #    life-support/network-tun-linux.c
+        # life-support/network-tun-linux.c
         life-support/polling.c
         life-support/queues.c
         life-support/signals.c
-        life-support/SystemComm.c
+        life-support/SystemComm.h
 
-        alpha-emulator/traps.c
-        alpha-emulator/dispatch.c
-        alpha-emulator/emulator.c
-        alpha-emulator/initialization.c
-        alpha-emulator/memory.c
-        alpha-emulator/traps.c
+        emulator/traps.c
+        # emulator/dispatch.c
+        # emulator/emulator.c
+        # emulator/initialization.c
+        emulator/memory.c
+        emulator/traps.c
 
-        environment/introspection.c
+        # environment/introspection.c
 
         utilities.c
         world_tools.c)
