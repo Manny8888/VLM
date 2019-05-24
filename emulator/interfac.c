@@ -1,4 +1,6 @@
-#include "std.h"
+
+
+#include "../std.h"
 
 #include <signal.h>
 #include <sys/file.h>
@@ -88,33 +90,40 @@ int InstructionSequencer(void)
         int reason;
         struct sigaction action;
 
-        action.sa_sigaction = (sa_sigaction_t)segv_handler;
-        action.sa_flags = SA_SIGINFO;
-        sigemptyset(&action.sa_mask);
-        if (-1 == sigaction(SIGSEGV, &action, NULL))
-            vpunt(NULL, "Unable to establish memory fault handler.");
+        // TODO: Restore the handler if necessary and once the includes are correct to get REG_RIP OK in memory.c
+        // action.sa_sigaction = (sa_sigaction_t)segv_handler;
+        // action.sa_flags = SA_SIGINFO;
+        // sigemptyset(&action.sa_mask);
+        // if (-1 == sigaction(SIGSEGV, &action, NULL)) {
+        //     vpunt(NULL, "Unable to establish memory fault handler.");
+        // }
 
-        action.sa_sigaction = (sa_sigaction_t)fpe_handler;
-        action.sa_flags = SA_SIGINFO;
-        sigemptyset(&action.sa_mask);
-        if (-1 == sigaction(SIGFPE, &action, NULL))
-            vpunt(NULL, "Unable to establish floating point exception handler");
+        // action.sa_sigaction = (sa_sigaction_t)fpe_handler;
+        // action.sa_flags = SA_SIGINFO;
+        // sigemptyset(&action.sa_mask);
+        // if (-1 == sigaction(SIGFPE, &action, NULL)) {
+        //     vpunt(NULL, "Unable to establish floating point exception handler");
+        // }
 
-        action.sa_sigaction = (sa_sigaction_t)ill_handler;
-        action.sa_flags = SA_SIGINFO;
-        sigemptyset(&action.sa_mask);
-        if (-1 == sigaction(SIGILL, &action, NULL))
-            vpunt(NULL, "Unable to establish floating point exception handler");
+        // action.sa_sigaction = (sa_sigaction_t)ill_handler;
+        // action.sa_flags = SA_SIGINFO;
+        // sigemptyset(&action.sa_mask);
+        // if (-1 == sigaction(SIGILL, &action, NULL)) {
+        //     vpunt(NULL, "Unable to establish floating point exception handler");
+        // }
 
         reason = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0));
         processor->please_stop = 0;
         processor->please_trap = 0; /* ????? */
         if (reason != HaltReason_SpyCalled) {
         }
+
         return (reason);
-    } else { if 
-}(pthread_delay_np(&interpreterSleep))
+
+    } else if (pthread_delay_np(&interpreterSleep)) {
         vpunt(NULL, "Unable to sleep in the main interpreter thread.");
+    }
+
     return (0);
 }
 
@@ -122,19 +131,16 @@ int InstructionSequencer(void)
  * debugging purposes.
  */
 
-int FIBTestCode[51][3] = {
-    { 03, 060, 03376003 }, { 00, 067, 030005200002 }, { 03, 056, 0xF8000000L + 06 },
-    { 00, 065, 030002201424 }, /* 030002201424 */
-    { 00, 061, 032003311377 },
-    /* { 00, 064, 033040161772 }, */
-    { 00, 062, 037000161772 }, { 00, Type_CompiledFunction, 0xF8000000L + 07 }, { 03, 060, 03376003 },
-    { 00, 073, 013402703377 }, { 00, 064, 033000160002 }, { 03, 056, 0xF8000000L + 06 }, { 00, 074, 03401200002 },
-    { 03, 064, 02270402 }, { 02, 056, 0xF8000000L + 06 }, { 00, 065, 030402603402 }, { 00, 064, 033000601000 },
-    { 01, 000, 0 } /* End of compiled code */
+uint32_t FIBTestCode[51][3] = {
+    { 03, 060, 03376003 }, { 00, 067, 030005200002 }, { 03, 056, 0xF8000000L + 06 }, { 00, 065, 030002201424 },
+    { 00, 061, 032003311377 }, { 00, 062, 037000161772 }, { 00, Type_CompiledFunction, 0xF8000000L + 07 },
+    { 03, 060, 03376003 }, { 00, 073, 013402703377 }, { 00, 064, 033000160002 }, { 03, 056, 0xF8000000L + 06 },
+    { 00, 074, 03401200002 }, { 03, 064, 02270402 }, { 02, 056, 0xF8000000L + 06 }, { 00, 065, 030402603402 },
+    { 00, 064, 033000601000 }, { 01, 000, 0 } /* End of compiled code */
 };
 
 #define WriteControlArgumentSize(c, argsize) (c = ((c & (~0xFF)) | argsize))
-#define WriteControlCallerFrameSize(c, cfs) (c = ((c & (~0x1FE00)) | (cfs << 9)))
+#define WriteControlCallerFrameSize(c, cfs) (c = ((c & (~0x1FE00)) | ((cfs) << 9)))
 
 void PushOneFakeFrame(void)
 {
@@ -187,7 +193,7 @@ void InitializeFIBTest()
     for (i = 0; i < 51; i++) {
         object.tag = ((FIBTestCode[i][0]) << 6) | FIBTestCode[i][1];
         object.data = FIBTestCode[i][2];
-        VirtualMemoryWrite(i + 0xF8000000L, *((LispObj *)(&object)));
+        VirtualMemoryWrite(i + 0xF8000000L, ((LispObj *)(&object)));
     }
     processor->control = (unsigned int)TrapMode_FEP << 30;
     WriteControlArgumentSize(processor->control, 3);
@@ -277,7 +283,7 @@ static void ComputeSpeed(int64_t *speed)
         t1 = timeafter - timebefore;
         if (t1 < tmin) {
             tmin = t1;
-}
+        }
     };
     *speed = ((((int64_t)tmin) * 1000000L) / 0x4000000L);
     processor->mscmultiplier = (*speed << 24) / 1000000;
@@ -294,7 +300,7 @@ static void RunPOST(int64_t speed)
         InitializeTestFunction();
     } else {
         InitializeFIBTest(); /* This is the Power on self test */
-}
+    }
     if (Trace)
         InitializeTracing(1000, processor->epc >> 1, 0, NULL);
     times(&tms);
@@ -308,7 +314,7 @@ static void RunPOST(int64_t speed)
     }
     if (Trace) {
         PrintTrace();
-}
+    }
     processor->trace_hook = 0;
 }
 
@@ -425,7 +431,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
                 *e &= ~MemoryAction_Transport;
                 if (*e) {
                     mask |= (1L << j); /* accumulate mask of types with action */
-}
+                }
                 matline[j] = *e; /* copy bits into copymat */
             }
             *maskPointer = mask;
@@ -444,12 +450,12 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         processor->mostpositivefixnum = (int64_t)((~(-1 << 31)) & 0xFFFFFFFF);
         processor->mostnegativefixnum = (int64_t)(((-1 << 31)) & 0xFFFFFFFF);
 
-        processor->halfworddispatch = (int64_t)halfworddispatch;
-        processor->fullworddispatch = (int64_t)fullworddispatch;
-        processor->internalregisterread1 = (int64_t)internalregisterread1;
-        processor->internalregisterread2 = (int64_t)internalregisterread2;
-        processor->internalregisterwrite1 = (int64_t)internalregisterwrite1;
-        processor->internalregisterwrite2 = (int64_t)internalregisterwrite2;
+        processor->halfworddispatch = (uint64_t)halfworddispatch;
+        processor->fullworddispatch = (uint64_t)fullworddispatch;
+        processor->internalregisterread1 = (uint64_t)internalregisterread1;
+        processor->internalregisterread2 = (uint64_t)internalregisterread2;
+        processor->internalregisterwrite1 = (uint64_t)internalregisterwrite1;
+        processor->internalregisterwrite2 = (uint64_t)internalregisterwrite2;
         processor->extraandcatch = (1L << 8 | 1L << 26);
         processor->fccrmask = ~(0x074FFFFFL);
         processor->fccrtrapmask = (processor->fccrmask) & ~(7L << 27);
@@ -545,7 +551,7 @@ void StartMachine(Boolean resumeP)
 {
     if (!resumeP) {
         flushicache();
-}
+    }
     processor->please_stop = 0;
     processor->please_trap = 0; /* ????? */
     processor->runningp = 1;
@@ -553,21 +559,25 @@ void StartMachine(Boolean resumeP)
 
 int IvoryProcessorSystemStartup(int bootingP)
 {
-    LispObj q;
+    LispObj q, q1, q2;
     if (bootingP) {
         signal(SIGFPE, SIG_IGN);
         InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
-        if (((q = ReadFEPCommSlot(fepStartup)) && (LispObjTag(q) == Type_CompiledFunction))
-            || ((q = ReadSystemCommSlot(systemStartup)) && (LispObjTag(q) == Type_CompiledFunction))) {
+
+        q1 = VirtualMemoryRead(FEPCommSlotAddress(fepStartup));
+        q2 = VirtualMemoryRead(SystemCommSlotAddress(systemStartup));
+        if ((QTag(q1) == Type_CompiledFunction) || (QTag(q2) == Type_CompiledFunction)) {
             LispObjRecordp fp;
             fp = ((LispObjRecordp)(processor->fp));
             fp[0].tag = 0xc0 | Type_EvenPC;
             fp[0].data = LispObjData(q);
-        } else
+        } else {
             return (FALSE);
+        }
     }
     ResetMachine();
-    /* Pop our two fake frames */
+
+    // Pop our two fake frames
     PopOneFakeFrame();
     PopOneFakeFrame();
     StartMachine(FALSE);

@@ -12,7 +12,7 @@
 #include "emulator/aihead.h"
 #include "emulator/ivoryrep.h"
 
-#include "memory.h"
+#include "emulator/memory.h"
 #include "spy.h"
 
 #include "life_types.h"
@@ -227,7 +227,7 @@ static void RemoteMemorySpyLoop()
 
         sinlen = sizeof(struct sockaddr_in);
         if ((pkt_length = recvfrom(spy, &pkt.rm_pad[0], REMOTE_MEMORY_PACKET_HEADER + REMOTE_MEMORY_PACKET_DATA, 0,
-                 (struct sockaddr *)&pkt_source, &sinlen))
+                 (struct sockaddr *)&pkt_source, (void *)&sinlen))
             < 0) {
             vpunt("spy", "Reading packet from remote debugger");
         }
@@ -293,9 +293,10 @@ static void RemoteMemorySpyLoop()
                     goto READ_WRITE_MEMORY_ERROR;
                 }
                 for (i = 0; i < nwords; i++) {
-                    if (!CreatedP(vma + i))
+                    if (!CreatedP(vma + i)) {
                         goto READ_WRITE_MEMORY_ERROR; /* KLUDGE! */
-                    buffer[i] = (VirtualMemoryRead(vma + i));
+                    }
+                    buffer[i] = VirtualMemoryRead(vma + i);
                 }
                 signal(SIGSEGV, old_segv_handler);
             } break;
@@ -386,15 +387,17 @@ static void RemoteMemorySpyLoop()
 
             case rm_register:
                 for (i = 0; i < nwords; i++) {
-                    if (WriteInternalRegister(vma + i, &buffer[i]) == -1)
+                    if (WriteInternalRegister(vma + i, buffer[i]) == -1) {
                         vwarn("spy", "Write of internal register %d failed", vma + i);
+                    }
                 }
                 break;
 
             case rm_coprocessor:
                 for (i = 0; i < nwords; i++) {
-                    if (!CoprocessorWrite(vma + i, &buffer[i]))
+                    if (!CoprocessorWrite(vma + i, buffer[i])) {
                         vwarn("spy", "Write of coprocessor register %d failed.", (vma + i));
+                    }
                 }
                 break;
             };

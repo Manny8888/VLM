@@ -19,10 +19,13 @@
 /* Writes a slot of the BootComm area using the emulator's VM implementation */
 #define WriteBootCommSlot(slot, datum, tag)                                                                            \
     {                                                                                                                  \
-        LispObj lispDatum;                                                                                             \
-        lispDatum.DATA.u = (Integer)datum;                                                                             \
-        lispDatum.TAG = (Tag)tag;                                                                                      \
-        VirtualMemoryWrite(BootCommSlotAddress(slot), &lispDatum);                                                     \
+        /*LispObjRecord lispDatum;*/ \
+        /*lispDatum.data = (uint32_t)datum; */                                                                        \
+        /*lispDatum.tag = (Tag)tag; */                                                                             \
+        /*VirtualMemoryWrite(BootCommSlotAddress(slot), &lispDatum);  */                                       \
+        uint64_t temp_value; \
+        temp_value = datum; \
+        VirtualMemoryWrite(BootCommSlotAddress(slot), &temp_value);  \
     }
 
 /* The BootComm area */

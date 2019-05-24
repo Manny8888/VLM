@@ -1,4 +1,4 @@
-/* 
+/*
  * This structure is use for passing around a 40 lisp value when talking to
  * external support interfaces.  It does not represent the way such data is
  * represented in memory or passed around withing the innards of the asm
@@ -8,6 +8,7 @@
 #ifndef _IVORYREP_
 #define _IVORYREP_
 
+#include <stdint.h>
 #include "../alpha-emulator/aistat.h"
 
 typedef struct _LispObj {
@@ -20,7 +21,11 @@ typedef struct _LispObj {
 #endif
 } LispObjRecord, *LispObjRecordp;
 
-typedef int64_t LispObj;
+typedef uint64_t LispObj;
+
+// Get tag / data when supplied a uint64
+#define QTag(lo) (((lo)&0xFFFFFFFF00000000) >> 32)
+#define QData(lo) ((lo)&0x00000000FFFFFFFF)
 
 #define LispObjTag(lo) (((LispObjRecordp) & (lo))->tag)
 #define LispObjData(lo) (((LispObjRecordp) & (lo))->data)

@@ -521,14 +521,14 @@ void InitializeInstructionCache(void)
          * exists*/
         FLUSHICACHE;
     } else {
-        /* There are 4 extra cache lines allocated for the instruction cache
-        /* so that entries at the front and end of the cache don't have to
-        /* be patched up for pointing out of the cache.  Instead the extra
-        /* entries will either a) cause a cache-miss, due to the PC
-        /* mismatching, or b) force a cache miss, because their .code field
-        /* sends you there.  There is one spare line at the front of the cache
-        /* (for the backup case) and 3 spare lines at the end (for the forward
-        /* 2 case).  We align the cache on a page for better block fills. */
+        // There are 4 extra cache lines allocated for the instruction cache
+        // so that entries at the front and end of the cache don't have to
+        // be patched up for pointing out of the cache.  Instead the extra
+        // entries will either a) cause a cache-miss, due to the PC
+        // mismatching, or b) force a cache miss, because their .code field
+        // sends you there.  There is one spare line at the front of the cache
+        // (for the backup case) and 3 spare lines at the end (for the forward
+        // 2 case).  We align the cache on a page for better block fills. 
         caddr_t cp = (caddr_t)malloc((icachesize + 4) * sizeof(CACHELINE) + 2 * ALPHAPAGESIZE);
 
         if (!cp)

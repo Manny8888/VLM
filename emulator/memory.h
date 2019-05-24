@@ -14,16 +14,22 @@ Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp);
 Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset);
 Integer *MapVirtualAddressData(Integer vma);
 Tag *MapVirtualAddressTag(Integer vma);
-LispObj VirtualMemoryRead(Integer vma, LispObj *object);
+
+//LispObj VirtualMemoryRead(Integer vma, LispObj *object);
+LispObj VirtualMemoryRead(Integer vma);
+void VirtualMemoryWrite(Integer vma, LispObj *object);
+
 LispObj VirtualMemoryReadUncached(Integer vma);
+void VirtualMemoryWriteUncached(Integer vma, LispObj *object);
+
 void VirtualMemoryReadBlock(Integer vma, LispObj *object, int count);
-void VirtualMemoryReadBlockUncached(Integer vma, LispObj *object, int count);
-void VirtualMemoryWrite(Integer vma, LispObj object);
-void VirtualMemoryWriteUncached(Integer vma, LispObj object);
 void VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count);
-void VirtualMemoryWriteBlockUncached(Integer vma, LispObj *object, int count);
-void VirtualMemoryWriteBlockConstant(Integer vma, LispObj object, int count, int increment);
-void VirtualMemoryWriteBlockConstantUncached(Integer vma, LispObj object, int count, int increment);
+
+void VirtualMemoryReadBlockUncached(Integer vma, LispObj *object, int count);
+void VirtualMemoryWriteBlockUncached(Integer vma, LispObj * object, int count);
+
+void VirtualMemoryWriteBlockConstant(Integer vma, LispObj *object, int count, int increment);
+void VirtualMemoryWriteBlockConstantUncached(Integer vma, LispObj *object, int count, int increment);
 
 #define ldb(ss, pp, source) ((int)(((source) >> (pp)) & ((1 << (ss)) - 1)))
 #define dpb(field, ss, pp, background)                                                                                 \

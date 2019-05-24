@@ -1,6 +1,6 @@
 /* VLM's Cold Load Window implementation */
 
-#include "std.h"
+#include "../std.h"
 
 #include <netdb.h>
 #include <netinet/in.h>
@@ -8,7 +8,7 @@
 
 #include "life_types.h"
 #include "embed.h"
-#include "VLM_configuration.h"
+#include "../VLM_configuration.h"
 #include "life_prototypes.h"
 #include "utilities.h"
 #include "symbolics_characters.h"
@@ -127,14 +127,14 @@ static int open_cold_load_display(XParams *params, boolean noWaiting)
         return (XConnectionNumber(display));
     } else {
         return (-1);
-}
+    }
 }
 
 static int manage_x_input(XParams *params)
 {
     while (display != NULL && XPending(display)) {
         handle_input();
-}
+    }
     if (display == NULL) {
         /* Display must have closed */
         close_display();
@@ -147,7 +147,7 @@ static void manage_cold_load_output()
 {
     while (EmbQueueFilled(display_queue)) {
         handle_output();
-}
+    }
 }
 
 static void update_cold_load_blinkers()
@@ -192,12 +192,12 @@ static void open_display(XParams *params, boolean noWaiting)
                 openSleep.tv_nsec = 0;
                 if (pthread_delay_np(&openSleep)) {
                     vpunt(NULL, "Unable to sleep in thread %lx", pthread_self());
-}
+                }
                 display = XOpenDisplay(display_name);
             }
             fprintf(stderr, "Done.\n");
         }
-}
+    }
 
     screen_no = XDefaultScreen(display);
     screen = XDefaultScreenOfDisplay(display);
@@ -214,7 +214,7 @@ static void open_display(XParams *params, boolean noWaiting)
         XFreeFontInfo(NULL, fontinfo, 0);
     } else {
         gcv.font = 0;
-}
+    }
     char_width = 8;
     char_height = 12;
     roff = rmarg - 0;
@@ -252,20 +252,20 @@ static void open_display(XParams *params, boolean noWaiting)
         gcv.foreground = color.pixel;
     } else {
         gcv.foreground = XBlackPixelOfScreen(screen);
-}
+    }
 
     if ((params->xpBackgroundColor != NULL)
         && XAllocNamedColor(display, colormap, params->xpBackgroundColor, &color, &color)) {
         gcv.background = color.pixel;
     } else {
         gcv.background = XWhitePixelOfScreen(screen);
-}
+    }
 
     if ((params->xpBorderColor != NULL) && XAllocNamedColor(display, colormap, params->xpBorderColor, &color, &color)) {
         attributes.border_pixel = color.pixel;
     } else {
         attributes.border_pixel = XBlackPixelOfScreen(screen);
-}
+    }
 
     attributes.background_pixel = gcv.background;
     attributes.event_mask = KeyPressMask | ExposureMask | StructureNotifyMask | FocusChangeMask | VisibilityChangeMask;
@@ -281,7 +281,7 @@ static void open_display(XParams *params, boolean noWaiting)
     if (!gcv.font) {
         cptfont_bitmap
             = XCreateBitmapFromData(display, root, GENERA_CPTFONT_bits, GENERA_CPTFONT_width, GENERA_CPTFONT_height);
-}
+    }
 
     if (XCellsOfScreen(screen) < 16) {
         icon_bitmap
@@ -297,7 +297,7 @@ static void open_display(XParams *params, boolean noWaiting)
             icon_gc_s = XCreateGC(display, icon_window, GCForeground, &gcv);
         } else {
             icon_gc_s = icon_gc;
-}
+        }
         color.red = 65535;
         color.green = 0;
         color.blue = 0;
@@ -306,7 +306,7 @@ static void open_display(XParams *params, boolean noWaiting)
             icon_gc_c = XCreateGC(display, icon_window, GCForeground, &gcv);
         } else {
             icon_gc_c = icon_gc;
-}
+        }
         color.red = 65535;
         color.green = 0;
         color.blue = 65535;
@@ -315,7 +315,7 @@ static void open_display(XParams *params, boolean noWaiting)
             icon_gc_t = XCreateGC(display, icon_window, GCForeground, &gcv);
         } else {
             icon_gc_t = icon_gc;
-}
+        }
     }
 
     SetColdLoadNames();
@@ -353,7 +353,7 @@ static void close_display_child_hook()
 {
     if (display != NULL) {
         close(XConnectionNumber(display));
-}
+    }
 }
 
 static void handle_input()
@@ -378,7 +378,7 @@ static void handle_input()
         if (event.xexpose.window == window) {
             if (event.xexpose.y < tmarg) {
                 show_lights(1);
-}
+            }
             hide_cursor();
             redisplay_screen_array((event.xexpose.x - lmarg) / char_width, (event.xexpose.y - tmarg) / char_height,
                 (event.xexpose.x - lmarg + event.xexpose.width - 1) / char_width + 1,
@@ -387,7 +387,7 @@ static void handle_input()
             show_lights(1);
         } else if (event.xexpose.window == icon_window) {
             show_icon();
-}
+        }
         break;
     case KeyPress:
         if (first_keypress) {
@@ -398,24 +398,24 @@ static void handle_input()
         keysym = XLookupKeysym(&event.xkey, 0);
         if (IsModifierKey(keysym) || (XK_Multi_key == keysym) || (XK_KP_F4 == keysym)) {
             break;
-}
+        }
         if (event.xkey.state & ControlMask) {
             bits |= 1;
-}
+        }
         if (event.xkey.state & meta_mask) {
             bits |= 2;
-}
+        }
         if (event.xkey.state & super_mask) {
             bits |= 4;
-}
+        }
         if (event.xkey.state & hyper_mask) {
             bits |= 8;
-}
+        }
         if ((XK_a <= keysym) && (keysym <= XK_z)) {
             key = (keysym - XK_a) + 65;
             if ((bits == 0) ? ((event.xkey.state & (ShiftMask | LockMask)) == 0) : (event.xkey.state & ShiftMask)) {
                 key = key + 32;
-}
+            }
         } else if ((XK_F1 <= keysym) && (keysym <= XK_F23)) {
             key = fkMap[2 * (keysym - XK_F1) + ((event.xkey.state & ShiftMask) ? 1 : 0)];
         } else {
@@ -426,8 +426,8 @@ static void handle_input()
                     key = SK_Return;
                 } else {
                     keysym = XLookupKeysym(&event.xkey, 1);
-}
-}
+                }
+            }
             if ((XK_space <= keysym) && (keysym <= XK_asciitilde)) {
                 key = keysym;
             } else if (key == -1) {
@@ -445,21 +445,21 @@ static void handle_input()
             EmbQueuePutWord(keyboard_queue, (clsoInputChar << 24) | ((uEmbWord)bits << 12) | (uEmbWord)key);
             if ((key == SK_Function) && (bits & 9) == 9) {
                 EmbCommAreaPtr->stop_request = TRUE;
-}
+            }
         }
         break;
     case MappingNotify:
         XRefreshKeyboardMapping(&event.xmapping);
         if (event.xmapping.request == MappingModifier) {
             setup_modifier_mapping();
-}
+        }
         break;
     case VisibilityNotify:
         if (event.xvisibility.window == window) {
             visibility = (event.xvisibility.state != VisibilityFullyObscured);
         } else if (event.xvisibility.window == icon_window) {
             icon_visibility = (event.xvisibility.state != VisibilityFullyObscured);
-}
+        }
         break;
     case FocusIn:
         cursor_frozen = 0;
@@ -486,7 +486,7 @@ static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
 
     if ((new_width == old_width) && (new_height == old_height)) {
         return;
-}
+    }
 
     screen_array = (line *)malloc(new_height * sizeof(line));
     while (y < new_height) {
@@ -502,7 +502,7 @@ static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
     if (old_screen_array != NULL) {
         for (y = 0; y < old_height; y++) {
             free(old_screen_array[y].chars);
-}
+        }
         free(old_screen_array);
     }
     cold_channel->character_width = 1;
@@ -518,7 +518,7 @@ static void alloc_screen_array(int new_width_pixels, int new_height_pixels)
     progress_bar_first_x = (pixels_per_run_light * 22) + loff;
     progress_bar_width = new_width_pixels - loff - progress_bar_first_x - roff;
     reset_light_state(True);
-    EmbQueuePutWord(keyboard_queue, clsoSetSize << 24);
+    EmbQueuePutWord(keyboard_queue, (EmbWord)(clsoSetSize << 24));
     width = new_width;
     height = new_height;
 }
@@ -534,7 +534,7 @@ static void redisplay_line(int y, int x, int xlim)
         for (cx = x, wx = x * char_width + lmarg; cx < xlim; cx++, wx += char_width) {
             XCopyPlane(display, cptfont_bitmap, window, gc, (char_width - 1) * screen_array[y].chars[cx], 0,
                 (char_width - 1), char_height, wx, wy, 1);
-}
+        }
     }
 }
 
@@ -550,7 +550,7 @@ static void redisplay_screen_array(int minx, int miny, int maxx, int maxy)
 
         if (this_minx < this_maxx) {
             redisplay_line(y, this_minx, this_maxx);
-}
+        }
     }
 }
 
@@ -559,13 +559,13 @@ static void show_cursor_internal(int new_state)
     if (visibility && !cursor_frozen) {
         if (cursor_visible && (cursor_state != new_state)) {
             hide_cursor();
-}
+        }
         if (!cursor_visible) {
             cursor_state = EmbCommAreaPtr->fep.cursor;
             if (cursor_state) {
                 XFillRectangle(display, window, gc, current_x * char_width + lmarg, current_y * char_height + tmarg,
                     char_width - 1, char_height - 1);
-}
+            }
             XDrawRectangle(display, window, gc, current_x * char_width + lmarg, current_y * char_height + tmarg,
                 char_width - 1, char_height - 1);
             cursor_visible = 1;
@@ -618,7 +618,7 @@ static void show_lights(int force)
                 if (force || (changed & bit)) {
                     if (light_state & bit) {
                         XFillRectangle(display, window, gc, i, run_light_y, RUN_LIGHT_WIDTH, 1);
-}
+                    }
                 } else {
                     XClearArea(display, window, i, run_light_y, RUN_LIGHT_WIDTH, 1, False);
                 }
@@ -701,10 +701,10 @@ static void show_lights(int force)
                         XFillRectangle(display, icon_window, icon_gc, i, 32, 4, 4);
                     } else {
                         XClearArea(display, icon_window, i, 32, 4, 4, False);
-}
-}
-}
-}
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -728,22 +728,22 @@ static void replay_command_history()
         i = cold_channel->command_history_top + 1;
     } else {
         i = 0;
-}
+    }
     for (; i != cold_channel->command_history_top; i++) {
         /* Watch for history wraparound */
         if (i == ColdLoadCommandHistorySize) {
             i = 0;
-}
+        }
 
         /* Don't do any output until we know where to put it */
         if (!have_pos && ((cold_channel->command_history[i] >> 24) & 0xff) == clsoSetCursorpos) {
             have_pos = TRUE;
-}
+        }
 
         /* Do output */
         if (have_pos) {
             handle_output_command(cold_channel->command_history[i]);
-}
+        }
     }
 
     reset_light_state(False);
@@ -782,7 +782,7 @@ static void handle_output_command(uEmbWord command)
             if (screen_array[current_y].length <= current_x) {
                 for (x = screen_array[current_y].length; x < current_x; x++) {
                     screen_array[current_y].chars[x] = ' ';
-}
+                }
                 screen_array[current_y].length = current_x + 1;
             }
             c = (char)(command & 0xff);
@@ -798,7 +798,7 @@ static void handle_output_command(uEmbWord command)
     case clsoClearRestOfWindow:
         for (y = current_y + 1; y < height; y++) {
             screen_array[y].length = 0;
-}
+        }
         XClearArea(display, window, lmarg, (current_y + 1) * char_height + tmarg, width * char_width,
             (height - (current_y + 1)) * char_height, False);
         reset_light_state(True);
@@ -870,7 +870,7 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
         } else {
             /* ---*** TODO: Find out what KeySym is labelled CLEAR */
             skMap->keysym = 0; /* Apple X11 */
-}
+        }
         *super_code = XKeysymToKeycode(display, XK_Down);
         *hyper_code = XKeysymToKeycode(display, XK_Left);
     }
@@ -896,7 +896,7 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
 
         if (keycode1 == keycode2) {
             *hyper_code = 0;
-}
+        }
 
         /* If XK_Multi_key's code is 0, then we must have the PC-style DEC
          * keyboard. */
@@ -918,7 +918,7 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
 
     if ((*meta_l_code == 0) && (*meta_r_code == 0) && *alt_l_code) {
         *meta_l_code = *alt_l_code;
-}
+    }
 
     // hack
     *control_r_code = *control_l_code;
@@ -933,14 +933,14 @@ static int find_modifier(XModifierKeymap *modmap, KeyCode code)
 
     if (code == 0) {
         return -1;
-}
+    }
     for (modifier = 0; modifier < 8; modifier++) {
         for (i = 0; i < modmap->max_keypermod; i++) {
             if (modmap->modifiermap[i + modifier * modmap->max_keypermod] == code) {
                 return modifier;
-}
-}
-}
+            }
+        }
+    }
     return -1;
 }
 
@@ -953,8 +953,8 @@ static int find_unused_modifier(XModifierKeymap **modmapp)
         for (i = 0; i < (*modmapp)->max_keypermod; i++) {
             if ((*modmapp)->modifiermap[i + modifier * (*modmapp)->max_keypermod] != 0) {
                 goto next_modifier;
-}
-}
+            }
+        }
         return modifier;
     next_modifier:
         continue;
@@ -982,20 +982,20 @@ static int do_modifier(XModifierKeymap **modmapp, int *changedp, KeyCode code1, 
     mod = find_modifier(*modmapp, code1);
     if (mod == -1) {
         mod = find_modifier(*modmapp, code2);
-}
+    }
     if (mod == -1) {
         mod = find_modifier(*modmapp, code3);
-}
+    }
     if (mod != -1) {
         return 1 << mod;
-}
+    }
     if ((code1 == 0) && (code2 == 0) && (code3 == 0)) {
         return 0;
-}
+    }
     mod = find_unused_modifier(modmapp);
     if (mod == -1) {
         return 0;
-}
+    }
     if (code1 != 0) {
         *modmapp = XInsertModifiermapEntry(*modmapp, code1, mod);
         *changedp = 1;
@@ -1036,12 +1036,12 @@ static void setup_modifier_mapping()
     meta_mask = do_modifier(&modmap, &changed, meta_l_code, meta_r_code, 0);
     if (meta_mask == 0) {
         vwarn("Cold Load", "Unable to allocate a modifier for the Meta key.");
-}
+    }
 
     super_mask = do_modifier(&modmap, &changed, super_code, 0, 0);
     if (super_mask == 0) {
         vwarn("Cold Load", "Unable to allocate a modifier for the Super key.");
-}
+    }
     hyper_mask = do_modifier(&modmap, &changed, hyper_code, 0, 0);
     if (hyper_mask == 0) {
         vwarn("Cold Load", "Unable to allocate a modifier for the Hyper key.");
@@ -1052,13 +1052,13 @@ static void setup_modifier_mapping()
             vwarn("Cold Load", "Unable to allocate a modifier for the Hyper key.");
         } else {
             modmap = XDeleteModifiermapEntry(modmap, super_code, mask_to_modifier(hyper_mask));
-}
+        }
         changed = TRUE;
     }
 
     if (changed) {
         XSetModifierMapping(display, modmap);
-}
+    }
     XUngrabServer(display);
     XFreeModifiermap(modmap);
 }
@@ -1072,14 +1072,16 @@ static void SetColdXErrorHandler()
     /* Set error handler */
     if (XErrorDefaultHandler == NULL) {
         XErrorDefaultHandler = XSetErrorHandler((XErrorHandler)&ColdXErrorHandler);
-}
+    }
 }
 
 static int ColdXErrorHandler(Display *display, XErrorEvent *error)
 {
     if (error->request_code != X_KillClient) {
         return ((*XErrorDefaultHandler)(display, error));
-}
+    } else {
+        return (1);
+    }
 }
 
 static int initialize_cold(XParams *cl_params, boolean noWaiting)
@@ -1087,16 +1089,13 @@ static int initialize_cold(XParams *cl_params, boolean noWaiting)
     int x_fd;
 
     begin_MUTEX_LOCKED(XLock);
-
     x_fd = open_cold_load_display(cl_params, noWaiting);
-
     end_MUTEX_LOCKED(XLock);
 
     return (x_fd);
 }
 
-/* The output driver for the Cold Load window */
-
+// The output driver for the Cold Load window
 static void ColdLoadOutput(void *ignored)
 {
     begin_MUTEX_LOCKED(XLock);
@@ -1109,8 +1108,7 @@ static void ColdLoadOutput(void *ignored)
     end_MUTEX_LOCKED(XLock);
 }
 
-/* The input driver for the Cold Load window */
-
+// The input driver for the Cold Load window
 static void ColdLoadInput(pthread_addr_t argument)
 {
     pthread_t self = pthread_self();
@@ -1157,7 +1155,7 @@ static char *concatenate_string(char *string1, char *string2)
     char *new_string = malloc(total_size);
     if (0 == new_string) {
         vpunt(NULL, "No room for concatenated string.");
-}
+    }
     strcpy(new_string, string1);
     return (strcat(new_string, string2));
 }
@@ -1172,7 +1170,7 @@ static void SetupColdLoadNameStrings(VLMConfig *config)
     interface = &config->interfaces[0];
     while (!interface->present) {
         interface++;
-}
+    }
 
     switch (interface->myProtocol) {
     case ETHERTYPE_IP:
@@ -1185,17 +1183,17 @@ static void SetupColdLoadNameStrings(VLMConfig *config)
             pp = strchr(longHostName, '.');
             if (pp) {
                 *pp = 0;
-}
+            }
             shortHostName = longHostName;
             while (*theHost->h_aliases) {
                 aName = strdup(*theHost->h_aliases);
                 pp = strchr(aName, '.');
                 if (pp) {
                     *pp = 0;
-}
+                }
                 if (strlen(aName) < strlen(shortHostName)) {
                     shortHostName = aName;
-}
+                }
                 theHost->h_aliases++;
             }
         }
@@ -1240,8 +1238,7 @@ void UpdateColdLoadNames()
     }
 }
 
-/* Create the Cold Load Stream's channel */
-
+// Create the Cold Load Stream's channel
 void InitializeColdLoadChannel(VLMConfig *config)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbColdLoadChannel));
@@ -1267,9 +1264,7 @@ void InitializeColdLoadChannel(VLMConfig *config)
     SetupColdLoadNameStrings(config);
 
     begin_MUTEX_LOCKED(XLock);
-
     p->fd = open_cold_load_display(&config->coldLoadXParams, TRUE);
-
     end_MUTEX_LOCKED(XLock);
 
     if (-1 == p->fd) {
@@ -1279,12 +1274,12 @@ void InitializeColdLoadChannel(VLMConfig *config)
             "properly.");
     } else {
         setup_x_io_error_handler();
-}
+    }
 
     if (pthread_create(&p->coldLoadInput, &EmbCommAreaPtr->inputThreadAttrs, (pthread_startroutine_t)&ColdLoadInput,
             (pthread_addr_t)config)) {
         vpunt(NULL, "Unable to create the cold load window's input thread");
-}
+    }
     p->coldLoadInputSetup = TRUE;
 }
 

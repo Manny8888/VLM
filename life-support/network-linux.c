@@ -1,6 +1,7 @@
 /* VLM Network Life Support for Linux */
 
 #ifndef USE_TUN
+#define USE_TUN
 
 #include <netdb.h>
 #include <netinet/in.h>

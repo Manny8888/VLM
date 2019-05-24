@@ -1,8 +1,8 @@
-#include "std.h"
+#include "../std.h"
 
 #include "aihead.h"
 #include "ivoryrep.h"
-#include "embed.h"
+#include "../life-support/embed.h"
 
 static int first_call = 1;
 
@@ -23,7 +23,7 @@ void SpinWheels()
     int i;
     for (i = 0; i < 0x2000000; i++) {
         ;
-}
+    }
 }
 
 void ARITHMETICEXCEPTION() {}

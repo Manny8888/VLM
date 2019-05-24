@@ -13,7 +13,7 @@
 #include "life_prototypes.h"
 #include "utilities.h"
 
-#include "aihead.h"
+#include "../emulator/aihead.h"
 #include "../alpha-emulator/aistat.h"
 #include "../emulator/ivoryrep.h"
 #include "memory.h"
@@ -150,6 +150,8 @@ void InitializeLifeSupport(VLMConfig *config)
     struct utsname osfName;
     char worldPathname[_POSIX_PATH_MAX + 5 + 1], *loginName, *identifier;
     int major, minor;
+    LispObj temp_object;
+    uint32_t temp_value;
 
     /* Ask the emulator to establish the BootComm/BootData/CommArea mapping */
 
@@ -160,8 +162,8 @@ void InitializeLifeSupport(VLMConfig *config)
 
     /* Initialize the BootComm and BootData */
 
-    VirtualMemoryWriteBlockConstant(
-        BootCommAreaAddress, MakeLispObj(Type_Null, BootCommAreaAddress), (BootCommAreaSize + BootDataAreaSize), 1);
+    temp_object = MakeLispObj(Type_Null, BootCommAreaAddress);
+    VirtualMemoryWriteBlockConstant(BootCommAreaAddress, &temp_object, (BootCommAreaSize + BootDataAreaSize), 1);
 
     WriteBootCommSlot(embCommArea, EmbCommAreaAddress, Type_Locative);
     WriteBootCommSlot(systemType, SystemTypeVLM, Type_Fixnum);
@@ -174,20 +176,24 @@ void InitializeLifeSupport(VLMConfig *config)
     /* Ask the emulator to establish the FEPComm area mapping and initialize
      * the area */
     EnsureVirtualAddressRange(FEPCommAreaAddress, FEPCommAreaSize, FALSE);
-    VirtualMemoryWriteBlockConstant(FEPCommAreaAddress, MakeLispObj(Type_Null, FEPCommAreaAddress), FEPCommAreaSize, 1);
+    
+    temp_object = MakeLispObj(Type_Null, FEPCommAreaAddress);
+    VirtualMemoryWriteBlockConstant(FEPCommAreaAddress, &temp_object, FEPCommAreaSize, 1);
     FEPCommAreaPtr = (FEPCommArea *)MapVirtualAddressData(FEPCommAreaAddress);
 
     /* Ask the emulator to establish the SystemComm area mapping and
      * initialize the area */
 
     EnsureVirtualAddressRange(SystemCommAreaAddress, SystemCommAreaSize, FALSE);
-    VirtualMemoryWriteBlockConstant(
-        SystemCommAreaAddress, MakeLispObj(Type_Null, SystemCommAreaAddress), SystemCommAreaSize, 1);
+
+    temp_object = MakeLispObj(Type_Null, SystemCommAreaAddress);
+    VirtualMemoryWriteBlockConstant(SystemCommAreaAddress, &temp_object, SystemCommAreaSize, 1);
     SystemCommAreaPtr = (SystemCommArea *)MapVirtualAddressData(SystemCommAreaAddress);
 
     /* Initialize the communications area */
 
-    VirtualMemoryWriteBlockConstant(EmbCommAreaAddress, MakeLispObj(Type_Fixnum, 0), config->commAreaSize, 0);
+    temp_object = MakeLispObj(Type_Null, 0);
+    VirtualMemoryWriteBlockConstant(EmbCommAreaAddress, &temp_object, config->commAreaSize, 0);
 
 #if BYTE_ORDER == LITTLE_ENDIAN
     identifier = "EMBD";
