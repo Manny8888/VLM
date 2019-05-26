@@ -26,16 +26,16 @@ DoEqlFP : if (_trace) printf("DoEqlFP:\n");
 
 headdoeql : if (_trace) printf("headdoeql:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindoeql : if (_trace) printf("begindoeql:\n");
 /* arg1 has the operand, not sign extended if immediate. */
 arg6 = arg3 >> 12;
-t3 = *(u64 *)iSP; // Load arg1 into t3
+t3 = *(uint64_t *)iSP; // Load arg1 into t3
 t4 = zero + -2048; // Low part of EQ-NOT-EQL mask
-t11 = *(u64 *)&(processor->niladdress);
+t11 = *(uint64_t *)&(processor->niladdress);
 t4 = t4 + ((1) << 16); // High part of EQ-NOT-EQL mask
-t12 = *(u64 *)&(processor->taddress); // Assume result will be T
+t12 = *(uint64_t *)&(processor->taddress); // Assume result will be T
 t5 = arg1 ^ t3;
 t5 = t5 << 26; // Shift left to lose CDRCODE.
 arg6 = arg6 & 1; // 1 if no-pop, 0 if pop
@@ -55,32 +55,32 @@ if (t4 & 1) // If funny numeric type, exception
 
 eqldone : if (_trace) printf("eqldone:\n");
 iSP = (arg6 * 8) + iSP; // Either a stack-push or a stack-write
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u64 *)iSP = t12;
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint64_t *)iSP = t12;
 goto cachevalid;
 
 DoEqlIM : if (_trace) printf("DoEqlIM:\n");
 arg2 = arg2 << 56;
-t4 = *(s32 *)(iSP + 4); // t4=tag t3=data
-t3 = *(s32 *)iSP;
+t4 = *(int32_t *)(iSP + 4); // t4=tag t3=data
+t3 = *(int32_t *)iSP;
 arg6 = arg3 >> 12;
-arg2 = (s64)arg2 >> 56; // Sign extension of arg2 is complete
-t3 = (u32)t3;
-t11 = *(u64 *)&(processor->niladdress);
+arg2 = (int64_t) arg2 >> 56; // Sign extension of arg2 is complete
+t3 = (uint32_t) t3;
+t11 = *(uint64_t *)&(processor->niladdress);
 /* TagType. */
 t4 = t4 & 63;
-t12 = *(u64 *)&(processor->taddress);
-arg2 = (s32)t3 - (s32)arg2;
+t12 = *(uint64_t *)&(processor->taddress);
+arg2 = (int32_t) t3 - (int32_t) arg2;
 t4 = t4 ^ Type_Fixnum;
 arg6 = arg6 & 1; // 1 if no-pop, 0 if pop
 t4 = arg2 | t4;
 iSP = (arg6 * 8) + iSP; // Either a stack-push or a stack-write
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (t4 == 0)
     t11 = t12;
-*(u64 *)iSP = t11; // Yes Virginia, this does dual issue with above
+*(uint64_t *)iSP = t11; // Yes Virginia, this does dual issue with above
 goto cachevalid;
 
 eqlexc : if (_trace) printf("eqlexc:\n");
@@ -102,7 +102,7 @@ DoGreaterpSP : if (_trace) printf("DoGreaterpSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindogreaterp;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -113,16 +113,16 @@ DoGreaterpFP : if (_trace) printf("DoGreaterpFP:\n");
 begindogreaterp : if (_trace) printf("begindogreaterp:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t11 = *(u64 *)&(processor->niladdress);
+t11 = *(uint64_t *)&(processor->niladdress);
 t7 = arg3 >> 12;
-t12 = *(u64 *)&(processor->taddress);
-arg3 = (u32)(arg6 >> ((4 & 7) * 8)); // Get ARG1 tag
-t1 = *(s32 *)(arg1 + 4); // t1 is tag of arg2
-LDS(1, f1, *(u32 *)iSP);
+t12 = *(uint64_t *)&(processor->taddress);
+arg3 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Get ARG1 tag
+t1 = *(int32_t *)(arg1 + 4); // t1 is tag of arg2
+LDS(1, f1, *(uint32_t *)iSP);
 t7 = t7 & 1;
-arg2 = *(s32 *)arg1;
-arg4 = (s32)arg6;
-LDS(2, f2, *(u32 *)arg1);
+arg2 = *(int32_t *)arg1;
+arg4 = (int32_t) arg6;
+LDS(2, f2, *(uint32_t *)arg1);
 t5 = arg3 & 63; // Strip off any CDR code bits.
 t4 = t1 & 63; // Strip off any CDR code bits.
 t6 = (t5 == Type_Fixnum) ? 1 : 0;
@@ -138,12 +138,12 @@ if (t3 == 0)
     goto binary_type_dispatch45553;
 /* Here if argument TypeFixnum */
 t2 = arg4 - arg2;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 iSP = (t7 * 8) + iSP; // Pop/No-pop
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-if ((s64)t2 > 0) // T if the test succeeds
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+if ((int64_t) t2 > 0) // T if the test succeeds
     t11 = t12;
-*(u64 *)iSP = t11;
+*(uint64_t *)iSP = t11;
 goto cachevalid;
 
 basic_dispatch45559 : if (_trace) printf("basic_dispatch45559:\n");
@@ -165,13 +165,13 @@ if (t3 == 0)
 greaterpmmexcfltflt : if (_trace) printf("greaterpmmexcfltflt:\n");
 SETFLTT(3, f3, FLTU64(1, f1) <= FLTU64(2, f2) ? 2.0 : 0);
 /* trapb force the trap to occur here */ // Force the trap to occur here
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 iSP = (t7 * 8) + iSP;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u64 *)iSP = t12;
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint64_t *)iSP = t12;
 if (FLTU64(3, f3) == 0.0)
     goto cachevalid;
-*(u64 *)iSP = t11; // Didn't branch, answer is NIL
+*(uint64_t *)iSP = t11; // Didn't branch, answer is NIL
 goto cachevalid;
 
 basic_dispatch45564 : if (_trace) printf("basic_dispatch45564:\n");
@@ -185,13 +185,13 @@ goto greaterpmmexc;
 basic_dispatch45557 : if (_trace) printf("basic_dispatch45557:\n");
 
 DoGreaterpIM : if (_trace) printf("DoGreaterpIM:\n");
-t11 = *(u64 *)&(processor->niladdress);
+t11 = *(uint64_t *)&(processor->niladdress);
 arg2 = arg2 << 56; // First half of sign extension
-t12 = *(u64 *)&(processor->taddress);
+t12 = *(uint64_t *)&(processor->taddress);
 t7 = arg3 >> 12;
-arg3 = (u32)(arg6 >> ((4 & 7) * 8));
-arg4 = (s32)arg6;
-arg2 = (s64)arg2 >> 56; // Second half of sign extension
+arg3 = (uint32_t) (arg6 >> ((4 & 7) * 8));
+arg4 = (int32_t) arg6;
+arg2 = (int64_t) arg2 >> 56; // Second half of sign extension
 t7 = t7 & 1;
 t3 = arg3 & 63; // Strip off any CDR code bits.
 t4 = (t3 == Type_Fixnum) ? 1 : 0;
@@ -201,12 +201,12 @@ if (t4 == 0)
     goto basic_dispatch45573;
 /* Here if argument TypeFixnum */
 t2 = arg4 - arg2;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 iSP = (t7 * 8) + iSP;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-if ((s64)t2 > 0) // T if the test succeeds
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+if ((int64_t) t2 > 0) // T if the test succeeds
     t11 = t12;
-*(u64 *)iSP = t11;
+*(uint64_t *)iSP = t11;
 goto cachevalid;
 
 basic_dispatch45573 : if (_trace) printf("basic_dispatch45573:\n");
@@ -232,7 +232,7 @@ DoLogtestSP : if (_trace) printf("DoLogtestSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindologtest;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -243,17 +243,17 @@ DoLogtestFP : if (_trace) printf("DoLogtestFP:\n");
 begindologtest : if (_trace) printf("begindologtest:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t11 = *(u64 *)&(processor->niladdress);
+t11 = *(uint64_t *)&(processor->niladdress);
 t7 = arg3 >> 12;
-t12 = *(u64 *)&(processor->taddress);
-arg3 = (u32)(arg6 >> ((4 & 7) * 8)); // Get ARG1 tag
-arg2 = *(s32 *)arg1;
-LDS(1, f1, *(u32 *)iSP);
+t12 = *(uint64_t *)&(processor->taddress);
+arg3 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Get ARG1 tag
+arg2 = *(int32_t *)arg1;
+LDS(1, f1, *(uint32_t *)iSP);
 t7 = t7 & 1;
-t1 = *(s32 *)(arg1 + 4); // t1 is tag of arg2
-arg4 = (u32)arg6;
-arg2 = (u32)arg2;
-LDS(2, f2, *(u32 *)arg1);
+t1 = *(int32_t *)(arg1 + 4); // t1 is tag of arg2
+arg4 = (uint32_t) arg6;
+arg2 = (uint32_t) arg2;
+LDS(2, f2, *(uint32_t *)arg1);
 t5 = arg3 & 63; // Strip off any CDR code bits.
 t4 = t1 & 63; // Strip off any CDR code bits.
 t6 = (t5 == Type_Fixnum) ? 1 : 0;
@@ -269,12 +269,12 @@ if (t3 == 0)
     goto binary_type_dispatch45579;
 /* Here if argument TypeFixnum */
 t2 = arg4 & arg2;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 iSP = (t7 * 8) + iSP; // Pop/No-pop
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (t2) // T if the test succeeds
     t11 = t12;
-*(u64 *)iSP = t11;
+*(uint64_t *)iSP = t11;
 goto cachevalid;
 
 basic_dispatch45583 : if (_trace) printf("basic_dispatch45583:\n");
@@ -302,13 +302,13 @@ binary_type_dispatch45580 : if (_trace) printf("binary_type_dispatch45580:\n");
 basic_dispatch45581 : if (_trace) printf("basic_dispatch45581:\n");
 
 DoLogtestIM : if (_trace) printf("DoLogtestIM:\n");
-t11 = *(u64 *)&(processor->niladdress);
+t11 = *(uint64_t *)&(processor->niladdress);
 arg2 = arg2 << 56; // First half of sign extension
-t12 = *(u64 *)&(processor->taddress);
+t12 = *(uint64_t *)&(processor->taddress);
 t7 = arg3 >> 12;
-arg3 = (u32)(arg6 >> ((4 & 7) * 8));
-arg4 = (s32)arg6;
-arg2 = (s64)arg2 >> 56; // Second half of sign extension
+arg3 = (uint32_t) (arg6 >> ((4 & 7) * 8));
+arg4 = (int32_t) arg6;
+arg2 = (int64_t) arg2 >> 56; // Second half of sign extension
 t7 = t7 & 1;
 t3 = arg3 & 63; // Strip off any CDR code bits.
 t4 = (t3 == Type_Fixnum) ? 1 : 0;
@@ -318,12 +318,12 @@ if (t4 == 0)
     goto basic_dispatch45591;
 /* Here if argument TypeFixnum */
 t2 = arg4 & arg2;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 iSP = (t7 * 8) + iSP;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (t2) // T if the test succeeds
     t11 = t12;
-*(u64 *)iSP = t11;
+*(uint64_t *)iSP = t11;
 goto cachevalid;
 
 basic_dispatch45591 : if (_trace) printf("basic_dispatch45591:\n");

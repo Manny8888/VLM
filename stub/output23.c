@@ -11,21 +11,21 @@
 ioutofline : if (_trace) printf("ioutofline:\n");
 
 traporsuspendmachine : if (_trace) printf("traporsuspendmachine:\n");
-t4 = *(s32 *)&processor->control;
-*(u64 *)&processor->restartsp = iSP; // Be sure this is up-to-date
-r0 = *(u64 *)&(processor->please_stop); /* lock */ // Has the spy asked us to stop or trap?
+t4 = *(int32_t *)&processor->control;
+*(uint64_t *)&processor->restartsp = iSP; // Be sure this is up-to-date
+r0 = *(uint64_t *)&(processor->please_stop); /* lock */ // Has the spy asked us to stop or trap?
 t5 = zero;
-*(u64 *)&processor->please_stop = t5; /* lock */
+*(uint64_t *)&processor->please_stop = t5; /* lock */
 t5 = 1;
 if (t5 == 0)
     goto collision;
-*(u64 *)&processor->stop_interpreter = zero;
+*(uint64_t *)&processor->stop_interpreter = zero;
 
 collision : t3 = CMPBGE(r0, HaltReason_IllInstn); // t3<0>=1 if we've been asked to stop
 if (t3 & 1)
     goto SUSPENDMACHINE;
 /* Here when someone wants the emulator to trap. */
-r0 = (u32)(r0 >> ((4 & 7) * 8)); // Extract PROCESSORSTATE_PLEASE_TRAP (ivory)
+r0 = (uint32_t) (r0 >> ((4 & 7) * 8)); // Extract PROCESSORSTATE_PLEASE_TRAP (ivory)
 t4 = t4 >> 30; // Isolate current trap mode
 t3 = (r0 == TrapReason_HighPrioritySequenceBreak) ? 1 : 0;
 
@@ -33,7 +33,7 @@ force_alignment46437 : if (_trace) printf("force_alignment46437:\n");
 if (t3 == 0)
     goto basic_dispatch46433;
 /* Here if argument TrapReasonHighPrioritySequenceBreak */
-t4 = ((u64)t4 <= (u64)TrapMode_ExtraStack) ? 1 : 0; // Only interrupts EXTRA-STACK and EMULATOR
+t4 = ((uint64_t) t4 <= (uint64_t) TrapMode_ExtraStack) ? 1 : 0; // Only interrupts EXTRA-STACK and EMULATOR
 if (t4 == 0)
     goto continuecurrentinstruction;
 goto highprioritysequencebreak;
@@ -52,7 +52,7 @@ goto lowprioritysequencebreak;
 basic_dispatch46434 : if (_trace) printf("basic_dispatch46434:\n");
 /* Here for all other cases */
 /* Check for preempt-request trap */
-t5 = *(s32 *)&processor->interruptreg; // Get the preempt-pending bit
+t5 = *(int32_t *)&processor->interruptreg; // Get the preempt-pending bit
 if (t4 != 0) // Don't take preempt trap unless in emulator mode
     goto continuecurrentinstruction;
 if ((t5 & 1) == 0) // Jump if preempt request not pending
@@ -62,7 +62,7 @@ goto preemptrequesttrap;
 basic_dispatch46432 : if (_trace) printf("basic_dispatch46432:\n");
 
 SUSPENDMACHINE : if (_trace) printf("SUSPENDMACHINE:\n");
-t1 = (u32)r0; // Get the reason
+t1 = (uint32_t) r0; // Get the reason
 goto stopinterp;
 
 ILLEGALINSTRUCTION : if (_trace) printf("ILLEGALINSTRUCTION:\n");
@@ -83,24 +83,24 @@ goto stopinterp;
 
 stopinterp : if (_trace) printf("stopinterp:\n");
 r0 = t1; // Return the halt reason
-*(u32 *)&processor->please_stop = zero; // Clear the request flag
-*(u64 *)&processor->cp = iCP;
-*(u64 *)&processor->epc = iPC;
-*(u64 *)&processor->sp = iSP;
-*(u64 *)&processor->fp = iFP;
-*(u64 *)&processor->lp = iLP;
-*(u64 *)&processor->runningp = zero; // Stop the (emulated) chip
-r9 = *(u64 *)&(processor->asrr9);
-r10 = *(u64 *)&(processor->asrr10);
-r11 = *(u64 *)&(processor->asrr11);
-r12 = *(u64 *)&(processor->asrr12);
-r13 = *(u64 *)&(processor->asrr13);
-r15 = *(u64 *)&(processor->asrr15);
-r26 = *(u64 *)&(processor->asrr26);
-r27 = *(u64 *)&(processor->asrr27);
-r29 = *(u64 *)&(processor->asrr29);
-r30 = *(u64 *)&(processor->asrr30);
-r14 = *(u64 *)&(processor->asrr14);
+*(uint32_t *)&processor->please_stop = zero; // Clear the request flag
+*(uint64_t *)&processor->cp = iCP;
+*(uint64_t *)&processor->epc = iPC;
+*(uint64_t *)&processor->sp = iSP;
+*(uint64_t *)&processor->fp = iFP;
+*(uint64_t *)&processor->lp = iLP;
+*(uint64_t *)&processor->runningp = zero; // Stop the (emulated) chip
+r9 = *(uint64_t *)&(processor->asrr9);
+r10 = *(uint64_t *)&(processor->asrr10);
+r11 = *(uint64_t *)&(processor->asrr11);
+r12 = *(uint64_t *)&(processor->asrr12);
+r13 = *(uint64_t *)&(processor->asrr13);
+r15 = *(uint64_t *)&(processor->asrr15);
+r26 = *(uint64_t *)&(processor->asrr26);
+r27 = *(uint64_t *)&(processor->asrr27);
+r29 = *(uint64_t *)&(processor->asrr29);
+r30 = *(uint64_t *)&(processor->asrr30);
+r14 = *(uint64_t *)&(processor->asrr14);
 goto *ra; /* ret */
 
 /* end iOutOfLine */

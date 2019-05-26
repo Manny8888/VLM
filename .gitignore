@@ -6,6 +6,8 @@ build/*
 cmake-build-debug/*
 CMakeFiles/*
 
+genera_execution.log
+
 *.o
 
 CMakeCache.txt

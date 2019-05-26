@@ -28,10 +28,10 @@ begindopushlexicalvarn : if (_trace) printf("begindopushlexicalvarn:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
 t4 = arg3 >> 10; // Position the opcode
-t1 = *(s32 *)arg1;
-t2 = *(s32 *)(arg1 + 4);
+t1 = *(int32_t *)arg1;
+t2 = *(int32_t *)(arg1 + 4);
 t4 = t4 & 7; // Get the lexical var number
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 /* TagType. */
 t3 = t2 & 63;
 t3 = t3 - Type_List;
@@ -39,18 +39,18 @@ t3 = t3 & ~4L;
 t1 = t1 + t4; // Compute the address of the lexical variable.
 if (t3 != 0)
     goto pushlexvariop;
-arg5 = *(u64 *)&(processor->stackcachebasevma);
-arg6 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+arg5 = *(uint64_t *)&(processor->stackcachebasevma);
+arg6 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 /* Memory Read Internal */
 
 vma_memory_read45847 : t6 = t1 + ivory;
 t3 = (t6 * 4);
 t2 = LDQ_U(t6);
 t4 = t1 - arg5; // Stack cache offset
-t7 = *(u64 *)&(processor->dataread_mask);
-t5 = ((u64)t4 < (u64)arg6) ? 1 : 0; // In range?
-t3 = *(s32 *)t3;
-t2 = (u8)(t2 >> ((t6 & 7) * 8));
+t7 = *(uint64_t *)&(processor->dataread_mask);
+t5 = ((uint64_t) t4 < (uint64_t) arg6) ? 1 : 0; // In range?
+t3 = *(int32_t *)t3;
+t2 = (uint8_t) (t2 >> ((t6 & 7) * 8));
 if (t5 != 0)
     goto vma_memory_read45849;
 
@@ -60,11 +60,11 @@ t6 = t6 >> (t2 & 63);
 if (t7 & 1)
     goto vma_memory_read45851;
 
-vma_memory_read45858 : iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+vma_memory_read45858 : iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t4 = t2 & 63; // set CDR-NEXT
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t4; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t4; // write the stack cache
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -74,25 +74,25 @@ arg2 = 82;
 goto illegaloperand;
 
 vma_memory_read45849 : if (_trace) printf("vma_memory_read45849:\n");
-t5 = *(u64 *)&(processor->stackcachedata);
+t5 = *(uint64_t *)&(processor->stackcachedata);
 t4 = (t4 * 8) + t5; // reconstruct SCA
-t3 = *(s32 *)t4;
-t2 = *(s32 *)(t4 + 4); // Read from stack cache
+t3 = *(int32_t *)t4;
+t2 = *(int32_t *)(t4 + 4); // Read from stack cache
 goto vma_memory_read45848;
 
 vma_memory_read45851 : if (_trace) printf("vma_memory_read45851:\n");
 if ((t6 & 1) == 0)
     goto vma_memory_read45850;
-t1 = (u32)t3; // Do the indirect thing
+t1 = (uint32_t) t3; // Do the indirect thing
 goto vma_memory_read45847;
 
 vma_memory_read45850 : if (_trace) printf("vma_memory_read45850:\n");
-t7 = *(u64 *)&(processor->dataread); // Load the memory action table for cycle
+t7 = *(uint64_t *)&(processor->dataread); // Load the memory action table for cycle
 /* TagType. */
 t6 = t2 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t1; // stash the VMA for the (likely) trap
 t6 = (t6 * 4) + t7; // Adjust for a longword load
-t7 = *(s32 *)t6; // Get the memory action
+t7 = *(int32_t *)t6; // Get the memory action
 
 vma_memory_read45855 : if (_trace) printf("vma_memory_read45855:\n");
 t6 = t7 & MemoryActionTransform;
@@ -137,10 +137,10 @@ begindopoplexicalvarn : if (_trace) printf("begindopoplexicalvarn:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
 t4 = arg3 >> 10; // Position the opcode
-t1 = *(s32 *)arg1;
-t2 = *(s32 *)(arg1 + 4);
+t1 = *(int32_t *)arg1;
+t2 = *(int32_t *)(arg1 + 4);
 t4 = t4 & 7; // Get the lexical var number
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 /* TagType. */
 t3 = t2 & 63;
 t3 = t3 - Type_List;
@@ -148,22 +148,22 @@ t3 = t3 & ~4L;
 t1 = t1 + t4; // Compute the address of the lexical variable.
 if (t3 != 0)
     goto poplexvariop;
-t3 = *(s32 *)iSP;
-t2 = *(s32 *)(iSP + 4);
+t3 = *(int32_t *)iSP;
+t2 = *(int32_t *)(iSP + 4);
 iSP = iSP - 8; // Pop Stack.
-t3 = (u32)t3;
-arg5 = *(u64 *)&(processor->stackcachebasevma);
-arg6 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+t3 = (uint32_t) t3;
+arg5 = *(uint64_t *)&(processor->stackcachebasevma);
+arg6 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 /* Memory Read Internal */
 
 vma_memory_read45859 : t8 = t1 + ivory;
 t5 = (t8 * 4);
 t4 = LDQ_U(t8);
 t6 = t1 - arg5; // Stack cache offset
-t9 = *(u64 *)&(processor->datawrite_mask);
-t7 = ((u64)t6 < (u64)arg6) ? 1 : 0; // In range?
-t5 = *(s32 *)t5;
-t4 = (u8)(t4 >> ((t8 & 7) * 8));
+t9 = *(uint64_t *)&(processor->datawrite_mask);
+t7 = ((uint64_t) t6 < (uint64_t) arg6) ? 1 : 0; // In range?
+t5 = *(int32_t *)t5;
+t4 = (uint8_t) (t4 >> ((t8 & 7) * 8));
 if (t7 != 0)
     goto vma_memory_read45861;
 
@@ -183,14 +183,14 @@ t6 = t1 + ivory;
 t5 = (t6 * 4);
 t8 = LDQ_U(t6);
 t7 = t1 - arg5; // Stack cache offset
-t9 = ((u64)t7 < (u64)arg6) ? 1 : 0; // In range?
+t9 = ((uint64_t) t7 < (uint64_t) arg6) ? 1 : 0; // In range?
 t7 = (t4 & 0xff) << ((t6 & 7) * 8);
 t8 = t8 & ~(0xffL << (t6 & 7) * 8);
 
 force_alignment45871 : if (_trace) printf("force_alignment45871:\n");
 t8 = t8 | t7;
 STQ_U(t6, t8);
-*(u32 *)t5 = t3;
+*(uint32_t *)t5 = t3;
 if (t9 != 0) // J. if in cache
     goto vma_memory_write45870;
 goto NEXTINSTRUCTION;
@@ -202,33 +202,33 @@ arg2 = 17;
 goto illegaloperand;
 
 vma_memory_write45870 : if (_trace) printf("vma_memory_write45870:\n");
-t6 = *(u64 *)&(processor->stackcachedata);
+t6 = *(uint64_t *)&(processor->stackcachedata);
 t7 = t1 - arg5; // Stack cache offset
 t6 = (t7 * 8) + t6; // reconstruct SCA
-*(u32 *)t6 = t3; // Store in stack
-*(u32 *)(t6 + 4) = t4; // write the stack cache
+*(uint32_t *)t6 = t3; // Store in stack
+*(uint32_t *)(t6 + 4) = t4; // write the stack cache
 goto NEXTINSTRUCTION;
 
 vma_memory_read45861 : if (_trace) printf("vma_memory_read45861:\n");
-t7 = *(u64 *)&(processor->stackcachedata);
+t7 = *(uint64_t *)&(processor->stackcachedata);
 t6 = (t6 * 8) + t7; // reconstruct SCA
-t5 = *(s32 *)t6;
-t4 = *(s32 *)(t6 + 4); // Read from stack cache
+t5 = *(int32_t *)t6;
+t4 = *(int32_t *)(t6 + 4); // Read from stack cache
 goto vma_memory_read45860;
 
 vma_memory_read45863 : if (_trace) printf("vma_memory_read45863:\n");
 if ((t8 & 1) == 0)
     goto vma_memory_read45862;
-t1 = (u32)t5; // Do the indirect thing
+t1 = (uint32_t) t5; // Do the indirect thing
 goto vma_memory_read45859;
 
 vma_memory_read45862 : if (_trace) printf("vma_memory_read45862:\n");
-t9 = *(u64 *)&(processor->datawrite); // Load the memory action table for cycle
+t9 = *(uint64_t *)&(processor->datawrite); // Load the memory action table for cycle
 /* TagType. */
 t8 = t4 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t1; // stash the VMA for the (likely) trap
 t8 = (t8 * 4) + t9; // Adjust for a longword load
-t9 = *(s32 *)t8; // Get the memory action
+t9 = *(int32_t *)t8; // Get the memory action
 
 vma_memory_read45866 :
 
@@ -265,10 +265,10 @@ begindomovemlexicalvarn : if (_trace) printf("begindomovemlexicalvarn:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
 t4 = arg3 >> 10; // Position the opcode
-t1 = *(s32 *)arg1;
-t2 = *(s32 *)(arg1 + 4);
+t1 = *(int32_t *)arg1;
+t2 = *(int32_t *)(arg1 + 4);
 t4 = t4 & 7; // Get the lexical var number
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 /* TagType. */
 t3 = t2 & 63;
 t3 = t3 - Type_List;
@@ -276,21 +276,21 @@ t3 = t3 & ~4L;
 t1 = t1 + t4; // Compute the address of the lexical variable.
 if (t3 != 0)
     goto movemlexvariop;
-t3 = *(s32 *)iSP;
-t2 = *(s32 *)(iSP + 4);
-t3 = (u32)t3;
-arg5 = *(u64 *)&(processor->stackcachebasevma);
-arg6 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+t3 = *(int32_t *)iSP;
+t2 = *(int32_t *)(iSP + 4);
+t3 = (uint32_t) t3;
+arg5 = *(uint64_t *)&(processor->stackcachebasevma);
+arg6 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 /* Memory Read Internal */
 
 vma_memory_read45872 : t8 = t1 + ivory;
 t5 = (t8 * 4);
 t4 = LDQ_U(t8);
 t6 = t1 - arg5; // Stack cache offset
-t9 = *(u64 *)&(processor->datawrite_mask);
-t7 = ((u64)t6 < (u64)arg6) ? 1 : 0; // In range?
-t5 = *(s32 *)t5;
-t4 = (u8)(t4 >> ((t8 & 7) * 8));
+t9 = *(uint64_t *)&(processor->datawrite_mask);
+t7 = ((uint64_t) t6 < (uint64_t) arg6) ? 1 : 0; // In range?
+t5 = *(int32_t *)t5;
+t4 = (uint8_t) (t4 >> ((t8 & 7) * 8));
 if (t7 != 0)
     goto vma_memory_read45874;
 
@@ -310,14 +310,14 @@ t6 = t1 + ivory;
 t5 = (t6 * 4);
 t8 = LDQ_U(t6);
 t7 = t1 - arg5; // Stack cache offset
-t9 = ((u64)t7 < (u64)arg6) ? 1 : 0; // In range?
+t9 = ((uint64_t) t7 < (uint64_t) arg6) ? 1 : 0; // In range?
 t7 = (t4 & 0xff) << ((t6 & 7) * 8);
 t8 = t8 & ~(0xffL << (t6 & 7) * 8);
 
 force_alignment45884 : if (_trace) printf("force_alignment45884:\n");
 t8 = t8 | t7;
 STQ_U(t6, t8);
-*(u32 *)t5 = t3;
+*(uint32_t *)t5 = t3;
 if (t9 != 0) // J. if in cache
     goto vma_memory_write45883;
 goto NEXTINSTRUCTION;
@@ -329,33 +329,33 @@ arg2 = 17;
 goto illegaloperand;
 
 vma_memory_write45883 : if (_trace) printf("vma_memory_write45883:\n");
-t6 = *(u64 *)&(processor->stackcachedata);
+t6 = *(uint64_t *)&(processor->stackcachedata);
 t7 = t1 - arg5; // Stack cache offset
 t6 = (t7 * 8) + t6; // reconstruct SCA
-*(u32 *)t6 = t3; // Store in stack
-*(u32 *)(t6 + 4) = t4; // write the stack cache
+*(uint32_t *)t6 = t3; // Store in stack
+*(uint32_t *)(t6 + 4) = t4; // write the stack cache
 goto NEXTINSTRUCTION;
 
 vma_memory_read45874 : if (_trace) printf("vma_memory_read45874:\n");
-t7 = *(u64 *)&(processor->stackcachedata);
+t7 = *(uint64_t *)&(processor->stackcachedata);
 t6 = (t6 * 8) + t7; // reconstruct SCA
-t5 = *(s32 *)t6;
-t4 = *(s32 *)(t6 + 4); // Read from stack cache
+t5 = *(int32_t *)t6;
+t4 = *(int32_t *)(t6 + 4); // Read from stack cache
 goto vma_memory_read45873;
 
 vma_memory_read45876 : if (_trace) printf("vma_memory_read45876:\n");
 if ((t8 & 1) == 0)
     goto vma_memory_read45875;
-t1 = (u32)t5; // Do the indirect thing
+t1 = (uint32_t) t5; // Do the indirect thing
 goto vma_memory_read45872;
 
 vma_memory_read45875 : if (_trace) printf("vma_memory_read45875:\n");
-t9 = *(u64 *)&(processor->datawrite); // Load the memory action table for cycle
+t9 = *(uint64_t *)&(processor->datawrite); // Load the memory action table for cycle
 /* TagType. */
 t8 = t4 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t1; // stash the VMA for the (likely) trap
 t8 = (t8 * 4) + t9; // Adjust for a longword load
-t9 = *(s32 *)t8; // Get the memory action
+t9 = *(int32_t *)t8; // Get the memory action
 
 vma_memory_read45879 :
 

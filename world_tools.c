@@ -24,23 +24,39 @@
 #define PuntWorld(world, msg, arg)                                                                                     \
     {                                                                                                                  \
         CloseWorldFile(world, TRUE);                                                                                   \
+        {                                                                                                              \
+            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
+            fprintf(log_fd, msg, arg);                                                                                 \
+            fflush(log_fd);                                                                                            \
+            fclose(log_fd);                                                                                            \
+        }                                                                                                              \
         vpunt(NULL, msg, arg);                                                                                         \
     }
 
 #define PuntWorld2(world, msg, arg1, arg2)                                                                             \
     {                                                                                                                  \
         CloseWorldFile(world, TRUE);                                                                                   \
-        vpunt(NULL, msg, arg1, arg2);                                                                                  \
+        {                                                                                                              \
+            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
+            fprintf(log_fd, msg, arg1, arg2);                                                                          \
+            fflush(log_fd);                                                                                            \
+            fclose(log_fd);                                                                                            \
+        }                                                                                                              \
     }
 
 #define PuntWorld3(world, msg, arg1, arg2, arg3)                                                                       \
     {                                                                                                                  \
         CloseWorldFile(world, TRUE);                                                                                   \
+        {                                                                                                              \
+            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
+            fprintf(log_fd, msg, arg1, arg2, arg3);                                                                    \
+            fflush(log_fd);                                                                                            \
+            fclose(log_fd);                                                                                            \
+        }                                                                                                              \
         vpunt(NULL, msg, arg1, arg2, arg3);                                                                            \
     }
 
-/* Load the VLM debugger into the VLM's memory */
-
+// Load the VLM debugger into the VLM's memory
 void LoadVLMDebugger(VLMConfig *config)
 {
     World world;
@@ -61,8 +77,7 @@ void LoadVLMDebugger(VLMConfig *config)
     CloseWorldFile(&world, TRUE);
 }
 
-/* Load a world into the VLM's memory */
-
+// Load a world into the VLM's memory
 Integer LoadWorld(VLMConfig *config)
 {
     World world;
@@ -89,9 +104,7 @@ Integer LoadWorld(VLMConfig *config)
     return (worldImageSize);
 }
 
-/* Save a world from the VLM's memory using information supplied by Lisp
- * itself */
-
+// Save a world from the VLM's memory using information supplied by Lisp itself
 void SaveWorld(Integer saveWorldDataVMA)
 {
     World world;
@@ -110,10 +123,12 @@ void SaveWorld(Integer saveWorldDataVMA)
         vpunt(NULL, "Unable to revert to default memory fault handler.");
     }
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "Data for save world is at VMA %x\n", saveWorldDataVMA);
-    fflush(stderr);
-#endif
+    {
+        FILE *log_fd = fopen(log_file_genera, "a");
+        fprintf(log_fd, "Data for save world is at VMA %x\n", saveWorldDataVMA);
+        fflush(log_fd);
+        fclose(log_fd);
+    }
 
     saveWorldData = (SaveWorldData *)MapVirtualAddressData(saveWorldDataVMA);
 
@@ -122,10 +137,12 @@ void SaveWorld(Integer saveWorldDataVMA)
     if (Type_String != *MapVirtualAddressTag((Integer)((Integer *)&saveWorldData->pathname - MapVirtualAddressData(0))))
         vpunt(NULL, "Destination pathname for SaveWorld is not a simple string");
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "Pathname for disk save is at VMA %x\n", saveWorldData->pathname);
-    fflush(stderr);
-#endif
+    {
+        FILE *log_fd = fopen(log_file_genera, "a");
+        fprintf(log_fd, "Pathname for disk save is at VMA %x\n", saveWorldData->pathname);
+        fflush(log_fd);
+        fclose(log_fd);
+    }
 
     pathnameHeader = VirtualMemoryRead(saveWorldData->pathname);
     if (Type_HeaderI != (LispObjTag(pathnameHeader) & 0x3F)) {
@@ -138,10 +155,12 @@ void SaveWorld(Integer saveWorldDataVMA)
 
     pathnameSize = LispObjData(pathnameHeader) & Array_LengthMask;
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "Pathname for disk save is %d characters\n", pathnameSize);
-    fflush(stderr);
-#endif
+    {
+        FILE *log_fd = fopen(log_file_genera, "a");
+        fprintf(log_fd, "Pathname for disk save is %zu characters\n", pathnameSize);
+        fflush(log_fd);
+        fclose(log_fd);
+    }
 
     world.pathname = (char *)malloc(pathnameSize + 1);
     if (NULL == world.pathname) {
@@ -162,10 +181,12 @@ void SaveWorld(Integer saveWorldDataVMA)
     world.nWiredMapEntries = saveWorldData->entryCount;
     world.nUnwiredMapEntries = 0;
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "World file will have %d load map entries\n", world.nWiredMapEntries);
-    fflush(stderr);
-#endif
+    {
+        FILE *log_fd = fopen(log_file_genera, "a");
+        fprintf(log_fd, "World file will have %d load map entries\n", world.nWiredMapEntries);
+        fflush(log_fd);
+        fclose(log_fd);
+    }
 
     CreateWorldFile(&world);
 
@@ -189,8 +210,7 @@ void SaveWorld(Integer saveWorldDataVMA)
     }
 }
 
-/* Open a world file, determine its format, and read its load maps */
-
+// Open a world file, determine its format, and read its load maps
 static boolean OpenWorldFile(World *world, boolean puntOnErrors)
 {
     LispObj q;
@@ -203,15 +223,21 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     world->mergedWiredMapEntries = world->mergedUnwiredMapEntries = NULL;
     world->parentWorld = NULL;
 
+    LogMessage("OpenWorldFile", "Opening the world file.");
     if ((world->fd = open(world->pathname, O_RDONLY)) < 0) {
-        if (puntOnErrors)
+        if (puntOnErrors) {
+            LogMessage("OpenWorldFile", "Unable to open world file %s", world->pathname);
             vpunt(NULL, "Unable to open world file %s", world->pathname);
-        else
+        } else {
             return (FALSE);
+        }
+    } else {
+        LogMessage("OpenWorldFile", "Opening OK.");
     }
 
     if (read(world->fd, (char *)&cookie, sizeof(int)) != sizeof(int)) {
         if (puntOnErrors) {
+            LogMessage("OpenWorldFile", "Reading world file %s cookie", world->pathname);
             PuntWorld(world, "Reading world file %s cookie", world->pathname);
         } else
             return (FALSE);
@@ -231,18 +257,20 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
         firstMapQ = IvoryWorldFileFirstMapQ;
     } else if (puntOnErrors) {
         PuntWorld(world, "Format of world file %s is unrecognized", world->pathname);
-    } else
-{        return (FALSE);
-}
+    } else {
+        return (FALSE);
+    }
     world->ivoryDataPage = (byte *)malloc(IvoryPageSizeBytes);
-    if (NULL == world->ivoryDataPage)
-{        if (puntOnErrors) {
+    if (NULL == world->ivoryDataPage) {
+        if (puntOnErrors) {
+            LogMessage("OpenWorldFile", "Unable to allocate space for data buffer for world file %s", world->pathname);
             PuntWorld(world, "Unable to allocate space for data buffer for world file %s", world->pathname);
-            return(FALSE);
+            return (FALSE);
         } else {
             return (FALSE);
         }
-}    world->currentPageNumber = -1;
+    }
+    world->currentPageNumber = -1;
 
     /* The header and load maps for both VLM and Ivory world files are stored
        using Ivory file format settings (i.e., 256 Qs per 1280 byte page) */
@@ -272,10 +300,9 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
         world->wiredMapEntries = (LoadMapEntry *)malloc(world->nWiredMapEntries * sizeof(LoadMapEntry));
         if (NULL == world->wiredMapEntries) {
             if (puntOnErrors) {
-                PuntWorld(world,
-                    "Unable to allocate space for wired load map for world "
-                    "file %s",
-                    world->pathname);
+                LogMessage(
+                    "OpenWorldFile", "Unable to allocate space for wired load map for world file %s", world->pathname);
+                PuntWorld(world, "Unable to allocate space for wired load map for world file %s", world->pathname);
             } else
                 return (FALSE);
         }
@@ -292,10 +319,9 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
         world->unwiredMapEntries = (LoadMapEntry *)malloc(world->nUnwiredMapEntries * sizeof(LoadMapEntry));
         if (NULL == world->unwiredMapEntries) {
             if (puntOnErrors) {
-                PuntWorld(world,
-                    "Unable to allocate space for unwired load map for world "
-                    "file %s",
+                LogMessage("OpenWorldFile", "Unable to allocate space for unwired load map for world file %s",
                     world->pathname);
+                PuntWorld(world, "Unable to allocate space for unwired load map for world file %s", world->pathname);
             } else
                 return (FALSE);
         }
@@ -333,14 +359,10 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     return (TRUE);
 }
 
-/* Create a world file and initialize its data structures */
-
+// Create a world file and initialize its data structures
 static void CreateWorldFile(World *world)
 {
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "Creating world file ... ");
-    fflush(stderr);
-#endif
+    LogMessage("CreateWorldFile", "Creating world file ... ");
 
     world->vlmDataPage = world->vlmTagsPage = NULL;
     world->ivoryDataPage = NULL;
@@ -349,44 +371,47 @@ static void CreateWorldFile(World *world)
     world->parentWorld = NULL;
 
     if (VLMWorldFormat != world->format) {
+        LogMessage("CreateWorldFile", "Creating world file ... ");
         vpunt(NULL, "Cannot create world files in other than VLM format");
     }
 
     if ((world->fd = open(world->pathname, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
+        LogMessage("CreateWorldFile", "Unable to create world file %s", world->pathname);
         vpunt(NULL, "Unable to create world file %s", world->pathname);
     }
 
     world->ivoryDataPage = (byte *)malloc(IvoryPageSizeBytes);
-    if (NULL == world->ivoryDataPage)
+    if (NULL == world->ivoryDataPage) {
+        LogMessage("CreateWorldFile", "Unable to allocate space for data buffer for world file %s", world->pathname);
         PuntWorld(world, "Unable to allocate space for data buffer for world file %s", world->pathname);
-    world->currentPageNumber = -1;
+        world->currentPageNumber = -1;
+    }
 
     if (world->nWiredMapEntries) {
         world->wiredMapEntries = (LoadMapEntry *)malloc(world->nWiredMapEntries * sizeof(LoadMapEntry));
-        if (NULL == world->wiredMapEntries)
-            PuntWorld(world,
-                "Unable to allocate space for wired load map for world file "
-                "%s",
-                world->pathname);
+        if (NULL == world->wiredMapEntries) {
+            LogMessage(
+                "CreateWorldFile", "Unable to allocate space for wired load map for world file %s", world->pathname);
+            PuntWorld(world, "Unable to allocate space for wired load map for world file %s", world->pathname);
+        }
     }
 
     if (world->nUnwiredMapEntries) {
         world->unwiredMapEntries = (LoadMapEntry *)malloc(world->nUnwiredMapEntries * sizeof(LoadMapEntry));
-        if (NULL == world->unwiredMapEntries)
+        if (NULL == world->unwiredMapEntries) {
+            LogMessage("CreateWorldFile",
+                "Unable to allocate space for unwired load map for world "
+                "file %s",
+                world->pathname);
             PuntWorld(world,
                 "Unable to allocate space for unwired load map for world "
                 "file %s",
                 world->pathname);
+        }
     }
-
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "done.\n");
-    fflush(stderr);
-#endif
 }
 
-/* Close a world file */
-
+// Close a world file
 static void CloseWorldFile(World *world, boolean closeParents)
 {
     if (world->fd > 0) {
@@ -437,8 +462,7 @@ static void CloseWorldFile(World *world, boolean closeParents)
         }
 }
 
-/* Read a load map from the world load file */
-
+// Read a load map from the world load file
 static void ReadLoadMap(World *world, int nMapEntries, LoadMapEntry *mapEntries)
 {
     LispObj q;
@@ -455,9 +479,7 @@ static void ReadLoadMap(World *world, int nMapEntries, LoadMapEntry *mapEntries)
     }
 }
 
-/* Load the data from a world load file corresponding to the given load map
- * entry */
-
+// Load the data from a world load file corresponding to the given load map entry
 static Integer LoadMapData(World *world, LoadMapEntry *mapEntry)
 {
     switch (world->format) {
@@ -489,9 +511,10 @@ static Integer VLMLoadMapData(World *world, LoadMapEntry *mapEntry)
             EnsureVirtualAddressRange(mapEntry->address, (int)mapEntry->op.count, FALSE);
             ReadSwappedVLMWorldFilePage(mapWorld, pageNumber);
             mapWorld->currentQNumber = 0;
-            //---
-            printf("LoadMapDataPages @ %ld, count %d\n", (uint64_t) theAddress, mapEntry->op.count);
-            //---
+
+            LogMessage(
+                "VLMLoadMapData", "LoadMapDataPages @ %ld, count %d\n", (uint64_t)theAddress, mapEntry->op.count);
+
             theAddress = mapEntry->address;
             for (i = 0; i < (int)mapEntry->op.count; i++, theAddress++) {
                 ReadSwappedVLMWorldFileNextQ(mapWorld, &q);
@@ -524,6 +547,8 @@ static Integer VLMLoadMapData(World *world, LoadMapEntry *mapEntry)
         break;
 
     default:
+        LogMessage("VLMLoadMapData", "Unknown load map opcode %d in world file %s", mapEntry->op.opcode,
+            ((World *)mapEntry->world)->pathname);
         PuntWorld2(world, "Unknown load map opcode %d in world file %s", mapEntry->op.opcode,
             ((World *)mapEntry->world)->pathname);
     }
@@ -574,9 +599,7 @@ static Integer IvoryLoadMapData(World *world, LoadMapEntry *mapEntry)
     return ((Integer)mapEntry->op.count);
 }
 
-/* Produce merged wired and unwired load maps that describe all pages which
- * form the world */
-
+// Produce merged wired and unwired load maps that describe all pages which form the world
 static World *originalWorld = NULL;
 
 static void MergeLoadMaps(World *world, char *worldSearchPath)
@@ -601,7 +624,6 @@ static void MergeLoadMaps(World *world, char *worldSearchPath)
 static World **worlds = NULL;
 static int totalWorlds = 0;
 static int nWorlds = 0;
-
 static char *scanningDir = NULL;
 
 static void FindParentWorlds(World *world, char *worldSearchPath)
@@ -618,12 +640,11 @@ static void FindParentWorlds(World *world, char *worldSearchPath)
     slashPosition = strrchr(scanningDir, '/');
     if (slashPosition != NULL) {
         *slashPosition = 0;
-    } else
-        PuntWorld(world,
-            "Unable to determine pathname of directory containing world file "
-            "%s",
-            world->pathname);
-
+    } else {
+        LogMessage(
+            "FindParentWorlds", "Unable to determine pathname of directory containing world file %s", world->pathname);
+        PuntWorld(world, "Unable to determine pathname of directory containing world file %s", world->pathname);
+    }
     ScanOneDirectory(world);
 
     colonPosition = strchr(worldSearchPath, ':');
@@ -644,9 +665,9 @@ static void FindParentWorlds(World *world, char *worldSearchPath)
 
     while (childWorld->sysoutGeneration) {
         for (i = 0; i < nWorlds; i++) {
-            if (worlds[i] && (worlds[i]->sysoutGeneration == (childWorld->sysoutGeneration - 1))
+            if ((worlds[i]->sysoutGeneration == (childWorld->sysoutGeneration - 1))
                 && (worlds[i]->sysoutTimestamp1 == childWorld->sysoutParentTimestamp1)
-                && (worlds[i]->sysoutTimestamp2 == childWorld->sysoutParentTimestamp2)) {
+                && (worlds[i]->sysoutTimestamp2 == childWorld->sysoutParentTimestamp2) && worlds[i]) {
                 childWorld->parentWorld = worlds[i];
                 worlds[i] = NULL;
                 break;
@@ -656,6 +677,7 @@ static void FindParentWorlds(World *world, char *worldSearchPath)
         if (NULL == childWorld->parentWorld) {
             failingWorldPathname = strdup(childWorld->pathname);
             CloseExtraWorlds();
+            LogMessage("FindParentWorlds", "Unable to find parent of world file %s", failingWorldPathname);
             PuntWorld(world, "Unable to find parent of world file %s", failingWorldPathname);
         }
 
@@ -678,10 +700,8 @@ static void ScanOneDirectory(World *world)
             entries = NULL;
         } else {
             CloseExtraWorlds();
-            PuntWorld2(world,
-                "Unable to search directory %s to find parents of world file "
-                "%s",
-                scanningDir, world->pathname);
+            PuntWorld2(
+                world, "Unable to search directory %s to find parents of world file %s", scanningDir, world->pathname);
         }
     }
 
@@ -717,7 +737,7 @@ static int WorldP(const struct dirent *candidateWorld)
         if (OpenWorldFile(&aWorld, FALSE)) {
             if (nWorlds == totalWorlds) {
                 newTotalWorlds = totalWorlds + 32;
-                newWorlds = malloc(sizeof(World *) * newTotalWorlds);
+                newWorlds = (World **)malloc(sizeof(World *) * newTotalWorlds);
                 if (NULL == newWorlds) {
                     CloseExtraWorlds();
                     CloseWorldFile(&aWorld, TRUE);
@@ -778,9 +798,7 @@ static void CloseExtraWorlds()
     totalWorlds = 0;
 }
 
-/* Merge the wired and unwired load maps of a world with its parent's load
- * maps */
-
+// Merge the wired and unwired load maps of a world with its parent's load maps
 static void MergeParentLoadMap(World *world)
 {
     if (world->sysoutGeneration == 0) {
@@ -792,8 +810,7 @@ static void MergeParentLoadMap(World *world)
         return;
     }
 
-    /* Ensure that the parent's load maps have been merged against its
-     * ancestors' ... */
+    // Ensure that the parent's load maps have been merged against its ancestors' ...
     MergeParentLoadMap(world->parentWorld);
 
     MergeAMap(world->nWiredMapEntries, world->wiredMapEntries, world->parentWorld->nMergedWiredMapEntries,
@@ -803,31 +820,26 @@ static void MergeParentLoadMap(World *world)
         world->parentWorld->mergedUnwiredMapEntries, &world->nMergedUnwiredMapEntries, &world->mergedUnwiredMapEntries);
 }
 
-#ifdef DEBUGMERGELOADMAPS
 static void DumpMap(LoadMapEntry *map, int count, char *type)
 {
     int i;
-    printf("%s Map: %d entries\n", type, count);
-    for (i = 0; i < count; i++)
-        printf("%d: opcode %d, address %08x, count %d, data %09lx, world %p\n", i, map[i].op.opcode, map[i].address,
-            map[i].op.count, map[i].data, map[i].world);
-    printf("\n");
+    LogMessage("DumpMap", "%s Map: %d entries", type, count);
+    for (i = 0; i < count; i++) {
+        LogMessage("DumpMap", "%d: opcode %d, address %08x, count %d, data %09lx, world %p\n", i, map[i].op.opcode,
+            map[i].address, map[i].op.count, map[i].data, map[i].world);
+    }
 }
-#endif
 
-/* Merges a foreground load map and a background load map together into a
- * single load map */
-
+// Merges a foreground load map and a background load map together into a single load map
 static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground, LoadMapEntry *background,
     int *nMerged, LoadMapEntry **merged)
 {
-    LoadMapEntry *new;
+    LoadMapEntry *newLoadMapEntry;
     Integer pageSizeQs = (VLMWorldFormat == originalWorld->format) ? VLMPageSizeQs : IvoryPageSizeQs, oldAddress, slop;
     int max, actual, fIndex, bIndex;
-    boolean copiedForeground;
+    Boolean copiedForeground;
 
-    /* See SYS:IFEP;WORLD-SUBSTRATE.LISP for an explanation of the maximum
-     * number of entries */
+    // See SYS:IFEP;WORLD-SUBSTRATE.LISP for an explanation of the maximum number of entries
 
     max = nBackground + nForeground + nForeground;
     actual = 0;
@@ -838,13 +850,11 @@ static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground
         return;
     }
 
-#ifdef DEBUGMERGELOADMAPS
     DumpMap(foreground, nForeground, "Foreground");
     DumpMap(background, nBackground, "Background");
-#endif
 
-    new = malloc(max * sizeof(LoadMapEntry));
-    if (NULL == new) {
+    newLoadMapEntry = (LoadMapEntry *)malloc(max * sizeof(LoadMapEntry));
+    if (NULL == newLoadMapEntry) {
         CloseExtraWorlds();
         PuntWorld(originalWorld,
             "Unable to allocate space to compute merged load map for world "
@@ -864,7 +874,7 @@ static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground
             /* Here iff the current background entry is either a special
                operation
                or falls entirely below the current foreground entry */
-            memcpy(&new[actual], &background[bIndex], sizeof(LoadMapEntry));
+            memcpy(&newLoadMapEntry[actual], &background[bIndex], sizeof(LoadMapEntry));
             bIndex++;
             actual++;
         }
@@ -875,7 +885,7 @@ static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground
 
         if ((foreground[fIndex].op.opcode != LoadMapDataPages) && !copiedForeground) {
             /* If the foreground entry is special, copy it now */
-            memcpy(&new[actual], &foreground[fIndex], sizeof(LoadMapEntry));
+            memcpy(&newLoadMapEntry[actual], &foreground[fIndex], sizeof(LoadMapEntry));
             actual++;
             copiedForeground = TRUE;
         } else {
@@ -887,13 +897,13 @@ static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground
                    foreground entry.  We don't have to check the extent of the
                    background entry as the earlier loop above guaranteed that
                    this entry must overlap the foreground entry */
-                memcpy(&new[actual], &background[bIndex], sizeof(LoadMapEntry));
-                new[actual].op.count = foreground[fIndex].address - background[bIndex].address;
+                memcpy(&newLoadMapEntry[actual], &background[bIndex], sizeof(LoadMapEntry));
+                newLoadMapEntry[actual].op.count = foreground[fIndex].address - background[bIndex].address;
                 actual++;
             }
 
             if (!copiedForeground) {
-                memcpy(&new[actual], &foreground[fIndex], sizeof(LoadMapEntry));
+                memcpy(&newLoadMapEntry[actual], &foreground[fIndex], sizeof(LoadMapEntry));
                 actual++;
                 copiedForeground = TRUE;
             }
@@ -927,40 +937,41 @@ static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground
                         }
                     }
                     LispObjData(background[bIndex].data) += (background[bIndex].address - oldAddress) / pageSizeQs;
-                } else
-                    /* Here iff the current background entry overlaps the
-                       current foreground entry but doesn't extend past the
-                       end of the foreground entry.  We're done with this
-                       background entry */
+                } else {
+                    /*
+                     * Here iff the current background entry overlaps the
+                     * current foreground entry but doesn't extend past the
+                     * end of the foreground entry.  We're done with this
+                     * background entry
+                     */
                     bIndex++;
+                }
             }
         }
 
         if ((bIndex >= nBackground)
             || (background[bIndex].address >= (foreground[fIndex].address + foreground[fIndex].op.count))) {
-            /* Here iff there are no more background entries or the next
-               background entry does not overlap the current foreground entry.
-               We're done with this foreground entry */
+            /*
+             * Here iff there are no more background entries or the next
+             * background entry does not overlap the current foreground entry.
+             * We're done with this foreground entry
+             */
             fIndex++;
             copiedForeground = FALSE;
         }
     }
 
-    /* Copy an background entries that lie entirely above the last foreground
-     * entry */
-
+    // Copy an background entries that lie entirely above the last foreground entry
     while (bIndex < nBackground) {
-        memcpy(&new[actual], &background[bIndex], sizeof(LoadMapEntry));
+        memcpy(&newLoadMapEntry[actual], &background[bIndex], sizeof(LoadMapEntry));
         bIndex++;
         actual++;
     }
 
-#ifdef DEBUGMERGELOADMAPS
-    DumpMap(new, actual, "Merged");
-#endif
+    DumpMap(newLoadMapEntry, actual, "Merged");
 
     *nMerged = actual;
-    *merged = new;
+    *merged = newLoadMapEntry;
 }
 
 /*
@@ -969,7 +980,6 @@ static void MergeAMap(int nForeground, LoadMapEntry *foreground, int nBackground
  * be page-aligned to allow for direct mapping of the world load file into memory.  (Eventually, we may also merge
  * adjacent load map rentries.)
  */
-
 static void CanonicalizeVLMLoadMapEntries(World *world)
 {
     LoadMapEntry *mapEntry, *newWiredMapEntries, *newMapEntry;
@@ -977,10 +987,10 @@ static void CanonicalizeVLMLoadMapEntries(World *world)
     int newNWiredMapEntries, i, j;
     LispObj q;
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "Canonicalizing load map entries ... ");
-    fflush(stderr);
-#endif
+    FILE *log_fd = fopen(log_file_genera, "a");
+
+    fprintf(log_fd, "Canonicalizing load map entries ... ");
+    fflush(log_fd);
 
     pageNumber = 0;
     i = 0;
@@ -994,15 +1004,15 @@ static void CanonicalizeVLMLoadMapEntries(World *world)
             pageNumber += pageCount;
             i++;
         } else {
-            /* Not Page Aligned:  Convert into a series of LoadMapConstant
-             * entries */
+            // Not Page Aligned:  Convert into a series of LoadMapConstant entries
             newNWiredMapEntries = world->nWiredMapEntries + mapEntry->op.count - 1;
             newWiredMapEntries = (LoadMapEntry *)malloc(newNWiredMapEntries * sizeof(LoadMapEntry));
-            if (NULL == newWiredMapEntries)
+            if (NULL == newWiredMapEntries) {
                 PuntWorld(world,
                     "Unable to allocate space for wired load map for world "
                     "file %s",
                     world->pathname);
+            }
             memcpy(newWiredMapEntries, world->wiredMapEntries, i * sizeof(LoadMapEntry));
             memcpy(&newWiredMapEntries[i + mapEntry->op.count], &world->wiredMapEntries[i + 1],
                 (world->nWiredMapEntries - i) * sizeof(LoadMapEntry));
@@ -1014,6 +1024,7 @@ static void CanonicalizeVLMLoadMapEntries(World *world)
                 q = VirtualMemoryRead(newMapEntry->address);
                 newMapEntry->data = q;
             }
+
             i += mapEntry->op.count;
             free(world->wiredMapEntries);
             world->nWiredMapEntries = newNWiredMapEntries;
@@ -1025,23 +1036,22 @@ static void CanonicalizeVLMLoadMapEntries(World *world)
     nQs = VLMWorldFileV2FirstMapQ + (3 * world->nWiredMapEntries);
     pageCount = (nQs + IvoryPageSizeQs - 1) / IvoryPageSizeQs;
     blockCount = ((pageCount * IvoryPageSizeBytes) + VLMBlockSize - 1) / VLMBlockSize;
-    if (blockCount > VLMMaximumHeaderBlocks)
+    if (blockCount > VLMMaximumHeaderBlocks) {
         PuntWorld(world,
             "Unable to store data map in space reserved for same in world "
             "file %s",
             world->pathname);
+    }
 
     world->vlmTagsPageBase = blockCount;
     world->vlmDataPageBase = world->vlmTagsPageBase + (VLMBlocksPerTagsPage * pageNumber);
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "done.\n");
-    fflush(stderr);
-#endif
+    fprintf(log_fd, "done.\n");
+    fflush(log_fd);
+    fclose(log_fd);
 }
 
-/* Write the world file header and load maps for a VLM world file */
-
+// Write the world file header and load maps for a VLM world file
 static void WriteVLMWorldFileHeader(World *world)
 {
     LoadMapEntry *mapEntry;
@@ -1052,20 +1062,20 @@ static void WriteVLMWorldFileHeader(World *world)
     int i;
     LispObj tempQ = MakeLispObj(Type_NIL, 0);
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "Writing world file header ... ");
-    fflush(stderr);
-#endif
+    FILE *log_fd = fopen(log_file_genera, "a");
 
-    /* Compute the size of the world load and preallocate disk space for it */
+    fprintf(log_fd, "Writing world file header ... ");
+    fflush(log_fd);
 
+    // Compute the size of the world load and preallocate disk space for it
     for (i = world->nWiredMapEntries; i > 0; i--) {
         mapEntry = &world->wiredMapEntries[i - 1];
         if (LoadMapDataPages == mapEntry->op.opcode) {
             nBlocks = world->vlmDataPageBase
                 + (LispObjData(mapEntry->data) + (mapEntry->op.count / VLMPageSizeQs) + 1) * VLMBlocksPerDataPage;
-            if (ftruncate(world->fd, nBlocks * VLMBlockSize) < 0)
+            if (ftruncate(world->fd, nBlocks * VLMBlockSize) < 0) {
                 PuntWorld2(world, "Unable to grow world file %s to %d bytes", world->pathname, nBlocks * VLMBlockSize);
+            }
             break;
         }
     }
@@ -1125,13 +1135,11 @@ static void WriteVLMWorldFileHeader(World *world)
     }
 
     // Flush the last page to disk
-
     WriteIvoryWorldFilePage(world);
 
-#ifdef DEBUGDISKSAVE
-    fprintf(stderr, "done.\n");
-    fflush(stderr);
-#endif
+    fprintf(log_fd, "done.\n");
+    fflush(log_fd);
+    fclose(log_fd);
 }
 
 // Write the data/tags pages for a VLM world file
@@ -1139,10 +1147,12 @@ static void WriteVLMWorldFilePages(World *world)
 {
     LoadMapEntry *mapEntry;
     Integer pageNumber;
-#ifdef DEBUGDISKSAVE
+
+    FILE *log_fd = fopen(log_file_genera, "a");
+
     Integer vma, finalVMA;
     VMAttribute attr;
-#endif
+
     size_t wordCount, byteCount;
     off_t offset;
     int increment = 0, i;
@@ -1150,58 +1160,58 @@ static void WriteVLMWorldFilePages(World *world)
     for (i = 0; i < world->nWiredMapEntries; i++) {
         mapEntry = &world->wiredMapEntries[i];
 
-        if (LoadMapDataPages != mapEntry->op.opcode)
+        if (LoadMapDataPages != mapEntry->op.opcode) {
             continue;
+        }
 
         pageNumber = LispObjData(mapEntry->data);
         wordCount = (size_t)mapEntry->op.count;
 
-#ifdef DEBUGDISKSAVE
         vma = mapEntry->address;
         finalVMA = vma + wordCount;
 
         while (vma < finalVMA) {
             attr = VMAttributeTable[(vma >> MemoryPage_AddressShift)];
-            if (VMAccessFault(attr) || VMWriteFault(attr) || (VMTransportFault(attr) && !VMTransportDisable(attr)))
+            if (VMAccessFault(attr) || VMWriteFault(attr) || (VMTransportFault(attr) && !VMTransportDisable(attr))) {
                 PuntWorld3(world, "VMA %x is protected (attributes %x) in world file %s", vma, attr, world->pathname);
+            }
             vma += VLMPageSizeQs;
         }
 
-        fprintf(stderr, "Writing %d words from VMA %x ... words ... ", wordCount, mapEntry->address);
-        fflush(stderr);
-#endif
+        fprintf(log_fd, "Writing %zu words from VMA %x ... words ... ", wordCount, mapEntry->address);
+        fflush(log_fd);
 
-        /* First, write the data ... */
+        // First, write the data ...
         offset = VLMBlockSize * (world->vlmDataPageBase + pageNumber * VLMBlocksPerDataPage);
         byteCount = wordCount * sizeof(Integer);
-        if (offset != lseek(world->fd, offset, SEEK_SET))
+        if (offset != lseek(world->fd, offset, SEEK_SET)) {
             PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
-        if (byteCount != write(world->fd, MapVirtualAddressData(mapEntry->address), byteCount))
+        }
+        if (byteCount != write(world->fd, MapVirtualAddressData(mapEntry->address), byteCount)) {
             PuntWorld2(world, "Unable to write data page %d into world file %s", pageNumber, world->pathname);
+        }
 
-#ifdef DEBUGDISKSAVE
-        fprintf(stderr, "tags ... ");
-        fflush(stderr);
-#endif
+        fprintf(log_fd, "tags ... ");
+        fflush(log_fd);
 
-        /* ... then, write the tags */
+        // ... then, write the tags
         offset = VLMBlockSize * (world->vlmTagsPageBase + pageNumber * VLMBlocksPerTagsPage);
         byteCount = wordCount * sizeof(Tag);
-        if (offset != lseek(world->fd, offset, SEEK_SET))
+        if (offset != lseek(world->fd, offset, SEEK_SET)) {
             PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
-        if (byteCount != write(world->fd, MapVirtualAddressTag(mapEntry->address), byteCount))
+        }
+        if (byteCount != write(world->fd, MapVirtualAddressTag(mapEntry->address), byteCount)) {
             PuntWorld2(world, "Unable to write tags page %d into world file %s", pageNumber, world->pathname);
+        }
 
-#ifdef DEBUGDISKSAVE
-        fprintf(stderr, "done.\n");
-        fflush(stderr);
-#endif
+        fprintf(log_fd, "done.\n");
+        fflush(log_fd);
     }
+
+    fclose(log_fd);
 }
 
-/* Read the specified page from the world file using Ivory file format
- * settings */
-
+// Read the specified page from the world file using Ivory file format settings
 static void ReadIvoryWorldFilePage(World *world, int pageNumber)
 {
     off_t offset;
@@ -1212,25 +1222,27 @@ static void ReadIvoryWorldFilePage(World *world, int pageNumber)
 
     offset = pageNumber * IvoryPageSizeBytes;
 
-    if (offset != lseek(world->fd, offset, SEEK_SET))
+    if (offset != lseek(world->fd, offset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
+    }
 
-    if (IvoryPageSizeBytes != read(world->fd, world->ivoryDataPage, IvoryPageSizeBytes))
+    if (IvoryPageSizeBytes != read(world->fd, world->ivoryDataPage, IvoryPageSizeBytes)) {
         PuntWorld2(world, "Unable to read page %d from world file %s", pageNumber, world->pathname);
+    }
 
     world->currentPageNumber = pageNumber;
 }
 
 /* Return a specific Q (pointer and tag) from within the current page,
    using Ivory file format settings*/
-
 static void ReadIvoryWorldFileQ(World *world, int qNumber, LispObj *q)
 {
     int pointerOffset, tagOffset;
     Integer datum;
 
-    if ((qNumber < 0) || (qNumber >= IvoryPageSizeQs))
+    if ((qNumber < 0) || (qNumber >= IvoryPageSizeQs)) {
         PuntWorld2(world, "Invalid word number %d for world file %s", qNumber, world->pathname);
+    }
 
     pointerOffset = 5 * (qNumber >> 2) + (qNumber & 3) + 1;
     tagOffset = 4 * 5 * (qNumber >> 2) + (qNumber & 3);
@@ -1257,7 +1269,6 @@ static void ReadIvoryWorldFileQ(World *world, int qNumber, LispObj *q)
 
 /* Read the next Q from within the world file, advancing to the next page if
    needed, using Ivory file format settings */
-
 static void ReadIvoryWorldFileNextQ(World *world, LispObj *q)
 {
     while (world->currentQNumber >= IvoryPageSizeQs) {
@@ -1266,12 +1277,10 @@ static void ReadIvoryWorldFileNextQ(World *world, LispObj *q)
     }
 
     ReadIvoryWorldFileQ(world, world->currentQNumber, q);
-
     world->currentQNumber++;
 }
 
-/* Prepare to write a specific page into the world file, using Ivory file
- * format settings */
+// Prepare to write a specific page into the world file, using Ivory file format settings
 
 static void PrepareToWriteIvoryWorldFilePage(World *world, int pageNumber)
 {
@@ -1280,8 +1289,7 @@ static void PrepareToWriteIvoryWorldFilePage(World *world, int pageNumber)
     memset(world->ivoryDataPage, 0, IvoryPageSizeBytes);
 }
 
-/* Write the current page into the world file, using Ivory file format
- * settings */
+// Write the current page into the world file, using Ivory file format settings
 
 static void WriteIvoryWorldFilePage(World *world)
 {
@@ -1293,11 +1301,13 @@ static void WriteIvoryWorldFilePage(World *world)
 
     offset = world->currentPageNumber * IvoryPageSizeBytes;
 
-    if (offset != lseek(world->fd, offset, SEEK_SET))
+    if (offset != lseek(world->fd, offset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
+    }
 
-    if (IvoryPageSizeBytes != write(world->fd, world->ivoryDataPage, IvoryPageSizeBytes))
+    if (IvoryPageSizeBytes != write(world->fd, world->ivoryDataPage, IvoryPageSizeBytes)) {
         PuntWorld2(world, "Unable to write page %d into world file %s", world->currentPageNumber, world->pathname);
+    }
 
     world->currentPageNumber++;
     PrepareToWriteIvoryWorldFilePage(world, world->currentPageNumber);
@@ -1341,20 +1351,20 @@ static void WriteIvoryWorldFileNextQ(World *world, LispObj q)
     world->currentQNumber++;
 }
 
-/* Read the specified page from a byte swapped world file using VLM file
- * format settings */
-
+// Read the specified page from a byte swapped world file using VLM file format settings
 static void ReadSwappedVLMWorldFilePage(World *world, int pageNumber)
 {
     off_t dataOffset, tagsOffset;
 
     if (world->vlmDataPage == NULL) {
-        world->vlmDataPage = malloc(VLMDataPageSizeBytes);
-        if (NULL == world->vlmDataPage)
+        world->vlmDataPage = (byte *)malloc(VLMDataPageSizeBytes);
+        if (NULL == world->vlmDataPage) {
             PuntWorld(world, "Unable to allocate space for data buffer for world file %s", world->pathname);
-        world->vlmTagsPage = malloc(VLMTagsPageSizeBytes);
-        if (NULL == world->vlmTagsPage)
+        }
+        world->vlmTagsPage = (byte *)malloc(VLMTagsPageSizeBytes);
+        if (NULL == world->vlmTagsPage) {
             PuntWorld(world, "Unable to allocate space for data buffer for world file %s", world->pathname);
+        }
         world->currentPageNumber = -1;
     }
 
@@ -1365,30 +1375,33 @@ static void ReadSwappedVLMWorldFilePage(World *world, int pageNumber)
     dataOffset = VLMBlockSize * (world->vlmDataPageBase + pageNumber * VLMBlocksPerDataPage);
     tagsOffset = VLMBlockSize * (world->vlmTagsPageBase + pageNumber * VLMBlocksPerTagsPage);
 
-    if (dataOffset != lseek(world->fd, dataOffset, SEEK_SET))
+    if (dataOffset != lseek(world->fd, dataOffset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", dataOffset, world->pathname);
+    }
 
-    if (VLMDataPageSizeBytes != read(world->fd, world->vlmDataPage, VLMDataPageSizeBytes))
+    if (VLMDataPageSizeBytes != read(world->fd, world->vlmDataPage, VLMDataPageSizeBytes)) {
         PuntWorld2(world, "Unable to read page %d from world file %s", pageNumber, world->pathname);
+    }
 
-    if (tagsOffset != lseek(world->fd, tagsOffset, SEEK_SET))
+    if (tagsOffset != lseek(world->fd, tagsOffset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", tagsOffset, world->pathname);
+    }
 
-    if (VLMTagsPageSizeBytes != read(world->fd, world->vlmTagsPage, VLMTagsPageSizeBytes))
+    if (VLMTagsPageSizeBytes != read(world->fd, world->vlmTagsPage, VLMTagsPageSizeBytes)) {
         PuntWorld2(world, "Unable to read page %d from world file %s", pageNumber, world->pathname);
+    }
 
     world->currentPageNumber = pageNumber;
 }
 
-/* Return a specific Q (pointer and tag) from within the current page,
-   using VLM file format settings*/
-
+// Return a specific Q (pointer and tag) from within the current page, using VLM file format settings
 static void ReadSwappedVLMWorldFileQ(World *world, int qNumber, LispObj *q)
 {
     Integer datum;
 
-    if ((qNumber < 0) || (qNumber >= VLMPageSizeQs))
+    if ((qNumber < 0) || (qNumber >= VLMPageSizeQs)) {
         PuntWorld2(world, "Invalid word number %d for world file %s", qNumber, world->pathname);
+    }
 
     datum = bswap_32(*((Integer *)(world->vlmDataPage) + qNumber));
     *q = MakeLispObj(world->vlmTagsPage[qNumber], datum);
@@ -1402,7 +1415,6 @@ static void ReadSwappedVLMWorldFileQ(World *world, int qNumber, LispObj *q)
 
 /* Read the next Q from within the world file, advancing to the next page if
    needed, using VLM file format settings */
-
 static void ReadSwappedVLMWorldFileNextQ(World *world, LispObj *q)
 {
     while (world->currentQNumber >= VLMPageSizeQs) {
@@ -1411,12 +1423,10 @@ static void ReadSwappedVLMWorldFileNextQ(World *world, LispObj *q)
     }
 
     ReadSwappedVLMWorldFileQ(world, world->currentQNumber, q);
-
     world->currentQNumber++;
 }
 
-/* Swap bytes in the specified world and its parents as necessary */
-
+// Swap bytes in the specified world and its parents as necessary
 void ByteSwapWorld(char *worldPathname, char *searchPath)
 {
     World world, *aWorld;
@@ -1447,14 +1457,17 @@ static void ByteSwapOneWorld(World *world)
     newPathname = strndup(world->pathname, _POSIX_PATH_MAX + 1);
     newPathname = strncat(newPathname, ".swap", _POSIX_PATH_MAX + 1);
 
-    printf("Swapping bytes in %s ... ", world->pathname);
-    fflush(stdout);
+    LogMessage("ByteSwapOneWorld", "Swapping bytes in %s ... ", world->pathname);
 
-    if (fstat(world->fd, &worldStat) < 0)
+    if (fstat(world->fd, &worldStat) < 0) {
+        LogMessage("ByteSwapOneWorld", "Unable to determine attributes of world file %s", world->pathname);
         PuntWorld(world, "Unable to determine attributes of world file %s", world->pathname);
+    }
 
-    if ((newFD = open(newPathname, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0)
+    if ((newFD = open(newPathname, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
+        LogMessage("ByteSwapOneWorld", "Unable to create world file %s", newPathname);
         PuntWorld(world, "Unable to create world file %s", newPathname);
+    }
 
     offset = 0;
 
@@ -1478,11 +1491,13 @@ static void ByteSwapOneWorld(World *world)
     wordBlockStart = (uint32_t *)&block;
 
     if (0 != lseek(world->fd, 0, SEEK_SET)) {
+        LogMessage("ByteSwapOneWorld", "Unable to seek to start of world file %s", world->pathname);
         PuntWorld(world, "Unable to seek to start of world file %s", world->pathname);
     }
 
     while (offset < worldStat.st_size) {
         if (VLMBlockSize != read(world->fd, block, VLMBlockSize)) {
+            LogMessage("ByteSwapOneWorld", "Unable to read data from world file %s", world->pathname);
             PuntWorld(world, "Unable to read data from world file %s", world->pathname);
         }
 
@@ -1490,11 +1505,14 @@ static void ByteSwapOneWorld(World *world)
             *wordBlockStart = VLMWorldFileCookie;
         }
 
-        if (offset >= dataStart && (offset + VLMBlockSize) <= dataEnd)
+        if (offset >= dataStart && (offset + VLMBlockSize) <= dataEnd) {
             bswap32_block(wordBlockStart, VLMBlockSize);
+        }
 
-        if (VLMBlockSize != write(newFD, block, VLMBlockSize))
+        if (VLMBlockSize != write(newFD, block, VLMBlockSize)) {
+            LogMessage("ByteSwapOneWorld", "Unable to write data to world file %s", newPathname);
             PuntWorld(world, "Unable to write data to world file %s", newPathname);
+        }
 
         offset += VLMBlockSize;
     }
@@ -1505,11 +1523,15 @@ static void ByteSwapOneWorld(World *world)
     bakPathname = strndup(world->pathname, _POSIX_PATH_MAX + 1);
     bakPathname = strncat(bakPathname, ".bak", _POSIX_PATH_MAX + 1);
 
-    if (rename(world->pathname, bakPathname) < 0)
+    if (rename(world->pathname, bakPathname) < 0) {
+        LogMessage("ByteSwapOneWorld", "Unable to rename world file %s to %s", world->pathname, bakPathname);
         PuntWorld2(world, "Unable to rename world file %s to %s", world->pathname, bakPathname);
+    }
 
-    if (rename(newPathname, world->pathname) < 0)
+    if (rename(newPathname, world->pathname) < 0) {
+        LogMessage("ByteSwapOneWorld", "Unable to rename world file %s to %s", newPathname, world->pathname);
         PuntWorld2(world, "Unable to rename world file %s to %s", newPathname, world->pathname);
+    }
 
-    printf("done.\n");
+    LogMessage("ByteSwapOneWorld", "Done.\n");
 }

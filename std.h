@@ -12,10 +12,12 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#ifndef __GNU_SOURCE
+#define __GNU_SOURCE
+#endif
 /****************************************************************************/
 
 #define _THREAD_SAFE
-
 #define OS_LINUX
 
 #include <stddef.h>
@@ -25,10 +27,7 @@
 
 #include <endian.h>
 
-#include "swapbytes.h"
-
 #include <pthread.h>
-
 typedef void *pthread_addr_t;
 typedef void (*pthread_cleanuproutine_t)(void *);
 typedef void *(*pthread_startroutine_t)(void *);
@@ -66,4 +65,12 @@ typedef void (*sa_sigaction_t)(int, siginfo_t *, void *);
 #include <time.h>
 #include <sched.h>
 
-#endif
+// Log files
+// static char log_file_genera[] = "./genera.execution/log";
+
+#define log_file_genera "./genera_execution.log"
+#define ECHO_ON_SCREEN_P 1
+
+#include "swapbytes.h"
+
+#endif // _STD_H_

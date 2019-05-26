@@ -1,6 +1,6 @@
 /* Functions called by the emulator */
 
-#include "std.h"
+#include "../std.h"
 
 #include <signal.h>
 #include <sys/time.h>
@@ -11,11 +11,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "aistat.h" /* Alpha-Ivory state */
+#include "../alpha-emulator/aistat.h" /* Alpha-Ivory state */
 #include "aihead.h" /* Alpha-Ivory constants */
 #include "ivoryrep.h" /* Prototypes for this file */
 #include "memory.h" /* Memory definitions */
-#include "world_tools.h"
+#include "../world_tools.h"
 #include "life_prototypes.h"
 #include "utilities.h"
 
@@ -195,7 +195,7 @@ LispObj CoprocessorRead(unsigned int operand)
                 mstimenumber = 0;
             } else {
                 mstimenumber -= basems;
-}
+            }
         }
         inttimenum = mstimenumber << MSclock_UnitsToMSShift;
         if (inttimenum > processor->msclockcache)
@@ -246,7 +246,7 @@ LispObj CoprocessorRead(unsigned int operand)
             return (MakeLispObj(Type_Fixnum, (unsigned int)(encodedUT & 0xFFFFFFFFL)));
         } else {
             return (INVALID); /* Couldn't decode the clock reading */
-}
+        }
 
     case CoprocessorRegister_FlipToStack:
         /* This register is write-only ... */
@@ -338,9 +338,7 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
     int32_t immediate10BitOperand, immediateFromStackOperand;
 
     if (traceRecord->trap_p) {
-        fprintf(traceS,
-            "*** Trap %04o @ %x.%02x.%08x, microstate %x.%02x.%08x, VMA "
-            "%x.%02x.%08x\n",
+        LogMessage("PrintTraceRecord", "*** Trap %04o @ %x.%02x.%08x, microstate %x.%02x.%08x, VMA %x.%02x.%08x",
             LispObjData(traceRecord->trap_data_0), DecodeObject(traceRecord->trap_data_1),
             DecodeObject(traceRecord->trap_data_2), DecodeObject(traceRecord->trap_data_3));
     }
@@ -349,7 +347,7 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
     }
 
     if (lastCR != traceRecord->catch_block_0) {
-        fprintf(traceS, "*** Control Register %x.%02x.%08x (was %x.%02x.%08x)\n",
+        LogMessage("PrintTraceRecord", "*** Control Register %x.%02x.%08x (was %x.%02x.%08x)",
             DecodeObject(traceRecord->catch_block_0), DecodeObject(lastCR));
         lastCR = traceRecord->catch_block_0;
     }
@@ -361,7 +359,7 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
     format = *traceRecord->instruction;
     traceRecord->instruction++;
 
-    fprintf(traceS, "%ld: PC %08x(%s),%s SP: %08x, TOS: %x.%02x.%08x, %s", (0 - traceRecord->counter),
+    LogMessage("PrintTraceRecord", "%ld: PC %08x(%s),%s SP: %08x, TOS: %x.%02x.%08x, %s", (0 - traceRecord->counter),
         traceRecord->epc >> 1, (traceRecord->epc & 1) ? "Odd" : "Even", (traceRecord->epc & 1) ? " " : "",
         traceRecord->sp, DecodeObject(traceRecord->tos), traceRecord->instruction);
 
@@ -370,40 +368,41 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
 
     switch (format) {
     case 0x80:
-        fprintf(traceS, "(%08x)", traceRecord->instruction_data);
+        LogMessage("PrintTraceRecord", "(%08x)", traceRecord->instruction_data);
         break;
     case 0x83:
         if (immediateFromStackOperand > 127) {
             immediateFromStackOperand -= 256;
-}
+        }
     case 0x82:
-        fprintf(traceS, "(%d)", immediateFromStackOperand);
+        LogMessage("PrintTraceRecord", "(%d)", immediateFromStackOperand);
         break;
     case 0x84:
     case 0x90:
-        fprintf(traceS, "(%d)", traceRecord->operand & 0xFF);
+        LogMessage("PrintTraceRecord", "(%d)", traceRecord->operand & 0xFF);
         break;
     case 0x88:
-        if (traceRecord->operand & 0xFF)
-            fprintf(traceS, "(%d)", (traceRecord->operand & 0xFF) - 255);
-        else
-            fprintf(traceS, "(POP)");
+        if (traceRecord->operand & 0xFF) {
+            LogMessage("PrintTraceRecord", "(%d)", (traceRecord->operand & 0xFF) - 255);
+        } else {
+            LogMessage("PrintTraceRecord", "(POP)");
+        }
+
         break;
     case 0xA0:
-        fprintf(traceS, "(%03x)", immediate10BitOperand);
+        LogMessage("PrintTraceRecord", "(%03x)", immediate10BitOperand);
         break;
     case 0xA1:
+        LogMessage("PrintTraceRecord", "(%d)", immediate10BitOperand);
         if (immediate10BitOperand > 511) {
             immediate10BitOperand -= 1024;
-}
-        fprintf(traceS, "(%d)", immediate10BitOperand);
+        }
+
         break;
     case 0xB0:
-        fprintf(traceS, "(%08x)", traceRecord->instruction_data);
+        LogMessage("PrintTraceRecord", "(%08x)", traceRecord->instruction_data);
         break;
     }
-
-    fprintf(traceS, "\n");
 
     return;
 }
@@ -428,7 +427,7 @@ void MaybePrintTrace()
 {
     if (Trace) {
         PrintTrace();
-}
+    }
     return;
 }
 

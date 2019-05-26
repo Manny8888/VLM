@@ -21,9 +21,9 @@ DoBranchTrueElseNoPopLP : if (_trace) printf("DoBranchTrueElseNoPopLP:\n");
 
 DoBranchTrueElseNoPopFP : if (_trace) printf("DoBranchTrueElseNoPopFP:\n");
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-arg1 = (s64)arg3 >> 48; // Get signed 10-bit immediate arg
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+arg1 = (int64_t) arg3 >> 48; // Get signed 10-bit immediate arg
 /* TagType. */
 t1 = t1 & 63; // strip the cdr code off.
 t1 = t1 - Type_NIL; // Compare to NIL
@@ -54,17 +54,17 @@ DoBranchTrueElseExtraPopLP : if (_trace) printf("DoBranchTrueElseExtraPopLP:\n")
 
 DoBranchTrueElseExtraPopFP : if (_trace) printf("DoBranchTrueElseExtraPopFP:\n");
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-arg1 = (s64)arg3 >> 48; // Get signed 10-bit immediate arg
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+arg1 = (int64_t) arg3 >> 48; // Get signed 10-bit immediate arg
 /* TagType. */
 t1 = t1 & 63; // strip the cdr code off.
 t1 = t1 - Type_NIL; // Compare to NIL
 if (t1 != 0)
     goto dobrelsepopextrapop;
 /* Here if branch not taken.  Pop the argument. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 iSP = iSP - 16;
 goto cachevalid;
 
@@ -94,17 +94,17 @@ DoBranchFalseElseExtraPopLP : if (_trace) printf("DoBranchFalseElseExtraPopLP:\n
 
 DoBranchFalseElseExtraPopFP : if (_trace) printf("DoBranchFalseElseExtraPopFP:\n");
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-arg1 = (s64)arg3 >> 48; // Get signed 10-bit immediate arg
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+arg1 = (int64_t) arg3 >> 48; // Get signed 10-bit immediate arg
 /* TagType. */
 t1 = t1 & 63; // strip the cdr code off.
 t1 = t1 - Type_NIL; // Compare to NIL
 if (t1 == 0)
     goto dobrnelsepopextrapop;
 /* Here if branch not taken.  Pop the argument. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 iSP = iSP - 16;
 goto cachevalid;
 
@@ -134,17 +134,17 @@ DoBranchFalseExtraPopLP : if (_trace) printf("DoBranchFalseExtraPopLP:\n");
 
 DoBranchFalseExtraPopFP : if (_trace) printf("DoBranchFalseExtraPopFP:\n");
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-arg1 = (s64)arg3 >> 48; // Get signed 10-bit immediate arg
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+arg1 = (int64_t) arg3 >> 48; // Get signed 10-bit immediate arg
 /* TagType. */
 t1 = t1 & 63; // strip the cdr code off.
 t1 = t1 - Type_NIL; // Compare to NIL
 if (t1 == 0)
     goto dobrnpopelsepopextrapop;
 /* Here if branch not taken.  Pop the argument. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 iSP = iSP - 16;
 goto cachevalid;
 
@@ -173,23 +173,23 @@ DoLoopDecrementTosSP : if (_trace) printf("DoLoopDecrementTosSP:\n");
 DoLoopDecrementTosLP : if (_trace) printf("DoLoopDecrementTosLP:\n");
 
 DoLoopDecrementTosFP : if (_trace) printf("DoLoopDecrementTosFP:\n");
-arg1 = (s64)arg3 >> 48;
+arg1 = (int64_t) arg3 >> 48;
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8));
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-t2 = (u32)arg6;
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8));
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+t2 = (uint32_t) arg6;
 t3 = t1 - Type_Fixnum;
 t3 = t3 & 63; // Strip CDR code
 if (t3 != 0)
     goto iloop_decrement_tos44748;
-t3 = (s32)t2 - (s32)1;
-t4 = ((s64)t3 < (s64)t2) ? 1 : 0;
+t3 = (int32_t) t2 - (int32_t) 1;
+t4 = ((int64_t) t3 < (int64_t) t2) ? 1 : 0;
 if (t4 == 0)
     goto iloop_decrement_tos44750;
 t6 = Type_Fixnum;
-*(u32 *)iSP = t3;
-*(u32 *)(iSP + 4) = t6; // write the stack cache
-if ((s64)t3 <= 0)
+*(uint32_t *)iSP = t3;
+*(uint32_t *)(iSP + 4) = t6; // write the stack cache
+if ((int64_t) t3 <= 0)
     goto NEXTINSTRUCTION;
 /* Here if branch taken. */
 iPC = iPC + arg1; // Update the PC in halfwords
@@ -231,30 +231,30 @@ DoLoopIncrementTosLessThanSP : if (_trace) printf("DoLoopIncrementTosLessThanSP:
 DoLoopIncrementTosLessThanLP : if (_trace) printf("DoLoopIncrementTosLessThanLP:\n");
 
 DoLoopIncrementTosLessThanFP : if (_trace) printf("DoLoopIncrementTosLessThanFP:\n");
-arg1 = (s64)arg3 >> 48;
+arg1 = (int64_t) arg3 >> 48;
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8));
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-t2 = (u32)arg6;
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8));
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+t2 = (uint32_t) arg6;
 t5 = t1 - Type_Fixnum;
 t5 = t5 & 63; // Strip CDR code
 if (t5 != 0)
     goto iloop_increment_tos_less_than44751;
-t4 = *(s32 *)(iSP + -8); // Get arg1.
-t3 = *(s32 *)(iSP + -4);
-t4 = (u32)t4;
+t4 = *(int32_t *)(iSP + -8); // Get arg1.
+t3 = *(int32_t *)(iSP + -4);
+t4 = (uint32_t) t4;
 t5 = t3 - Type_Fixnum;
 t5 = t5 & 63; // Strip CDR code
 if (t5 != 0)
     goto iloop_increment_tos_less_than44752;
-t5 = (s32)t2 + (s32)1;
-t6 = ((s64)t2 <= (s64)t5) ? 1 : 0;
+t5 = (int32_t) t2 + (int32_t) 1;
+t6 = ((int64_t) t2 <= (int64_t) t5) ? 1 : 0;
 if (t6 == 0)
     goto iloop_increment_tos_less_than44753;
 t6 = Type_Fixnum;
-*(u32 *)iSP = t5;
-*(u32 *)(iSP + 4) = t6; // write the stack cache
-t6 = ((s64)t5 <= (s64)t4) ? 1 : 0;
+*(uint32_t *)iSP = t5;
+*(uint32_t *)(iSP + 4) = t6; // write the stack cache
+t6 = ((int64_t) t5 <= (int64_t) t4) ? 1 : 0;
 if (t6 == 0)
     goto NEXTINSTRUCTION;
 /* Here if branch taken. */
@@ -306,17 +306,17 @@ DoBranchTrueExtraPopLP : if (_trace) printf("DoBranchTrueExtraPopLP:\n");
 
 DoBranchTrueExtraPopFP : if (_trace) printf("DoBranchTrueExtraPopFP:\n");
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-arg1 = (s64)arg3 >> 48; // Get signed 10-bit immediate arg
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+arg1 = (int64_t) arg3 >> 48; // Get signed 10-bit immediate arg
 /* TagType. */
 t1 = t1 & 63; // strip the cdr code off.
 t1 = t1 - Type_NIL; // Compare to NIL
 if (t1 != 0)
     goto dobrpopelsepopextrapop;
 /* Here if branch not taken.  Pop the argument. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 iSP = iSP - 16;
 goto cachevalid;
 
@@ -346,17 +346,17 @@ DoBranchTrueAndNoPopElseNoPopExtraPopLP : if (_trace) printf("DoBranchTrueAndNoP
 
 DoBranchTrueAndNoPopElseNoPopExtraPopFP : if (_trace) printf("DoBranchTrueAndNoPopElseNoPopExtraPopFP:\n");
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-arg1 = (s64)arg3 >> 48; // Get signed 10-bit immediate arg
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+arg1 = (int64_t) arg3 >> 48; // Get signed 10-bit immediate arg
 /* TagType. */
 t1 = t1 & 63; // strip the cdr code off.
 t1 = t1 - Type_NIL; // Compare to NIL
 if (t1 != 0)
     goto dobrextrapop;
 /* Here if branch not taken.  Pop the argument. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 iSP = iSP - 8;
 goto cachevalid;
 
@@ -386,17 +386,17 @@ DoBranchFalseAndNoPopElseNoPopExtraPopLP : if (_trace) printf("DoBranchFalseAndN
 
 DoBranchFalseAndNoPopElseNoPopExtraPopFP : if (_trace) printf("DoBranchFalseAndNoPopElseNoPopExtraPopFP:\n");
 /* arg1 has signed operand preloaded. */
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
-arg1 = (s64)arg3 >> 48; // Get signed 10-bit immediate arg
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // Check tag of word in TOS.
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
+arg1 = (int64_t) arg3 >> 48; // Get signed 10-bit immediate arg
 /* TagType. */
 t1 = t1 & 63; // strip the cdr code off.
 t1 = t1 - Type_NIL; // Compare to NIL
 if (t1 == 0)
     goto dobrnextrapop;
 /* Here if branch not taken.  Pop the argument. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 iSP = iSP - 8;
 goto cachevalid;
 

@@ -23,8 +23,8 @@ DoFinishCallTosLP : if (_trace) printf("DoFinishCallTosLP:\n");
 
 DoFinishCallTosFP : if (_trace) printf("DoFinishCallTosFP:\n");
 /* arg1 has operand preloaded. */
-arg1 = (u8)(arg3 >> ((5 & 7) * 8)); // arg1 contains the disposition (two bits)
-arg2 = *(s32 *)iSP; // Get the number of args
+arg1 = (uint8_t) (arg3 >> ((5 & 7) * 8)); // arg1 contains the disposition (two bits)
+arg2 = *(int32_t *)iSP; // Get the number of args
 iSP = iSP - 8; // Pop stack
 arg2 = (arg2 * 8) + 8; // Add 1 and convert to stacked word address
 goto finishcallmerge;
@@ -46,9 +46,9 @@ DoEntryRestAcceptedSP : if (_trace) printf("DoEntryRestAcceptedSP:\n");
 DoEntryRestAcceptedLP : if (_trace) printf("DoEntryRestAcceptedLP:\n");
 
 DoEntryRestAcceptedFP : if (_trace) printf("DoEntryRestAcceptedFP:\n");
-arg5 = *(s32 *)&processor->control; // The control register
+arg5 = *(int32_t *)&processor->control; // The control register
 arg4 = arg3 >> 18; // Pull down the number of optionals
-arg1 = (u8)(arg3 >> ((5 & 7) * 8)); // Extract the 'ptr' field while we are waiting
+arg1 = (uint8_t) (arg3 >> ((5 & 7) * 8)); // Extract the 'ptr' field while we are waiting
 arg4 = arg4 & 255;
 /* arg1=ptr field, arg2=required, arg3=instn, arg4=optionals arg5=control-register */
 t2 = arg5 >> 27; // Get the cr.trace-pending bit
@@ -56,22 +56,22 @@ t1 = arg5 & 255; // The supplied args
 if (t2 & 1)
     goto tracetrap;
 t3 = arg5 >> 17;
-t4 = *(s32 *)(iSP + 4); // Get the tag of the stack top.
+t4 = *(int32_t *)(iSP + 4); // Get the tag of the stack top.
 
 force_alignment44549 : if (_trace) printf("force_alignment44549:\n");
 if (t3 & 1) // J. if apply args
     goto b_apply_argument_supplied44547;
 
 b_apply_argument_supplied44548 : t2 = t1 - arg2; // t2=supplied-minimum
-if ((s64)t2 < 0) // B. if too few args.
+if ((int64_t) t2 < 0) // B. if too few args.
     goto retryeratoofew;
 arg1 = arg4 - t1; // maximum-supplied
-if ((s64)arg1 < 0) // B. rest args.
+if ((int64_t) arg1 < 0) // B. rest args.
     goto retryerarest;
 /* Compute entry position and advance PC/CP accordingly. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata); // get the next PC
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata); // get the next PC
 t3 = t2 << 1; // Adjust index to halfword
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (t2 == 0) // J. if index zero, no adjustment.
     goto INTERPRETINSTRUCTION;
 iPC = iPC + t3; // Compute the new address
@@ -80,20 +80,20 @@ goto interpretinstructionforjump;
 
 applysuppra : if (_trace) printf("applysuppra:\n");
 arg1 = arg4 - t1; // maximum-supplied
-if ((s64)arg1 < 0) // B. rest args.
+if ((int64_t) arg1 < 0) // B. rest args.
     goto retryerarest;
-if ((s64)arg1 > 0) // try pulling from applied args.
+if ((int64_t) arg1 > 0) // try pulling from applied args.
     goto pullapplyargs;
-t6 = *(s32 *)(iSP + 4); // get tag
+t6 = *(int32_t *)(iSP + 4); // get tag
 t6 = t6 & 63;
 t6 = t6 | 64;
-*(u32 *)(iSP + 4) = t6; // set tag
+*(uint32_t *)(iSP + 4) = t6; // set tag
 t2 = t1 - arg2; // t2=supplied-minimum
 t2 = t2 + 1;
 /* Compute entry position and advance PC/CP accordingly. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata); // get the next PC
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata); // get the next PC
 t3 = t2 << 1; // Adjust index to halfword
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (t2 == 0) // J. if index zero, no adjustment.
     goto INTERPRETINSTRUCTION;
 iPC = iPC + t3; // Compute the new address
@@ -106,12 +106,12 @@ arg2 = 77;
 goto illegaloperand;
 
 retryerarest : if (_trace) printf("retryerarest:\n");
-t1 = *(s32 *)(iSP + 4); // get tag
+t1 = *(int32_t *)(iSP + 4); // get tag
 t1 = t1 & 63;
 t1 = t1 | 64;
-*(u32 *)(iSP + 4) = t1; // set tag
+*(uint32_t *)(iSP + 4) = t1; // set tag
 t2 = arg5 >> 17;
-t3 = *(s32 *)(iSP + 4); // Get the tag of the stack top.
+t3 = *(int32_t *)(iSP + 4); // Get the tag of the stack top.
 
 force_alignment44554 : if (_trace) printf("force_alignment44554:\n");
 if (t2 & 1) // J. if apply args
@@ -119,45 +119,45 @@ if (t2 & 1) // J. if apply args
 
 b_apply_argument_supplied44553 : t1 = (arg4 * 8) + iFP;
 /* Convert stack cache address to VMA */
-t3 = *(u64 *)&(processor->stackcachedata);
-t2 = *(u64 *)&(processor->stackcachebasevma);
+t3 = *(uint64_t *)&(processor->stackcachedata);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
 t3 = t1 - t3; // stack cache base relative offset
 t3 = t3 >> 3; // convert byte address to word address
 t2 = t3 + t2; // reconstruct VMA
 t1 = Type_List;
-*(u32 *)(iSP + 8) = t2;
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = t2;
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 goto push_apply_args44551;
 
 push_apply_args44550 : if (_trace) printf("push_apply_args44550:\n");
 t1 = iSP - 8;
-t3 = *(s32 *)(t1 + 4); // get tag
+t3 = *(int32_t *)(t1 + 4); // get tag
 t3 = t3 & 63;
 t3 = t3 | 128;
-*(u32 *)(t1 + 4) = t3; // set tag
+*(uint32_t *)(t1 + 4) = t3; // set tag
 t1 = (arg4 * 8) + iFP;
 /* Convert stack cache address to VMA */
-t3 = *(u64 *)&(processor->stackcachedata);
-t2 = *(u64 *)&(processor->stackcachebasevma);
+t3 = *(uint64_t *)&(processor->stackcachedata);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
 t3 = t1 - t3; // stack cache base relative offset
 t3 = t3 >> 3; // convert byte address to word address
 t2 = t3 + t2; // reconstruct VMA
 t1 = Type_List;
-*(u32 *)(iSP + 8) = t2;
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = t2;
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 iLP = iLP + 8;
 arg5 = arg5 + 1;
-*(u32 *)&processor->control = arg5;
+*(uint32_t *)&processor->control = arg5;
 
 push_apply_args44551 : if (_trace) printf("push_apply_args44551:\n");
 t1 = arg4 - arg2;
 t1 = t1 + 1;
 /* Compute entry position and advance PC/CP accordingly. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata); // get the next PC
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata); // get the next PC
 t2 = t1 << 1; // Adjust index to halfword
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (t1 == 0) // J. if index zero, no adjustment.
     goto INTERPRETINSTRUCTION;
 iPC = iPC + t2; // Compute the new address
@@ -173,7 +173,7 @@ t2 = t2 & 1; // keep just the apply bit!
 t2 = t2 << 17; // reposition the apply bit
 iSP = iSP - 8; // Pop off the null applied arg.
 arg5 = arg5 & ~t2; // Blast the apply arg bit away
-*(u32 *)&processor->control = arg5; // Reset the stored cr bit
+*(uint32_t *)&processor->control = arg5; // Reset the stored cr bit
 goto b_apply_argument_supplied44553;
 
 b_apply_argument_supplied44547 : if (_trace) printf("b_apply_argument_supplied44547:\n");
@@ -185,7 +185,7 @@ t3 = t3 & 1; // keep just the apply bit!
 t3 = t3 << 17; // reposition the apply bit
 iSP = iSP - 8; // Pop off the null applied arg.
 arg5 = arg5 & ~t3; // Blast the apply arg bit away
-*(u32 *)&processor->control = arg5; // Reset the stored cr bit
+*(uint32_t *)&processor->control = arg5; // Reset the stored cr bit
 goto b_apply_argument_supplied44548;
 
 /* end DoEntryRestAccepted */
@@ -194,7 +194,7 @@ goto b_apply_argument_supplied44548;
 
 carcdrinternal : if (_trace) printf("carcdrinternal:\n");
 sp = sp + -8;
-arg2 = (u32)(t2 >> ((zero & 7) * 8));
+arg2 = (uint32_t) (t2 >> ((zero & 7) * 8));
 t5 = t1 & 63; // Strip off any CDR code bits.
 t6 = (t5 == Type_List) ? 1 : 0;
 
@@ -208,21 +208,21 @@ vma_memory_read44560 : t7 = arg2 + ivory;
 arg6 = (t7 * 4);
 arg5 = LDQ_U(t7);
 t5 = arg2 - t11; // Stack cache offset
-t8 = *(u64 *)&(processor->dataread_mask);
-t6 = ((u64)t5 < (u64)t12) ? 1 : 0; // In range?
-arg6 = *(s32 *)arg6;
-arg5 = (u8)(arg5 >> ((t7 & 7) * 8));
+t8 = *(uint64_t *)&(processor->dataread_mask);
+t6 = ((uint64_t) t5 < (uint64_t) t12) ? 1 : 0; // In range?
+arg6 = *(int32_t *)arg6;
+arg5 = (uint8_t) (arg5 >> ((t7 & 7) * 8));
 if (t6 != 0)
     goto vma_memory_read44562;
 
 vma_memory_read44561 : t7 = zero + 240;
 t8 = t8 >> (arg5 & 63);
 t7 = t7 >> (arg5 & 63);
-arg6 = (u32)arg6;
+arg6 = (uint32_t) arg6;
 if (t8 & 1)
     goto vma_memory_read44564;
 
-vma_memory_read44571 : t5 = (s32)arg2 - (s32)t2;
+vma_memory_read44571 : t5 = (int32_t) arg2 - (int32_t) t2;
 if (t5 != 0) // CAR forwarded, must CDR the hard way
     goto carcdr_internal44555;
 t1 = arg5;
@@ -251,9 +251,9 @@ force_alignment44603 : if (_trace) printf("force_alignment44603:\n");
 if (t6 == 0)
     goto basic_dispatch44589;
 /* Here if argument TypeNIL */
-arg6 = *(s32 *)&processor->niladdress;
-arg5 = *((s32 *)(&processor->niladdress) + 1);
-arg6 = (u32)arg6;
+arg6 = *(int32_t *)&processor->niladdress;
+arg5 = *((int32_t *)(&processor->niladdress) + 1);
+arg6 = (uint32_t) arg6;
 goto basic_dispatch44558;
 
 basic_dispatch44589 : if (_trace) printf("basic_dispatch44589:\n");
@@ -265,7 +265,7 @@ arg4 = 0; // arg4 = arithmeticp
 goto listexception;
 
 carcdr_internal44555 : if (_trace) printf("carcdr_internal44555:\n");
-arg2 = (u32)(t2 >> ((zero & 7) * 8));
+arg2 = (uint32_t) (t2 >> ((zero & 7) * 8));
 t1 = arg5;
 t2 = arg6;
 /* Memory Read Internal */
@@ -274,10 +274,10 @@ vma_memory_read44591 : t7 = arg2 + ivory;
 arg6 = (t7 * 4);
 arg5 = LDQ_U(t7);
 t5 = arg2 - t11; // Stack cache offset
-t8 = *(u64 *)&(processor->cdr_mask);
-t6 = ((u64)t5 < (u64)t12) ? 1 : 0; // In range?
-arg6 = *(s32 *)arg6;
-arg5 = (u8)(arg5 >> ((t7 & 7) * 8));
+t8 = *(uint64_t *)&(processor->cdr_mask);
+t6 = ((uint64_t) t5 < (uint64_t) t12) ? 1 : 0; // In range?
+arg6 = *(int32_t *)arg6;
+arg5 = (uint8_t) (arg5 >> ((t7 & 7) * 8));
 if (t6 != 0)
     goto vma_memory_read44593;
 
@@ -292,16 +292,16 @@ vma_memory_read44600 : goto carcdr_internal44557;
 vma_memory_read44595 : if (_trace) printf("vma_memory_read44595:\n");
 if ((t7 & 1) == 0)
     goto vma_memory_read44594;
-arg2 = (u32)arg6; // Do the indirect thing
+arg2 = (uint32_t) arg6; // Do the indirect thing
 goto vma_memory_read44591;
 
 vma_memory_read44594 : if (_trace) printf("vma_memory_read44594:\n");
 
 vma_memory_read44593 : if (_trace) printf("vma_memory_read44593:\n");
-*(u64 *)sp = r0;
-r0 = (u64) && return0036;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0036;
 goto memoryreadcdrdecode;
-return0036 : r0 = *(u64 *)sp;
+return0036 : r0 = *(uint64_t *)sp;
 goto vma_memory_read44600;
 
 basic_dispatch44573 : if (_trace) printf("basic_dispatch44573:\n");
@@ -318,17 +318,17 @@ vma_memory_read44575 : t7 = arg2 + ivory;
 arg6 = (t7 * 4);
 arg5 = LDQ_U(t7);
 t5 = arg2 - t11; // Stack cache offset
-t8 = *(u64 *)&(processor->dataread_mask);
-t6 = ((u64)t5 < (u64)t12) ? 1 : 0; // In range?
-arg6 = *(s32 *)arg6;
-arg5 = (u8)(arg5 >> ((t7 & 7) * 8));
+t8 = *(uint64_t *)&(processor->dataread_mask);
+t6 = ((uint64_t) t5 < (uint64_t) t12) ? 1 : 0; // In range?
+arg6 = *(int32_t *)arg6;
+arg5 = (uint8_t) (arg5 >> ((t7 & 7) * 8));
 if (t6 != 0)
     goto vma_memory_read44577;
 
 vma_memory_read44576 : t7 = zero + 240;
 t8 = t8 >> (arg5 & 63);
 t7 = t7 >> (arg5 & 63);
-arg6 = (u32)arg6;
+arg6 = (uint32_t) arg6;
 if (t8 & 1)
     goto vma_memory_read44579;
 goto carcdr_internal44556;
@@ -340,9 +340,9 @@ force_alignment44605 : if (_trace) printf("force_alignment44605:\n");
 if (t6 == 0)
     goto basic_dispatch44586;
 /* Here if argument 64 */
-arg6 = *(s32 *)&processor->niladdress;
-arg5 = *((s32 *)(&processor->niladdress) + 1);
-arg6 = (u32)arg6;
+arg6 = *(int32_t *)&processor->niladdress;
+arg5 = *((int32_t *)(&processor->niladdress) + 1);
+arg6 = (uint32_t) arg6;
 goto carcdr_internal44556;
 
 basic_dispatch44586 : if (_trace) printf("basic_dispatch44586:\n");
@@ -354,43 +354,43 @@ goto illegaloperand;
 vma_memory_read44579 : if (_trace) printf("vma_memory_read44579:\n");
 if ((t7 & 1) == 0)
     goto vma_memory_read44578;
-arg2 = (u32)arg6; // Do the indirect thing
+arg2 = (uint32_t) arg6; // Do the indirect thing
 goto vma_memory_read44575;
 
 vma_memory_read44578 : if (_trace) printf("vma_memory_read44578:\n");
 
 vma_memory_read44577 : if (_trace) printf("vma_memory_read44577:\n");
-*(u64 *)sp = r0;
-r0 = (u64) && return0037;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0037;
 goto memoryreaddatadecode;
-return0037 : r0 = *(u64 *)sp;
+return0037 : r0 = *(uint64_t *)sp;
 goto carcdr_internal44556;
 
 vma_memory_read44564 : if (_trace) printf("vma_memory_read44564:\n");
 if ((t7 & 1) == 0)
     goto vma_memory_read44563;
-arg2 = (u32)arg6; // Do the indirect thing
+arg2 = (uint32_t) arg6; // Do the indirect thing
 goto vma_memory_read44560;
 
 vma_memory_read44563 : if (_trace) printf("vma_memory_read44563:\n");
 
 vma_memory_read44562 : if (_trace) printf("vma_memory_read44562:\n");
-*(u64 *)sp = r0;
-r0 = (u64) && return0038;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0038;
 goto memoryreaddatadecode;
-return0038 : r0 = *(u64 *)sp;
+return0038 : r0 = *(uint64_t *)sp;
 goto vma_memory_read44571;
 
 /* end CarCdrInternal */
 /* start PullApplyArgsSlowly */
 
 pullapplyargsslowly : if (_trace) printf("pullapplyargsslowly:\n");
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
-arg4 = *(s32 *)iSP; // Get the rest arg
-arg3 = *(s32 *)(iSP + 4);
-arg4 = (u32)arg4;
-t2 = (u32)(arg4 >> ((zero & 7) * 8));
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
+arg4 = *(int32_t *)iSP; // Get the rest arg
+arg3 = *(int32_t *)(iSP + 4);
+arg4 = (uint32_t) arg4;
+t2 = (uint32_t) (arg4 >> ((zero & 7) * 8));
 t3 = arg3 & 63; // Strip off any CDR code bits.
 t4 = (t3 == Type_List) ? 1 : 0;
 
@@ -404,21 +404,21 @@ vma_memory_read44611 : t5 = t2 + ivory;
 arg6 = (t5 * 4);
 arg5 = LDQ_U(t5);
 t3 = t2 - t11; // Stack cache offset
-t6 = *(u64 *)&(processor->dataread_mask);
-t4 = ((u64)t3 < (u64)t12) ? 1 : 0; // In range?
-arg6 = *(s32 *)arg6;
-arg5 = (u8)(arg5 >> ((t5 & 7) * 8));
+t6 = *(uint64_t *)&(processor->dataread_mask);
+t4 = ((uint64_t) t3 < (uint64_t) t12) ? 1 : 0; // In range?
+arg6 = *(int32_t *)arg6;
+arg5 = (uint8_t) (arg5 >> ((t5 & 7) * 8));
 if (t4 != 0)
     goto vma_memory_read44613;
 
 vma_memory_read44612 : t5 = zero + 240;
 t6 = t6 >> (arg5 & 63);
 t5 = t5 >> (arg5 & 63);
-arg6 = (u32)arg6;
+arg6 = (uint32_t) arg6;
 if (t6 & 1)
     goto vma_memory_read44615;
 
-vma_memory_read44622 : t3 = (s32)t2 - (s32)arg4;
+vma_memory_read44622 : t3 = (int32_t) t2 - (int32_t) arg4;
 if (t3 != 0) // CAR forwarded, must CDR the hard way
     goto carcdr_internal44606;
 arg3 = arg5;
@@ -437,18 +437,18 @@ basic_dispatch44623 : if (_trace) printf("basic_dispatch44623:\n");
 basic_dispatch44609 : if (_trace) printf("basic_dispatch44609:\n");
 
 carcdr_internal44607 : if (_trace) printf("carcdr_internal44607:\n");
-*(u32 *)iSP = arg4; // Push the pulled argument
-*(u32 *)(iSP + 4) = arg3; // write the stack cache
+*(uint32_t *)iSP = arg4; // Push the pulled argument
+*(uint32_t *)(iSP + 4) = arg3; // write the stack cache
 t1 = arg5 & 63; // set CDR-NEXT
-*(u32 *)(iSP + 8) = arg6; // Push the new rest arg
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg6; // Push the new rest arg
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
-arg2 = *(s32 *)&processor->control;
+arg2 = *(int32_t *)&processor->control;
 t2 = arg2 & 255; // Get current arg size.
 arg2 = arg2 & ~255L;
 t2 = t2 + 1;
 arg2 = t2 + arg2; // Update the arg size
-*(u32 *)&processor->control = arg2;
+*(uint32_t *)&processor->control = arg2;
 iLP = iLP + 8;
 goto INTERPRETINSTRUCTION;
 
@@ -459,9 +459,9 @@ force_alignment44654 : if (_trace) printf("force_alignment44654:\n");
 if (t4 == 0)
     goto basic_dispatch44640;
 /* Here if argument TypeNIL */
-arg6 = *(s32 *)&processor->niladdress;
-arg5 = *((s32 *)(&processor->niladdress) + 1);
-arg6 = (u32)arg6;
+arg6 = *(int32_t *)&processor->niladdress;
+arg5 = *((int32_t *)(&processor->niladdress) + 1);
+arg6 = (uint32_t) arg6;
 goto basic_dispatch44609;
 
 basic_dispatch44640 : if (_trace) printf("basic_dispatch44640:\n");
@@ -470,7 +470,7 @@ arg1 = arg1;
 goto pullapplyargstrap;
 
 carcdr_internal44606 : if (_trace) printf("carcdr_internal44606:\n");
-t2 = (u32)(arg4 >> ((zero & 7) * 8));
+t2 = (uint32_t) (arg4 >> ((zero & 7) * 8));
 arg3 = arg5;
 arg4 = arg6;
 /* Memory Read Internal */
@@ -479,10 +479,10 @@ vma_memory_read44642 : t5 = t2 + ivory;
 arg6 = (t5 * 4);
 arg5 = LDQ_U(t5);
 t3 = t2 - t11; // Stack cache offset
-t6 = *(u64 *)&(processor->cdr_mask);
-t4 = ((u64)t3 < (u64)t12) ? 1 : 0; // In range?
-arg6 = *(s32 *)arg6;
-arg5 = (u8)(arg5 >> ((t5 & 7) * 8));
+t6 = *(uint64_t *)&(processor->cdr_mask);
+t4 = ((uint64_t) t3 < (uint64_t) t12) ? 1 : 0; // In range?
+arg6 = *(int32_t *)arg6;
+arg5 = (uint8_t) (arg5 >> ((t5 & 7) * 8));
 if (t4 != 0)
     goto vma_memory_read44644;
 
@@ -495,25 +495,25 @@ if (t6 & 1)
 vma_memory_read44651 : goto carcdr_internal44608;
 
 vma_memory_read44644 : if (_trace) printf("vma_memory_read44644:\n");
-t4 = *(u64 *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachedata);
 t3 = (t3 * 8) + t4; // reconstruct SCA
-arg6 = *(s32 *)t3;
-arg5 = *(s32 *)(t3 + 4); // Read from stack cache
+arg6 = *(int32_t *)t3;
+arg5 = *(int32_t *)(t3 + 4); // Read from stack cache
 goto vma_memory_read44643;
 
 vma_memory_read44646 : if (_trace) printf("vma_memory_read44646:\n");
 if ((t5 & 1) == 0)
     goto vma_memory_read44645;
-t2 = (u32)arg6; // Do the indirect thing
+t2 = (uint32_t) arg6; // Do the indirect thing
 goto vma_memory_read44642;
 
 vma_memory_read44645 : if (_trace) printf("vma_memory_read44645:\n");
-t6 = *(u64 *)&(processor->cdr); // Load the memory action table for cycle
+t6 = *(uint64_t *)&(processor->cdr); // Load the memory action table for cycle
 /* TagType. */
 t5 = arg5 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t2; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t2; // stash the VMA for the (likely) trap
 t5 = (t5 * 4) + t6; // Adjust for a longword load
-t6 = *(s32 *)t5; // Get the memory action
+t6 = *(int32_t *)t5; // Get the memory action
 
 vma_memory_read44648 :
     /* Perform memory action */
@@ -536,17 +536,17 @@ vma_memory_read44626 : t5 = t2 + ivory;
 arg6 = (t5 * 4);
 arg5 = LDQ_U(t5);
 t3 = t2 - t11; // Stack cache offset
-t6 = *(u64 *)&(processor->dataread_mask);
-t4 = ((u64)t3 < (u64)t12) ? 1 : 0; // In range?
-arg6 = *(s32 *)arg6;
-arg5 = (u8)(arg5 >> ((t5 & 7) * 8));
+t6 = *(uint64_t *)&(processor->dataread_mask);
+t4 = ((uint64_t) t3 < (uint64_t) t12) ? 1 : 0; // In range?
+arg6 = *(int32_t *)arg6;
+arg5 = (uint8_t) (arg5 >> ((t5 & 7) * 8));
 if (t4 != 0)
     goto vma_memory_read44628;
 
 vma_memory_read44627 : t5 = zero + 240;
 t6 = t6 >> (arg5 & 63);
 t5 = t5 >> (arg5 & 63);
-arg6 = (u32)arg6;
+arg6 = (uint32_t) arg6;
 if (t6 & 1)
     goto vma_memory_read44630;
 goto carcdr_internal44607;
@@ -558,9 +558,9 @@ force_alignment44656 : if (_trace) printf("force_alignment44656:\n");
 if (t4 == 0)
     goto basic_dispatch44637;
 /* Here if argument 64 */
-arg6 = *(s32 *)&processor->niladdress;
-arg5 = *((s32 *)(&processor->niladdress) + 1);
-arg6 = (u32)arg6;
+arg6 = *(int32_t *)&processor->niladdress;
+arg5 = *((int32_t *)(&processor->niladdress) + 1);
+arg6 = (uint32_t) arg6;
 goto carcdr_internal44607;
 
 basic_dispatch44637 : if (_trace) printf("basic_dispatch44637:\n");
@@ -570,25 +570,25 @@ arg2 = 15;
 goto illegaloperand;
 
 vma_memory_read44628 : if (_trace) printf("vma_memory_read44628:\n");
-t4 = *(u64 *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachedata);
 t3 = (t3 * 8) + t4; // reconstruct SCA
-arg6 = *(s32 *)t3;
-arg5 = *(s32 *)(t3 + 4); // Read from stack cache
+arg6 = *(int32_t *)t3;
+arg5 = *(int32_t *)(t3 + 4); // Read from stack cache
 goto vma_memory_read44627;
 
 vma_memory_read44630 : if (_trace) printf("vma_memory_read44630:\n");
 if ((t5 & 1) == 0)
     goto vma_memory_read44629;
-t2 = (u32)arg6; // Do the indirect thing
+t2 = (uint32_t) arg6; // Do the indirect thing
 goto vma_memory_read44626;
 
 vma_memory_read44629 : if (_trace) printf("vma_memory_read44629:\n");
-t6 = *(u64 *)&(processor->dataread); // Load the memory action table for cycle
+t6 = *(uint64_t *)&(processor->dataread); // Load the memory action table for cycle
 /* TagType. */
 t5 = arg5 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t2; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t2; // stash the VMA for the (likely) trap
 t5 = (t5 * 4) + t6; // Adjust for a longword load
-t6 = *(s32 *)t5; // Get the memory action
+t6 = *(int32_t *)t5; // Get the memory action
 
 vma_memory_read44634 : if (_trace) printf("vma_memory_read44634:\n");
 t5 = t6 & MemoryActionTransform;
@@ -608,25 +608,25 @@ arg2 = 0;
 goto performmemoryaction;
 
 vma_memory_read44613 : if (_trace) printf("vma_memory_read44613:\n");
-t4 = *(u64 *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachedata);
 t3 = (t3 * 8) + t4; // reconstruct SCA
-arg6 = *(s32 *)t3;
-arg5 = *(s32 *)(t3 + 4); // Read from stack cache
+arg6 = *(int32_t *)t3;
+arg5 = *(int32_t *)(t3 + 4); // Read from stack cache
 goto vma_memory_read44612;
 
 vma_memory_read44615 : if (_trace) printf("vma_memory_read44615:\n");
 if ((t5 & 1) == 0)
     goto vma_memory_read44614;
-t2 = (u32)arg6; // Do the indirect thing
+t2 = (uint32_t) arg6; // Do the indirect thing
 goto vma_memory_read44611;
 
 vma_memory_read44614 : if (_trace) printf("vma_memory_read44614:\n");
-t6 = *(u64 *)&(processor->dataread); // Load the memory action table for cycle
+t6 = *(uint64_t *)&(processor->dataread); // Load the memory action table for cycle
 /* TagType. */
 t5 = arg5 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t2; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t2; // stash the VMA for the (likely) trap
 t5 = (t5 * 4) + t6; // Adjust for a longword load
-t6 = *(s32 *)t5; // Get the memory action
+t6 = *(int32_t *)t5; // Get the memory action
 
 vma_memory_read44619 : if (_trace) printf("vma_memory_read44619:\n");
 t5 = t6 & MemoryActionTransform;
@@ -667,7 +667,7 @@ DoLocateLocalsFP : if (_trace) printf("DoLocateLocalsFP:\n");
 begindolocatelocals : if (_trace) printf("begindolocatelocals:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t1 = *(s32 *)&processor->control; // The control register
+t1 = *(int32_t *)&processor->control; // The control register
 iLP = iSP;
 t3 = iLP - iFP; // arg size including the fudge 2
 t3 = t3 >> 3; // adjust arg size to words
@@ -676,10 +676,10 @@ t2 = t2 - 2; // corrected arg size
 t1 = t1 & ~255L;
 t1 = t1 | t3; // replace the arg size
 t4 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t2;
-*(u32 *)(iSP + 12) = t4; // write the stack cache
+*(uint32_t *)(iSP + 8) = t2;
+*(uint32_t *)(iSP + 12) = t4; // write the stack cache
 iSP = iSP + 8;
-*(u32 *)&processor->control = t1;
+*(uint32_t *)&processor->control = t1;
 goto NEXTINSTRUCTION;
 
 DoLocateLocalsIM : goto doistageerror;
@@ -708,39 +708,39 @@ DoReturnMultipleFP : if (_trace) printf("DoReturnMultipleFP:\n");
 begindoreturnmultiple : if (_trace) printf("begindoreturnmultiple:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t1 = *(s32 *)(arg1 + 4); // Fetch the tag for type-check
-arg1 = *(s32 *)arg1; // Fetch the data
+t1 = *(int32_t *)(arg1 + 4); // Fetch the tag for type-check
+arg1 = *(int32_t *)arg1; // Fetch the data
 t2 = t1 - Type_Fixnum;
 t2 = t2 & 63; // Strip CDR code
 if (t2 != 0)
     goto returnmultipleio;
-arg1 = (u32)arg1; // Discard dtp-fixnum tag word
+arg1 = (uint32_t) arg1; // Discard dtp-fixnum tag word
 
 returnmultipletop : if (_trace) printf("returnmultipletop:\n");
-arg5 = *(s32 *)&processor->control;
+arg5 = *(int32_t *)&processor->control;
 t3 = (12) << 16;
 t2 = iSP + 8;
 t1 = arg1 << 3; // Value bytes
 t3 = t3 & arg5; // Mask
 t3 = t3 >> 18; // Shift disposition bits into place.
 arg3 = t2 - t1; // Compute position of value(s)
-arg6 = *(u64 *)&(processor->stackcachedata);
+arg6 = *(uint64_t *)&(processor->stackcachedata);
 arg4 = t3 - 2; // arg4 -2=effect -1=value 0=return 1=multiple
-if ((s64)arg4 < 0)
+if ((int64_t) arg4 < 0)
     goto returnmultiplesingle;
 /* Restore machine state from frame header. */
-t3 = *(s32 *)iFP;
+t3 = *(int32_t *)iFP;
 t1 = (1792) << 16;
-t5 = *(s32 *)&processor->continuation;
+t5 = *(int32_t *)&processor->continuation;
 t1 = arg5 & t1; // Mask
-t2 = *(s32 *)(iFP + 4);
+t2 = *(int32_t *)(iFP + 4);
 t7 = iCP;
 if (t1 != 0) // Need to cleanup frame first
     goto handleframecleanup;
-t3 = (u32)t3;
-t4 = *((s32 *)(&processor->continuation) + 1);
-t5 = (u32)t5;
-t6 = *(s32 *)(iFP + 8); // Get saved control register
+t3 = (uint32_t) t3;
+t4 = *((int32_t *)(&processor->continuation) + 1);
+t5 = (uint32_t) t5;
+t6 = *(int32_t *)(iFP + 8); // Get saved control register
 /* TagType. */
 t2 = t2 & 63;
 /* Restore the PC. */
@@ -748,45 +748,45 @@ if (arg4 == 0)
     goto abandon_frame_simple44658;
 iPC = t5 << 1; // Assume even PC
 t1 = t4 & 1;
-t7 = *(u64 *)&(processor->continuationcp);
+t7 = *(uint64_t *)&(processor->continuationcp);
 iPC = iPC + t1;
 
 abandon_frame_simple44658 : if (_trace) printf("abandon_frame_simple44658:\n");
 /* Restore the saved continuation */
-*((u32 *)(&processor->continuation) + 1) = t2;
+*((uint32_t *)(&processor->continuation) + 1) = t2;
 t1 = arg5 >> 9; // Get the caller frame size into place
-*(u32 *)&processor->continuation = t3;
+*(uint32_t *)&processor->continuation = t3;
 iSP = iFP - 8; // Restore the stack pointer.
-*(u64 *)&processor->continuationcp = zero;
+*(uint64_t *)&processor->continuationcp = zero;
 t1 = t1 & 255; // Mask just the caller frame size.
 t1 = (t1 * 8) + 0; // *8
 t2 = (2048) << 16;
 t2 = t2 & arg5;
-t3 = *(s32 *)&processor->interruptreg; // Get the preempt-pending bit
+t3 = *(int32_t *)&processor->interruptreg; // Get the preempt-pending bit
 t6 = t2 | t6; // Sticky trace pending bit.
-t4 = *(u64 *)&(processor->please_stop); // Get the trap/suspend bits
+t4 = *(uint64_t *)&(processor->please_stop); // Get the trap/suspend bits
 iFP = iFP - t1; // Restore the frame pointer.
-*(u32 *)&processor->control = t6; // Restore the control register
+*(uint32_t *)&processor->control = t6; // Restore the control register
 t1 = t6 & 255; // extract the argument size
 t3 = t3 & 1;
 t3 = t4 | t3;
-*(u64 *)&processor->stop_interpreter = t3;
+*(uint64_t *)&processor->stop_interpreter = t3;
 iLP = (t1 * 8) + iFP; // Restore the local pointer.
-arg6 = ((u64)iFP < (u64)arg6) ? 1 : 0; // ARG6 = stack-cache underflow
+arg6 = ((uint64_t) iFP < (uint64_t) arg6) ? 1 : 0; // ARG6 = stack-cache underflow
 t4 = iSP + 8; // Compute destination of copy
 t3 = arg1; // Values
-t1 = *(u64 *)&(processor->cdrcodemask); // mask for CDR codes
+t1 = *(uint64_t *)&(processor->cdrcodemask); // mask for CDR codes
 goto stack_block_copy44659;
 
 stack_block_copy44660 : if (_trace) printf("stack_block_copy44660:\n");
 t3 = t3 - 1;
-t2 = *(u64 *)arg3; // Get a word from source
+t2 = *(uint64_t *)arg3; // Get a word from source
 arg3 = arg3 + 8; // advance from position
 t2 = t2 & ~t1; // Strip off CDR code
-*(u64 *)t4 = t2; // Put word in destination
+*(uint64_t *)t4 = t2; // Put word in destination
 t4 = t4 + 8; // advance to position
 
-stack_block_copy44659 : if ((s64)t3 > 0) goto stack_block_copy44660;
+stack_block_copy44659 : if ((int64_t) t3 > 0) goto stack_block_copy44660;
 iSP = (arg1 * 8) + iSP; // Adjust iSP over returned values
 /* arg4 -2=effect -1=value 0=return 1=multiple */
 if (arg4 == 0)
@@ -794,8 +794,8 @@ if (arg4 == 0)
 
 returnmultiplemultiple : if (_trace) printf("returnmultiplemultiple:\n");
 t1 = Type_Fixnum;
-*(u32 *)(iSP + 8) = arg1; // push the MV return count
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg1; // push the MV return count
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 
 returnmultipledone : if (_trace) printf("returnmultipledone:\n");
@@ -812,8 +812,8 @@ returnmultipleunderflow : if (_trace) printf("returnmultipleunderflow:\n");
 goto stackcacheunderflowcheck;
 
 returnmultiplesingle : if (_trace) printf("returnmultiplesingle:\n");
-arg3 = *(u64 *)arg3;
-t1 = *(u64 *)&(processor->niladdress);
+arg3 = *(uint64_t *)arg3;
+t1 = *(uint64_t *)&(processor->niladdress);
 arg3 = arg3 << 26; // Clear cdr
 arg3 = arg3 >> 26; // Clear cdr
 if (arg1 == 0)
@@ -824,8 +824,8 @@ returnmultiplereturn : if (_trace) printf("returnmultiplereturn:\n");
 if (arg2 != 0)
     goto returnmultipledone;
 t1 = Type_Fixnum;
-*(u32 *)(iSP + 8) = arg1;
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg1;
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 goto returnmultipledone;
 
@@ -844,27 +844,27 @@ goto illegaloperand;
 /* start HANDLEFRAMECLEANUP */
 
 handleframecleanup : if (_trace) printf("handleframecleanup:\n");
-iSP = *(u64 *)&(processor->restartsp); // Restore SP to instruction start
-arg5 = *(s32 *)&processor->control; // Get control register
+iSP = *(uint64_t *)&(processor->restartsp); // Restore SP to instruction start
+arg5 = *(int32_t *)&processor->control; // Get control register
 
 cleanup_frame44663 : if (_trace) printf("cleanup_frame44663:\n");
 t1 = (1024) << 16;
-t4 = *(s32 *)&processor->catchblock;
-t4 = (u32)t4;
+t4 = *(int32_t *)&processor->catchblock;
+t4 = (uint32_t) t4;
 t2 = t1 & arg5;
 if (t2 == 0) // J. if cr.cleanup-catch is 0
     goto cleanup_frame44662;
 /* Convert VMA to stack cache address */
-t2 = *(u64 *)&(processor->stackcachebasevma);
-t3 = *(u64 *)&(processor->stackcachedata);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
+t3 = *(uint64_t *)&(processor->stackcachedata);
 t2 = t4 - t2; // stack cache base relative offset
 t3 = (t2 * 8) + t3; // reconstruct SCA
-t6 = *(s32 *)(t3 + 16);
-t5 = *(s32 *)(t3 + 20);
-t6 = (u32)t6;
-t2 = *(s32 *)(t3 + 8);
-t1 = *(s32 *)(t3 + 12);
-t2 = (u32)t2;
+t6 = *(int32_t *)(t3 + 16);
+t5 = *(int32_t *)(t3 + 20);
+t6 = (uint32_t) t6;
+t2 = *(int32_t *)(t3 + 8);
+t1 = *(int32_t *)(t3 + 12);
+t2 = (uint32_t) t2;
 t12 = t1 & 64;
 if (t12 != 0) // J. if catch block is UWP variety.
     goto handleunwindprotect;
@@ -873,32 +873,32 @@ t2 = t5 & 64; // Extract the catchcleanup bit
 t2 = t2 << 20; // Shift into place for CR
 t3 = arg5 & ~t3;
 arg5 = t3 | t2;
-*(u32 *)&processor->control = arg5;
+*(uint32_t *)&processor->control = arg5;
 /* TagType. */
 t5 = t5 & 63;
 t5 = t5 << 32;
 t6 = t6 | t5;
-*(u64 *)&processor->catchblock = t6;
+*(uint64_t *)&processor->catchblock = t6;
 goto cleanup_frame44663;
 
 cleanup_frame44662 : if (_trace) printf("cleanup_frame44662:\n");
 t1 = (512) << 16;
 t2 = t1 & arg5;
-t1 = *(u64 *)&(processor->bindingstackpointer);
+t1 = *(uint64_t *)&(processor->bindingstackpointer);
 if (t2 == 0) // J. if cr.cleanup-bindings is 0.
     goto cleanup_frame44661;
 
 cleanup_frame44664 : if (_trace) printf("cleanup_frame44664:\n");
-t1 = *(u64 *)&(processor->bindingstackpointer);
-t4 = *(s32 *)&processor->control;
-t1 = (u32)t1; // vma only
+t1 = *(uint64_t *)&(processor->bindingstackpointer);
+t4 = *(int32_t *)&processor->control;
+t1 = (uint32_t) t1; // vma only
 t2 = (512) << 16;
 t5 = t1 - 1;
 t3 = t4 & t2;
 t4 = t4 & ~t2; // Turn off the bit
 if (t3 != 0)
     goto g44665;
-t4 = *(u64 *)&(processor->restartsp); // Get the SP, ->op2
+t4 = *(uint64_t *)&(processor->restartsp); // Get the SP, ->op2
 arg5 = 0;
 arg2 = 20;
 goto illegaloperand;
@@ -906,16 +906,16 @@ goto illegaloperand;
 g44665 : if (_trace) printf("g44665:\n");
 /* Memory Read Internal */
 
-vma_memory_read44666 : t8 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read44666 : t8 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t10 = t1 + ivory;
-t9 = *(s32 *)&processor->scovlimit;
+t9 = *(int32_t *)&processor->scovlimit;
 t6 = (t10 * 4);
 t7 = LDQ_U(t10);
 t8 = t1 - t8; // Stack cache offset
-t11 = *(u64 *)&(processor->bindread_mask);
-t9 = ((u64)t8 < (u64)t9) ? 1 : 0; // In range?
-t6 = *(s32 *)t6;
-t7 = (u8)(t7 >> ((t10 & 7) * 8));
+t11 = *(uint64_t *)&(processor->bindread_mask);
+t9 = ((uint64_t) t8 < (uint64_t) t9) ? 1 : 0; // In range?
+t6 = *(int32_t *)t6;
+t7 = (uint8_t) (t7 >> ((t10 & 7) * 8));
 if (t9 != 0)
     goto vma_memory_read44668;
 
@@ -929,23 +929,23 @@ vma_memory_read44675 :
     /* Memory Read Internal */
 
     vma_memory_read44676 : t8
-                           = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+                           = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t10 = t5 + ivory;
-t9 = *(s32 *)&processor->scovlimit;
+t9 = *(int32_t *)&processor->scovlimit;
 t2 = (t10 * 4);
 t3 = LDQ_U(t10);
 t8 = t5 - t8; // Stack cache offset
-t11 = *(u64 *)&(processor->bindread_mask);
-t9 = ((u64)t8 < (u64)t9) ? 1 : 0; // In range?
-t2 = *(s32 *)t2;
-t3 = (u8)(t3 >> ((t10 & 7) * 8));
+t11 = *(uint64_t *)&(processor->bindread_mask);
+t9 = ((uint64_t) t8 < (uint64_t) t9) ? 1 : 0; // In range?
+t2 = *(int32_t *)t2;
+t3 = (uint8_t) (t3 >> ((t10 & 7) * 8));
 if (t9 != 0)
     goto vma_memory_read44678;
 
 vma_memory_read44677 : t10 = zero + 224;
 t11 = t11 >> (t3 & 63);
 t10 = t10 >> (t3 & 63);
-t2 = (u32)t2;
+t2 = (uint32_t) t2;
 if (t11 & 1)
     goto vma_memory_read44680;
 
@@ -953,19 +953,19 @@ vma_memory_read44685 :
     /* Memory Read Internal */
 
     vma_memory_read44686 : t10
-                           = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+                           = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t12 = t2 + ivory;
-t11 = *(s32 *)&processor->scovlimit;
+t11 = *(int32_t *)&processor->scovlimit;
 t9 = (t12 * 4);
 t8 = LDQ_U(t12);
 t10 = t2 - t10; // Stack cache offset
-t11 = ((u64)t10 < (u64)t11) ? 1 : 0; // In range?
-t9 = *(s32 *)t9;
-t8 = (u8)(t8 >> ((t12 & 7) * 8));
+t11 = ((uint64_t) t10 < (uint64_t) t11) ? 1 : 0; // In range?
+t9 = *(int32_t *)t9;
+t8 = (uint8_t) (t8 >> ((t12 & 7) * 8));
 if (t11 != 0)
     goto vma_memory_read44688;
 
-vma_memory_read44687 : t10 = *(u64 *)&(processor->bindwrite_mask);
+vma_memory_read44687 : t10 = *(uint64_t *)&(processor->bindwrite_mask);
 t12 = zero + 224;
 t10 = t10 >> (t8 & 63);
 t12 = t12 >> (t8 & 63);
@@ -986,34 +986,34 @@ t12 = t12 & ~(0xffL << (t10 & 7) * 8);
 
 force_alignment44698 : if (_trace) printf("force_alignment44698:\n");
 t12 = t12 | t11;
-t11 = *(u64 *)&(processor->stackcachebasevma);
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
 STQ_U(t10, t12);
-t10 = *(s32 *)&processor->scovlimit;
+t10 = *(int32_t *)&processor->scovlimit;
 t11 = t2 - t11; // Stack cache offset
-t10 = ((u64)t11 < (u64)t10) ? 1 : 0; // In range?
-*(u32 *)t9 = t6;
+t10 = ((uint64_t) t11 < (uint64_t) t10) ? 1 : 0; // In range?
+*(uint32_t *)t9 = t6;
 if (t10 != 0) // J. if in cache
     goto vma_memory_write44697;
 
 vma_memory_write44696 : t3 = t3 & 64; // Get the old cleanup-bindings bit
 t3 = t3 << 19;
 t1 = t1 - 2;
-*(u32 *)&processor->bindingstackpointer = t1; // vma only
+*(uint32_t *)&processor->bindingstackpointer = t1; // vma only
 t4 = t4 | t3;
-*(u32 *)&processor->control = t4;
-arg5 = *(s32 *)&processor->control;
+*(uint32_t *)&processor->control = t4;
+arg5 = *(int32_t *)&processor->control;
 t1 = (512) << 16;
 t2 = t1 & arg5;
 if (t2 != 0) // J. if cr.cleanup-bindings is 0.
     goto cleanup_frame44664;
-t2 = *(s32 *)&processor->interruptreg;
+t2 = *(int32_t *)&processor->interruptreg;
 t3 = t2 & 2;
 t3 = (t3 == 2) ? 1 : 0;
 t2 = t2 | t3;
-*(u32 *)&processor->interruptreg = t2;
+*(uint32_t *)&processor->interruptreg = t2;
 if (t2 == 0)
     goto check_preempt_request44699;
-*(u64 *)&processor->stop_interpreter = t2;
+*(uint64_t *)&processor->stop_interpreter = t2;
 
 check_preempt_request44699 : if (_trace) printf("check_preempt_request44699:\n");
 
@@ -1028,32 +1028,32 @@ goto illegaloperand;
 goto INTERPRETINSTRUCTION; // Retry the instruction
 
 vma_memory_write44697 : if (_trace) printf("vma_memory_write44697:\n");
-t10 = *(u64 *)&(processor->stackcachedata);
+t10 = *(uint64_t *)&(processor->stackcachedata);
 t10 = (t11 * 8) + t10; // reconstruct SCA
-*(u32 *)t10 = t6; // Store in stack
-*(u32 *)(t10 + 4) = t8; // write the stack cache
+*(uint32_t *)t10 = t6; // Store in stack
+*(uint32_t *)(t10 + 4) = t8; // write the stack cache
 goto vma_memory_write44696;
 
 vma_memory_read44688 : if (_trace) printf("vma_memory_read44688:\n");
-t11 = *(u64 *)&(processor->stackcachedata);
+t11 = *(uint64_t *)&(processor->stackcachedata);
 t10 = (t10 * 8) + t11; // reconstruct SCA
-t9 = *(s32 *)t10;
-t8 = *(s32 *)(t10 + 4); // Read from stack cache
+t9 = *(int32_t *)t10;
+t8 = *(int32_t *)(t10 + 4); // Read from stack cache
 goto vma_memory_read44687;
 
 vma_memory_read44690 : if (_trace) printf("vma_memory_read44690:\n");
 if ((t12 & 1) == 0)
     goto vma_memory_read44689;
-t2 = (u32)t9; // Do the indirect thing
+t2 = (uint32_t) t9; // Do the indirect thing
 goto vma_memory_read44686;
 
 vma_memory_read44689 : if (_trace) printf("vma_memory_read44689:\n");
-t10 = *(u64 *)&(processor->bindwrite); // Load the memory action table for cycle
+t10 = *(uint64_t *)&(processor->bindwrite); // Load the memory action table for cycle
 /* TagType. */
 t12 = t8 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t2; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t2; // stash the VMA for the (likely) trap
 t12 = (t12 * 4) + t10; // Adjust for a longword load
-t10 = *(s32 *)t12; // Get the memory action
+t10 = *(int32_t *)t12; // Get the memory action
 
 vma_memory_read44692 :
     /* Perform memory action */
@@ -1063,25 +1063,25 @@ arg2 = 3;
 goto performmemoryaction;
 
 vma_memory_read44678 : if (_trace) printf("vma_memory_read44678:\n");
-t9 = *(u64 *)&(processor->stackcachedata);
+t9 = *(uint64_t *)&(processor->stackcachedata);
 t8 = (t8 * 8) + t9; // reconstruct SCA
-t2 = *(s32 *)t8;
-t3 = *(s32 *)(t8 + 4); // Read from stack cache
+t2 = *(int32_t *)t8;
+t3 = *(int32_t *)(t8 + 4); // Read from stack cache
 goto vma_memory_read44677;
 
 vma_memory_read44680 : if (_trace) printf("vma_memory_read44680:\n");
 if ((t10 & 1) == 0)
     goto vma_memory_read44679;
-t5 = (u32)t2; // Do the indirect thing
+t5 = (uint32_t) t2; // Do the indirect thing
 goto vma_memory_read44676;
 
 vma_memory_read44679 : if (_trace) printf("vma_memory_read44679:\n");
-t11 = *(u64 *)&(processor->bindread); // Load the memory action table for cycle
+t11 = *(uint64_t *)&(processor->bindread); // Load the memory action table for cycle
 /* TagType. */
 t10 = t3 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t5; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t5; // stash the VMA for the (likely) trap
 t10 = (t10 * 4) + t11; // Adjust for a longword load
-t11 = *(s32 *)t10; // Get the memory action
+t11 = *(int32_t *)t10; // Get the memory action
 
 vma_memory_read44682 :
     /* Perform memory action */
@@ -1091,25 +1091,25 @@ arg2 = 2;
 goto performmemoryaction;
 
 vma_memory_read44668 : if (_trace) printf("vma_memory_read44668:\n");
-t9 = *(u64 *)&(processor->stackcachedata);
+t9 = *(uint64_t *)&(processor->stackcachedata);
 t8 = (t8 * 8) + t9; // reconstruct SCA
-t6 = *(s32 *)t8;
-t7 = *(s32 *)(t8 + 4); // Read from stack cache
+t6 = *(int32_t *)t8;
+t7 = *(int32_t *)(t8 + 4); // Read from stack cache
 goto vma_memory_read44667;
 
 vma_memory_read44670 : if (_trace) printf("vma_memory_read44670:\n");
 if ((t10 & 1) == 0)
     goto vma_memory_read44669;
-t1 = (u32)t6; // Do the indirect thing
+t1 = (uint32_t) t6; // Do the indirect thing
 goto vma_memory_read44666;
 
 vma_memory_read44669 : if (_trace) printf("vma_memory_read44669:\n");
-t11 = *(u64 *)&(processor->bindread); // Load the memory action table for cycle
+t11 = *(uint64_t *)&(processor->bindread); // Load the memory action table for cycle
 /* TagType. */
 t10 = t7 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t1; // stash the VMA for the (likely) trap
 t10 = (t10 * 4) + t11; // Adjust for a longword load
-t11 = *(s32 *)t10; // Get the memory action
+t11 = *(int32_t *)t10; // Get the memory action
 
 vma_memory_read44672 :
     /* Perform memory action */
@@ -1122,16 +1122,16 @@ goto performmemoryaction;
 /* start StackCacheUnderflowCheck */
 
 stackcacheunderflowcheck : if (_trace) printf("stackcacheunderflowcheck:\n");
-t1 = *(u64 *)&(processor->stackcachedata);
-t4 = *(u64 *)&(processor->restartsp); // Preserve through instruction's original SP
+t1 = *(uint64_t *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->restartsp); // Preserve through instruction's original SP
 t3 = t1 - iFP; // Number of words*8 to fill iff positive
-if ((s64)t3 <= 0)
+if ((int64_t) t3 <= 0)
     goto interpretinstructionforbranch;
-t3 = (s64)t3 >> 3; // Convert to a word count
+t3 = (int64_t) t3 >> 3; // Convert to a word count
 t4 = t4 + 8; // Account for the inclusive limit
-if ((s64)t3 <= 0) // in case only low three bits nonzero
+if ((int64_t) t3 <= 0) // in case only low three bits nonzero
     goto interpretinstructionforbranch;
-r0 = (u64) && return0039;
+r0 = (uint64_t)  && return0039;
 goto stackcacheunderflow;
 return0039 : goto interpretinstructionforbranch;
 
@@ -1141,7 +1141,7 @@ return0039 : goto interpretinstructionforbranch;
 stackcacheunderflow : if (_trace) printf("stackcacheunderflow:\n");
 t2 = (t3 * 8) + t1; // Compute target address for shift
 t5 = t4 - t1; // Compute number of elements to preserve
-t5 = (s64)t5 >> 3; // Convert to word count
+t5 = (int64_t) t5 >> 3; // Convert to word count
 /* Shove everything up */
 t1 = (t5 * 8) + t1; // Adjust to end of source block
 t2 = (t5 * 8) + t2; // Adjust to end of target block
@@ -1150,46 +1150,46 @@ goto stack_block_copy44700;
 stack_block_copy44701 : if (_trace) printf("stack_block_copy44701:\n");
 t1 = t1 - 8; // advance from position
 t5 = t5 - 1;
-t7 = *(u64 *)t1; // Get a word from source
+t7 = *(uint64_t *)t1; // Get a word from source
 t2 = t2 - 8; // advance to position
-*(u64 *)t2 = t7; // Put word in destination
+*(uint64_t *)t2 = t7; // Put word in destination
 
-stack_block_copy44700 : if ((s64)t5 > 0) goto stack_block_copy44701;
+stack_block_copy44700 : if ((int64_t) t5 > 0) goto stack_block_copy44701;
 /* Adjust stack cache relative registers */
 iFP = (t3 * 8) + iFP;
-t4 = *(u64 *)&(processor->restartsp);
+t4 = *(uint64_t *)&(processor->restartsp);
 iSP = (t3 * 8) + iSP;
 iLP = (t3 * 8) + iLP;
 t4 = (t3 * 8) + t4;
 /* Fill freshly opened slots of stack cache from memory */
-t1 = *(u64 *)&(processor->stackcachebasevma);
-t2 = *(u64 *)&(processor->stackcachedata);
-*(u64 *)&processor->restartsp = t4;
+t1 = *(uint64_t *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachedata);
+*(uint64_t *)&processor->restartsp = t4;
 t1 = t1 - t3; // Compute new base address of stack cache
-t4 = *(u64 *)&(processor->stackcachetopvma); // Top of cache
-*(u64 *)&processor->stackcachebasevma = t1;
+t4 = *(uint64_t *)&(processor->stackcachetopvma); // Top of cache
+*(uint64_t *)&processor->stackcachebasevma = t1;
 t4 = t4 - t3; // Adjust top of cache
-*(u64 *)&processor->stackcachetopvma = t4;
+*(uint64_t *)&processor->stackcachetopvma = t4;
 t7 = t1 + ivory;
 t5 = (t7 * 4);
 t4 = LDQ_U(t7);
-t5 = *(s32 *)t5;
-t4 = (u8)(t4 >> ((t7 & 7) * 8));
+t5 = *(int32_t *)t5;
+t4 = (uint8_t) (t4 >> ((t7 & 7) * 8));
 goto stack_fill44702;
 
 stack_fill44703 : if (_trace) printf("stack_fill44703:\n");
 t7 = t1 + ivory;
 t5 = (t7 * 4);
 t4 = LDQ_U(t7);
-t5 = *(s32 *)t5;
-t4 = (u8)(t4 >> ((t7 & 7) * 8));
+t5 = *(int32_t *)t5;
+t4 = (uint8_t) (t4 >> ((t7 & 7) * 8));
 t3 = t3 - 1;
 t1 = t1 + 1; // advance vma position
-*(u32 *)t2 = t5;
-*(u32 *)(t2 + 4) = t4; // write the stack cache
+*(uint32_t *)t2 = t5;
+*(uint32_t *)(t2 + 4) = t4; // write the stack cache
 t2 = t2 + 8; // advance sca position
 
-stack_fill44702 : if ((s64)t3 > 0) goto stack_fill44703;
+stack_fill44702 : if ((int64_t) t3 > 0) goto stack_fill44703;
 goto *r0; /* ret */
 
 /* end StackCacheUnderflow */
@@ -1200,24 +1200,24 @@ stackcacheoverflowhandler : if (_trace) printf("stackcacheoverflowhandler:\n");
 t1 = zero + 256;
 t1 = t1 + arg2; // Account for what we're about to push
 t1 = (t1 * 8) + iSP; // SCA of desired end of cache
-iSP = *(u64 *)&(processor->restartsp);
-t4 = *(u64 *)&(processor->stackcachedata); // Alpha base of stack cache
+iSP = *(uint64_t *)&(processor->restartsp);
+t4 = *(uint64_t *)&(processor->stackcachedata); // Alpha base of stack cache
 t4 = t1 - t4; // New limit*8
 t4 = t4 >> 3;
-*(u32 *)&processor->scovlimit = t4; // Update stack cache limit
+*(uint32_t *)&processor->scovlimit = t4; // Update stack cache limit
 /* Check that the page underlying the end of the stack cache is accessible */
 /* Convert stack cache address to VMA */
-t4 = *(u64 *)&(processor->stackcachedata);
-t3 = *(u64 *)&(processor->stackcachebasevma);
+t4 = *(uint64_t *)&(processor->stackcachedata);
+t3 = *(uint64_t *)&(processor->stackcachebasevma);
 t4 = t1 - t4; // stack cache base relative offset
 t4 = t4 >> 3; // convert byte address to word address
 t3 = t4 + t3; // reconstruct VMA
-t5 = *(u64 *)&(processor->vmattributetable); // Per-page attributes table
+t5 = *(uint64_t *)&(processor->vmattributetable); // Per-page attributes table
 t4 = t3 >> (MemoryPage_AddressShift & 63); // Index into the attributes table
 t5 = t4 + t5; // Address of the page's attributes
 t4 = LDQ_U(t5); // Get the quadword with the page's attributes
-*(u64 *)&processor->vma = t3; // Stash the VMA
-t4 = (u8)(t4 >> ((t5 & 7) * 8)); // Extract the page's attributes
+*(uint64_t *)&processor->vma = t3; // Stash the VMA
+t4 = (uint8_t) (t4 >> ((t5 & 7) * 8)); // Extract the page's attributes
 if (t4 == 0) // Non-existent page
     goto pagenotresident;
 t5 = t4 & VMAttribute_AccessFault;
@@ -1227,31 +1227,31 @@ t5 = t4 & VMAttribute_WriteFault;
 if (t5 != 0) // Write fault
     goto pagewritefault;
 /* Check if we must dump the cache */
-t4 = *(s32 *)&processor->scovlimit; // New stack cache limit (words)
-t5 = *(u64 *)&(processor->stackcachesize); // Absolute size of the cache (words)
-t5 = ((s64)t4 <= (s64)t5) ? 1 : 0;
+t4 = *(int32_t *)&processor->scovlimit; // New stack cache limit (words)
+t5 = *(uint64_t *)&(processor->stackcachesize); // Absolute size of the cache (words)
+t5 = ((int64_t) t4 <= (int64_t) t5) ? 1 : 0;
 if (t5 != 0) // We're done if new limit is less than absolute limit
     goto INTERPRETINSTRUCTION;
 /* Dump the stack cache to make room */
 t1 = zero + 896;
-t2 = *(u64 *)&(processor->stackcachebasevma); // Stack cache base VMA
-t3 = *(u64 *)&(processor->stackcachedata); // Alpha base of stack cache
-*(u32 *)&processor->scovdumpcount = t1; // Will be destructively modified
+t2 = *(uint64_t *)&(processor->stackcachebasevma); // Stack cache base VMA
+t3 = *(uint64_t *)&(processor->stackcachedata); // Alpha base of stack cache
+*(uint32_t *)&processor->scovdumpcount = t1; // Will be destructively modified
 t5 = t2 + ivory; // Starting address of tags
 t2 = (t5 * 4); // Starting address of data
 /* Dump the data */
 goto stack_dump44704;
 
 stack_dump44705 : if (_trace) printf("stack_dump44705:\n");
-t4 = *(s32 *)t3; // Get data word
+t4 = *(int32_t *)t3; // Get data word
 t1 = t1 - 1;
 t3 = t3 + 8; // Advance SCA position
-*(u32 *)t2 = t4; // Save data word
+*(uint32_t *)t2 = t4; // Save data word
 t2 = t2 + 4; // Advance VMA position
 
-stack_dump44704 : if ((s64)t1 > 0) goto stack_dump44705;
+stack_dump44704 : if ((int64_t) t1 > 0) goto stack_dump44705;
 /* Dump the tags */
-t1 = *(s32 *)&processor->scovdumpcount; // Restore the count
+t1 = *(int32_t *)&processor->scovdumpcount; // Restore the count
 t2 = t5; // Restore tag VMA
 t4 = t1 << 3;
 t3 = t3 - t4; // Restore orginal SCA
@@ -1259,7 +1259,7 @@ goto stack_dump44706;
 
 stack_dump44707 : if (_trace) printf("stack_dump44707:\n");
 t1 = t1 - 1;
-t4 = *(s32 *)(t3 + 4); // Get tag word
+t4 = *(int32_t *)(t3 + 4); // Get tag word
 t3 = t3 + 8; // Advance SCA position
 t5 = LDQ_U(t2); // Get packed tags word
 t4 = (t4 & 0xff) << ((t2 & 7) * 8); // Position the new tag
@@ -1268,37 +1268,37 @@ t5 = t4 | t5; // Put in new byte
 STQ_U(t2, t5); // Save packed tags word
 t2 = t2 + 1; // Advance VMA position
 
-stack_dump44706 : if ((s64)t1 > 0) goto stack_dump44707;
+stack_dump44706 : if ((int64_t) t1 > 0) goto stack_dump44707;
 t1 = zero + 896;
-t2 = *(u64 *)&(processor->stackcachebasevma); // Stack cache base VMA
-t4 = *(u64 *)&(processor->stackcachetopvma); // Top of cache
-t5 = *(s32 *)&processor->scovlimit; // Cache limit in words
+t2 = *(uint64_t *)&(processor->stackcachebasevma); // Stack cache base VMA
+t4 = *(uint64_t *)&(processor->stackcachetopvma); // Top of cache
+t5 = *(int32_t *)&processor->scovlimit; // Cache limit in words
 t2 = t2 + t1; // Adjust cache base VMA
 t4 = t4 + t1; // Adjust top of cache
 t5 = t5 - t1; // Adjust limit
-*(u64 *)&processor->stackcachebasevma = t2; // Save update
-*(u64 *)&processor->stackcachetopvma = t4;
-*(u32 *)&processor->scovlimit = t5;
+*(uint64_t *)&processor->stackcachebasevma = t2; // Save update
+*(uint64_t *)&processor->stackcachetopvma = t4;
+*(uint32_t *)&processor->scovlimit = t5;
 /* Move the cache down */
-t3 = *(u64 *)&(processor->stackcachedata); // Alpha base of stack cache
+t3 = *(uint64_t *)&(processor->stackcachedata); // Alpha base of stack cache
 t2 = (t1 * 8) + t3; // SCA of first word of new base
 goto stack_block_copy44708;
 
 stack_block_copy44709 : if (_trace) printf("stack_block_copy44709:\n");
 t1 = t1 - 1;
-t5 = *(u64 *)t2; // Get a word from source
+t5 = *(uint64_t *)t2; // Get a word from source
 t2 = t2 + 8; // advance from position
-*(u64 *)t3 = t5; // Put word in destination
+*(uint64_t *)t3 = t5; // Put word in destination
 t3 = t3 + 8; // advance to position
 
-stack_block_copy44708 : if ((s64)t1 > 0) goto stack_block_copy44709;
+stack_block_copy44708 : if ((int64_t) t1 > 0) goto stack_block_copy44709;
 /* Adjust stack cache relative registers */
 t1 = zero + 896;
 t1 = t1 << 3; // Convert to SCA adjustment
 iSP = iSP - t1;
 iFP = iFP - t1;
 iLP = iLP - t1;
-*(u64 *)&processor->restartsp = iSP;
+*(uint64_t *)&processor->restartsp = iSP;
 goto INTERPRETINSTRUCTION;
 
 /* end StackCacheOverflowHandler */
@@ -1323,72 +1323,72 @@ DoReturnKludgeFP : if (_trace) printf("DoReturnKludgeFP:\n");
 begindoreturnkludge : if (_trace) printf("begindoreturnkludge:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t1 = *(s32 *)(arg1 + 4);
-arg2 = *(s32 *)arg1;
+t1 = *(int32_t *)(arg1 + 4);
+arg2 = *(int32_t *)arg1;
 t2 = t1 - Type_Fixnum;
 t2 = t2 & 63; // Strip CDR code
 if (t2 != 0)
     goto returnkludgeio;
-arg2 = (u32)arg2;
+arg2 = (uint32_t) arg2;
 
 DoReturnKludgeIM : if (_trace) printf("DoReturnKludgeIM:\n");
-arg6 = *(u64 *)&(processor->stackcachedata);
+arg6 = *(uint64_t *)&(processor->stackcachedata);
 t1 = (arg2 * 8) - 8;
-t2 = *(s32 *)&processor->control;
+t2 = *(int32_t *)&processor->control;
 t1 = iSP - t1; // t1 is the values block
 /* Restore machine state from frame header. */
-t5 = *(s32 *)iFP;
+t5 = *(int32_t *)iFP;
 t3 = (1792) << 16;
-t7 = *(s32 *)&processor->continuation;
+t7 = *(int32_t *)&processor->continuation;
 t3 = t2 & t3; // Mask
-t4 = *(s32 *)(iFP + 4);
+t4 = *(int32_t *)(iFP + 4);
 t9 = iCP;
 if (t3 != 0) // Need to cleanup frame first
     goto returnkludgecleanup;
-t5 = (u32)t5;
-t6 = *((s32 *)(&processor->continuation) + 1);
-t7 = (u32)t7;
-t8 = *(s32 *)(iFP + 8); // Get saved control register
+t5 = (uint32_t) t5;
+t6 = *((int32_t *)(&processor->continuation) + 1);
+t7 = (uint32_t) t7;
+t8 = *(int32_t *)(iFP + 8); // Get saved control register
 /* TagType. */
 t4 = t4 & 63;
 /* Restore the PC. */
 iPC = t7 << 1; // Assume even PC
 t3 = t6 & 1;
-t9 = *(u64 *)&(processor->continuationcp);
+t9 = *(uint64_t *)&(processor->continuationcp);
 iPC = iPC + t3;
 
 abandon_frame_simple44711 : if (_trace) printf("abandon_frame_simple44711:\n");
 /* Restore the saved continuation */
-*((u32 *)(&processor->continuation) + 1) = t4;
+*((uint32_t *)(&processor->continuation) + 1) = t4;
 t3 = t2 >> 9; // Get the caller frame size into place
-*(u32 *)&processor->continuation = t5;
+*(uint32_t *)&processor->continuation = t5;
 iSP = iFP - 8; // Restore the stack pointer.
-*(u64 *)&processor->continuationcp = zero;
+*(uint64_t *)&processor->continuationcp = zero;
 t3 = t3 & 255; // Mask just the caller frame size.
 t3 = (t3 * 8) + 0; // *8
 t4 = (2048) << 16;
 t4 = t4 & t2;
-t5 = *(s32 *)&processor->interruptreg; // Get the preempt-pending bit
+t5 = *(int32_t *)&processor->interruptreg; // Get the preempt-pending bit
 t8 = t4 | t8; // Sticky trace pending bit.
-t6 = *(u64 *)&(processor->please_stop); // Get the trap/suspend bits
+t6 = *(uint64_t *)&(processor->please_stop); // Get the trap/suspend bits
 iFP = iFP - t3; // Restore the frame pointer.
-*(u32 *)&processor->control = t8; // Restore the control register
+*(uint32_t *)&processor->control = t8; // Restore the control register
 t3 = t8 & 255; // extract the argument size
 t5 = t5 & 1;
 t5 = t6 | t5;
-*(u64 *)&processor->stop_interpreter = t5;
+*(uint64_t *)&processor->stop_interpreter = t5;
 iLP = (t3 * 8) + iFP; // Restore the local pointer.
-arg6 = ((u64)iFP < (u64)arg6) ? 1 : 0; // ARG6 = stack-cache underflow
+arg6 = ((uint64_t) iFP < (uint64_t) arg6) ? 1 : 0; // ARG6 = stack-cache underflow
 if (arg2 == 0)
     goto rkloopdone;
 
 rklooptop : if (_trace) printf("rklooptop:\n");
-t4 = *(u64 *)t1; // Read a 40 bit word from the values block
+t4 = *(uint64_t *)t1; // Read a 40 bit word from the values block
 arg2 = arg2 - 1;
-*(u64 *)(iSP + 8) = t4; // Push value onto stack cdr codes and all
+*(uint64_t *)(iSP + 8) = t4; // Push value onto stack cdr codes and all
 t1 = t1 + 8;
 iSP = iSP + 8;
-if ((s64)arg2 > 0)
+if ((int64_t) arg2 > 0)
     goto rklooptop;
 
 rkloopdone : if (_trace) printf("rkloopdone:\n");
@@ -1421,8 +1421,8 @@ dotakevalues : if (_trace) printf("dotakevalues:\n");
 
 DoTakeValuesIM : if (_trace) printf("DoTakeValuesIM:\n");
 /* This sequence is lukewarm */
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindotakevalues;
 
 DoTakeValuesSP : if (_trace) printf("DoTakeValuesSP:\n");
@@ -1438,20 +1438,20 @@ DoTakeValuesFP : if (_trace) printf("DoTakeValuesFP:\n");
 
 headdotakevalues : if (_trace) printf("headdotakevalues:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindotakevalues : if (_trace) printf("begindotakevalues:\n");
 /* arg1 has the operand, not sign extended if immediate. */
-arg6 = *(u64 *)&(processor->niladdress);
-arg1 = (u32)arg1; // Number of values expected
-arg4 = *(s32 *)iSP; // Number of values provided
-arg3 = *(s32 *)(iSP + 4); // Number of values provided
+arg6 = *(uint64_t *)&(processor->niladdress);
+arg1 = (uint32_t) arg1; // Number of values expected
+arg4 = *(int32_t *)iSP; // Number of values provided
+arg3 = *(int32_t *)(iSP + 4); // Number of values provided
 iSP = iSP - 8; // Pop Stack.
-arg4 = (u32)arg4;
+arg4 = (uint32_t) arg4;
 arg2 = arg1 - arg4;
-if ((s64)arg2 < 0) // J. if too many args supplied
+if ((int64_t) arg2 < 0) // J. if too many args supplied
     goto takevalueslose;
-if ((s64)arg2 > 0) // J. if too few values supplied
+if ((int64_t) arg2 > 0) // J. if too few values supplied
     goto takevaluespad;
 goto NEXTINSTRUCTION;
 
@@ -1460,21 +1460,21 @@ iSP = (arg2 * 8) + iSP; // Remove the unwanted values
 goto NEXTINSTRUCTION;
 
 takevaluespad : if (_trace) printf("takevaluespad:\n");
-t4 = *(s32 *)&processor->scovlimit; // Current stack cache limit (words)
+t4 = *(int32_t *)&processor->scovlimit; // Current stack cache limit (words)
 t1 = zero + 128;
-t2 = *(u64 *)&(processor->stackcachedata); // Alpha base of stack cache
+t2 = *(uint64_t *)&(processor->stackcachedata); // Alpha base of stack cache
 t1 = t1 + arg2; // Account for what we're about to push
 t1 = (t1 * 8) + iSP; // SCA of desired end of cache
 t2 = (t4 * 8) + t2; // SCA of current end of cache
-t4 = ((s64)t1 <= (s64)t2) ? 1 : 0;
+t4 = ((int64_t) t1 <= (int64_t) t2) ? 1 : 0;
 if (t4 == 0) // We're done if new SCA is within bounds
     goto stackcacheoverflowhandler;
 
 takevaluespadloop : if (_trace) printf("takevaluespadloop:\n");
-*(u64 *)(iSP + 8) = arg6; // Push NIL
+*(uint64_t *)(iSP + 8) = arg6; // Push NIL
 iSP = iSP + 8;
 arg2 = arg2 - 1;
-if ((s64)arg2 > 0)
+if ((int64_t) arg2 > 0)
     goto takevaluespadloop;
 goto NEXTINSTRUCTION;
 
@@ -1495,23 +1495,23 @@ DoCatchOpenSP : if (_trace) printf("DoCatchOpenSP:\n");
 DoCatchOpenLP : if (_trace) printf("DoCatchOpenLP:\n");
 
 DoCatchOpenFP : if (_trace) printf("DoCatchOpenFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
 t10 = arg1 & 1; // t10=1 if unwind-protect, t10=0 if catch
-t3 = *((s32 *)(&processor->catchblock) + 1); // tag
+t3 = *((int32_t *)(&processor->catchblock) + 1); // tag
 t10 = t10 << 38;
-t4 = *(s32 *)&processor->catchblock; // data
-t2 = *(u64 *)&(processor->bindingstackpointer);
+t4 = *(int32_t *)&processor->catchblock; // data
+t2 = *(uint64_t *)&(processor->bindingstackpointer);
 /* Convert stack cache address to VMA */
-t1 = *(u64 *)&(processor->stackcachedata);
-t9 = *(u64 *)&(processor->stackcachebasevma);
+t1 = *(uint64_t *)&(processor->stackcachedata);
+t9 = *(uint64_t *)&(processor->stackcachebasevma);
 t1 = iSP - t1; // stack cache base relative offset
 t1 = t1 >> 3; // convert byte address to word address
 t9 = t1 + t9; // reconstruct VMA
 t1 = t10 | t2;
-*(u64 *)(iSP + 8) = t1;
+*(uint64_t *)(iSP + 8) = t1;
 iSP = iSP + 8;
-t11 = *(s32 *)&processor->control;
+t11 = *(int32_t *)&processor->control;
 t2 = t11 >> 20; // Get old cleanup catch bit
 t2 = t2 & 64;
 t1 = t11 >> 1; // Get old extra arg bit
@@ -1520,29 +1520,29 @@ t1 = t1 | t2;
 /* TagType. */
 t2 = t3 & 63;
 t1 = t1 | t2; // T1 now has new tag
-*(u32 *)(iSP + 8) = t4;
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = t4;
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 if (t10 != 0)
     goto catchopen2;
-t2 = *(s32 *)&processor->continuation;
-t1 = *((s32 *)(&processor->continuation) + 1);
-t2 = (u32)t2;
+t2 = *(int32_t *)&processor->continuation;
+t1 = *((int32_t *)(&processor->continuation) + 1);
+t2 = (uint32_t) t2;
 /* TagType. */
 t1 = t1 & 63;
 t3 = arg1 & 192; // T3 has the disposition bits in place
 t1 = t1 | t3;
-*(u32 *)(iSP + 8) = t2;
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = t2;
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 
 catchopen2 : if (_trace) printf("catchopen2:\n");
 t1 = Type_Locative;
-*((u32 *)(&processor->catchblock) + 1) = t1; // tag
-*(u32 *)&processor->catchblock = t9; // data
+*((uint32_t *)(&processor->catchblock) + 1) = t1; // tag
+*(uint32_t *)&processor->catchblock = t9; // data
 t1 = (1024) << 16;
 t1 = t1 | t11; // set it
-*(u32 *)&processor->control = t1;
+*(uint32_t *)&processor->control = t1;
 goto NEXTINSTRUCTION;
 
 /* end DoCatchOpen */
@@ -1568,22 +1568,22 @@ DoCatchCloseFP : if (_trace) printf("DoCatchCloseFP:\n");
 begindocatchclose : if (_trace) printf("begindocatchclose:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t1 = *(s32 *)&processor->catchblock; // data
-t1 = (u32)t1;
+t1 = *(int32_t *)&processor->catchblock; // data
+t1 = (uint32_t) t1;
 /* Convert VMA to stack cache address */
-t3 = *(u64 *)&(processor->stackcachebasevma);
-t10 = *(u64 *)&(processor->stackcachedata);
+t3 = *(uint64_t *)&(processor->stackcachebasevma);
+t10 = *(uint64_t *)&(processor->stackcachedata);
 t3 = t1 - t3; // stack cache base relative offset
 t10 = (t3 * 8) + t10; // reconstruct SCA
-arg4 = *(s32 *)(t10 + 8); // bstag bsdata
-arg3 = *(s32 *)(t10 + 12);
-arg4 = (u32)arg4;
-t4 = *(u64 *)&(processor->bindingstackpointer);
-arg6 = *(s32 *)(t10 + 16); // prtag prdata
-arg5 = *(s32 *)(t10 + 20);
-arg6 = (u32)arg6;
+arg4 = *(int32_t *)(t10 + 8); // bstag bsdata
+arg3 = *(int32_t *)(t10 + 12);
+arg4 = (uint32_t) arg4;
+t4 = *(uint64_t *)&(processor->bindingstackpointer);
+arg6 = *(int32_t *)(t10 + 16); // prtag prdata
+arg5 = *(int32_t *)(t10 + 20);
+arg6 = (uint32_t) arg6;
 t3 = t4 >> 32;
-t5 = (s32)arg4 - (s32)t4;
+t5 = (int32_t) arg4 - (int32_t) t4;
 if (t5 == 0)
     goto catchcloseld;
 t1 = t3 - Type_Locative;
@@ -1592,16 +1592,16 @@ if (t1 != 0)
     goto catchclosedbt;
 
 catchcloselt : if (_trace) printf("catchcloselt:\n");
-t1 = *(u64 *)&(processor->bindingstackpointer);
-t4 = *(s32 *)&processor->control;
-t1 = (u32)t1; // vma only
+t1 = *(uint64_t *)&(processor->bindingstackpointer);
+t4 = *(int32_t *)&processor->control;
+t1 = (uint32_t) t1; // vma only
 t2 = (512) << 16;
 t5 = t1 - 1;
 t3 = t4 & t2;
 t4 = t4 & ~t2; // Turn off the bit
 if (t3 != 0)
     goto g44713;
-t4 = *(u64 *)&(processor->restartsp); // Get the SP, ->op2
+t4 = *(uint64_t *)&(processor->restartsp); // Get the SP, ->op2
 arg5 = 0;
 arg2 = 20;
 goto illegaloperand;
@@ -1609,16 +1609,16 @@ goto illegaloperand;
 g44713 : if (_trace) printf("g44713:\n");
 /* Memory Read Internal */
 
-vma_memory_read44714 : t8 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read44714 : t8 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 arg1 = t1 + ivory;
-t9 = *(s32 *)&processor->scovlimit;
+t9 = *(int32_t *)&processor->scovlimit;
 t6 = (arg1 * 4);
 t7 = LDQ_U(arg1);
 t8 = t1 - t8; // Stack cache offset
-arg2 = *(u64 *)&(processor->bindread_mask);
-t9 = ((u64)t8 < (u64)t9) ? 1 : 0; // In range?
-t6 = *(s32 *)t6;
-t7 = (u8)(t7 >> ((arg1 & 7) * 8));
+arg2 = *(uint64_t *)&(processor->bindread_mask);
+t9 = ((uint64_t) t8 < (uint64_t) t9) ? 1 : 0; // In range?
+t6 = *(int32_t *)t6;
+t7 = (uint8_t) (t7 >> ((arg1 & 7) * 8));
 if (t9 != 0)
     goto vma_memory_read44716;
 
@@ -1632,23 +1632,23 @@ vma_memory_read44723 :
     /* Memory Read Internal */
 
     vma_memory_read44724 : t8
-                           = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+                           = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 arg1 = t5 + ivory;
-t9 = *(s32 *)&processor->scovlimit;
+t9 = *(int32_t *)&processor->scovlimit;
 t2 = (arg1 * 4);
 t3 = LDQ_U(arg1);
 t8 = t5 - t8; // Stack cache offset
-arg2 = *(u64 *)&(processor->bindread_mask);
-t9 = ((u64)t8 < (u64)t9) ? 1 : 0; // In range?
-t2 = *(s32 *)t2;
-t3 = (u8)(t3 >> ((arg1 & 7) * 8));
+arg2 = *(uint64_t *)&(processor->bindread_mask);
+t9 = ((uint64_t) t8 < (uint64_t) t9) ? 1 : 0; // In range?
+t2 = *(int32_t *)t2;
+t3 = (uint8_t) (t3 >> ((arg1 & 7) * 8));
 if (t9 != 0)
     goto vma_memory_read44726;
 
 vma_memory_read44725 : arg1 = zero + 224;
 arg2 = arg2 >> (t3 & 63);
 arg1 = arg1 >> (t3 & 63);
-t2 = (u32)t2;
+t2 = (uint32_t) t2;
 if (arg2 & 1)
     goto vma_memory_read44728;
 
@@ -1656,19 +1656,19 @@ vma_memory_read44733 :
     /* Memory Read Internal */
 
     vma_memory_read44734 : arg1
-                           = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+                           = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t11 = t2 + ivory;
-arg2 = *(s32 *)&processor->scovlimit;
+arg2 = *(int32_t *)&processor->scovlimit;
 t9 = (t11 * 4);
 t8 = LDQ_U(t11);
 arg1 = t2 - arg1; // Stack cache offset
-arg2 = ((u64)arg1 < (u64)arg2) ? 1 : 0; // In range?
-t9 = *(s32 *)t9;
-t8 = (u8)(t8 >> ((t11 & 7) * 8));
+arg2 = ((uint64_t) arg1 < (uint64_t) arg2) ? 1 : 0; // In range?
+t9 = *(int32_t *)t9;
+t8 = (uint8_t) (t8 >> ((t11 & 7) * 8));
 if (arg2 != 0)
     goto vma_memory_read44736;
 
-vma_memory_read44735 : arg1 = *(u64 *)&(processor->bindwrite_mask);
+vma_memory_read44735 : arg1 = *(uint64_t *)&(processor->bindwrite_mask);
 t11 = zero + 224;
 arg1 = arg1 >> (t8 & 63);
 t11 = t11 >> (t8 & 63);
@@ -1689,57 +1689,57 @@ t11 = t11 & ~(0xffL << (arg1 & 7) * 8);
 
 force_alignment44746 : if (_trace) printf("force_alignment44746:\n");
 t11 = t11 | arg2;
-arg2 = *(u64 *)&(processor->stackcachebasevma);
+arg2 = *(uint64_t *)&(processor->stackcachebasevma);
 STQ_U(arg1, t11);
-arg1 = *(s32 *)&processor->scovlimit;
+arg1 = *(int32_t *)&processor->scovlimit;
 arg2 = t2 - arg2; // Stack cache offset
-arg1 = ((u64)arg2 < (u64)arg1) ? 1 : 0; // In range?
-*(u32 *)t9 = t6;
+arg1 = ((uint64_t) arg2 < (uint64_t) arg1) ? 1 : 0; // In range?
+*(uint32_t *)t9 = t6;
 if (arg1 != 0) // J. if in cache
     goto vma_memory_write44745;
 
 vma_memory_write44744 : t3 = t3 & 64; // Get the old cleanup-bindings bit
 t3 = t3 << 19;
 t1 = t1 - 2;
-*(u32 *)&processor->bindingstackpointer = t1; // vma only
+*(uint32_t *)&processor->bindingstackpointer = t1; // vma only
 t4 = t4 | t3;
-*(u32 *)&processor->control = t4;
-t5 = (s32)arg4 - (s32)t1;
+*(uint32_t *)&processor->control = t4;
+t5 = (int32_t) arg4 - (int32_t) t1;
 if (t5 != 0)
     goto catchcloselt;
-t3 = *(s32 *)&processor->interruptreg;
+t3 = *(int32_t *)&processor->interruptreg;
 t4 = t3 & 2;
 t4 = (t4 == 2) ? 1 : 0;
 t3 = t3 | t4;
-*(u32 *)&processor->interruptreg = t3;
+*(uint32_t *)&processor->interruptreg = t3;
 if (t3 == 0)
     goto check_preempt_request44747;
-*(u64 *)&processor->stop_interpreter = t3;
+*(uint64_t *)&processor->stop_interpreter = t3;
 
 check_preempt_request44747 : if (_trace) printf("check_preempt_request44747:\n");
 
 catchcloseld : if (_trace) printf("catchcloseld:\n");
 /* TagType. */
 t1 = arg5 & 63;
-*((u32 *)(&processor->catchblock) + 1) = t1; // tag
+*((uint32_t *)(&processor->catchblock) + 1) = t1; // tag
 t2 = arg5 & 128; // extra argument bit
-t6 = *(u64 *)&(processor->extraandcatch); // mask for two bits
+t6 = *(uint64_t *)&(processor->extraandcatch); // mask for two bits
 t2 = t2 << 1; // position in place for control register.
-*(u32 *)&processor->catchblock = arg6; // data
+*(uint32_t *)&processor->catchblock = arg6; // data
 t3 = arg5 & 64; // cleanup catch bit
 t3 = t3 << 20; // position in place for cr
-t4 = *(s32 *)&processor->control;
+t4 = *(int32_t *)&processor->control;
 t5 = t2 | t3; // coalesce the two bits
 t4 = t4 & ~t6; // Turn off extra-arg and cleanup-catch
 t4 = t4 | t5; // Maybe turn them back on
-*(u32 *)&processor->control = t4;
+*(uint32_t *)&processor->control = t4;
 t6 = arg3 & 64; // uwp bit
 if (t6 == 0)
     goto NEXTINSTRUCTION;
 /* Handle unwind-protect cleanup here */
-arg2 = *(s32 *)t10; // pctag pcdata
-arg1 = *(s32 *)(t10 + 4);
-arg2 = (u32)arg2;
+arg2 = *(int32_t *)t10; // pctag pcdata
+arg1 = *(int32_t *)(t10 + 4);
+arg2 = (uint32_t) arg2;
 t8 = t4 >> 17; // Cleanup in progress bit into cdr code pos
 t7 = iPC + 1; // Next PC
 /* Convert PC to a real continuation. */
@@ -1752,11 +1752,11 @@ t8 = t8 & 64;
 t9 = (128) << 16;
 t8 = t8 | 128;
 t7 = t7 | t8;
-*(u32 *)(iSP + 8) = t10;
-*(u32 *)(iSP + 12) = t7; // write the stack cache
+*(uint32_t *)(iSP + 8) = t10;
+*(uint32_t *)(iSP + 12) = t7; // write the stack cache
 iSP = iSP + 8;
 t4 = t4 | t9; // set cr.cleanup-in-progress
-*(u32 *)&processor->control = t4;
+*(uint32_t *)&processor->control = t4;
 /* Convert real continuation to PC. */
 iPC = arg1 & 1;
 iPC = arg2 + iPC;
@@ -1767,32 +1767,32 @@ catchclosedbt : if (_trace) printf("catchclosedbt:\n");
 goto dbunwindcatchtrap;
 
 vma_memory_write44745 : if (_trace) printf("vma_memory_write44745:\n");
-arg1 = *(u64 *)&(processor->stackcachedata);
+arg1 = *(uint64_t *)&(processor->stackcachedata);
 arg1 = (arg2 * 8) + arg1; // reconstruct SCA
-*(u32 *)arg1 = t6; // Store in stack
-*(u32 *)(arg1 + 4) = t8; // write the stack cache
+*(uint32_t *)arg1 = t6; // Store in stack
+*(uint32_t *)(arg1 + 4) = t8; // write the stack cache
 goto vma_memory_write44744;
 
 vma_memory_read44736 : if (_trace) printf("vma_memory_read44736:\n");
-arg2 = *(u64 *)&(processor->stackcachedata);
+arg2 = *(uint64_t *)&(processor->stackcachedata);
 arg1 = (arg1 * 8) + arg2; // reconstruct SCA
-t9 = *(s32 *)arg1;
-t8 = *(s32 *)(arg1 + 4); // Read from stack cache
+t9 = *(int32_t *)arg1;
+t8 = *(int32_t *)(arg1 + 4); // Read from stack cache
 goto vma_memory_read44735;
 
 vma_memory_read44738 : if (_trace) printf("vma_memory_read44738:\n");
 if ((t11 & 1) == 0)
     goto vma_memory_read44737;
-t2 = (u32)t9; // Do the indirect thing
+t2 = (uint32_t) t9; // Do the indirect thing
 goto vma_memory_read44734;
 
 vma_memory_read44737 : if (_trace) printf("vma_memory_read44737:\n");
-arg1 = *(u64 *)&(processor->bindwrite); // Load the memory action table for cycle
+arg1 = *(uint64_t *)&(processor->bindwrite); // Load the memory action table for cycle
 /* TagType. */
 t11 = t8 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t2; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t2; // stash the VMA for the (likely) trap
 t11 = (t11 * 4) + arg1; // Adjust for a longword load
-arg1 = *(s32 *)t11; // Get the memory action
+arg1 = *(int32_t *)t11; // Get the memory action
 
 vma_memory_read44740 :
     /* Perform memory action */
@@ -1802,25 +1802,25 @@ arg2 = 3;
 goto performmemoryaction;
 
 vma_memory_read44726 : if (_trace) printf("vma_memory_read44726:\n");
-t9 = *(u64 *)&(processor->stackcachedata);
+t9 = *(uint64_t *)&(processor->stackcachedata);
 t8 = (t8 * 8) + t9; // reconstruct SCA
-t2 = *(s32 *)t8;
-t3 = *(s32 *)(t8 + 4); // Read from stack cache
+t2 = *(int32_t *)t8;
+t3 = *(int32_t *)(t8 + 4); // Read from stack cache
 goto vma_memory_read44725;
 
 vma_memory_read44728 : if (_trace) printf("vma_memory_read44728:\n");
 if ((arg1 & 1) == 0)
     goto vma_memory_read44727;
-t5 = (u32)t2; // Do the indirect thing
+t5 = (uint32_t) t2; // Do the indirect thing
 goto vma_memory_read44724;
 
 vma_memory_read44727 : if (_trace) printf("vma_memory_read44727:\n");
-arg2 = *(u64 *)&(processor->bindread); // Load the memory action table for cycle
+arg2 = *(uint64_t *)&(processor->bindread); // Load the memory action table for cycle
 /* TagType. */
 arg1 = t3 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t5; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t5; // stash the VMA for the (likely) trap
 arg1 = (arg1 * 4) + arg2; // Adjust for a longword load
-arg2 = *(s32 *)arg1; // Get the memory action
+arg2 = *(int32_t *)arg1; // Get the memory action
 
 vma_memory_read44730 :
     /* Perform memory action */
@@ -1830,25 +1830,25 @@ arg2 = 2;
 goto performmemoryaction;
 
 vma_memory_read44716 : if (_trace) printf("vma_memory_read44716:\n");
-t9 = *(u64 *)&(processor->stackcachedata);
+t9 = *(uint64_t *)&(processor->stackcachedata);
 t8 = (t8 * 8) + t9; // reconstruct SCA
-t6 = *(s32 *)t8;
-t7 = *(s32 *)(t8 + 4); // Read from stack cache
+t6 = *(int32_t *)t8;
+t7 = *(int32_t *)(t8 + 4); // Read from stack cache
 goto vma_memory_read44715;
 
 vma_memory_read44718 : if (_trace) printf("vma_memory_read44718:\n");
 if ((arg1 & 1) == 0)
     goto vma_memory_read44717;
-t1 = (u32)t6; // Do the indirect thing
+t1 = (uint32_t) t6; // Do the indirect thing
 goto vma_memory_read44714;
 
 vma_memory_read44717 : if (_trace) printf("vma_memory_read44717:\n");
-arg2 = *(u64 *)&(processor->bindread); // Load the memory action table for cycle
+arg2 = *(uint64_t *)&(processor->bindread); // Load the memory action table for cycle
 /* TagType. */
 arg1 = t7 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t1; // stash the VMA for the (likely) trap
 arg1 = (arg1 * 4) + arg2; // Adjust for a longword load
-arg2 = *(s32 *)arg1; // Get the memory action
+arg2 = *(int32_t *)arg1; // Get the memory action
 
 vma_memory_read44720 :
     /* Perform memory action */

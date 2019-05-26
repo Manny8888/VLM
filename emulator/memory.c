@@ -726,11 +726,15 @@ Boolean SlowScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
     uint64_t ephemeraloldbits;
     uint64_t zoneoldbits;
 
+    FILE *log_fd;
+    log_fd = fopen(log_file_genera, "a");
+
     if (mvalid((caddr_t)tag, count, PROT_READ)) {
-        fprintf(stderr,
+        fprintf(log_fd,
             "SlowScanPage on inaccessible memory at %lx for %x "
             "(ATTRIBUTES=0%o)\n",
             (uint64_t)scanvma, count, VMAttributeTable[MemoryPageNumber(scanvma)]);
+        fflush(log_fd);
     }
 
     ephemeraloldbits = processor->ephemeraloldspace;
@@ -757,6 +761,7 @@ Boolean SlowScanPage(Integer scanvma, Integer *vma, int count, Boolean update)
         }
     }
 
+    fclose(log_fd);
     return (FALSE);
 }
 
@@ -1158,14 +1163,7 @@ void AdjustProtection(Integer vma, VMAttribute new_attr)
             vpunt("AdjustProtection", "mprotect(%lx, #, %lx) for VMA %x", address, newAttribute, (uint64_t)vma);
     }
 
-#ifdef OS_OSF
-    if (mvalid((caddr_t)&TagSpace[vma - MemoryPageOffset(vma)], sizeof(Tag) * MemoryPage_Size, new)) {
-#ifdef DEBUGMPROTECT
-        fprintf(stderr, "Attribute/mprotect skew at %lx (ATTRIBUTES=0%o->0%o)\n", (uint64_t)vma, oa, new_attr);
-#endif
-    } else
-#endif
-        *attr = new_attr;
+    *attr = new_attr;
 }
 
 #ifndef OS_OSF

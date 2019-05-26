@@ -25,7 +25,7 @@
         dc->hostState1 = ((uint64_t)p) & 0xFFFFFFFFL;                                                                  \
     }
 
-#define HostState(dc) (DiskChannelState *) (((uint64_t)dc->hostState0 << 32) | dc->hostState1)
+#define HostState(dc) (DiskChannelState *)(((uint64_t)dc->hostState0 << 32) | dc->hostState1)
 
 /* Attach a disk partition (nee, file) to the disk channel supplied by Lisp
    and add said channel to the list of active embedded channels.  Lisp will
@@ -52,7 +52,7 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
         verror("AttachDiskChannel", "Couldn't allocate disk channel status structure");
         request->result = ENOMEM;
         return;
-    } 
+    }
     SetHostState(diskChannel, diskState);
 
     diskState->fd = -1; /* Needed before linking into channel list */
@@ -66,7 +66,7 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
         return;
     }
 
-    VirtualMemoryRead(request->filename, &filenameHeader);
+    filenameHeader = VirtualMemoryRead(request->filename);
     if (Type_HeaderI != (LispObjTag(filenameHeader) & 0x3F)) {
         verror("AttachDiskChannel", "Disk partition filename is not a simple string");
         request->result = EINVAL;
@@ -96,11 +96,11 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
         openFlags = O_RDONLY;
     } else {
         openFlags = O_RDWR;
-}
+    }
 
     if (CreateIfNotFound == request->ifNotFoundAction) {
         openFlags |= O_CREAT;
-}
+    }
 
     printf("AttachDiskChannel open '%s'\n", filename);
     diskState->fd = open(filename, openFlags, S_DEFFILEMODE);
@@ -128,7 +128,7 @@ void AttachDiskChannel(AttachDiskChannelRequest *pRequest)
             }
             fileStatus.st_size = request->minimumLength;
         }
-}
+    }
 
     diskChannel->number_of_pages = fileStatus.st_size / DiskPageSize;
 
@@ -211,7 +211,7 @@ void DetachDiskChannel(EmbPtr diskChannelPtr)
                 EmbCommAreaPtr->channel_table = diskChannel->next;
             } else {
                 ((EmbChannel *)HostPointer(prevChannelPtr))->next = diskChannel->next;
-}
+            }
             break;
         }
         prevChannelPtr = channelPtr;
@@ -267,7 +267,7 @@ static void DiskLife(EmbDiskChannel *diskChannel)
                         diskState->error_pending = TRUE; /* Flush until reset */
                     } else {
                         command->status = WonStatus;
-}
+                    }
                 }
                 break;
 
@@ -305,12 +305,12 @@ static int DoDiskIO(EmbDiskChannel *diskChannel, DiskChannelState *diskState, Em
 
     if ((command->page < 0) || (command->page + command->count > diskChannel->number_of_pages)) {
         return (EINVAL);
-}
+    }
 
     startingOffset = (off_t)command->page * DiskPageSize;
     if (-1 == lseek(diskState->fd, startingOffset, SEEK_SET)) {
         return (errno);
-}
+    }
 
     nAddresses = command->n_addresses;
     addressPair = &command->addresses[0];
@@ -343,7 +343,7 @@ static int DoDiskIO(EmbDiskChannel *diskChannel, DiskChannelState *diskState, Em
 
         } else if (actualBytes != nBytes) {
             return (EINTR);
-}
+        }
     }
 
     return (0);
@@ -396,6 +396,6 @@ void TerminateDiskChannels()
         diskChannel = (EmbDiskChannel *)HostPointer(channel);
         if (EmbDiskChannelType == diskChannel->type) {
             TerminateDiskChannel(diskChannel);
-}
+        }
     }
 }

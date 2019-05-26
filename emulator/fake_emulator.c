@@ -8,7 +8,13 @@ static int first_call = 1;
 
 int iInterpret(PROCESSORSTATEP ivory)
 {
+
+    FILE *log_fd = fopen(log_file_genera, "a");
+
+    fprintf(log_fd, "iInterpret\n");
+    fflush(log_fd);
     printf("[iInterpret]\n");
+
     if (first_call) {
         first_call = 0;
         return (HaltReason_Halted);
@@ -16,6 +22,8 @@ int iInterpret(PROCESSORSTATEP ivory)
         sleep(1);
         return (HaltReason_SpyCalled);
     }
+
+fclose(log_fd);
 }
 
 void SpinWheels()

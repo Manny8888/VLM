@@ -22,21 +22,21 @@ enum {
 #define STS(d, rn, r) *d = _STS(rn, r);
 #define STT(d, rn, r) *d = _STT(rn, r);
 
-u64 _LDS(int regnum, u64 /*u32*/ v)
+uint64_t _LDS(int regnum, uint64_t /*uint32_t*/ v)
 {
     fregstate[regnum] = FPS_LOADS;
     // printf("_LDS: %d %p\n", regnum, v);
     return v;
 }
 
-u64 _LDT(int regnum, u64 v)
+uint64_t _LDT(int regnum, uint64_t v)
 {
     fregstate[regnum] = FPS_LOADT;
     return v;
 }
 
-u64 /*u32*/
-_STS(int regnum, u64 v)
+uint64_t /*uint32_t*/
+_STS(int regnum, uint64_t v)
 {
     if (fregstate[regnum] != FPS_L && fregstate[regnum] != FPS_S && fregstate[regnum] != FPS_LOADS) {
         printf("_STS: %p(%d)\n", v, fregstate[regnum]);
@@ -44,7 +44,7 @@ _STS(int regnum, u64 v)
     return v;
 }
 
-u64 _STT(int regnum, u64 v)
+uint64_t _STT(int regnum, uint64_t v)
 {
     if (fregstate[regnum] > FPS_T) {
         printf("_STT: %p(%d)\n", v, fregstate[regnum]);
@@ -52,16 +52,16 @@ u64 _STT(int regnum, u64 v)
     return v;
 }
 
-float fixsfloat(int r, u64 v)
+float fixsfloat(int r, uint64_t v)
 {
 #if 1
     union {
         double d;
-        u64 l;
+        uint64_t l;
     } u;
     union {
         float f;
-        u64 l;
+        uint64_t l;
     } u2;
 
     // printf("fixsfloat: %d %p(%d)\n", r, v, fregstate[r]);
@@ -108,16 +108,16 @@ float fixsfloat(int r, u64 v)
 #endif
 }
 
-double fixtfloat(int r, u64 v)
+double fixtfloat(int r, uint64_t v)
 {
 #if 1
     union {
         double d;
-        u64 l;
+        uint64_t l;
     } u;
     union {
         float f;
-        u64 l;
+        uint64_t l;
     } u2;
 
     // printf("fixtfloat: %d %p(%d)\n", r, v, fregstate[r]);
@@ -167,11 +167,11 @@ double fixtfloat(int r, u64 v)
 
 #define CPYSN(dr, d, sr1, s1, sr2, s2) d = _CPYSN(dr, sr1, s1, sr2, s2)
 
-u64 _CPYSN(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _CPYSN(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     union {
         double d;
-        u64 l;
+        uint64_t l;
     } u1, u2;
     double signbit = -1.0;
     u1.l = a;
@@ -206,7 +206,7 @@ u64 _CPYSN(int rd, int ra, u64 a, int rb, u64 b)
 
 //#define LOUD
 
-u64 _CVTLQ(int dr, int rv2, u64 v2)
+uint64_t _CVTLQ(int dr, int rv2, uint64_t v2)
 {
     if (fregstate[rv2] != FPS_L && fregstate[rv2] != FPS_LOADS) {
         printf("_CVTLQ: %p(%d)\n", v2, fregstate[rv2]);
@@ -219,22 +219,22 @@ u64 _CVTLQ(int dr, int rv2, u64 v2)
     return (int)v2;
 }
 
-u64 _CVTQL(int dr, int rv2, u64 v2)
+uint64_t _CVTQL(int dr, int rv2, uint64_t v2)
 {
-    u64 l;
+    uint64_t l;
     l = (int)v2;
     fregstate[dr] = FPS_L;
     return l;
 }
 
-u64 _CVTQS(int dr, int rv2, u64 v2)
+uint64_t _CVTQS(int dr, int rv2, uint64_t v2)
 {
     union {
         float f;
-        u64 l;
+        uint64_t l;
     } u;
     fregstate[dr] = FPS_S;
-    u.f = (s64)v2;
+    u.f = (int64_t) v2;
 #ifdef LOUD
     if (subtrace)
         printf("_CVTQS: %p %g -> %p\n", v2, u.f, u.l);
@@ -242,17 +242,17 @@ u64 _CVTQS(int dr, int rv2, u64 v2)
     return u.l;
 }
 
-u64 _CVTQT(int dr, int rv2, u64 v2)
+uint64_t _CVTQT(int dr, int rv2, uint64_t v2)
 {
     union {
         double d;
-        u64 l;
+        uint64_t l;
     } u;
     if (fregstate[rv2] != FPS_Q) {
         printf("_CVTQT: %p(%d)\n", v2, fregstate[rv2]);
     }
     fregstate[dr] = FPS_T;
-    u.d = (s64)v2;
+    u.d = (int64_t) v2;
 #ifdef LOUD
     //  printf("_CVTQT(d=r%d) %llx %g -> %p\n", dr, v2, u.d, u.l);
     //  printf("_CVTQT(d=r%d) %p %g -> %p\n", dr, v2, u.d, u.l);
@@ -262,25 +262,25 @@ u64 _CVTQT(int dr, int rv2, u64 v2)
     return u.l;
 }
 
-u64 _CVTTQ(int dr, int rv2, u64 v2)
+uint64_t _CVTTQ(int dr, int rv2, uint64_t v2)
 {
     union {
         double d;
-        u64 l;
+        uint64_t l;
     } u;
     if (fregstate[rv2] > FPS_T) {
         printf("_CVTTQ: %p(%d)\n", v2, fregstate[rv2]);
     }
     fregstate[dr] = FPS_Q;
     u.l = v2;
-    return (u64)u.d;
+    return (uint64_t) u.d;
 }
 
-u64 _CVTTQVM(int dr, int rv2, u64 v2)
+uint64_t _CVTTQVM(int dr, int rv2, uint64_t v2)
 {
     union {
         double d;
-        u64 l;
+        uint64_t l;
     } u;
     u.l = v2;
     //  printf("CVTTQVM: %g %d\n", u.d, (int)trunc(u.d));
@@ -293,7 +293,7 @@ u64 _CVTTQVM(int dr, int rv2, u64 v2)
     return (long)u.d;
 }
 
-u64 _CVTTS(int dr, int rv2, u64 v2)
+uint64_t _CVTTS(int dr, int rv2, uint64_t v2)
 {
     union {
         double d;
@@ -301,7 +301,7 @@ u64 _CVTTS(int dr, int rv2, u64 v2)
     } u;
     union {
         float f;
-        u32 i;
+        uint32_t i;
         long l;
     } u2;
 
@@ -310,30 +310,30 @@ u64 _CVTTS(int dr, int rv2, u64 v2)
     u2.f = u.d;
 
     if (fregstate[rv2] != FPS_T && fregstate[rv2] != FPS_LOADT) {
-        printf("_CVTTS: f%d %p <- %p(%d)\n", dr, (u64)u2.i, v2, fregstate[rv2]);
+        printf("_CVTTS: f%d %p <- %p(%d)\n", dr, (uint64_t) u2.i, v2, fregstate[rv2]);
     }
 
     fregstate[dr] = FPS_S;
-    return (u64)u2.i;
+    return (uint64_t) u2.i;
 }
 
-double FLTU64(int rv, u64 v) { return fixtfloat(rv, v); }
+double FLTU64(int rv, uint64_t v) { return fixtfloat(rv, v); }
 
-u64 U64FLTT(double v)
+uint64_t U64FLTT(double v)
 {
     union {
         double d;
-        u64 l;
+        uint64_t l;
     } u;
     u.d = v;
     return u.l;
 }
 
-u64 U64FLTS(float v)
+uint64_t U64FLTS(float v)
 {
     union {
         float f;
-        u64 l;
+        uint64_t l;
     } u;
     //  u.l = 0;
     u.f = v;
@@ -350,7 +350,7 @@ u64 U64FLTS(float v)
 #define MULT(dr, d, sr1, s1, sr2, s2) d = _MULT(dr, sr1, s1, sr2, s2)
 #define DIVT(dr, d, sr1, s1, sr2, s2) d = _DIVT(dr, sr1, s1, sr2, s2)
 
-u64 _ADDS(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _ADDS(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     float fa, fb;
     fa = fixsfloat(ra, a);
@@ -363,7 +363,7 @@ u64 _ADDS(int rd, int ra, u64 a, int rb, u64 b)
     return U64FLTS(fa + fb);
 }
 
-u64 _ADDT(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _ADDT(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     double fa, fb;
     fa = fixtfloat(ra, a);
@@ -372,7 +372,7 @@ u64 _ADDT(int rd, int ra, u64 a, int rb, u64 b)
     return U64FLTT(fa + fb);
 }
 
-u64 _SUBS(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _SUBS(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     float fa, fb;
     fa = fixsfloat(ra, a);
@@ -381,7 +381,7 @@ u64 _SUBS(int rd, int ra, u64 a, int rb, u64 b)
     return U64FLTS(fa - fb);
 }
 
-u64 _SUBT(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _SUBT(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     double fa, fb;
     fa = fixtfloat(ra, a);
@@ -390,7 +390,7 @@ u64 _SUBT(int rd, int ra, u64 a, int rb, u64 b)
     return U64FLTT(fa - fb);
 }
 
-u64 _MULS(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _MULS(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     float fa, fb;
     fa = fixsfloat(ra, a);
@@ -399,7 +399,7 @@ u64 _MULS(int rd, int ra, u64 a, int rb, u64 b)
     return U64FLTS(fa * fb);
 }
 
-u64 _MULT(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _MULT(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     double fa, fb;
     fa = fixtfloat(ra, a);
@@ -408,7 +408,7 @@ u64 _MULT(int rd, int ra, u64 a, int rb, u64 b)
     return U64FLTT(fa * fb);
 }
 
-u64 _DIVS(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _DIVS(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     float fa, fb;
     fa = fixsfloat(ra, a);
@@ -421,7 +421,7 @@ u64 _DIVS(int rd, int ra, u64 a, int rb, u64 b)
     return U64FLTS(fa / fb);
 }
 
-u64 _DIVT(int rd, int ra, u64 a, int rb, u64 b)
+uint64_t _DIVT(int rd, int ra, uint64_t a, int rb, uint64_t b)
 {
     double fa, fb;
     fa = fixtfloat(ra, a);

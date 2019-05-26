@@ -1,6 +1,10 @@
 # more .VLM
-genera.network: 192.245.4.23;mask=255.255.255.0
+
+genera.network: 192.168.1.111;mask=255.255.255.0
 genera.virtualMemory: 2048
+genera.world: Genera-8-5-xlib-patched.vlod
+genera.coldLoad.geometry: 800x600
+
 
 #genera.enableIDS: yes
 #genera.world: /home/brad/genera_8_3.ilod
@@ -9,11 +13,10 @@ genera.virtualMemory: 2048
 #genera.world: /usr/lib/symbolics/MIT.vlod
 #genera.world: ../cvlm/CL-HTTP-A-CSAIL-8-5.vlod.bak
 #genera.world: ../symbolics/Genera-8-5.vlod
-genera.world: ../symbolics/MIT.vlod
+#genera.world: ../symbolics/MIT.vlod
 #genera.world: /tmp/world.vlod
 
-genera.debugger: ../symbolics/VLM_debugger
-genera.coldLoad.geometry: 800x600
+#genera.debugger: ../symbolics/VLM_debugger
  
 #minima.network: og5-vlm1.ai.mit.edu;mask=255.255.255.0;gateway=128.52.39.10
 #minima.diagnosticHost: rainier-vlm.ai.mit.edu

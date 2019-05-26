@@ -25,26 +25,26 @@ arg2 = arg2 & 31; // mask out the unwanted bits in arg2
 arg1 = arg1 & 31; // mask out the unwanted bits in arg1
 /* arg1 has size-1, arg2 has position. */
 t7 = zero - 1; // t7= -1
-arg3 = *(s32 *)(iSP + 4); // get ARG1 tag/data
-arg4 = *(s32 *)iSP;
+arg3 = *(int32_t *)(iSP + 4); // get ARG1 tag/data
+arg4 = *(int32_t *)iSP;
 arg1 = arg1 + 1; // Size of field
 t7 = t7 << (arg1 & 63); // Unmask
 /* TagType. */
 t8 = arg3 & 63;
 t9 = t8 - Type_Character;
-arg4 = (u32)arg4; // Clear sign extension now
+arg4 = (uint32_t) arg4; // Clear sign extension now
 if (t9 != 0) // Not a character
     goto charldbexc;
 t4 = arg4 << (arg2 & 63); // T4= shifted value if PP==0
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 t5 = t4 >> 32; // T5= shifted value if PP<>0
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (arg2 == 0) // T5= shifted value
     t5 = t4;
 t3 = t5 & ~t7; // T3= masked value.
 t4 = Type_Fixnum;
-*(u32 *)iSP = t3;
-*(u32 *)(iSP + 4) = t4; // write the stack cache
+*(uint32_t *)iSP = t3;
+*(uint32_t *)(iSP + 4) = t4; // write the stack cache
 goto cachevalid;
 
 charldbexc : if (_trace) printf("charldbexc:\n");
@@ -72,28 +72,28 @@ arg1 = arg3 >> 37; // Shift the 'size-1' bits into place
 arg2 = arg2 & 31; // mask out the unwanted bits in arg2
 arg1 = arg1 & 31; // mask out the unwanted bits in arg1
 /* arg1 has size-1, arg2 has position. */
-t2 = *(s32 *)iSP; // get arg1 tag/data
-t1 = *(s32 *)(iSP + 4);
-t2 = (u32)t2;
+t2 = *(int32_t *)iSP; // get arg1 tag/data
+t1 = *(int32_t *)(iSP + 4);
+t2 = (uint32_t) t2;
 t3 = t1 - Type_PhysicalAddress;
 t3 = t3 & 63;
 if (t3 == 0)
     goto pldbillop;
 /* Memory Read Internal */
 
-vma_memory_read45769 : t3 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read45769 : t3 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t5 = t2 + ivory;
-t4 = *(s32 *)&processor->scovlimit;
+t4 = *(int32_t *)&processor->scovlimit;
 arg4 = (t5 * 4);
 arg3 = LDQ_U(t5);
 t3 = t2 - t3; // Stack cache offset
-t4 = ((u64)t3 < (u64)t4) ? 1 : 0; // In range?
-arg4 = *(s32 *)arg4;
-arg3 = (u8)(arg3 >> ((t5 & 7) * 8));
+t4 = ((uint64_t) t3 < (uint64_t) t4) ? 1 : 0; // In range?
+arg4 = *(int32_t *)arg4;
+arg3 = (uint8_t) (arg3 >> ((t5 & 7) * 8));
 if (t4 != 0)
     goto vma_memory_read45771;
 
-vma_memory_read45770 : arg4 = (u32)arg4;
+vma_memory_read45770 : arg4 = (uint32_t) arg4;
 
 vma_memory_read45777 : t7 = zero - 1; // t7= -1
 arg1 = arg1 + 1; // Size of field
@@ -103,17 +103,17 @@ t7 = t7 << (arg1 & 63); // Unmask
 if (arg2 == 0) // T5= shifted value
     t5 = t4;
 t3 = t5 & ~t7; // T3= masked value.
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t4 = Type_Fixnum;
-*(u32 *)iSP = t3;
-*(u32 *)(iSP + 4) = t4; // write the stack cache
+*(uint32_t *)iSP = t3;
+*(uint32_t *)(iSP + 4) = t4; // write the stack cache
 goto cachevalid;
 
 pldbillop : if (_trace) printf("pldbillop:\n");
 /* Convert stack cache address to VMA */
-t2 = *(u64 *)&(processor->stackcachedata);
-t1 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachedata);
+t1 = *(uint64_t *)&(processor->stackcachebasevma);
 t2 = iSP - t2; // stack cache base relative offset
 t2 = t2 >> 3; // convert byte address to word address
 t1 = t2 + t1; // reconstruct VMA
@@ -122,10 +122,10 @@ arg2 = 57;
 goto illegaloperand;
 
 vma_memory_read45771 : if (_trace) printf("vma_memory_read45771:\n");
-t4 = *(u64 *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachedata);
 t3 = (t3 * 8) + t4; // reconstruct SCA
-arg4 = *(s32 *)t3;
-arg3 = *(s32 *)(t3 + 4); // Read from stack cache
+arg4 = *(int32_t *)t3;
+arg3 = *(int32_t *)(t3 + 4); // Read from stack cache
 goto vma_memory_read45770;
 
 /* end DoPLdb */
@@ -148,24 +148,24 @@ arg1 = arg3 >> 37; // Shift the 'size-1' bits into place
 arg2 = arg2 & 31; // mask out the unwanted bits in arg2
 arg1 = arg1 & 31; // mask out the unwanted bits in arg1
 /* arg1 has size-1, arg2 has position. */
-t2 = *(s32 *)iSP; // get arg1 tag/data
-t1 = *(s32 *)(iSP + 4);
-t2 = (u32)t2;
+t2 = *(int32_t *)iSP; // get arg1 tag/data
+t1 = *(int32_t *)(iSP + 4);
+t2 = (uint32_t) t2;
 t3 = t1 - Type_PhysicalAddress;
 t3 = t3 & 63;
 if (t3 == 0)
     goto ptagldbillop;
 /* Memory Read Internal */
 
-vma_memory_read45778 : t3 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read45778 : t3 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t5 = t2 + ivory;
-t4 = *(s32 *)&processor->scovlimit;
+t4 = *(int32_t *)&processor->scovlimit;
 arg4 = (t5 * 4);
 arg3 = LDQ_U(t5);
 t3 = t2 - t3; // Stack cache offset
-t4 = ((u64)t3 < (u64)t4) ? 1 : 0; // In range?
-arg4 = *(s32 *)arg4;
-arg3 = (u8)(arg3 >> ((t5 & 7) * 8));
+t4 = ((uint64_t) t3 < (uint64_t) t4) ? 1 : 0; // In range?
+arg4 = *(int32_t *)arg4;
+arg3 = (uint8_t) (arg3 >> ((t5 & 7) * 8));
 if (t4 != 0)
     goto vma_memory_read45780;
 
@@ -180,17 +180,17 @@ t7 = t7 << (arg1 & 63); // Unmask
 if (arg2 == 0) // T5= shifted value
     t5 = t4;
 t3 = t5 & ~t7; // T3= masked value.
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t4 = Type_Fixnum;
-*(u32 *)iSP = t3;
-*(u32 *)(iSP + 4) = t4; // write the stack cache
+*(uint32_t *)iSP = t3;
+*(uint32_t *)(iSP + 4) = t4; // write the stack cache
 goto cachevalid;
 
 ptagldbillop : if (_trace) printf("ptagldbillop:\n");
 /* Convert stack cache address to VMA */
-t2 = *(u64 *)&(processor->stackcachedata);
-t1 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachedata);
+t1 = *(uint64_t *)&(processor->stackcachebasevma);
 t2 = iSP - t2; // stack cache base relative offset
 t2 = t2 >> 3; // convert byte address to word address
 t1 = t2 + t1; // reconstruct VMA
@@ -199,10 +199,10 @@ arg2 = 57;
 goto illegaloperand;
 
 vma_memory_read45780 : if (_trace) printf("vma_memory_read45780:\n");
-t4 = *(u64 *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachedata);
 t3 = (t3 * 8) + t4; // reconstruct SCA
-arg4 = *(s32 *)t3;
-arg3 = *(s32 *)(t3 + 4); // Read from stack cache
+arg4 = *(int32_t *)t3;
+arg3 = *(int32_t *)(t3 + 4); // Read from stack cache
 goto vma_memory_read45779;
 
 /* end DoPTagLdb */
@@ -225,13 +225,13 @@ arg1 = arg3 >> 37; // Shift the 'size-1' bits into place
 arg2 = arg2 & 31; // mask out the unwanted bits in arg2
 arg1 = arg1 & 31; // mask out the unwanted bits in arg1
 /* arg1 has size-1, arg2 has position. */
-t6 = *(s32 *)iSP; // Get arg2 tag/data
-t5 = *(s32 *)(iSP + 4); // Get arg2 tag/data
+t6 = *(int32_t *)iSP; // Get arg2 tag/data
+t5 = *(int32_t *)(iSP + 4); // Get arg2 tag/data
 iSP = iSP - 8; // Pop Stack.
-t6 = (u32)t6;
-arg4 = *(s32 *)iSP; // get arg1 tag/data
-arg3 = *(s32 *)(iSP + 4);
-arg4 = (u32)arg4;
+t6 = (uint32_t) t6;
+arg4 = *(int32_t *)iSP; // get arg1 tag/data
+arg3 = *(int32_t *)(iSP + 4);
+arg4 = (uint32_t) arg4;
 t1 = t5 & 63; // Strip off any CDR code bits.
 arg6 = arg3 & 63; // Strip off any CDR code bits.
 t2 = (t1 == Type_Fixnum) ? 1 : 0;
@@ -254,11 +254,11 @@ t5 = t5 << (arg2 & 63); // t5 is the inplace mask
 t4 = t3 << (arg2 & 63); // t4 is the shifted field
 t6 = t6 & ~t5; // Clear out existing bits in arg2 field
 t6 = t4 | t6; // Put the new bits in
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t4 = Type_Fixnum;
-*(u32 *)iSP = t6;
-*(u32 *)(iSP + 4) = t4; // write the stack cache
+*(uint32_t *)iSP = t6;
+*(uint32_t *)(iSP + 4) = t4; // write the stack cache
 goto cachevalid;
 
 basic_dispatch45793 : if (_trace) printf("basic_dispatch45793:\n");
@@ -305,13 +305,13 @@ arg1 = arg3 >> 37; // Shift the 'size-1' bits into place
 arg2 = arg2 & 31; // mask out the unwanted bits in arg2
 arg1 = arg1 & 31; // mask out the unwanted bits in arg1
 /* arg1 has size-1, arg2 has position. */
-t6 = *(s32 *)iSP; // Get arg2 tag/data
-t5 = *(s32 *)(iSP + 4); // Get arg2 tag/data
+t6 = *(int32_t *)iSP; // Get arg2 tag/data
+t5 = *(int32_t *)(iSP + 4); // Get arg2 tag/data
 iSP = iSP - 8; // Pop Stack.
-t6 = (u32)t6;
-arg4 = *(s32 *)iSP; // get arg1 tag/data
-arg3 = *(s32 *)(iSP + 4);
-arg4 = (u32)arg4;
+t6 = (uint32_t) t6;
+arg4 = *(int32_t *)iSP; // get arg1 tag/data
+arg3 = *(int32_t *)(iSP + 4);
+arg4 = (uint32_t) arg4;
 t1 = t5 & 63; // Strip off any CDR code bits.
 arg6 = arg3 & 63; // Strip off any CDR code bits.
 t2 = (t1 == Type_Character) ? 1 : 0;
@@ -334,11 +334,11 @@ t5 = t5 << (arg2 & 63); // t5 is the inplace mask
 t4 = t3 << (arg2 & 63); // t4 is the shifted field
 t6 = t6 & ~t5; // Clear out existing bits in arg2 field
 t6 = t4 | t6; // Put the new bits in
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t4 = Type_Character;
-*(u32 *)iSP = t6;
-*(u32 *)(iSP + 4) = t4; // write the stack cache
+*(uint32_t *)iSP = t6;
+*(uint32_t *)(iSP + 4) = t4; // write the stack cache
 goto cachevalid;
 
 basic_dispatch45806 : if (_trace) printf("basic_dispatch45806:\n");
@@ -385,35 +385,35 @@ arg1 = arg3 >> 37; // Shift the 'size-1' bits into place
 arg2 = arg2 & 31; // mask out the unwanted bits in arg2
 arg1 = arg1 & 31; // mask out the unwanted bits in arg1
 /* arg1 has size-1, arg2 has position. */
-t2 = *(s32 *)iSP; // Get arg2 tag/data
-t1 = *(s32 *)(iSP + 4); // Get arg2 tag/data
+t2 = *(int32_t *)iSP; // Get arg2 tag/data
+t1 = *(int32_t *)(iSP + 4); // Get arg2 tag/data
 iSP = iSP - 8; // Pop Stack.
-t2 = (u32)t2;
+t2 = (uint32_t) t2;
 t3 = t1 - Type_PhysicalAddress;
 t3 = t3 & 63;
 if (t3 == 0)
     goto pdpbillop;
-arg4 = *(s32 *)iSP; // get arg1 tag/data
-arg3 = *(s32 *)(iSP + 4); // get arg1 tag/data
+arg4 = *(int32_t *)iSP; // get arg1 tag/data
+arg3 = *(int32_t *)(iSP + 4); // get arg1 tag/data
 iSP = iSP - 8; // Pop Stack.
-arg4 = (u32)arg4;
+arg4 = (uint32_t) arg4;
 /* Memory Read Internal */
 
-vma_memory_read45813 : t3 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read45813 : t3 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t1 = t2 + ivory;
-t4 = *(s32 *)&processor->scovlimit;
+t4 = *(int32_t *)&processor->scovlimit;
 t6 = (t1 * 4);
 t8 = LDQ_U(t1);
 t3 = t2 - t3; // Stack cache offset
-t4 = ((u64)t3 < (u64)t4) ? 1 : 0; // In range?
-t6 = *(s32 *)t6;
-t8 = (u8)(t8 >> ((t1 & 7) * 8));
+t4 = ((uint64_t) t3 < (uint64_t) t4) ? 1 : 0; // In range?
+t6 = *(int32_t *)t6;
+t8 = (uint8_t) (t8 >> ((t1 & 7) * 8));
 if (t4 != 0)
     goto vma_memory_read45815;
 
-vma_memory_read45814 : t6 = (u32)t6;
+vma_memory_read45814 : t6 = (uint32_t) t6;
 
-vma_memory_read45821 : t6 = (u32)t6;
+vma_memory_read45821 : t6 = (uint32_t) t6;
 t1 = arg3 & 63; // Strip off any CDR code bits.
 t10 = (t1 == Type_Fixnum) ? 1 : 0;
 
@@ -429,20 +429,20 @@ t5 = t5 << (arg2 & 63); // t5 is the inplace mask
 t4 = t3 << (arg2 & 63); // t4 is the shifted field
 t6 = t6 & ~t5; // Clear out existing bits in arg2 field
 t6 = t4 | t6; // Put the new bits in
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 t3 = t2 + ivory;
-t10 = *(s32 *)&processor->scovlimit;
+t10 = *(int32_t *)&processor->scovlimit;
 t5 = (t3 * 4);
 t1 = LDQ_U(t3);
 t4 = t2 - t4; // Stack cache offset
-t10 = ((u64)t4 < (u64)t10) ? 1 : 0; // In range?
+t10 = ((uint64_t) t4 < (uint64_t) t10) ? 1 : 0; // In range?
 t4 = (t8 & 0xff) << ((t3 & 7) * 8);
 t1 = t1 & ~(0xffL << (t3 & 7) * 8);
 
 force_alignment45825 : if (_trace) printf("force_alignment45825:\n");
 t1 = t1 | t4;
 STQ_U(t3, t1);
-*(u32 *)t5 = t6;
+*(uint32_t *)t5 = t6;
 if (t10 != 0) // J. if in cache
     goto vma_memory_write45824;
 goto NEXTINSTRUCTION;
@@ -458,8 +458,8 @@ basic_dispatch45822 : if (_trace) printf("basic_dispatch45822:\n");
 
 pdpbillop : if (_trace) printf("pdpbillop:\n");
 /* Convert stack cache address to VMA */
-t2 = *(u64 *)&(processor->stackcachedata);
-t1 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachedata);
+t1 = *(uint64_t *)&(processor->stackcachebasevma);
 t2 = iSP - t2; // stack cache base relative offset
 t2 = t2 >> 3; // convert byte address to word address
 t1 = t2 + t1; // reconstruct VMA
@@ -468,21 +468,21 @@ arg2 = 57;
 goto illegaloperand;
 
 vma_memory_write45824 : if (_trace) printf("vma_memory_write45824:\n");
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 
 force_alignment45829 : if (_trace) printf("force_alignment45829:\n");
-t3 = *(u64 *)&(processor->stackcachedata);
+t3 = *(uint64_t *)&(processor->stackcachedata);
 t4 = t2 - t4; // Stack cache offset
 t3 = (t4 * 8) + t3; // reconstruct SCA
-*(u32 *)t3 = t6; // Store in stack
-*(u32 *)(t3 + 4) = t8; // write the stack cache
+*(uint32_t *)t3 = t6; // Store in stack
+*(uint32_t *)(t3 + 4) = t8; // write the stack cache
 goto NEXTINSTRUCTION;
 
 vma_memory_read45815 : if (_trace) printf("vma_memory_read45815:\n");
-t4 = *(u64 *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachedata);
 t3 = (t3 * 8) + t4; // reconstruct SCA
-t6 = *(s32 *)t3;
-t8 = *(s32 *)(t3 + 4); // Read from stack cache
+t6 = *(int32_t *)t3;
+t8 = *(int32_t *)(t3 + 4); // Read from stack cache
 goto vma_memory_read45814;
 
 /* end DoPDpb */
@@ -505,29 +505,29 @@ arg1 = arg3 >> 37; // Shift the 'size-1' bits into place
 arg2 = arg2 & 31; // mask out the unwanted bits in arg2
 arg1 = arg1 & 31; // mask out the unwanted bits in arg1
 /* arg1 has size-1, arg2 has position. */
-t2 = *(s32 *)iSP; // Get arg2 tag/data
-t1 = *(s32 *)(iSP + 4); // Get arg2 tag/data
+t2 = *(int32_t *)iSP; // Get arg2 tag/data
+t1 = *(int32_t *)(iSP + 4); // Get arg2 tag/data
 iSP = iSP - 8; // Pop Stack.
-t2 = (u32)t2;
+t2 = (uint32_t) t2;
 t3 = t1 - Type_PhysicalAddress;
 t3 = t3 & 63;
 if (t3 == 0)
     goto ptagdpbillop;
-arg4 = *(s32 *)iSP; // get arg1 tag/data
-arg3 = *(s32 *)(iSP + 4); // get arg1 tag/data
+arg4 = *(int32_t *)iSP; // get arg1 tag/data
+arg3 = *(int32_t *)(iSP + 4); // get arg1 tag/data
 iSP = iSP - 8; // Pop Stack.
-arg4 = (u32)arg4;
+arg4 = (uint32_t) arg4;
 /* Memory Read Internal */
 
-vma_memory_read45830 : t3 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read45830 : t3 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t1 = t2 + ivory;
-t4 = *(s32 *)&processor->scovlimit;
+t4 = *(int32_t *)&processor->scovlimit;
 t8 = (t1 * 4);
 t6 = LDQ_U(t1);
 t3 = t2 - t3; // Stack cache offset
-t4 = ((u64)t3 < (u64)t4) ? 1 : 0; // In range?
-t8 = *(s32 *)t8;
-t6 = (u8)(t6 >> ((t1 & 7) * 8));
+t4 = ((uint64_t) t3 < (uint64_t) t4) ? 1 : 0; // In range?
+t8 = *(int32_t *)t8;
+t6 = (uint8_t) (t6 >> ((t1 & 7) * 8));
 if (t4 != 0)
     goto vma_memory_read45832;
 
@@ -549,20 +549,20 @@ t5 = t5 << (arg2 & 63); // t5 is the inplace mask
 t4 = t3 << (arg2 & 63); // t4 is the shifted field
 t6 = t6 & ~t5; // Clear out existing bits in arg2 field
 t6 = t4 | t6; // Put the new bits in
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 t3 = t2 + ivory;
-t10 = *(s32 *)&processor->scovlimit;
+t10 = *(int32_t *)&processor->scovlimit;
 t5 = (t3 * 4);
 t1 = LDQ_U(t3);
 t4 = t2 - t4; // Stack cache offset
-t10 = ((u64)t4 < (u64)t10) ? 1 : 0; // In range?
+t10 = ((uint64_t) t4 < (uint64_t) t10) ? 1 : 0; // In range?
 t4 = (t6 & 0xff) << ((t3 & 7) * 8);
 t1 = t1 & ~(0xffL << (t3 & 7) * 8);
 
 force_alignment45842 : if (_trace) printf("force_alignment45842:\n");
 t1 = t1 | t4;
 STQ_U(t3, t1);
-*(u32 *)t5 = t8;
+*(uint32_t *)t5 = t8;
 if (t10 != 0) // J. if in cache
     goto vma_memory_write45841;
 goto NEXTINSTRUCTION;
@@ -578,8 +578,8 @@ basic_dispatch45839 : if (_trace) printf("basic_dispatch45839:\n");
 
 ptagdpbillop : if (_trace) printf("ptagdpbillop:\n");
 /* Convert stack cache address to VMA */
-t2 = *(u64 *)&(processor->stackcachedata);
-t1 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachedata);
+t1 = *(uint64_t *)&(processor->stackcachebasevma);
 t2 = iSP - t2; // stack cache base relative offset
 t2 = t2 >> 3; // convert byte address to word address
 t1 = t2 + t1; // reconstruct VMA
@@ -588,21 +588,21 @@ arg2 = 57;
 goto illegaloperand;
 
 vma_memory_write45841 : if (_trace) printf("vma_memory_write45841:\n");
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 
 force_alignment45846 : if (_trace) printf("force_alignment45846:\n");
-t3 = *(u64 *)&(processor->stackcachedata);
+t3 = *(uint64_t *)&(processor->stackcachedata);
 t4 = t2 - t4; // Stack cache offset
 t3 = (t4 * 8) + t3; // reconstruct SCA
-*(u32 *)t3 = t8; // Store in stack
-*(u32 *)(t3 + 4) = t6; // write the stack cache
+*(uint32_t *)t3 = t8; // Store in stack
+*(uint32_t *)(t3 + 4) = t6; // write the stack cache
 goto NEXTINSTRUCTION;
 
 vma_memory_read45832 : if (_trace) printf("vma_memory_read45832:\n");
-t4 = *(u64 *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachedata);
 t3 = (t3 * 8) + t4; // reconstruct SCA
-t8 = *(s32 *)t3;
-t6 = *(s32 *)(t3 + 4); // Read from stack cache
+t8 = *(int32_t *)t3;
+t6 = *(int32_t *)(t3 + 4); // Read from stack cache
 goto vma_memory_read45831;
 
 /* end DoPTagDpb */

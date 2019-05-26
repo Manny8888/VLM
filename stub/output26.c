@@ -8,24 +8,24 @@
 /* start NativeException */
 
 nativeexception : if (_trace) printf("nativeexception:\n");
-t1 = *(u64 *)&(processor->linkage); // Load linkage to escape block
-r0 = *(u64 *)&(processor->resumeema); // Re-load resumemulator
-iSP = *(u64 *)&(processor->restartsp); // Restore SP (Just in case?)
-*(u64 *)&processor->linkage = zero;
+t1 = *(uint64_t *)&(processor->linkage); // Load linkage to escape block
+r0 = *(uint64_t *)&(processor->resumeema); // Re-load resumemulator
+iSP = *(uint64_t *)&(processor->restartsp); // Restore SP (Just in case?)
+*(uint64_t *)&processor->linkage = zero;
 goto *t1; /* ret */
 
 /* end NativeException */
 /* start PadPastAref1 */
 
 padpastaref1 : if (_trace) printf("padpastaref1:\n");
-t1 = *(u64 *)&(processor->linkage); // Load linkage to escape block
-r0 = *(u64 *)&(processor->resumeema); // Re-load resumemulator
-iSP = *(u64 *)&(processor->restartsp); // Restore SP (Just in case?)
-*(u64 *)&processor->linkage = zero;
-t1 = *(u64 *)&(processor->linkage); // Load linkage to escape block
-r0 = *(u64 *)&(processor->resumeema); // Re-load resumemulator
-iSP = *(u64 *)&(processor->restartsp); // Restore SP (Just in case?)
-*(u64 *)&processor->linkage = zero;
+t1 = *(uint64_t *)&(processor->linkage); // Load linkage to escape block
+r0 = *(uint64_t *)&(processor->resumeema); // Re-load resumemulator
+iSP = *(uint64_t *)&(processor->restartsp); // Restore SP (Just in case?)
+*(uint64_t *)&processor->linkage = zero;
+t1 = *(uint64_t *)&(processor->linkage); // Load linkage to escape block
+r0 = *(uint64_t *)&(processor->resumeema); // Re-load resumemulator
+iSP = *(uint64_t *)&(processor->restartsp); // Restore SP (Just in case?)
+*(uint64_t *)&processor->linkage = zero;
 goto *t1; /* ret */
 
 /* end PadPastAref1 */
@@ -33,16 +33,16 @@ goto *t1; /* ret */
 
 carsubroutine : if (_trace) printf("carsubroutine:\n");
 sp = sp + -8;
-*(u64 *)&processor->linkage = r0;
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+*(uint64_t *)&processor->linkage = r0;
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 r0 = r0 + 4;
-*(u64 *)&processor->restartsp = iSP;
-*(u64 *)sp = r0;
-r0 = (u64) && return0092;
+*(uint64_t *)&processor->restartsp = iSP;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0092;
 goto carinternal;
-return0092 : r0 = *(u64 *)sp;
-*(u64 *)&processor->linkage = zero;
+return0092 : r0 = *(uint64_t *)sp;
+*(uint64_t *)&processor->linkage = zero;
 sp = sp + 8;
 goto *r0; /* ret */
 
@@ -51,16 +51,16 @@ goto *r0; /* ret */
 
 cdrsubroutine : if (_trace) printf("cdrsubroutine:\n");
 sp = sp + -8;
-*(u64 *)&processor->linkage = r0;
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+*(uint64_t *)&processor->linkage = r0;
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 r0 = r0 + 4;
-*(u64 *)&processor->restartsp = iSP;
-*(u64 *)sp = r0;
-r0 = (u64) && return0093;
+*(uint64_t *)&processor->restartsp = iSP;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0093;
 goto cdrinternal;
-return0093 : r0 = *(u64 *)sp;
-*(u64 *)&processor->linkage = zero;
+return0093 : r0 = *(uint64_t *)sp;
+*(uint64_t *)&processor->linkage = zero;
 sp = sp + 8;
 goto *r0; /* ret */
 
@@ -69,16 +69,16 @@ goto *r0; /* ret */
 
 carcdrsubroutine : if (_trace) printf("carcdrsubroutine:\n");
 sp = sp + -8;
-*(u64 *)&processor->linkage = r0;
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+*(uint64_t *)&processor->linkage = r0;
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 r0 = r0 + 4;
-*(u64 *)&processor->restartsp = iSP;
-*(u64 *)sp = r0;
-r0 = (u64) && return0094;
+*(uint64_t *)&processor->restartsp = iSP;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0094;
 goto carcdrinternal;
-return0094 : r0 = *(u64 *)sp;
-*(u64 *)&processor->linkage = zero;
+return0094 : r0 = *(uint64_t *)sp;
+*(uint64_t *)&processor->linkage = zero;
 sp = sp + 8;
 goto *r0; /* ret */
 

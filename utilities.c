@@ -1,8 +1,8 @@
-/* Miscellaneous utility routines */
 
-#include "std.h"
+// Miscellaneous utility routines
 
 #include <stdarg.h>
+//#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -12,19 +12,19 @@
 #include <X11/Xlib.h>
 #include <X11/Xresource.h>
 
+#include "std.h"
+
 #include "VLM_configuration.h"
 #include "life-support/life_types.h"
 #include "emulator/ivoryrep.h"
 
-
 static char *CommandName = "genera";
 #define CommandClass "Genera"
 
-/* Internal function prototypes */
-
-static boolean GetOption(XrmDatabase options, char *name, char *class, char *value);
+// Internal function prototypes
+static boolean GetOption(XrmDatabase options, char *name, char *classOfOption, char *value);
 static boolean GetXOption(
-    XrmDatabase options, char *windowName, char *windowClass, char *name, char *class, char *value);
+    XrmDatabase options, char *windowName, char *windowClass, char *name, char *classOfOption, char *value);
 static void GetDefaultConfiguration(VLMConfig *config, XrmDatabase *options);
 static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options);
 static void InterpretOptions(VLMConfig *config, XrmDatabase options);
@@ -36,8 +36,7 @@ static int PrintMessage(char *section, char *format, va_list arguments);
 static void ProcessCommandArguments(VLMConfig *config, XrmDatabase *options, int argc, char **argv);
 static boolean VerifyHostName(char *name, char **hostName, unsigned long *hostAddress, boolean rejectLocalHost);
 
-/* Guts of the following message printing functions */
-
+// Guts of the following message printing functions
 static int PrintMessage(char *section, char *format, va_list arguments)
 {
     char name[128];
@@ -46,20 +45,54 @@ static int PrintMessage(char *section, char *format, va_list arguments)
         sprintf(name, "%s: ", CommandName);
     } else {
         sprintf(name, "%s (%s): ", CommandName, section);
-}
+    }
 
-    fprintf(stderr, "%s", name);
+    {
+        FILE *log_fd = fopen(log_file_genera, "a");
+        fprintf(log_fd, "%s", name);
+        fflush(log_fd);
+        fclose(log_fd);
+    }
 
     if (format != NULL) {
-        vfprintf(stderr, format, arguments);
-        fprintf(stderr, "\n");
+        {
+            FILE *log_fd = fopen(log_file_genera, "a");
+            fprintf(log_fd, format, arguments);
+            fprintf(log_fd, "\n");
+            fflush(log_fd);
+            fclose(log_fd);
+        }
     }
 
     return (strlen(name));
 }
 
-/* Print an error message and terminate the VLM */
+void LogMessage(char *function, char *formatString, ...)
+{
+    va_list ap;
+    va_start(ap, formatString);
 
+    if (ECHO_ON_SCREEN_P) {
+        printf("Function: ");
+        printf(function);
+        printf(" --- ");
+        printf(formatString, ap);
+        printf("\n");
+    }
+
+    FILE *log_fd = fopen(log_file_genera, "a");
+    fprintf(log_fd, "Function: ");
+    fprintf(log_fd, function);
+    fprintf(log_fd, " --- ");
+    fprintf(log_fd, formatString, ap);
+    fprintf(log_fd, "\n");
+    fflush(log_fd);
+    fclose(log_fd);
+
+    va_end(ap);
+}
+
+// Print an error message and terminate the VLM
 void vpunt(char *section, char *format, ...)
 {
     va_list ap;
@@ -73,10 +106,10 @@ void vpunt(char *section, char *format, ...)
     if (errno) {
         errmsg = strerror(errno);
         if (NULL == format) {
-            fprintf(stderr, "%s\n", errmsg);
+            LogMessage(section, "%*s%s", "", errmsg);
         } else {
-            fprintf(stderr, "%*s%s\n", prefixLength, "", errmsg);
-}
+            LogMessage(section, "%*s%s", prefixLength, errmsg);
+        }
     }
 
     va_end(ap);
@@ -85,12 +118,11 @@ void vpunt(char *section, char *format, ...)
 
     while (1) {
         ;
-}
+    }
     exit(EXIT_FAILURE);
 }
 
-/* Print an error message */
-
+// Print an error message
 void verror(char *section, char *format, ...)
 {
     va_list ap;
@@ -104,17 +136,27 @@ void verror(char *section, char *format, ...)
     if (errno) {
         errmsg = strerror(errno);
         if (NULL == format) {
-            fprintf(stderr, "%s\n", errmsg);
+            {
+                FILE *log_fd = fopen(log_file_genera, "a");
+                fprintf(log_fd, "%s\n", errmsg);
+                fflush(log_fd);
+                fclose(log_fd);
+            }
         } else {
-            fprintf(stderr, "%*s%s\n", prefixLength, "", errmsg);
-}
+
+            {
+                FILE *log_fd = fopen(log_file_genera, "a");
+                fprintf(log_fd, "%*s%s\n", prefixLength, "", errmsg);
+                fflush(log_fd);
+                fclose(log_fd);
+            }
+        }
     }
 
     va_end(ap);
 }
 
-/* Print a warning */
-
+// Print a warning
 void vwarn(char *section, char *format, ...)
 {
     va_list ap;
@@ -127,12 +169,10 @@ void vwarn(char *section, char *format, ...)
     va_end(ap);
 }
 
-/* Change the command name used by vpunt and vwarn */
-
+// Change the command name used by vpunt and vwarn
 void SetCommandName(char *newCommandName) { CommandName = strndup(newCommandName, 32); }
 
-/* Creates an X display name string in the supplied buffer */
-
+// Creates an X display name string in the supplied buffer
 void BuildXDisplayName(char *displayName, char *hostName, int display, int screen)
 {
     sprintf(displayName, "%s", hostName == NULL ? "" : hostName);
@@ -141,24 +181,21 @@ void BuildXDisplayName(char *displayName, char *hostName, int display, int scree
         sprintf(displayName, "%s:", displayName);
         if (display != -1) {
             sprintf(displayName, "%s%d", displayName, display);
-}
+        }
         if (screen != -1) {
             sprintf(displayName, "%s.%d", displayName, screen);
-}
+        }
     }
 }
 
-/* Determine the VLM configuration */
-
+// Determine the VLM configuration
 void BuildConfiguration(VLMConfig *config, int argc, char **argv)
 {
     XrmDatabase options = NULL;
     char *homeDir, workingDir[_POSIX_PATH_MAX + 1], configFile[_POSIX_PATH_MAX + 1];
 
     XrmInitialize();
-
     GetDefaultConfiguration(config, &options);
-
     MaybeReadConfigurationFile(config, &options, DefaultVLMConfigFilePathname);
 
     if ((homeDir = getenv("HOME")) != NULL) {
@@ -172,22 +209,18 @@ void BuildConfiguration(VLMConfig *config, int argc, char **argv)
     }
 
     ProcessCommandArguments(config, &options, argc, argv);
-
     InterpretOptions(config, options);
 }
 
-/* Fill in the default options for the VLM */
-
+// Fill in the default options for the VLM
 static void GetDefaultConfiguration(VLMConfig *config, XrmDatabase *options)
 {
     char *display, *worldSearchPath;
     int i;
 
     XrmPutStringResource(options, "*spy", "no");
-
     XrmPutStringResource(options, "*trace", "no");
     XrmPutStringResource(options, "*tracePOST", "no");
-
     XrmPutStringResource(options, "*testfunction", "no");
 
     config->commAreaSize = DefaultEmbCommAreaSize;
@@ -208,7 +241,7 @@ static void GetDefaultConfiguration(VLMConfig *config, XrmDatabase *options)
             options, "genera.worldSearchPath", MergeSearchPaths(worldSearchPath, DefaultWorldSearchPath));
     } else {
         XrmPutStringResource(options, "genera.worldSearchPath", DefaultWorldSearchPath);
-}
+    }
 
     XrmPutStringResource(options, "genera.enableIDS", "no");
     XrmPutStringResource(options, "genera.virtualMemory", DefaultVirtualMemory);
@@ -217,13 +250,12 @@ static void GetDefaultConfiguration(VLMConfig *config, XrmDatabase *options)
         XrmPutStringResource(options, "*display", display);
     } else {
         XrmPutStringResource(options, "*display", ":0.0");
-}
+    }
 
     XrmPutStringResource(options, "*coldLoad.iconic", "yes");
 }
 
-/* Read a .VLM file in the specified directory if it exists */
-
+// Read a .VLM file in the specified directory if it exists
 static void MaybeReadConfigurationFile(VLMConfig *config, XrmDatabase *options, char *pathname)
 {
     XrmDatabase fileOptions;
@@ -238,13 +270,13 @@ static void MaybeReadConfigurationFile(VLMConfig *config, XrmDatabase *options, 
         } else {
             vpunt(NULL, "Unable to verify existence of configuration file %s", pathname);
         }
-}
+    }
     close(fd);
 
     fileOptions = XrmGetFileDatabase(pathname);
     if (NULL == fileOptions) {
         vpunt(NULL, "Unable to parse configuration file %s", pathname);
-}
+    }
 
     if (GetOption(fileOptions, "worldSearchPath", "WorldSearchPath", newSearchPath)) {
         GetOption(*options, "worldSearchPath", "WorldSearchPath", oldSearchPath);
@@ -256,8 +288,7 @@ static void MaybeReadConfigurationFile(VLMConfig *config, XrmDatabase *options, 
     XrmMergeDatabases(fileOptions, options);
 }
 
-/* The command line arguments to a VLM command */
-
+// The command line arguments to a VLM command
 #define BaseOptions 33
 #define TracingOptions 0
 
@@ -299,17 +330,17 @@ static XrmOptionDescRec OptionsTable[OptionsTableSize] = {
     { "-clbw", ".coldLoad.borderWidth", XrmoptionSepArg, NULL },
 };
 
-/* Parse the command line arguments */
-
+// Parse the command line arguments
 static void ProcessCommandArguments(VLMConfig *config, XrmDatabase *options, int argc, char **argv)
 {
-    char oldSearchPath[_POSIX_ARG_MAX], *mergedSearchPath, searchPathOption[128];
+    char oldSearchPath[_POSIX_ARG_MAX];
+    char *mergedSearchPath;
+    char searchPathOption[128];
     int argLength;
 
     XrmParseCommand(options, OptionsTable, OptionsTableSize, CommandName, &argc, argv);
 
-    /* Any leftover arguments must be "-searchpath PATH" */
-
+    // Any leftover arguments must be "-searchpath PATH"
     while (argc > 1) {
         argv++;
         argc--;
@@ -325,22 +356,24 @@ static void ProcessCommandArguments(VLMConfig *config, XrmDatabase *options, int
                 XrmPutStringResource(options, searchPathOption, mergedSearchPath);
             } else {
                 vpunt(NULL, "A list of directory pathnames must follow -searchpath");
-}
+            }
         }
 
         else {
             vpunt(NULL, "Unrecognized option %s", *argv);
-}
+        }
     }
 }
 
-/* Convert the options found above from strings into our internal
- * representations */
-
+// Convert the options found above from strings into our internal representations
 static void InterpretOptions(VLMConfig *config, XrmDatabase options)
 {
     NetworkInterface *interface;
-    char value[_POSIX_ARG_MAX], *hostName, *start, *end, *end2;
+    char value[_POSIX_ARG_MAX];
+    char *hostName;
+    char *start;
+    char *end;
+    char *end2;
     unsigned long hostAddress, datum;
     int i;
 
@@ -351,7 +384,7 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
         config->enableSpy = FALSE;
     } else {
         vpunt(NULL, "Value of spy parameter, %s, is invalid", value);
-}
+    }
 
     GetOption(options, "testfunction", "TestFunction", value);
     if (0 == strcmp(value, "yes")) {
@@ -360,7 +393,7 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
         config->testFunction = FALSE;
     } else {
         vpunt(NULL, "Value of testfunction parameter, %s, is invalid", value);
-}
+    }
 
     config->tracing.traceP = FALSE;
     config->tracing.tracePOST = FALSE;
@@ -380,16 +413,16 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
         config->enableIDS = FALSE;
     } else {
         vpunt(NULL, "Value of enable IDS parameter, %s, is invalid", value);
-}
+    }
 
     GetOption(options, "virtualMemory", "VirtualMemory", value);
     datum = strtoul(value, &end, 10);
     if (*end) {
         vpunt(NULL, "Value of virtual memory size parameter, %s, is invalid", value);
-}
+    }
     if (datum < MinimumVirtualMemory) {
         vpunt(NULL, "Minimum virtual memory size is %d megabytes", MinimumVirtualMemory);
-}
+    }
     config->virtualMemory = datum;
 
     GetOption(options, "worldSearchPath", "WorldSearchPath", value);
@@ -400,15 +433,17 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
 
     if (config->enableSpy) {
         if (GetOption(options, "diagnosticHost", "DiagnosticHost", value)) {
-            if (VerifyHostName(value, &hostName, &hostAddress, FALSE))
+            if (VerifyHostName(value, &hostName, &hostAddress, FALSE)) {
                 memcpy((char *)&config->diagnosticIPAddress.s_addr, (char *)&hostAddress,
                     sizeof(config->diagnosticIPAddress.s_addr));
-            else
+            } else {
                 vpunt(NULL, "Unknown diagnostic host %s", value);
+            }
         } else {
             config->diagnosticIPAddress.s_addr = 0;
             for (i = 0; (i < MaxNetworkInterfaces) && (0 == config->diagnosticIPAddress.s_addr); i++) {
                 interface = &config->interfaces[i];
+
                 while ((interface != NULL) && interface->present) {
                     if (ETHERTYPE_IP == interface->myProtocol) {
                         config->diagnosticIPAddress.s_addr = htonl(interface->myAddress.s_addr);
@@ -420,24 +455,28 @@ static void InterpretOptions(VLMConfig *config, XrmDatabase options)
 
             if (0 == config->diagnosticIPAddress.s_addr) {
                 vpunt(NULL, "You must specify a diagnostic host to use the spy.");
-}
+            }
         }
     }
 }
 
-/* Convert the network interfaces specification into one or more interface
- * definitions */
-
+// Convert the network interfaces specification into one or more interface definitions
 static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
 {
     NetworkInterface *mainInterface, *interface;
-    char buffer[_POSIX_ARG_MAX], *value, *deviceName, *hostName, *commaPosition, *colonPosition, *semicolonPosition,
-        *end;
+    char buffer[_POSIX_ARG_MAX];
+    char *value, *deviceName;
+    char *hostName;
+    char *commaPosition;
+    char *colonPosition;
+    char *semicolonPosition;
+    char *end;
     unsigned long hostAddress;
     int i;
 
-    if (!GetOption(options, "network", "Network", buffer))
+    if (!GetOption(options, "network", "Network", buffer)) {
         vpunt(NULL, "At least one network interface must be defined");
+    }
 
     value = &buffer[0];
 
@@ -445,14 +484,14 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
         commaPosition = strchr(value, ',');
         if (commaPosition != NULL) {
             *commaPosition = 0;
-}
+        }
 
         colonPosition = strchr(value, ':');
         semicolonPosition = strchr(value, ';');
 
         if ((colonPosition != NULL) && (semicolonPosition != NULL) && (semicolonPosition < colonPosition)) {
             vpunt(NULL, "Invalid syntax in specification of network interface: %s", value);
-}
+        }
 
         if (colonPosition != NULL) {
             *colonPosition = 0;
@@ -460,43 +499,46 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
             value = colonPosition + 1;
         } else {
             deviceName = "";
-}
+        }
 
         interface = NULL;
         for (i = 0; i < MaxNetworkInterfaces; i++) {
             if (config->interfaces[i].present)
                 if (0 == strcmp(deviceName, config->interfaces[i].device)) {
                     mainInterface = &config->interfaces[i];
+
                     interface = mainInterface;
                     while (interface->anotherAddress != NULL) {
                         interface = interface->anotherAddress;
-}
-                    interface->anotherAddress = malloc(sizeof(NetworkInterface));
+                    }
+
+                    interface->anotherAddress = (NetworkInterface *)malloc(sizeof(NetworkInterface));
                     if (NULL == interface->anotherAddress) {
                         vpunt(NULL,
                             "Unable to allocate space for an additional "
                             "network address");
-}
+                    }
                     interface = interface->anotherAddress;
                     break;
-                } else
+                } else {
                     ;
+                }
             else {
                 interface = mainInterface = &config->interfaces[i];
                 break;
             }
-}
+        }
 
         if (NULL == interface) {
             if (commaPosition != NULL) {
                 *commaPosition = ',';
-}
+            }
             if (colonPosition != NULL) {
                 *colonPosition = ':';
-}
+            }
             if (semicolonPosition != NULL) {
                 *semicolonPosition = ';';
-}
+            }
             vpunt(NULL, "Too many distinct network interfaces in %s", buffer);
         }
 
@@ -504,7 +546,7 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
 
         if (semicolonPosition != NULL) {
             *semicolonPosition = 0;
-}
+        }
 
         if ((0 == strncmp(value, "CHAOS|", strlen("CHAOS|"))) || (0 == strncmp(value, "chaos|", strlen("chaos|")))) {
             value += strlen("CHAOS|");
@@ -513,20 +555,18 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
             if (*end) {
                 if (colonPosition != NULL) {
                     *colonPosition = ':';
-}
+                }
                 if (semicolonPosition != NULL) {
                     *semicolonPosition = ';';
-}
+                }
                 vpunt(NULL,
                     "Invalid chaos address in specification of network "
                     "interface: %s",
                     value);
             } else {
                 interface->myAddress.s_addr = ntohl(hostAddress);
-}
-        }
-
-        else if ((0 == strncmp(value, "INTERNET|", strlen("INTERNET|")))
+            }
+        } else if ((0 == strncmp(value, "INTERNET|", strlen("INTERNET|")))
             || (0 == strncmp(value, "internet|", strlen("internet|")))) {
             value += strlen("INTERNET|");
             interface->myProtocol = ETHERTYPE_IP;
@@ -534,20 +574,18 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
             if (hostAddress == ntohl(-1)) {
                 if (colonPosition != NULL) {
                     *colonPosition = ':';
-}
+                }
                 if (semicolonPosition != NULL) {
                     *semicolonPosition = ';';
-}
+                }
                 vpunt(NULL,
                     "Invalid Internet address in specification of network "
                     "interface: %s",
                     value);
             } else {
                 interface->myAddress.s_addr = hostAddress;
-}
-        }
-
-        else {
+            }
+        } else {
             interface->myProtocol = ETHERTYPE_IP;
             if (VerifyHostName(value, &hostName, &hostAddress, TRUE)) {
                 memcpy((char *)&interface->myAddress.s_addr, (char *)&hostAddress, sizeof(interface->myAddress.s_addr));
@@ -555,10 +593,10 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
             } else {
                 if (colonPosition != NULL) {
                     *colonPosition = ':';
-}
+                }
                 if (semicolonPosition != NULL) {
                     *semicolonPosition = ';';
-}
+                }
                 vpunt(NULL, "Unknown host in specification of network interface: %s", value);
             }
         }
@@ -567,21 +605,24 @@ static void InterpretNetworkOptions(VLMConfig *config, XrmDatabase options)
             strcpy(interface->myOptions, semicolonPosition + 1);
         } else {
             interface->myOptions[0] = 0;
-}
-        interface->anotherAddress = FALSE;
+        }
 
+        interface->anotherAddress = FALSE;
         interface->present = TRUE;
 
         value = (commaPosition != NULL) ? commaPosition + 1 : NULL;
     }
 }
 
-/* Convert the options for an X window into our internal representation */
-
+// Convert the options for an X window into our internal representation
 static void InterpretXOptions(
     XrmDatabase options, XParams *xParams, char *windowEnglishName, char *windowName, char *windowClass)
 {
-    char value[_POSIX_ARG_MAX], *hostName, *colonPosition, *start, *end;
+    char value[_POSIX_ARG_MAX];
+    char *hostName;
+    char *colonPosition;
+    char *start;
+    char *end;
     unsigned long hostAddress, datum;
 
     GetXOption(options, windowName, windowClass, "display", "Display", value);
@@ -593,38 +634,40 @@ static void InterpretXOptions(
         if (VerifyHostName(value, &hostName, &hostAddress, FALSE)) {
             xParams->xpHostName = hostName;
             xParams->xpHostAddress = hostAddress;
-        } else
+        } else {
             vpunt(NULL, "Unknown host %s specified for display of %s", value, windowEnglishName);
+        }
         *colonPosition = ':';
         start = colonPosition + 1;
         datum = strtoul(start, &end, 10);
         if (start != end) {
             xParams->xpDisplay = datum;
-}
+        }
         if (*end) {
             if (*end == '.') {
                 start = end + 1;
                 datum = strtoul(start, &end, 0);
                 if (start != end) {
                     xParams->xpScreen = datum;
-}
+                }
                 if (*end) {
                     vpunt(NULL, "Invalid display specification %s for %s", value, windowEnglishName);
-}
+                }
             } else {
                 vpunt(NULL, "Invalid display specification %s for %s", value, windowEnglishName);
-}
+            }
         } else {
             xParams->xpScreen = -1;
-}
+        }
     }
 
     else {
         if (VerifyHostName(value, &hostName, &hostAddress, FALSE)) {
             xParams->xpHostName = hostName;
             xParams->xpHostAddress = hostAddress;
-        } else
+        } else {
             vpunt(NULL, "Unknown host %s specified for display of %s", value, windowEnglishName);
+        }
         xParams->xpDisplay = -1;
         xParams->xpScreen = -1;
     }
@@ -636,29 +679,34 @@ static void InterpretXOptions(
             xParams->xpInitialState = Normal;
         } else {
             vpunt(NULL, "Invalid value, %s, for iconic state of %s", value, windowEnglishName);
-}
-    } else
+        }
+    } else {
         xParams->xpInitialState = Unspecified;
+    }
 
-    if (GetXOption(options, windowName, windowClass, "geometry", "Geometry", value))
+    if (GetXOption(options, windowName, windowClass, "geometry", "Geometry", value)) {
         xParams->xpGeometry = strdup(value);
-    else
+    } else {
         xParams->xpGeometry = NULL;
+    }
 
-    if (GetXOption(options, windowName, windowClass, "foreground", "Foreground", value))
+    if (GetXOption(options, windowName, windowClass, "foreground", "Foreground", value)) {
         xParams->xpForegroundColor = strdup(value);
-    else
+    } else {
         xParams->xpForegroundColor = NULL;
+    }
 
-    if (GetXOption(options, windowName, windowClass, "background", "Background", value))
+    if (GetXOption(options, windowName, windowClass, "background", "Background", value)) {
         xParams->xpBackgroundColor = strdup(value);
-    else
+    } else {
         xParams->xpBackgroundColor = "white";
+    }
 
-    if (GetXOption(options, windowName, windowClass, "borderColor", "BorderColor", value))
+    if (GetXOption(options, windowName, windowClass, "borderColor", "BorderColor", value)) {
         xParams->xpBorderColor = strdup(value);
-    else
+    } else {
         xParams->xpBorderColor = NULL;
+    }
 
     if (GetXOption(options, windowName, windowClass, "borderWidth", "BorderWidth", value)) {
         datum = strtoul(value, &end, 10);
@@ -666,20 +714,20 @@ static void InterpretXOptions(
             vpunt(NULL, "Invalid value, %s, for border width of %s", value, windowEnglishName);
         } else {
             xParams->xpBorderWidth = datum;
-}
-    } else
+        }
+    } else {
         xParams->xpBorderWidth = -1;
+    }
 }
 
-/* Merge two world search paths */
-
+// Merge two world search paths
 static char *MergeSearchPaths(char *newSearchPath, char *oldSearchPath)
 {
     newSearchPath = strdup(newSearchPath);
 
     if (0 == strncmp(newSearchPath, "+:", 2)) {
         newSearchPath = strcat(strdup(&newSearchPath[1]), oldSearchPath);
-}
+    }
 
     if (0 == strncmp(newSearchPath + strlen(newSearchPath) - 2, ":+", 2)) {
         newSearchPath[strlen(newSearchPath) - 1] = 0;
@@ -689,15 +737,16 @@ static char *MergeSearchPaths(char *newSearchPath, char *oldSearchPath)
     return (newSearchPath);
 }
 
-/* Get the value of an option from the database */
-
-static boolean GetOption(XrmDatabase options, char *name, char *class, char *value)
+// Get the value of an option from the database
+static boolean GetOption(XrmDatabase options, char *name, char *classOfOption, char *value)
 {
-    char optionName[128], optionClass[128], *valueClass;
+    char optionName[128];
+    char optionClass[128];
+    char *valueClass;
     XrmValue dbValue;
 
     sprintf(optionName, "%s.%s", CommandName, name);
-    sprintf(optionClass, "%s.%s", CommandClass, class);
+    sprintf(optionClass, "%s.%s", CommandClass, classOfOption);
 
     if (XrmGetResource(options, optionName, optionClass, &valueClass, &dbValue)) {
         strncpy(value, dbValue.addr, dbValue.size);
@@ -706,63 +755,54 @@ static boolean GetOption(XrmDatabase options, char *name, char *class, char *val
 
     else {
         return (FALSE);
-}
+    }
 }
 
 /* Get the value of an option for an X window from the database */
 
 static boolean GetXOption(
-    XrmDatabase options, char *windowName, char *windowClass, char *name, char *class, char *value)
+    XrmDatabase options, char *windowName, char *windowClass, char *name, char *classOfOption, char *value)
 {
     char optionName[128], optionClass[128];
 
     sprintf(optionName, "%s.%s", windowName, name);
-    sprintf(optionClass, "%s.%s", windowClass, class);
+    sprintf(optionClass, "%s.%s", windowClass, classOfOption);
 
     return (GetOption(options, optionName, optionClass, value));
 }
 
-/* Convert a putative host name into an official name and address */
-
+// Convert a putative host name into an official name and address
 static boolean VerifyHostName(char *name, char **hostName, unsigned long *hostAddress, boolean rejectLocalHost)
 {
     struct hostent *hp;
 
     if (*name == '\0' || !strcmp(name, "unix") || !strcmp(name, "localhost")) {
-        if (rejectLocalHost)
+        if (rejectLocalHost) {
             return (FALSE);
+        }
         if (NULL == (hp = gethostbyname("localhost"))) {
             vpunt(NULL, "Unable to determine local host network address");
-}
+        }
         *hostAddress = *(unsigned long *)hp->h_addr;
         *hostName = (*name == '\0') ? NULL : strdup("localhost");
-    }
-
-    else if ((hp = gethostbyname(name)) != NULL) {
+    } else if ((hp = gethostbyname(name)) != NULL) {
         *hostAddress = *(unsigned long *)hp->h_addr;
         *hostName = strdup(hp->h_name);
-    }
-
-    else if ((*hostAddress = ntohl(inet_addr(name))) == ntohl(-1)) {
+    } else if ((*hostAddress = ntohl(inet_addr(name))) == ntohl(-1)) {
         if (EWOULDBLOCK == errno) {
             errno = ESUCCESS;
-}
+        }
         return (FALSE);
-    }
-
-    else {
-        /* Here iff name is a valid Internet address */
+    } else {
+        // Here iff name is a valid Internet address
         *hostName = strdup(name);
-}
+    }
 
     return (TRUE);
 }
 
-/* Time-related thread "primitives" that were part of OSF and used througout
- * the emulator */
-
-/* Convert an interval to an absolute time */
-
+// Time-related thread "primitives" that were part of OSF and used througout the emulator
+// Convert an interval to an absolute time
 #define NSECS_IN_USEC 1000
 #define NSECS_IN_SEC (1000 * 1000 * 1000)
 
@@ -785,8 +825,7 @@ int pthread_get_expiration_np(const struct timespec *delta, struct timespec *abs
     return (status);
 }
 
-/* Put the current thread to sleep for the specified interval */
-
+// Put the current thread to sleep for the specified interval
 int pthread_delay_np(const struct timespec *ointerval)
 {
     int status;
@@ -800,7 +839,7 @@ int pthread_delay_np(const struct timespec *ointerval)
     while ((status = nanosleep(&interval, &rinterval))) {
         if (errno != EINTR) {
             break;
-}
+        }
         interval.tv_sec = rinterval.tv_sec;
         interval.tv_nsec = rinterval.tv_nsec;
         pthread_testcancel();
@@ -808,4 +847,3 @@ int pthread_delay_np(const struct timespec *ointerval)
 
     return (status);
 }
- 

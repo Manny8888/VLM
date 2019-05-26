@@ -1123,20 +1123,20 @@
 	    (ADDL
 	     (cond
 	       ((equal arg1 'zero)
-          (format destination "  ~A = (s32)~A;"
+          (format destination "  ~A = (int32_t) ~A;"
 		              (fixarg arg3) (fixarg arg2)))
 	       ((equal arg2 'zero)
-	        (format destination "  ~A = (s32)~A;"
+	        (format destination "  ~A = (int32_t) ~A;"
 		              (fixarg arg3) (fixarg arg1)))
 	       (t
-	        (format destination "  ~A = (s32)~A + (s32)~A;"
+	        (format destination "  ~A = (int32_t) ~A + (int32_t) ~A;"
 		              (fixarg arg3) (fixarg arg1) (fixarg arg2))))
 
        (format destination "~A~%" (trailing-comment arg4)))
 
 	    (ADDL/V
 	     (format destination
-		           "  ~A = (u64)((s32)~A + (s64)(s32)~A); ~A~%"
+		           "  ~A = (uint64_t) ((int32_t) ~A + (int64_t) (int32_t) ~A); ~A~%"
 		           (fixarg arg3)
 		           (fixarg arg1)
 		           (fixarg arg2)
@@ -1146,7 +1146,7 @@
 
 	  (SUBL/V
 	   (format destination
-		         "  ~A = (s64)((s32)~A - (s64)(s32)~A); ~A~%"
+		         "  ~A = (int64_t) ((int32_t) ~A - (int64_t) (int32_t) ~A); ~A~%"
 		         (fixarg arg3)
 		         (fixarg arg1)
 		         (fixarg arg2)
@@ -1198,12 +1198,12 @@
              ))
 
 	  (BLE
-	   (format destination "  if ((s64)~A <= 0)  ~A~%    goto ~A;~%"
+	   (format destination "  if ((int64_t) ~A <= 0)  ~A~%    goto ~A;~%"
 		         (fixarg arg1) (trailing-comment arg3)
              (gotolabel arg2)))
 
 	  (BLT
-	   (format destination "  if ((s64)~A < 0)   ~A~%    goto ~A;~%"
+	   (format destination "  if ((int64_t) ~A < 0)   ~A~%    goto ~A;~%"
 		         (fixarg arg1) (trailing-comment arg3)
              (gotolabel arg2)))
 
@@ -1218,12 +1218,12 @@
              (gotolabel arg2)))
 
 	  (BGE
-	   (format destination "  if ((s64)~A >= 0)   ~A~%    goto ~A;~%"
+	   (format destination "  if ((int64_t) ~A >= 0)   ~A~%    goto ~A;~%"
 		         (fixarg arg1) (trailing-comment arg3)
              (gotolabel arg2)))
 
 	  (BGT
-	   (format destination "  if ((s64)~A > 0)   ~A~%    goto ~A;~%"
+	   (format destination "  if ((int64_t) ~A > 0)   ~A~%    goto ~A;~%"
 		         (fixarg arg1)(trailing-comment arg3)
              (gotolabel arg2)))
 
@@ -1250,7 +1250,7 @@
              (trailing-comment arg4)))
 
 	  (CMPLE
-	   (format destination "  ~A = ((s64)~A <= (s64)~A) ? 1 : 0;   ~A~%"
+	   (format destination "  ~A = ((int64_t) ~A <= (int64_t) ~A) ? 1 : 0;   ~A~%"
 		         (fixarg arg3)
 		         (fixarg arg1)
 		         (fixarg arg2)
@@ -1264,7 +1264,7 @@
              (trailing-comment arg4)))
 
 	  (CMPLT
-	   (format destination "  ~A = ((s64)~A < (s64)~A) ? 1 : 0;   ~A~%"
+	   (format destination "  ~A = ((int64_t) ~A < (int64_t) ~A) ? 1 : 0;   ~A~%"
 		         (fixarg arg3)
 		         (fixarg arg1)
 		         (fixarg arg2)
@@ -1292,14 +1292,14 @@
              (trailing-comment arg4)))
 
 	  (CMPULE
-	   (format destination "  ~A = ((u64)~A <= (u64)~A) ? 1 : 0;   ~A~%"
+	   (format destination "  ~A = ((uint64_t) ~A <= (uint64_t) ~A) ? 1 : 0;   ~A~%"
 		         (fixarg arg3)
 		         (fixarg arg1)
 		         (fixarg arg2)
              (trailing-comment arg4)))
 
 	  (CMPULT
-	   (format destination "  ~A = ((u64)~A < (u64)~A) ? 1 : 0;   ~A~%"
+	   (format destination "  ~A = ((uint64_t) ~A < (uint64_t) ~A) ? 1 : 0;   ~A~%"
 		         (fixarg arg3)
 		         (fixarg arg1)
 		         (fixarg arg2)
@@ -1324,25 +1324,25 @@
 		         (fixarg arg3) (fixarg arg2)))
 
 	  (CMOVGE
-	   (format destination "  if ((s64)~A >= 0)  ~A~%"
+	   (format destination "  if ((int64_t) ~A >= 0)  ~A~%"
 		         (fixarg arg1) (trailing-comment arg4))
 	   (format destination "    ~A = ~A;~%"
 		         (fixarg arg3) (fixarg arg2)))
 
 	  (CMOVGT
-	   (format destination "  if ((s64)~A > 0)   ~A~%"
+	   (format destination "  if ((int64_t) ~A > 0)   ~A~%"
 		         (fixarg arg1) (trailing-comment arg4))
 	   (format destination "    ~A = ~A;~%"
 		         (fixarg arg3) (fixarg arg2)))
 
 	  (CMOVLE
-	   (format destination "  if ((s64)~A <= 0)   ~A~%"
+	   (format destination "  if ((int64_t) ~A <= 0)   ~A~%"
 		         (fixarg arg1) (trailing-comment arg4))
 	   (format destination "    ~A = ~A;~%"
 		         (fixarg arg3) (fixarg arg2)))
 
 	  (CMOVLT
-	   (format destination "  if ((s64)~A < 0)   ~A~%"
+	   (format destination "  if ((int64_t) ~A < 0)   ~A~%"
 		         (fixarg arg1) (trailing-comment arg4))
 	   (format destination "    ~A = ~A;~%"
 		         (fixarg arg3) (fixarg arg2)))
@@ -1431,25 +1431,25 @@
 
 	  (EXTBL
 	   (if (eq arg2 0)
-	       (format destination "  ~A = (u8)~A;"
+	       (format destination "  ~A = (uint8_t) ~A;"
 		             (fixarg arg3) (fixarg arg1))
-	       (format destination "  ~A = (u8)(~A >> ((~A&7)*8));"
+	       (format destination "  ~A = (uint8_t) (~A >> ((~A&7)*8));"
 		             (fixarg arg3) (fixarg arg1) (fixarg arg2)))
      (format destination "   ~A~%"  (trailing-comment arg4)))
 
 	  (EXTWL
 	   (if (eq arg2 0)
-	       (format destination "  ~A = (u16)~A;"
+	       (format destination "  ~A = (uint16_t) ~A;"
 		             (fixarg arg3) (fixarg arg1))
-	       (format destination "  ~A = (u16)(~A >> ((~A&7)*8));"
+	       (format destination "  ~A = (uint16_t) (~A >> ((~A&7)*8));"
 		             (fixarg arg3) (fixarg arg1) (fixarg arg2)))
      (format destination "   ~A~%"  (trailing-comment arg4)))
 
 	  (EXTLL
 	   (if (eq arg2 0)
-	       (format destination "  ~A = (u32)~A;"
+	       (format destination "  ~A = (uint32_t) ~A;"
 		             (fixarg arg3) (fixarg arg1))
-	       (format destination "  ~A = (u32)(~A >> ((~A&7)*8));"
+	       (format destination "  ~A = (uint32_t) (~A >> ((~A&7)*8));"
 		             (fixarg arg3) (fixarg arg1) (fixarg arg2)))
      (format destination "   ~A~%"  (trailing-comment arg4)))
 
@@ -1495,7 +1495,7 @@
 
 	  (JSR
 	   (format destination
-		         "    r0 = (*( u64 (*)(u64, u64) )~A)(arg1, arg2); /* jsr */  ~A~%"
+		         "    r0 = (*( uint64_t (*)(uint64_t, uint64_t) )~A)(arg1, arg2); /* jsr */  ~A~%"
 		         (fixarg arg2) (trailing-comment arg4)))
 
 	  (FETCH)
@@ -1512,7 +1512,7 @@
 	      (format destination "  ~A = ~A + ~A;"
 		            (fixarg arg1) (fixarg arg3) (fixarg arg2)))
 	     (t
-	      (format destination "  ~A = (u64)&~A->~A;"
+	      (format destination "  ~A = (uint64_t) &~A->~A;"
 		            (fixarg arg1) (structptr arg3 arg2) (fixarg arg2))))
      (format destination "   ~A~%" (trailing-comment arg4)))
 
@@ -1525,7 +1525,7 @@
 	       (if (or (numberp arg2) (isconstant arg2))
 	           (format destination "  ~A = ~A + ((~A) << 16);"
 		                 (fixarg arg1) (fixarg arg3) (fixarg arg2))
-	           (format destination "  ~A = (u64)&~A->~A;"
+	           (format destination "  ~A = (uint64_t) &~A->~A;"
 		                 (fixarg arg1) (structptr arg3 arg2) (fixarg arg2))))
      (format destination "   ~A~%" (trailing-comment arg4)))
 
@@ -1534,9 +1534,9 @@
 	       (setf arg3 (car arg3)))
 	   (if (numberp arg2)
 	       (if (eq arg2 0)
-		         (format destination "  ~A = *(s32 *)~A;"
+		         (format destination "  ~A = *(int32_t *)~A;"
 			               (fixarg arg1) (fixarg arg3))
-	           (format destination "  ~A = *(s32 *)(~A + ~A);"
+	           (format destination "  ~A = *(int32_t *)(~A + ~A);"
 		                 (fixarg arg1) (fixarg arg3) (fixarg arg2)))
 	       ;; handle ugly x+4 case
 	       (multiple-value-bind (ptr member offset) (decompose-args arg3 arg2)
@@ -1548,10 +1548,10 @@
 		           (setf offset (format nil "~A/4" offset)))
 		       (cond
 		         ((eq offset 0)
-		          (format destination "  ~A = *(s32 *)&~A->~A;"
+		          (format destination "  ~A = *(int32_t *)&~A->~A;"
 			                (fixarg arg1) ptr (fixarg member)))
 		         (t
-		          (format destination "  ~A = *((s32 *)(&~A->~A)+~A);"
+		          (format destination "  ~A = *((int32_t *)(&~A->~A)+~A);"
 			                (fixarg arg1) ptr (fixarg member) offset)))))
      (format destination "   ~A~%" (trailing-comment arg4)))
 
@@ -1560,9 +1560,9 @@
 	       (setf arg3 (car arg3)))
 	   (if (or (numberp arg2) (isconstant arg2))
 	       (if (eq arg2 0)
-		         (format destination "  ~A = *(u64 *)~A;"
+		         (format destination "  ~A = *(uint64_t *)~A;"
 			               (fixarg arg1) (fixarg arg3))
-	           (format destination "  ~A = *(u64 *)(~A + ~A);"
+	           (format destination "  ~A = *(uint64_t *)(~A + ~A);"
 		                 (fixarg arg1) (fixarg arg3) (fixarg arg2)))
 	       ;; member not number or constant
 	       (let ((ptr (structptr arg3 arg2)))
@@ -1574,10 +1574,10 @@
 			                (cond
 			                  ((eq arg2 'PROCESSORSTATE_DATAREAD_MASK) "PROCESSORSTATE_DATAREAD_MASK")
 			                  ((eq arg2 'PROCESSORSTATE_DATAREAD) "PROCESSORSTATE_DATAREAD"))))
-		             (format destination "  ~A = *(u64 *)(~A + ~A);"
+		             (format destination "  ~A = *(uint64_t *)(~A + ~A);"
 			                   (fixarg arg1) (fixarg arg3) asmoffset))
 	             ;; normal case
-	             (format destination "  ~A = *(u64 *)&(~A->~A);"
+	             (format destination "  ~A = *(uint64_t *)&(~A->~A);"
 		                   (fixarg arg1) ptr (fixarg arg2)))))
      (format destination "   ~A~%" (trailing-comment arg4)))
 
@@ -1595,9 +1595,9 @@
 	   (if (listp arg3)
 	       (setf arg3 (car arg3)))
 	   (if (eq arg2 0)
-	       (format destination "  ~A = *(u64 *)~A; /* lock */  "
+	       (format destination "  ~A = *(uint64_t *)~A; /* lock */  "
 		             (fixarg arg1) (fixarg arg3))
-	       (format destination "  ~A = *(u64 *)&(~A->~A); /* lock */  "
+	       (format destination "  ~A = *(uint64_t *)&(~A->~A); /* lock */  "
 		             (fixarg arg1) (structptr arg3) (fixarg arg2)))
      (format destination "   ~A~%" (trailing-comment arg4)))
 
@@ -1605,7 +1605,7 @@
 	   (if (listp arg3)
 	       (setf arg3 (car arg3)))
 	   (if (eq arg2 0)
-	       (format destination "  LDS(~A, ~A, *(u32 *)~A );"
+	       (format destination "  LDS(~A, ~A, *(uint32_t *)~A );"
 		             (regnum (fixarg arg1)) (fixarg arg1) (fixarg arg3))
 	       (format destination "  LDS(~A, ~A, ~A->~A);"
 		             (regnum (fixarg arg1))
@@ -1616,7 +1616,7 @@
 	   (if (listp arg3)
 	       (setf arg3 (car arg3)))
 	   (if (eq arg2 0)
-	       (format destination "  LDT(~A, ~A, *(u32 *)~A );"
+	       (format destination "  LDT(~A, ~A, *(uint32_t *)~A );"
 		             (regnum (fixarg arg1)) (fixarg arg1) (fixarg arg3))
 	       (format destination "  LDT(~A, ~A, ~A->~A);"
 		             (regnum (fixarg arg1))
@@ -1628,12 +1628,12 @@
 	       (setf arg3 (car arg3)))
 	   (if (numberp arg2)
 	       (if (eq arg2 0)
-		         (format destination "  STS( (u32 *)~A, ~A, ~A );"
+		         (format destination "  STS( (uint32_t *)~A, ~A, ~A );"
 			               (structptr arg3) (regnum (fixarg arg1)) (fixarg arg1))
-	           (format destination "  STS( (u32 *)(~A + ~A), ~A, ~A );"
+	           (format destination "  STS( (uint32_t *)(~A + ~A), ~A, ~A );"
 		                 (structptr arg3 arg2) (fixarg arg2)
 		                 (regnum (fixarg arg1)) (fixarg arg1)))
-	       (format destination "  STS( (u32 *)&~A->~A, ~A, ~A );"
+	       (format destination "  STS( (uint32_t *)&~A->~A, ~A, ~A );"
 		             (structptr arg3) (fixarg arg2)
 		             (regnum (fixarg arg1)) (fixarg arg1)))
      (format destination "   ~A~%" (trailing-comment arg4)))
@@ -1643,12 +1643,12 @@
 	       (setf arg3 (car arg3)))
 	   (if (numberp arg2)
 	       (if (eq arg2 0)
-		         (format destination "  STT( (u64 *)~A, ~A, ~A );"
+		         (format destination "  STT( (uint64_t *)~A, ~A, ~A );"
 			               (structptr arg3) (regnum (fixarg arg1)) (fixarg arg1))
-	           (format destination "  STT( (u64 *)(~A + ~A), ~A, ~A );"
+	           (format destination "  STT( (uint64_t *)(~A + ~A), ~A, ~A );"
 		                 (structptr arg3 arg2) (fixarg arg2)
 		                 (regnum (fixarg arg1)) (fixarg arg1)))
-	       (format destination "  STT( (u64 *)&~A->~A, ~A, ~A );"
+	       (format destination "  STT( (uint64_t *)&~A->~A, ~A, ~A );"
 		             (structptr arg3) (fixarg arg2)
 		             (regnum (fixarg arg1)) (fixarg arg1)))
      (format destination "   ~A~%" (trailing-comment arg4)))
@@ -1746,7 +1746,7 @@
              (trailing-comment arg4)))
 
 	  (MULL/V
-	   (format destination "  ~A = (s64)((s32)~A * (s64)(s32)~A); /* mull/v */   ~A~%"
+	   (format destination "  ~A = (int64_t) ((int32_t) ~A * (int64_t) (int32_t) ~A); /* mull/v */   ~A~%"
 		         (fixarg arg3) (fixarg arg1) (fixarg arg2)
              (trailing-comment arg4))
 	   ;; (format destination "  if (~A >> 32)~%    exception();  // WARNING !!! THIS IS ADJUSTED BY THE DIFF FILE~%" (fixarg arg3))
@@ -1768,7 +1768,7 @@
 		         (fixarg arg1)))
 
 	  (SRA
-	   (format destination "  ~A = (s64)~A >> ~A;   ~A~%"
+	   (format destination "  ~A = (int64_t) ~A >> ~A;   ~A~%"
 		         (fixarg arg3) (fixarg arg1)
 	           (if (numberp arg2)
                  (logand arg2 63)
@@ -1799,7 +1799,7 @@
 
 	  (SUBL
 	   (if (not (equal arg3 'zero))
-	       (format destination "  ~A = (s32)~A - (s32)~A;   ~A~%"
+	       (format destination "  ~A = (int32_t) ~A - (int32_t) ~A;   ~A~%"
 		             (fixarg arg3) (fixarg arg1) (fixarg arg2)
                  (trailing-comment arg4))))
 
@@ -1832,9 +1832,9 @@
 	       (setf arg3 (car arg3)))
 	   (if (numberp arg2)
 	       (if (eq arg2 0)
-		         (format destination "  *(u32 *)~A = ~A;"
+		         (format destination "  *(uint32_t *)~A = ~A;"
 			               (fixarg arg3) (fixarg arg1))
-	           (format destination "  *(u32 *)(~A + ~A) = ~A;"
+	           (format destination "  *(uint32_t *)(~A + ~A) = ~A;"
 		                 (fixarg arg3) (fixarg arg2) (fixarg arg1)))
 	       ;; handle ugly x+4 case
 	       (multiple-value-bind (ptr member offset)
@@ -1847,10 +1847,10 @@
 		           (setf offset (format nil "~A/4" offset)))
 		       (cond
 		         ((eq offset 0)
-		          (format destination "  *(u32 *)&~A->~A = ~A;"
+		          (format destination "  *(uint32_t *)&~A->~A = ~A;"
 			                ptr (fixarg member) (fixarg arg1)))
 		         (t
-		          (format destination "  *((u32 *)(&~A->~A)+~A) = ~A;"
+		          (format destination "  *((uint32_t *)(&~A->~A)+~A) = ~A;"
 			                ptr (fixarg member) offset (fixarg arg1))))))
      (format destination "   ~A~%" (trailing-comment arg4)))
 
@@ -1859,8 +1859,8 @@
 	       (setf arg3 (car arg3)))
 	   (if (numberp arg2)
 	       (if (eq arg2 0)
-		         (format destination "  *(u64 *)~A = ~A;" (structptr arg3 arg2) (fixarg arg1))
-	           (format destination "  *(u64 *)(~A + ~A) = ~A;" (structptr arg3 arg2) (fixarg arg2) (fixarg arg1)))
+		         (format destination "  *(uint64_t *)~A = ~A;" (structptr arg3 arg2) (fixarg arg1))
+	           (format destination "  *(uint64_t *)(~A + ~A) = ~A;" (structptr arg3 arg2) (fixarg arg2) (fixarg arg1)))
 	       ;; handle ugly x+4 case
 	       (multiple-value-bind (ptr member offset) (decompose-args arg3 arg2)
 		       (if (numberp offset)
@@ -1875,16 +1875,16 @@
 		          (if (equal ptr "((PROCESSORSTATEP)arg1)")
 		              (setf ptr "processor"))
 		          ;;
-		          (format destination "  *(u64 *)&~A->~A = ~A;"  ptr (fixarg member) (fixarg arg1)))
+		          (format destination "  *(uint64_t *)&~A->~A = ~A;"  ptr (fixarg member) (fixarg arg1)))
 		         (t
-		          (format destination "  *((u64 *)(&~A->~A)+~A) = ~A;"
+		          (format destination "  *((uint64_t *)(&~A->~A)+~A) = ~A;"
 			                ptr (fixarg member) offset (fixarg arg1))))))
      (format destination "   ~A~%" (trailing-comment arg4)))
 
 	  (STQ_C
 	   (if (listp arg3)
 	       (setf arg3 (car arg3)))
-	   (format destination "  *(u64 *)&~A->~A = ~A; /* lock */   ~A~%"
+	   (format destination "  *(uint64_t *)&~A->~A = ~A; /* lock */   ~A~%"
 		         (structptr arg3) (fixarg arg2) (fixarg arg1)
              (trailing-comment arg4))
 	   (format destination "  ~A = 1;~%" (fixarg arg1)))
@@ -1895,7 +1895,7 @@
 	       (format destination "  STQ_U(~A, ~A);"
 		             (fixarg arg3)
 		             (fixarg arg1))
-	       (format destination "  STQ_U((u64)&~A->~A, ~A);"
+	       (format destination "  STQ_U((uint64_t) &~A->~A, ~A);"
 		             (structptr arg3)
 		             (fixarg arg2)
 		             (fixarg arg1)))
@@ -1913,7 +1913,7 @@
 
 	  (CALL-SUBROUTINE
 	   (let ((label (make-call-label)))
-	     (format destination "  ~A = (u64)&&~A;~%" (fixarg arg1) label)
+	     (format destination "  ~A = (uint64_t) &&~A;~%" (fixarg arg1) label)
 	     (format destination "  goto ~A;~%" (gotolabel arg2))
 	     (format destination "~A:~%" label)))
 
@@ -1935,7 +1935,7 @@
 		         (fixarg arg3) (fixarg arg5))
 	   (format destination "  ~A = *(unsigned char *)~A;~%"
 		         (fixarg arg2) (fixarg arg5))
-	   (format destination "  ~A = *(u32 *)~A;~%"
+	   (format destination "  ~A = *(uint32_t *)~A;~%"
 		         (fixarg arg2) (fixarg arg2)))
 
 	  (PASSTHRU

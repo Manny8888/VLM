@@ -5,6 +5,8 @@
 
 #include "VLM_configuration.h"
 
+void LogMessage(char *function, char *formatString, ...);
+
 void verror(char *section, char *format, ...);
 void vpunt(char *section, char *format, ...);
 void vwarn(char *section, char *format, ...);
@@ -15,4 +17,4 @@ void BuildXDisplayName(char *displayName, char *hostName, int display, int scree
 
 /* Internal function prototypes are in utilities.c itself */
 
-#endif
+#endif // _UTILITIES_

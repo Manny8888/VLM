@@ -27,20 +27,20 @@ DoMessageDispatchFP : if (_trace) printf("DoMessageDispatchFP:\n");
 begindomessagedispatch : if (_trace) printf("begindomessagedispatch:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg2 = *(s32 *)&processor->control;
-arg1 = *(s32 *)(iFP + 28); // get message tag and data
-t1 = *(s32 *)(iFP + 24);
+arg2 = *(int32_t *)&processor->control;
+arg1 = *(int32_t *)(iFP + 28); // get message tag and data
+t1 = *(int32_t *)(iFP + 24);
 arg5 = arg2 & 255; // get number of arguments
-arg3 = *(s32 *)(iFP + 20); // get instance tag and data
-arg4 = *(s32 *)(iFP + 16);
+arg3 = *(int32_t *)(iFP + 20); // get instance tag and data
+arg4 = *(int32_t *)(iFP + 16);
 arg5 = arg5 - 4; // done if 2 or more arguments (plus 2 extra words)
-if ((s64)arg5 < 0)
+if ((int64_t) arg5 < 0)
     goto verifygenericarity;
-t1 = (u32)t1;
-arg4 = (u32)arg4;
-r0 = (u64) && return0035;
+t1 = (uint32_t) t1;
+arg4 = (uint32_t) arg4;
+r0 = (uint64_t)  && return0035;
 goto lookuphandler;
-return0035 : arg4 = *(u64 *)(iFP + 16); // clobbered by |LookupHandler|
+return0035 : arg4 = *(uint64_t *)(iFP + 16); // clobbered by |LookupHandler|
 t3 = t4 - Type_EvenPC;
 t3 = t3 & 62; // Strip CDR code, low bits
 if (t3 != 0)
@@ -49,16 +49,16 @@ t3 = t6 & 63; // Strip CDR code
 t3 = t3 - Type_NIL;
 if (t3 == 0)
     goto message_dispatch44544;
-*(u32 *)(iFP + 16) = t7;
-*(u32 *)(iFP + 20) = t6; // write the stack cache
+*(uint32_t *)(iFP + 16) = t7;
+*(uint32_t *)(iFP + 20) = t6; // write the stack cache
 goto message_dispatch44545;
 
 message_dispatch44544 : if (_trace) printf("message_dispatch44544:\n");
-*(u32 *)(iFP + 16) = t1; // swap message/instance in the frame
-*(u32 *)(iFP + 20) = arg1; // write the stack cache
+*(uint32_t *)(iFP + 16) = t1; // swap message/instance in the frame
+*(uint32_t *)(iFP + 20) = arg1; // write the stack cache
 
 message_dispatch44545 : if (_trace) printf("message_dispatch44545:\n");
-*(u64 *)(iFP + 24) = arg4;
+*(uint64_t *)(iFP + 24) = arg4;
 /* Convert real continuation to PC. */
 iPC = t4 & 1;
 iPC = t9 + iPC;
@@ -67,8 +67,8 @@ goto interpretinstructionforjump;
 
 message_dispatch44546 : if (_trace) printf("message_dispatch44546:\n");
 /* Convert stack cache address to VMA */
-t2 = *(u64 *)&(processor->stackcachedata);
-t3 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachedata);
+t3 = *(uint64_t *)&(processor->stackcachebasevma);
 t2 = iSP - t2; // stack cache base relative offset
 t2 = t2 >> 3; // convert byte address to word address
 t3 = t2 + t3; // reconstruct VMA

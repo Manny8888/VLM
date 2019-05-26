@@ -1,25 +1,19 @@
 
 #include <fenv.h>
+#include <signal.h>
 
 #include "std.h"
-#include <signal.h>
 #include "VLM_configuration.h"
-#include "life-support/life_prototypes.h"
 #include "world_tools.h"
 #include "utilities.h"
+#include "life-support/life_prototypes.h"
 #include "life-support/SystemComm.h"
 #include "emulator/aihead.h"
+
 // TODO: Check if really needed #include "aistat.h"
 
-#ifdef _C_EMULATOR_
-#include "emulator.h"
-#include "memory.h"
-#else
 #include "emulator/ivoryrep.h"
-#endif
-
 #include "spy.h"
-// #include "emulator/aihead.h"
 
 #define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
@@ -37,35 +31,37 @@ static void MaybeTerminateVLM(int signal)
 
     if (NULL == pthread_getspecific(mainThread)) {
         return;
-}
+    }
 
     if (EmbCommAreaPtr->guestStatus > StartedGuestStatus) {
-        if (RunningGuestStatus == EmbCommAreaPtr->guestStatus)
-            fprintf(stderr, "\nLisp is running!\n\n");
-        else
-            fprintf(stderr, "\nLisp was running!\n\n");
+        if (RunningGuestStatus == EmbCommAreaPtr->guestStatus) {
 
-        fprintf(stderr, "If you exit, the current state of Lisp will be lost.\n");
-        fprintf(stderr, "All information in its memory image (e.g., any modified editor\n");
-        fprintf(stderr, "buffers) will be irretrievably lost.  Further, Lisp will abandon\n");
-        fprintf(stderr, "any tasks it is performing for its clients.\n\n");
+            LogMessage("MaybeTerminateVLM", "Lisp is running!\n");
 
-        fprintf(stderr, "Do you still wish to exit?  (yes or no) ");
-        fflush(stderr);
+        } else {
+            LogMessage("MaybeTerminateVLM", "Lisp WAS running!\n");
+        }
+
+        LogMessage("MaybeTerminateVLM", "If you exit, the current state of Lisp will be lost.");
+        LogMessage("MaybeTerminateVLM", "All information in its memory image (e.g., any modified editor");
+        LogMessage("MaybeTerminateVLM", "buffers) will be irretrievably lost.  Further, Lisp will abandon");
+        LogMessage("MaybeTerminateVLM", "any tasks it is performing for its clients.");
+        LogMessage("MaybeTerminateVLM", "");
+        LogMessage("MaybeTerminateVLM", "Do you still wish to exit?  (yes or no) ");
 
         while (TRUE) {
             nRead = getline(&answer, answerSize_p, stdin);
             if (nRead < 0) {
+                LogMessage("MaybeTerminateVLM", "Unexpected EOF on standard input");
                 vpunt(NULL, "Unexpected EOF on standard input");
-}
+            }
             answer[nRead - 1] = '\0';
             if (0 == strcmp(answer, "yes")) {
                 break;
             } else if (0 == strcmp(answer, "no")) {
                 return;
             } else {
-                fprintf(stderr, "Please answer 'yes' or 'no'.  ");
-                fflush(stderr);
+                LogMessage("MaybeTerminateVLM", "Please answer 'yes' or 'no'.");
             }
         }
     }
@@ -108,8 +104,9 @@ int main(int argc, char **argv)
 #endif
 
     if (pthread_key_create(&mainThread, NULL)) {
+        LogMessage("main", "Unable to establish per-thread data.");
         vpunt(NULL, "Unable to establish per-thread data.");
-}
+    }
 
     pthread_setspecific(mainThread, (void *)TRUE);
 
@@ -117,17 +114,21 @@ int main(int argc, char **argv)
     sigemptyset(&sigAction.sa_mask);
     sigAction.sa_flags = 0;
     if (sigaction(SIGINT, &sigAction, NULL)) {
+        LogMessage("main", "Unable to establish per-thread data.");
         vpunt(NULL, "Unable to establish SIGINT handler.");
-}
+    }
     if (sigaction(SIGTERM, &sigAction, NULL)) {
+        LogMessage("main", "Unable to establish SIGTERM handler.");
         vpunt(NULL, "Unable to establish SIGTERM handler.");
-}
+    }
     if (sigaction(SIGHUP, &sigAction, NULL)) {
+        LogMessage("main", "Unable to establish SIGHUP handler.");
         vpunt(NULL, "Unable to establish SIGHUP handler.");
-}
+    }
     if (sigaction(SIGQUIT, &sigAction, NULL)) {
+        LogMessage("main", "Unable to establish SIGQUIT handler.");
         vpunt(NULL, "Unable to establish SIGQUIT handler.");
-}
+    }
 
     worldImageSize = LoadWorld(&config);
 
@@ -145,13 +146,8 @@ int main(int argc, char **argv)
             "%s\n",
             (config.virtualMemory - worldImageMB), config.worldPath);
 
-#ifdef _C_EMULATOR_
-    VirtualMemoryWrite(
-        SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? (LispObj *)AddressT : (LispObj *)AddressNIL);
-#else
-    VirtualMemoryWrite(
-        SystemCommSlotAddress(enableSysoutAtColdBoot), EnableIDS ? processor->taddress : processor->niladdress);
-#endif
+    VirtualMemoryWrite(SystemCommSlotAddress(enableSysoutAtColdBoot),
+        (LispObj *)(EnableIDS ? processor->taddress : processor->niladdress));
 
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
@@ -160,12 +156,14 @@ int main(int argc, char **argv)
         InitializeSpy(TRUE, config.diagnosticIPAddress.s_addr);
 
 #ifdef AUTOSTART
-    if (!IvoryProcessorSystemStartup(TRUE))
+    if (!IvoryProcessorSystemStartup(TRUE)) {
         vpunt(NULL, "Unable to start the VLM.");
+    }
 #endif
 
-    if (config.enableSpy)
+    if (config.enableSpy) {
         ReleaseSpyLock();
+    }
 
     while (config.enableSpy ? TRUE : Runningp()) {
         reason = InstructionSequencer();
@@ -194,16 +192,13 @@ int main(int argc, char **argv)
             default:
                 message = "Halted for unknown reason";
             }
-            if (message != NULL)
-#ifdef _C_EMULATOR_
-                vwarn(NULL, "%s at PC %016x (%s)", message, processor->pc.whole >> 1,
-                    processor->pc.whole & 1 ? "Odd" : "Even");
-#else
+            if (message != NULL) {
                 vwarn(NULL, "%s at PC %08x (%s)", message, processor->epc >> 1, (processor->epc & 1) ? "Odd" : "Even");
-#endif
+            }
         }
-        if (HaltReason_Halted == reason)
+        if (HaltReason_Halted == reason) {
             break;
+        }
     }
 
     exit(EXIT_SUCCESS);

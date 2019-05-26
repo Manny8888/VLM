@@ -18,9 +18,9 @@ DoDereferenceIM : if (_trace) printf("DoDereferenceIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment46496 : if (_trace) printf("force_alignment46496:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t) arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindodereference;
 
 DoDereferenceSP : if (_trace) printf("DoDereferenceSP:\n");
@@ -36,12 +36,12 @@ DoDereferenceFP : if (_trace) printf("DoDereferenceFP:\n");
 
 headdodereference : if (_trace) printf("headdodereference:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindodereference : if (_trace) printf("begindodereference:\n");
 /* arg1 has the operand, sign extended if immediate. */
 arg2 = arg1 >> 32;
-arg1 = (u32)arg1;
+arg1 = (uint32_t) arg1;
 t1 = arg2 & 63; // Strip off any CDR code bits.
 t2 = (t1 == Type_OneQForward) ? 1 : 0;
 
@@ -69,16 +69,16 @@ basic_dispatch46487 : if (_trace) printf("basic_dispatch46487:\n");
                 TypeExternalValueCellPointer) */
 /* Memory Read Internal */
 
-vma_memory_read46475 : t5 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read46475 : t5 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t7 = arg1 + ivory;
-t6 = *(s32 *)&processor->scovlimit;
+t6 = *(int32_t *)&processor->scovlimit;
 t3 = (t7 * 4);
 t4 = LDQ_U(t7);
 t5 = arg1 - t5; // Stack cache offset
-t8 = *(u64 *)&(processor->dataread_mask);
-t6 = ((u64)t5 < (u64)t6) ? 1 : 0; // In range?
-t3 = *(s32 *)t3;
-t4 = (u8)(t4 >> ((t7 & 7) * 8));
+t8 = *(uint64_t *)&(processor->dataread_mask);
+t6 = ((uint64_t) t5 < (uint64_t) t6) ? 1 : 0; // In range?
+t3 = *(int32_t *)t3;
+t4 = (uint8_t) (t4 >> ((t7 & 7) * 8));
 if (t6 != 0)
     goto vma_memory_read46477;
 
@@ -89,8 +89,8 @@ if (t8 & 1)
     goto vma_memory_read46479;
 
 vma_memory_read46486 : t5 = t4 & 63; // set CDR-NEXT
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -102,41 +102,41 @@ if (t2 == 0)
     goto basic_dispatch46488;
 /* Here if argument TypeLogicVariable */
 t5 = Type_ExternalValueCellPointer;
-*(u32 *)(iSP + 8) = arg1;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg1;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
 basic_dispatch46488 : if (_trace) printf("basic_dispatch46488:\n");
 /* Here for all other cases */
 t5 = arg2 & 63; // set CDR-NEXT
-*(u32 *)(iSP + 8) = arg1;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg1;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
 basic_dispatch46473 : if (_trace) printf("basic_dispatch46473:\n");
 
 vma_memory_read46477 : if (_trace) printf("vma_memory_read46477:\n");
-t6 = *(u64 *)&(processor->stackcachedata);
+t6 = *(uint64_t *)&(processor->stackcachedata);
 t5 = (t5 * 8) + t6; // reconstruct SCA
-t3 = *(s32 *)t5;
-t4 = *(s32 *)(t5 + 4); // Read from stack cache
+t3 = *(int32_t *)t5;
+t4 = *(int32_t *)(t5 + 4); // Read from stack cache
 goto vma_memory_read46476;
 
 vma_memory_read46479 : if (_trace) printf("vma_memory_read46479:\n");
 if ((t7 & 1) == 0)
     goto vma_memory_read46478;
-arg1 = (u32)t3; // Do the indirect thing
+arg1 = (uint32_t) t3; // Do the indirect thing
 goto vma_memory_read46475;
 
 vma_memory_read46478 : if (_trace) printf("vma_memory_read46478:\n");
-t8 = *(u64 *)&(processor->dataread); // Load the memory action table for cycle
+t8 = *(uint64_t *)&(processor->dataread); // Load the memory action table for cycle
 /* TagType. */
 t7 = t4 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = arg1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = arg1; // stash the VMA for the (likely) trap
 t7 = (t7 * 4) + t8; // Adjust for a longword load
-t8 = *(s32 *)t7; // Get the memory action
+t8 = *(int32_t *)t7; // Get the memory action
 
 vma_memory_read46483 : if (_trace) printf("vma_memory_read46483:\n");
 t7 = t8 & MemoryActionTransform;
@@ -169,9 +169,9 @@ DoUnifyIM : if (_trace) printf("DoUnifyIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment46497 : if (_trace) printf("force_alignment46497:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t) arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindounify;
 
 DoUnifySP : if (_trace) printf("DoUnifySP:\n");
@@ -187,7 +187,7 @@ DoUnifyFP : if (_trace) printf("DoUnifyFP:\n");
 
 headdounify : if (_trace) printf("headdounify:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindounify : if (_trace) printf("begindounify:\n");
 /* arg1 has the operand, sign extended if immediate. */
@@ -208,8 +208,8 @@ dopushlocallogicvariables : if (_trace) printf("dopushlocallogicvariables:\n");
 
 DoPushLocalLogicVariablesIM : if (_trace) printf("DoPushLocalLogicVariablesIM:\n");
 /* This sequence is lukewarm */
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindopushlocallogicvariables;
 
 DoPushLocalLogicVariablesSP : if (_trace) printf("DoPushLocalLogicVariablesSP:\n");
@@ -225,36 +225,36 @@ DoPushLocalLogicVariablesFP : if (_trace) printf("DoPushLocalLogicVariablesFP:\n
 
 headdopushlocallogicvariables : if (_trace) printf("headdopushlocallogicvariables:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindopushlocallogicvariables : if (_trace) printf("begindopushlocallogicvariables:\n");
 /* arg1 has the operand, not sign extended if immediate. */
 arg6 = Type_LogicVariable;
 t1 = arg1 >> 32;
-arg2 = (u32)arg1;
+arg2 = (uint32_t) arg1;
 t2 = t1 - Type_Fixnum;
 t2 = t2 & 63; // Strip CDR code
 if (t2 != 0)
     goto pllvillop;
-t4 = *(s32 *)&processor->scovlimit; // Current stack cache limit (words)
+t4 = *(int32_t *)&processor->scovlimit; // Current stack cache limit (words)
 t1 = zero + 128;
-t2 = *(u64 *)&(processor->stackcachedata); // Alpha base of stack cache
+t2 = *(uint64_t *)&(processor->stackcachedata); // Alpha base of stack cache
 t1 = t1 + arg2; // Account for what we're about to push
 t1 = (t1 * 8) + iSP; // SCA of desired end of cache
 t2 = (t4 * 8) + t2; // SCA of current end of cache
-t4 = ((s64)t1 <= (s64)t2) ? 1 : 0;
+t4 = ((int64_t) t1 <= (int64_t) t2) ? 1 : 0;
 if (t4 == 0) // We're done if new SCA is within bounds
     goto stackcacheoverflowhandler;
 goto pllvloopend;
 
 pllvlooptop : if (_trace) printf("pllvlooptop:\n");
-*(u32 *)(iSP + 8) = iSP;
-*(u32 *)(iSP + 12) = arg6; // write the stack cache
+*(uint32_t *)(iSP + 8) = iSP;
+*(uint32_t *)(iSP + 12) = arg6; // write the stack cache
 iSP = iSP + 8;
 
 pllvloopend : if (_trace) printf("pllvloopend:\n");
 arg2 = arg2 - 1;
-if ((s64)arg2 >= 0) // J. If iterations to go.
+if ((int64_t) arg2 >= 0) // J. If iterations to go.
     goto pllvlooptop;
 goto NEXTINSTRUCTION;
 
@@ -277,9 +277,9 @@ DoPushGlobalLogicVariableIM : if (_trace) printf("DoPushGlobalLogicVariableIM:\n
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment46514 : if (_trace) printf("force_alignment46514:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t) arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindopushgloballogicvariable;
 
 DoPushGlobalLogicVariableSP : if (_trace) printf("DoPushGlobalLogicVariableSP:\n");
@@ -295,27 +295,27 @@ DoPushGlobalLogicVariableFP : if (_trace) printf("DoPushGlobalLogicVariableFP:\n
 
 headdopushgloballogicvariable : if (_trace) printf("headdopushgloballogicvariable:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindopushgloballogicvariable : if (_trace) printf("begindopushgloballogicvariable:\n");
 /* arg1 has the operand, sign extended if immediate. */
-t1 = *(s32 *)&processor->bar2; // Get the structure stack pointer
+t1 = *(int32_t *)&processor->bar2; // Get the structure stack pointer
 t3 = Type_ExternalValueCellPointer;
-*(u32 *)(iSP + 8) = t1;
-*(u32 *)(iSP + 12) = t3; // write the stack cache
+*(uint32_t *)(iSP + 8) = t1;
+*(uint32_t *)(iSP + 12) = t3; // write the stack cache
 iSP = iSP + 8;
 /* Memory Read Internal */
 
-vma_memory_read46499 : t6 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read46499 : t6 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t8 = t1 + ivory;
-t7 = *(s32 *)&processor->scovlimit;
+t7 = *(int32_t *)&processor->scovlimit;
 t5 = (t8 * 4);
 t4 = LDQ_U(t8);
 t6 = t1 - t6; // Stack cache offset
-t9 = *(u64 *)&(processor->datawrite_mask);
-t7 = ((u64)t6 < (u64)t7) ? 1 : 0; // In range?
-t5 = *(s32 *)t5;
-t4 = (u8)(t4 >> ((t8 & 7) * 8));
+t9 = *(uint64_t *)&(processor->datawrite_mask);
+t7 = ((uint64_t) t6 < (uint64_t) t7) ? 1 : 0; // In range?
+t5 = *(int32_t *)t5;
+t4 = (uint8_t) (t4 >> ((t8 & 7) * 8));
 if (t7 != 0)
     goto vma_memory_read46501;
 
@@ -331,58 +331,58 @@ vma_memory_read46509 :
     = t3 & 63;
 t4 = t4 & 192;
 t4 = t4 | t5;
-t7 = *(u64 *)&(processor->stackcachebasevma);
+t7 = *(uint64_t *)&(processor->stackcachebasevma);
 t6 = t1 + ivory;
-t9 = *(s32 *)&processor->scovlimit;
+t9 = *(int32_t *)&processor->scovlimit;
 t5 = (t6 * 4);
 t8 = LDQ_U(t6);
 t7 = t1 - t7; // Stack cache offset
-t9 = ((u64)t7 < (u64)t9) ? 1 : 0; // In range?
+t9 = ((uint64_t) t7 < (uint64_t) t9) ? 1 : 0; // In range?
 t7 = (t4 & 0xff) << ((t6 & 7) * 8);
 t8 = t8 & ~(0xffL << (t6 & 7) * 8);
 
 force_alignment46512 : if (_trace) printf("force_alignment46512:\n");
 t8 = t8 | t7;
 STQ_U(t6, t8);
-*(u32 *)t5 = t1;
+*(uint32_t *)t5 = t1;
 if (t9 != 0) // J. if in cache
     goto vma_memory_write46511;
 
 vma_memory_write46510 : t2 = t1 + 1; // Increment the structure-stack-pointer
-*(u32 *)&processor->bar2 = t2; // Set the structure stack pointer
+*(uint32_t *)&processor->bar2 = t2; // Set the structure stack pointer
 goto NEXTINSTRUCTION;
 
 vma_memory_write46511 : if (_trace) printf("vma_memory_write46511:\n");
-t7 = *(u64 *)&(processor->stackcachebasevma);
+t7 = *(uint64_t *)&(processor->stackcachebasevma);
 
 force_alignment46513 : if (_trace) printf("force_alignment46513:\n");
-t6 = *(u64 *)&(processor->stackcachedata);
+t6 = *(uint64_t *)&(processor->stackcachedata);
 t7 = t1 - t7; // Stack cache offset
 t6 = (t7 * 8) + t6; // reconstruct SCA
-*(u32 *)t6 = t1; // Store in stack
-*(u32 *)(t6 + 4) = t4; // write the stack cache
+*(uint32_t *)t6 = t1; // Store in stack
+*(uint32_t *)(t6 + 4) = t4; // write the stack cache
 goto vma_memory_write46510;
 
 vma_memory_read46501 : if (_trace) printf("vma_memory_read46501:\n");
-t7 = *(u64 *)&(processor->stackcachedata);
+t7 = *(uint64_t *)&(processor->stackcachedata);
 t6 = (t6 * 8) + t7; // reconstruct SCA
-t5 = *(s32 *)t6;
-t4 = *(s32 *)(t6 + 4); // Read from stack cache
+t5 = *(int32_t *)t6;
+t4 = *(int32_t *)(t6 + 4); // Read from stack cache
 goto vma_memory_read46500;
 
 vma_memory_read46503 : if (_trace) printf("vma_memory_read46503:\n");
 if ((t8 & 1) == 0)
     goto vma_memory_read46502;
-t1 = (u32)t5; // Do the indirect thing
+t1 = (uint32_t) t5; // Do the indirect thing
 goto vma_memory_read46499;
 
 vma_memory_read46502 : if (_trace) printf("vma_memory_read46502:\n");
-t9 = *(u64 *)&(processor->datawrite); // Load the memory action table for cycle
+t9 = *(uint64_t *)&(processor->datawrite); // Load the memory action table for cycle
 /* TagType. */
 t8 = t4 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t1; // stash the VMA for the (likely) trap
 t8 = (t8 * 4) + t9; // Adjust for a longword load
-t9 = *(s32 *)t8; // Get the memory action
+t9 = *(int32_t *)t8; // Get the memory action
 
 vma_memory_read46506 :
 
@@ -407,9 +407,9 @@ DoLogicTailTestIM : if (_trace) printf("DoLogicTailTestIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment46524 : if (_trace) printf("force_alignment46524:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t) arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindologictailtest;
 
 DoLogicTailTestSP : if (_trace) printf("DoLogicTailTestSP:\n");
@@ -425,7 +425,7 @@ DoLogicTailTestFP : if (_trace) printf("DoLogicTailTestFP:\n");
 
 headdologictailtest : if (_trace) printf("headdologictailtest:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindologictailtest : if (_trace) printf("begindologictailtest:\n");
 /* arg1 has the operand, sign extended if immediate. */
@@ -437,8 +437,8 @@ force_alignment46521 : if (_trace) printf("force_alignment46521:\n");
 if (t2 == 0)
     goto basic_dispatch46516;
 /* Here if argument TypeList */
-t3 = *(u64 *)&(processor->niladdress);
-*(u64 *)(iSP + 8) = t3; // push the data
+t3 = *(uint64_t *)&(processor->niladdress);
+*(uint64_t *)(iSP + 8) = t3; // push the data
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -449,8 +449,8 @@ force_alignment46522 : if (_trace) printf("force_alignment46522:\n");
 if (t2 == 0)
     goto basic_dispatch46517;
 /* Here if argument TypeExternalValueCellPointer */
-t3 = *(u64 *)&(processor->taddress);
-*(u64 *)(iSP + 8) = t3; // push the data
+t3 = *(uint64_t *)&(processor->taddress);
+*(uint64_t *)(iSP + 8) = t3; // push the data
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -461,8 +461,8 @@ force_alignment46523 : if (_trace) printf("force_alignment46523:\n");
 if (t2 == 0)
     goto basic_dispatch46518;
 /* Here if argument TypeListInstance */
-t3 = *(u64 *)&(processor->niladdress);
-*(u64 *)(iSP + 8) = t3; // push the data
+t3 = *(uint64_t *)&(processor->niladdress);
+*(uint64_t *)(iSP + 8) = t3; // push the data
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 

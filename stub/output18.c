@@ -20,9 +20,9 @@ DoBlock0ReadSP : if (_trace) printf("DoBlock0ReadSP:\n");
 DoBlock0ReadLP : if (_trace) printf("DoBlock0ReadLP:\n");
 
 DoBlock0ReadFP : if (_trace) printf("DoBlock0ReadFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar0;
+arg2 = (uint64_t) &processor->bar0;
 goto blockread;
 
 /* end DoBlock0Read */
@@ -39,9 +39,9 @@ DoBlock0WriteIM : if (_trace) printf("DoBlock0WriteIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment45925 : if (_trace) printf("force_alignment45925:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t) arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindoblock0write;
 
 DoBlock0WriteSP : if (_trace) printf("DoBlock0WriteSP:\n");
@@ -57,12 +57,12 @@ DoBlock0WriteFP : if (_trace) printf("DoBlock0WriteFP:\n");
 
 headdoblock0write : if (_trace) printf("headdoblock0write:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindoblock0write : if (_trace) printf("begindoblock0write:\n");
 /* arg1 has the operand, sign extended if immediate. */
-arg3 = *(s32 *)&processor->bar0;
-arg2 = (u64)&processor->bar0;
+arg3 = *(int32_t *)&processor->bar0;
+arg2 = (uint64_t) &processor->bar0;
 goto blockwrite;
 
 /* end DoBlock0Write */
@@ -81,9 +81,9 @@ DoBlock0ReadShiftSP : if (_trace) printf("DoBlock0ReadShiftSP:\n");
 DoBlock0ReadShiftLP : if (_trace) printf("DoBlock0ReadShiftLP:\n");
 
 DoBlock0ReadShiftFP : if (_trace) printf("DoBlock0ReadShiftFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar0;
+arg2 = (uint64_t) &processor->bar0;
 goto blockreadshift;
 
 /* end DoBlock0ReadShift */
@@ -102,9 +102,9 @@ DoBlock3ReadShiftSP : if (_trace) printf("DoBlock3ReadShiftSP:\n");
 DoBlock3ReadShiftLP : if (_trace) printf("DoBlock3ReadShiftLP:\n");
 
 DoBlock3ReadShiftFP : if (_trace) printf("DoBlock3ReadShiftFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar3;
+arg2 = (uint64_t) &processor->bar3;
 goto blockreadshift;
 
 /* end DoBlock3ReadShift */
@@ -123,9 +123,9 @@ DoBlock2ReadShiftSP : if (_trace) printf("DoBlock2ReadShiftSP:\n");
 DoBlock2ReadShiftLP : if (_trace) printf("DoBlock2ReadShiftLP:\n");
 
 DoBlock2ReadShiftFP : if (_trace) printf("DoBlock2ReadShiftFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar2;
+arg2 = (uint64_t) &processor->bar2;
 goto blockreadshift;
 
 /* end DoBlock2ReadShift */
@@ -144,19 +144,19 @@ DoBlock1ReadShiftSP : if (_trace) printf("DoBlock1ReadShiftSP:\n");
 DoBlock1ReadShiftLP : if (_trace) printf("DoBlock1ReadShiftLP:\n");
 
 DoBlock1ReadShiftFP : if (_trace) printf("DoBlock1ReadShiftFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar1;
+arg2 = (uint64_t) &processor->bar1;
 
 blockreadshift : if (_trace) printf("blockreadshift:\n");
-arg5 = *(u64 *)&(processor->stackcachebasevma);
-arg6 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
-t2 = *(s32 *)arg2; // Get the vma
+arg5 = *(uint64_t *)&(processor->stackcachebasevma);
+arg6 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
+t2 = *(int32_t *)arg2; // Get the vma
 t1 = arg1 >> 6; // cycle type
 t4 = arg1 & 4; // =no-incrementp
 t5 = arg1 & 16; // =cdr-code-nextp
 t6 = arg1 & 32; // =fixnum onlyp
-t2 = (u32)t2;
+t2 = (uint32_t) t2;
 /* Memory Read Internal */
 
 vma_memory_read45930 : t11 = t2 + ivory;
@@ -165,15 +165,15 @@ t8 = LDQ_U(t11);
 t12 = (t12 * 4) + ivory;
 t7 = (t11 * 4);
 t9 = t2 - arg5; // Stack cache offset
-t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD_MASK);
-t10 = ((u64)t9 < (u64)arg6) ? 1 : 0; // In range?
-t7 = *(s32 *)t7;
-t8 = (u8)(t8 >> ((t11 & 7) * 8));
+t12 = *(uint64_t *)(t12 + PROCESSORSTATE_DATAREAD_MASK);
+t10 = ((uint64_t) t9 < (uint64_t) arg6) ? 1 : 0; // In range?
+t7 = *(int32_t *)t7;
+t8 = (uint8_t) (t8 >> ((t11 & 7) * 8));
 if (t10 != 0)
     goto vma_memory_read45932;
 
 vma_memory_read45931 : t12 = t12 >> (t8 & 63);
-t7 = (u32)t7;
+t7 = (uint32_t) t7;
 if (t12 & 1)
     goto vma_memory_read45934;
 
@@ -190,15 +190,15 @@ if (t4 != 0) // J. if we don't have to increment the address.
 t2 = t2 + 1; // Increment the address
 
 i_block_n_read_shift45927 : if (_trace) printf("i_block_n_read_shift45927:\n");
-*(u32 *)arg2 = t2; // Store updated vma in BAR
+*(uint32_t *)arg2 = t2; // Store updated vma in BAR
 if (t5 == 0) // J. if we don't have to clear CDR codes.
     goto i_block_n_read_shift45928;
 t8 = t8 & 63;
 
 i_block_n_read_shift45928 : if (_trace) printf("i_block_n_read_shift45928:\n");
 t1 = zero + 21504;
-t3 = *(u64 *)&(processor->byterotate); // Get rotate
-t4 = *(u64 *)&(processor->bytesize); // Get bytesize
+t3 = *(uint64_t *)&(processor->byterotate); // Get rotate
+t4 = *(uint64_t *)&(processor->bytesize); // Get bytesize
 /* Get background */
 t2 = t1 >> 10;
 t2 = t2 & 3; // Extract the byte background
@@ -214,12 +214,12 @@ basic_dispatch45943 : if (_trace) printf("basic_dispatch45943:\n");
 t6 = t1 >> 12;
 t6 = t6 & 1; // Extractthe byte rotate latch
 t7 = t7 << (t3 & 63);
-t5 = (u32)(t7 >> ((4 & 7) * 8));
-t7 = (u32)t7;
+t5 = (uint32_t) (t7 >> ((4 & 7) * 8));
+t7 = (uint32_t) t7;
 t7 = t7 | t5; // OP2 rotated
 if (t6 == 0) // Don't update rotate latch if not requested
     goto alu_function_byte45942;
-*(u64 *)&processor->rotatelatch = t7;
+*(uint64_t *)&processor->rotatelatch = t7;
 
 alu_function_byte45942 : if (_trace) printf("alu_function_byte45942:\n");
 t6 = zero + -2;
@@ -240,10 +240,10 @@ basic_dispatch45949 : if (_trace) printf("basic_dispatch45949:\n");
 t7 = t7 & t6; // rotated&mask
 t2 = t2 & ~t6; // background&~mask
 t7 = t7 | t2;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u32 *)(iSP + 8) = t7;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint32_t *)(iSP + 8) = t7;
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -267,7 +267,7 @@ force_alignment45955 : if (_trace) printf("force_alignment45955:\n");
 if (t5 == 0)
     goto basic_dispatch45945;
 /* Here if argument ALUByteBackgroundRotateLatch */
-t2 = *(u64 *)&(processor->rotatelatch);
+t2 = *(uint64_t *)&(processor->rotatelatch);
 goto basic_dispatch45943;
 
 basic_dispatch45945 : if (_trace) printf("basic_dispatch45945:\n");
@@ -281,10 +281,10 @@ t2 = zero;
 goto basic_dispatch45943;
 
 vma_memory_read45932 : if (_trace) printf("vma_memory_read45932:\n");
-t10 = *(u64 *)&(processor->stackcachedata);
+t10 = *(uint64_t *)&(processor->stackcachedata);
 t9 = (t9 * 8) + t10; // reconstruct SCA
-t7 = *(s32 *)t9;
-t8 = *(s32 *)(t9 + 4); // Read from stack cache
+t7 = *(int32_t *)t9;
+t8 = *(int32_t *)(t9 + 4); // Read from stack cache
 goto vma_memory_read45931;
 
 vma_memory_read45934 : if (_trace) printf("vma_memory_read45934:\n");
@@ -292,18 +292,18 @@ vma_memory_read45934 : if (_trace) printf("vma_memory_read45934:\n");
 vma_memory_read45933 : if (_trace) printf("vma_memory_read45933:\n");
 t12 = (t1 * 4); // Cycle-number -> table offset
 t12 = (t12 * 4) + ivory;
-t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD);
+t12 = *(uint64_t *)(t12 + PROCESSORSTATE_DATAREAD);
 /* TagType. */
 t11 = t8 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t2; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t2; // stash the VMA for the (likely) trap
 t11 = (t11 * 4) + t12; // Adjust for a longword load
-t12 = *(s32 *)t11; // Get the memory action
+t12 = *(int32_t *)t11; // Get the memory action
 
 vma_memory_read45939 : if (_trace) printf("vma_memory_read45939:\n");
 t10 = t12 & MemoryActionIndirect;
 if (t10 == 0)
     goto vma_memory_read45938;
-t2 = (u32)t7; // Do the indirect thing
+t2 = (uint32_t) t7; // Do the indirect thing
 goto vma_memory_read45930;
 
 vma_memory_read45938 : if (_trace) printf("vma_memory_read45938:\n");
@@ -346,7 +346,7 @@ DoBlock0ReadAluFP : if (_trace) printf("DoBlock0ReadAluFP:\n");
 begindoblock0readalu : if (_trace) printf("begindoblock0readalu:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg2 = (u64)&processor->bar0;
+arg2 = (uint64_t) &processor->bar0;
 goto blockreadalu;
 
 DoBlock0ReadAluIM : goto doistageerror;
@@ -374,7 +374,7 @@ DoBlock3ReadAluFP : if (_trace) printf("DoBlock3ReadAluFP:\n");
 begindoblock3readalu : if (_trace) printf("begindoblock3readalu:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg2 = (u64)&processor->bar3;
+arg2 = (uint64_t) &processor->bar3;
 goto blockreadalu;
 
 DoBlock3ReadAluIM : goto doistageerror;
@@ -402,7 +402,7 @@ DoBlock2ReadAluFP : if (_trace) printf("DoBlock2ReadAluFP:\n");
 begindoblock2readalu : if (_trace) printf("begindoblock2readalu:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg2 = (u64)&processor->bar2;
+arg2 = (uint64_t) &processor->bar2;
 goto blockreadalu;
 
 DoBlock2ReadAluIM : goto doistageerror;
@@ -430,37 +430,37 @@ DoBlock1ReadAluFP : if (_trace) printf("DoBlock1ReadAluFP:\n");
 begindoblock1readalu : if (_trace) printf("begindoblock1readalu:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg2 = (u64)&processor->bar1;
+arg2 = (uint64_t) &processor->bar1;
 
 blockreadalu : if (_trace) printf("blockreadalu:\n");
-arg5 = *(u64 *)&(processor->stackcachebasevma);
-arg6 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
-t1 = *(s32 *)arg2; // Get the vma
-t5 = *(s32 *)arg1;
-t4 = *(s32 *)(arg1 + 4);
-t5 = (u32)t5;
+arg5 = *(uint64_t *)&(processor->stackcachebasevma);
+arg6 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
+t1 = *(int32_t *)arg2; // Get the vma
+t5 = *(int32_t *)arg1;
+t4 = *(int32_t *)(arg1 + 4);
+t5 = (uint32_t) t5;
 t9 = t4 - Type_Fixnum;
 t9 = t9 & 63; // Strip CDR code
 if (t9 != 0)
     goto i_block_n_read_alu45957;
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 /* Memory Read Internal */
 
 vma_memory_read45959 : t11 = t1 + ivory;
 t3 = (t11 * 4);
 t2 = LDQ_U(t11);
 t9 = t1 - arg5; // Stack cache offset
-t12 = *(u64 *)&(processor->dataread_mask);
-t10 = ((u64)t9 < (u64)arg6) ? 1 : 0; // In range?
-t3 = *(s32 *)t3;
-t2 = (u8)(t2 >> ((t11 & 7) * 8));
+t12 = *(uint64_t *)&(processor->dataread_mask);
+t10 = ((uint64_t) t9 < (uint64_t) arg6) ? 1 : 0; // In range?
+t3 = *(int32_t *)t3;
+t2 = (uint8_t) (t2 >> ((t11 & 7) * 8));
 if (t10 != 0)
     goto vma_memory_read45961;
 
 vma_memory_read45960 : t11 = zero + 240;
 t12 = t12 >> (t2 & 63);
 t11 = t11 >> (t2 & 63);
-t3 = (u32)t3;
+t3 = (uint32_t) t3;
 if (t12 & 1)
     goto vma_memory_read45963;
 
@@ -469,10 +469,10 @@ t9 = t9 & 63; // Strip CDR code
 if (t9 != 0)
     goto i_block_n_read_alu45958;
 t1 = t1 + 1; // Increment the address
-*(u32 *)arg2 = t1; // Store updated vma in BAR
-t6 = *(u64 *)&(processor->aluop);
-*(u64 *)&processor->aluoverflow = zero;
-t7 = *(u64 *)&(processor->aluandrotatecontrol);
+*(uint32_t *)arg2 = t1; // Store updated vma in BAR
+t6 = *(uint64_t *)&(processor->aluop);
+*(uint64_t *)&processor->aluoverflow = zero;
+t7 = *(uint64_t *)&(processor->aluandrotatecontrol);
 t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;
 
 force_alignment46031 : if (_trace) printf("force_alignment46031:\n");
@@ -639,7 +639,7 @@ if (t1 == 0)
 t8 = ~zero;
 
 basic_dispatch45973 : if (_trace) printf("basic_dispatch45973:\n");
-*(u32 *)arg1 = t8;
+*(uint32_t *)arg1 = t8;
 goto NEXTINSTRUCTION;
 
 basic_dispatch45972 : if (_trace) printf("basic_dispatch45972:\n");
@@ -649,8 +649,8 @@ force_alignment46032 : if (_trace) printf("force_alignment46032:\n");
 if (t1 == 0)
     goto basic_dispatch46007;
 /* Here if argument ALUFunctionByte */
-t9 = *(u64 *)&(processor->byterotate); // Get rotate
-t10 = *(u64 *)&(processor->bytesize); // Get bytesize
+t9 = *(uint64_t *)&(processor->byterotate); // Get rotate
+t10 = *(uint64_t *)&(processor->bytesize); // Get bytesize
 /* Get background */
 t1 = t7 >> 10;
 t1 = t1 & 3; // Extract the byte background
@@ -666,12 +666,12 @@ basic_dispatch46009 : if (_trace) printf("basic_dispatch46009:\n");
 t12 = t7 >> 12;
 t12 = t12 & 1; // Extractthe byte rotate latch
 t8 = t5 << (t9 & 63);
-t11 = (u32)(t8 >> ((4 & 7) * 8));
-t8 = (u32)t8;
+t11 = (uint32_t) (t8 >> ((4 & 7) * 8));
+t8 = (uint32_t) t8;
 t8 = t8 | t11; // OP2 rotated
 if (t12 == 0) // Don't update rotate latch if not requested
     goto alu_function_byte46008;
-*(u64 *)&processor->rotatelatch = t8;
+*(uint64_t *)&processor->rotatelatch = t8;
 
 alu_function_byte46008 : if (_trace) printf("alu_function_byte46008:\n");
 t12 = zero + -2;
@@ -692,7 +692,7 @@ basic_dispatch46015 : if (_trace) printf("basic_dispatch46015:\n");
 t8 = t8 & t12; // rotated&mask
 t1 = t1 & ~t12; // background&~mask
 t8 = t8 | t1;
-*(u32 *)arg1 = t8;
+*(uint32_t *)arg1 = t8;
 goto NEXTINSTRUCTION;
 
 basic_dispatch46007 : if (_trace) printf("basic_dispatch46007:\n");
@@ -721,25 +721,25 @@ t10 = t8 >> 31; // Sign bit
 t11 = t8 >> 32; // Next bit
 t10 = t10 ^ t11; // Low bit is now overflow indicator
 t11 = t7 >> 24; // Get the load-carry-in bit
-*(u64 *)&processor->aluoverflow = t10;
+*(uint64_t *)&processor->aluoverflow = t10;
 if ((t11 & 1) == 0)
     goto alu_function_adder46021;
-t10 = (u32)(t8 >> ((4 & 7) * 8)); // Get the carry
+t10 = (uint32_t) (t8 >> ((4 & 7) * 8)); // Get the carry
 t11 = zero + 1024;
 t7 = t7 & ~t11;
 t11 = t10 & 1;
 t11 = t11 << 10;
 t7 = t7 | t11; // Set the adder carry in
-*(u64 *)&processor->aluandrotatecontrol = t7;
+*(uint64_t *)&processor->aluandrotatecontrol = t7;
 
 alu_function_adder46021 : if (_trace) printf("alu_function_adder46021:\n");
-t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
-*(u64 *)&processor->aluborrow = t10;
-t3 = (s32)t3;
-t5 = (s32)t5;
-t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
-*(u64 *)&processor->alulessthan = t10;
-*(u32 *)arg1 = t8;
+t10 = ((int64_t) t3 < (int64_t) t1) ? 1 : 0;
+*(uint64_t *)&processor->aluborrow = t10;
+t3 = (int32_t) t3;
+t5 = (int32_t) t5;
+t10 = ((int64_t) t3 < (int64_t) t1) ? 1 : 0;
+*(uint64_t *)&processor->alulessthan = t10;
+*(uint32_t *)arg1 = t8;
 goto NEXTINSTRUCTION;
 
 basic_dispatch46020 : if (_trace) printf("basic_dispatch46020:\n");
@@ -753,14 +753,14 @@ if (t1 == 0)
 arg5 = 0;
 arg2 = 38;
 goto illegaloperand;
-*(u32 *)arg1 = t8;
+*(uint32_t *)arg1 = t8;
 goto NEXTINSTRUCTION;
 
 basic_dispatch45971 : if (_trace) printf("basic_dispatch45971:\n");
 
 i_block_n_read_alu45957 : if (_trace) printf("i_block_n_read_alu45957:\n");
 /* Convert stack cache address to VMA */
-t9 = *(u64 *)&(processor->stackcachedata);
+t9 = *(uint64_t *)&(processor->stackcachedata);
 t9 = arg1 - t9; // stack cache base relative offset
 t9 = t9 >> 3; // convert byte address to word address
 t1 = t9 + arg5; // reconstruct VMA
@@ -790,9 +790,9 @@ force_alignment46036 : if (_trace) printf("force_alignment46036:\n");
 if (t11 == 0)
     goto basic_dispatch46025;
 /* Here if argument ALUAdderOp2Invert */
-t1 = (s32)t5;
+t1 = (int32_t) t5;
 t1 = zero - t1;
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 goto basic_dispatch46022;
 
 basic_dispatch46025 : if (_trace) printf("basic_dispatch46025:\n");
@@ -803,7 +803,7 @@ if (t11 == 0)
     goto basic_dispatch46022;
 /* Here if argument ALUAdderOp2MinusOne */
 t1 = ~zero;
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 goto basic_dispatch46022;
 
 basic_dispatch46016 : if (_trace) printf("basic_dispatch46016:\n");
@@ -821,7 +821,7 @@ force_alignment46039 : if (_trace) printf("force_alignment46039:\n");
 if (t11 == 0)
     goto basic_dispatch46011;
 /* Here if argument ALUByteBackgroundRotateLatch */
-t1 = *(u64 *)&(processor->rotatelatch);
+t1 = *(uint64_t *)&(processor->rotatelatch);
 goto basic_dispatch46009;
 
 basic_dispatch46011 : if (_trace) printf("basic_dispatch46011:\n");
@@ -835,25 +835,25 @@ t1 = zero;
 goto basic_dispatch46009;
 
 vma_memory_read45961 : if (_trace) printf("vma_memory_read45961:\n");
-t10 = *(u64 *)&(processor->stackcachedata);
+t10 = *(uint64_t *)&(processor->stackcachedata);
 t9 = (t9 * 8) + t10; // reconstruct SCA
-t3 = *(s32 *)t9;
-t2 = *(s32 *)(t9 + 4); // Read from stack cache
+t3 = *(int32_t *)t9;
+t2 = *(int32_t *)(t9 + 4); // Read from stack cache
 goto vma_memory_read45960;
 
 vma_memory_read45963 : if (_trace) printf("vma_memory_read45963:\n");
 if ((t11 & 1) == 0)
     goto vma_memory_read45962;
-t1 = (u32)t3; // Do the indirect thing
+t1 = (uint32_t) t3; // Do the indirect thing
 goto vma_memory_read45959;
 
 vma_memory_read45962 : if (_trace) printf("vma_memory_read45962:\n");
-t12 = *(u64 *)&(processor->dataread); // Load the memory action table for cycle
+t12 = *(uint64_t *)&(processor->dataread); // Load the memory action table for cycle
 /* TagType. */
 t11 = t2 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = t1; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = t1; // stash the VMA for the (likely) trap
 t11 = (t11 * 4) + t12; // Adjust for a longword load
-t12 = *(s32 *)t11; // Get the memory action
+t12 = *(int32_t *)t11; // Get the memory action
 
 vma_memory_read45967 : if (_trace) printf("vma_memory_read45967:\n");
 t11 = t12 & MemoryActionTransform;
@@ -890,9 +890,9 @@ DoBlock0ReadTestSP : if (_trace) printf("DoBlock0ReadTestSP:\n");
 DoBlock0ReadTestLP : if (_trace) printf("DoBlock0ReadTestLP:\n");
 
 DoBlock0ReadTestFP : if (_trace) printf("DoBlock0ReadTestFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar0;
+arg2 = (uint64_t) &processor->bar0;
 goto blockreadtest;
 
 /* end DoBlock0ReadTest */
@@ -911,9 +911,9 @@ DoBlock3ReadTestSP : if (_trace) printf("DoBlock3ReadTestSP:\n");
 DoBlock3ReadTestLP : if (_trace) printf("DoBlock3ReadTestLP:\n");
 
 DoBlock3ReadTestFP : if (_trace) printf("DoBlock3ReadTestFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar3;
+arg2 = (uint64_t) &processor->bar3;
 goto blockreadtest;
 
 /* end DoBlock3ReadTest */
@@ -932,9 +932,9 @@ DoBlock2ReadTestSP : if (_trace) printf("DoBlock2ReadTestSP:\n");
 DoBlock2ReadTestLP : if (_trace) printf("DoBlock2ReadTestLP:\n");
 
 DoBlock2ReadTestFP : if (_trace) printf("DoBlock2ReadTestFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar2;
+arg2 = (uint64_t) &processor->bar2;
 goto blockreadtest;
 
 /* end DoBlock2ReadTest */
@@ -953,36 +953,36 @@ DoBlock1ReadTestSP : if (_trace) printf("DoBlock1ReadTestSP:\n");
 DoBlock1ReadTestLP : if (_trace) printf("DoBlock1ReadTestLP:\n");
 
 DoBlock1ReadTestFP : if (_trace) printf("DoBlock1ReadTestFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t) (arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = (u64)&processor->bar1;
+arg2 = (uint64_t) &processor->bar1;
 
 blockreadtest : if (_trace) printf("blockreadtest:\n");
-arg3 = *(s32 *)arg2; // Get the vma
+arg3 = *(int32_t *)arg2; // Get the vma
 t1 = arg1 >> 6; // cycle type
-t5 = *(s32 *)iSP;
-t4 = *(s32 *)(iSP + 4);
-t5 = (u32)t5;
-arg3 = (u32)arg3;
+t5 = *(int32_t *)iSP;
+t4 = *(int32_t *)(iSP + 4);
+t5 = (uint32_t) t5;
+arg3 = (uint32_t) arg3;
 /* Memory Read Internal */
 
-vma_memory_read46047 : t9 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read46047 : t9 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t11 = arg3 + ivory;
-t10 = *(s32 *)&processor->scovlimit;
+t10 = *(int32_t *)&processor->scovlimit;
 t12 = (t1 * 4); // Cycle-number -> table offset
 t2 = LDQ_U(t11);
 t12 = (t12 * 4) + ivory;
 t3 = (t11 * 4);
 t9 = arg3 - t9; // Stack cache offset
-t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD_MASK);
-t10 = ((u64)t9 < (u64)t10) ? 1 : 0; // In range?
-t3 = *(s32 *)t3;
-t2 = (u8)(t2 >> ((t11 & 7) * 8));
+t12 = *(uint64_t *)(t12 + PROCESSORSTATE_DATAREAD_MASK);
+t10 = ((uint64_t) t9 < (uint64_t) t10) ? 1 : 0; // In range?
+t3 = *(int32_t *)t3;
+t2 = (uint8_t) (t2 >> ((t11 & 7) * 8));
 if (t10 != 0)
     goto vma_memory_read46049;
 
 vma_memory_read46048 : t12 = t12 >> (t2 & 63);
-t3 = (u32)t3;
+t3 = (uint32_t) t3;
 if (t12 & 1)
     goto vma_memory_read46051;
 
@@ -1006,9 +1006,9 @@ if (t1 == 0) // J. if we don't have to clear CDR codes.
 t2 = t2 & 63;
 
 i_block_n_read_test46043 : if (_trace) printf("i_block_n_read_test46043:\n");
-t6 = *(u64 *)&(processor->aluop);
-*(u64 *)&processor->aluoverflow = zero;
-t7 = *(u64 *)&(processor->aluandrotatecontrol);
+t6 = *(uint64_t *)&(processor->aluop);
+*(uint64_t *)&processor->aluoverflow = zero;
+t7 = *(uint64_t *)&(processor->aluandrotatecontrol);
 t1 = (t6 == ALUFunction_Boolean) ? 1 : 0;
 
 force_alignment46119 : if (_trace) printf("force_alignment46119:\n");
@@ -1179,9 +1179,9 @@ basic_dispatch46061 : if (_trace) printf("basic_dispatch46061:\n");
 basic_dispatch46059 : if (_trace) printf("basic_dispatch46059:\n");
 t1 = t7 >> 16;
 t1 = t1 & 31; // Extract ALU condition
-t10 = *(u64 *)&(processor->aluoverflow);
-t11 = *(u64 *)&(processor->aluborrow);
-t12 = *(u64 *)&(processor->alulessthan);
+t10 = *(uint64_t *)&(processor->aluoverflow);
+t11 = *(uint64_t *)&(processor->aluborrow);
+t12 = *(uint64_t *)&(processor->alulessthan);
 t9 = (t1 == ALUCondition_SignedLessThanOrEqual) ? 1 : 0;
 
 force_alignment46151 : if (_trace) printf("force_alignment46151:\n");
@@ -1214,13 +1214,13 @@ if (t1 != 0) // J. if we don't have to increment the address.
 arg3 = arg3 + 1; // Increment the address
 
 i_block_n_read_test46042 : if (_trace) printf("i_block_n_read_test46042:\n");
-*(u32 *)arg2 = arg3; // Store updated vma in BAR
+*(uint32_t *)arg2 = arg3; // Store updated vma in BAR
 goto NEXTINSTRUCTION;
 
 i_block_n_read_test46046 : if (_trace) printf("i_block_n_read_test46046:\n");
-t10 = *(s32 *)(iSP + -8);
-t9 = *(s32 *)(iSP + -4);
-t10 = (u32)t10;
+t10 = *(int32_t *)(iSP + -8);
+t9 = *(int32_t *)(iSP + -4);
+t10 = (uint32_t) t10;
 t10 = t10 << 1;
 iPC = t9 & 1;
 iPC = iPC + t10;
@@ -1228,8 +1228,8 @@ goto interpretinstructionforjump;
 
 i_block_n_read_test46045 : if (_trace) printf("i_block_n_read_test46045:\n");
 /* Convert stack cache address to VMA */
-t9 = *(u64 *)&(processor->stackcachedata);
-arg3 = *(u64 *)&(processor->stackcachebasevma);
+t9 = *(uint64_t *)&(processor->stackcachedata);
+arg3 = *(uint64_t *)&(processor->stackcachebasevma);
 t9 = iSP - t9; // stack cache base relative offset
 t9 = t9 >> 3; // convert byte address to word address
 arg3 = t9 + arg3; // reconstruct VMA
@@ -1260,7 +1260,7 @@ force_alignment46153 : if (_trace) printf("force_alignment46153:\n");
 if (t9 == 0)
     goto basic_dispatch46126;
 /* Here if argument ALUConditionNegative */
-if ((s64)t8 < 0)
+if ((int64_t) t8 < 0)
     goto alu_compute_condition46120;
 goto basic_dispatch46123;
 
@@ -1544,8 +1544,8 @@ force_alignment46176 : if (_trace) printf("force_alignment46176:\n");
 if (t1 == 0)
     goto basic_dispatch46095;
 /* Here if argument ALUFunctionByte */
-t9 = *(u64 *)&(processor->byterotate); // Get rotate
-t10 = *(u64 *)&(processor->bytesize); // Get bytesize
+t9 = *(uint64_t *)&(processor->byterotate); // Get rotate
+t10 = *(uint64_t *)&(processor->bytesize); // Get bytesize
 /* Get background */
 t1 = t7 >> 10;
 t1 = t1 & 3; // Extract the byte background
@@ -1561,12 +1561,12 @@ basic_dispatch46097 : if (_trace) printf("basic_dispatch46097:\n");
 t12 = t7 >> 12;
 t12 = t12 & 1; // Extractthe byte rotate latch
 t8 = t5 << (t9 & 63);
-t11 = (u32)(t8 >> ((4 & 7) * 8));
-t8 = (u32)t8;
+t11 = (uint32_t) (t8 >> ((4 & 7) * 8));
+t8 = (uint32_t) t8;
 t8 = t8 | t11; // OP2 rotated
 if (t12 == 0) // Don't update rotate latch if not requested
     goto alu_function_byte46096;
-*(u64 *)&processor->rotatelatch = t8;
+*(uint64_t *)&processor->rotatelatch = t8;
 
 alu_function_byte46096 : if (_trace) printf("alu_function_byte46096:\n");
 t12 = zero + -2;
@@ -1615,24 +1615,24 @@ t10 = t8 >> 31; // Sign bit
 t11 = t8 >> 32; // Next bit
 t10 = t10 ^ t11; // Low bit is now overflow indicator
 t11 = t7 >> 24; // Get the load-carry-in bit
-*(u64 *)&processor->aluoverflow = t10;
+*(uint64_t *)&processor->aluoverflow = t10;
 if ((t11 & 1) == 0)
     goto alu_function_adder46109;
-t10 = (u32)(t8 >> ((4 & 7) * 8)); // Get the carry
+t10 = (uint32_t) (t8 >> ((4 & 7) * 8)); // Get the carry
 t11 = zero + 1024;
 t7 = t7 & ~t11;
 t11 = t10 & 1;
 t11 = t11 << 10;
 t7 = t7 | t11; // Set the adder carry in
-*(u64 *)&processor->aluandrotatecontrol = t7;
+*(uint64_t *)&processor->aluandrotatecontrol = t7;
 
 alu_function_adder46109 : if (_trace) printf("alu_function_adder46109:\n");
-t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
-*(u64 *)&processor->aluborrow = t10;
-t3 = (s32)t3;
-t5 = (s32)t5;
-t10 = ((s64)t3 < (s64)t1) ? 1 : 0;
-*(u64 *)&processor->alulessthan = t10;
+t10 = ((int64_t) t3 < (int64_t) t1) ? 1 : 0;
+*(uint64_t *)&processor->aluborrow = t10;
+t3 = (int32_t) t3;
+t5 = (int32_t) t5;
+t10 = ((int64_t) t3 < (int64_t) t1) ? 1 : 0;
+*(uint64_t *)&processor->alulessthan = t10;
 goto basic_dispatch46059;
 
 basic_dispatch46108 : if (_trace) printf("basic_dispatch46108:\n");
@@ -1664,9 +1664,9 @@ force_alignment46180 : if (_trace) printf("force_alignment46180:\n");
 if (t11 == 0)
     goto basic_dispatch46113;
 /* Here if argument ALUAdderOp2Invert */
-t1 = (s32)t5;
+t1 = (int32_t) t5;
 t1 = zero - t1;
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 goto basic_dispatch46110;
 
 basic_dispatch46113 : if (_trace) printf("basic_dispatch46113:\n");
@@ -1677,7 +1677,7 @@ if (t11 == 0)
     goto basic_dispatch46110;
 /* Here if argument ALUAdderOp2MinusOne */
 t1 = ~zero;
-t1 = (u32)t1;
+t1 = (uint32_t) t1;
 goto basic_dispatch46110;
 
 basic_dispatch46104 : if (_trace) printf("basic_dispatch46104:\n");
@@ -1695,7 +1695,7 @@ force_alignment46183 : if (_trace) printf("force_alignment46183:\n");
 if (t11 == 0)
     goto basic_dispatch46099;
 /* Here if argument ALUByteBackgroundRotateLatch */
-t1 = *(u64 *)&(processor->rotatelatch);
+t1 = *(uint64_t *)&(processor->rotatelatch);
 goto basic_dispatch46097;
 
 basic_dispatch46099 : if (_trace) printf("basic_dispatch46099:\n");
@@ -1709,10 +1709,10 @@ t1 = zero;
 goto basic_dispatch46097;
 
 vma_memory_read46049 : if (_trace) printf("vma_memory_read46049:\n");
-t10 = *(u64 *)&(processor->stackcachedata);
+t10 = *(uint64_t *)&(processor->stackcachedata);
 t9 = (t9 * 8) + t10; // reconstruct SCA
-t3 = *(s32 *)t9;
-t2 = *(s32 *)(t9 + 4); // Read from stack cache
+t3 = *(int32_t *)t9;
+t2 = *(int32_t *)(t9 + 4); // Read from stack cache
 goto vma_memory_read46048;
 
 vma_memory_read46051 : if (_trace) printf("vma_memory_read46051:\n");
@@ -1720,18 +1720,18 @@ vma_memory_read46051 : if (_trace) printf("vma_memory_read46051:\n");
 vma_memory_read46050 : if (_trace) printf("vma_memory_read46050:\n");
 t12 = (t1 * 4); // Cycle-number -> table offset
 t12 = (t12 * 4) + ivory;
-t12 = *(u64 *)(t12 + PROCESSORSTATE_DATAREAD);
+t12 = *(uint64_t *)(t12 + PROCESSORSTATE_DATAREAD);
 /* TagType. */
 t11 = t2 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = arg3; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = arg3; // stash the VMA for the (likely) trap
 t11 = (t11 * 4) + t12; // Adjust for a longword load
-t12 = *(s32 *)t11; // Get the memory action
+t12 = *(int32_t *)t11; // Get the memory action
 
 vma_memory_read46056 : if (_trace) printf("vma_memory_read46056:\n");
 t10 = t12 & MemoryActionIndirect;
 if (t10 == 0)
     goto vma_memory_read46055;
-arg3 = (u32)t3; // Do the indirect thing
+arg3 = (uint32_t) t3; // Do the indirect thing
 goto vma_memory_read46047;
 
 vma_memory_read46055 : if (_trace) printf("vma_memory_read46055:\n");

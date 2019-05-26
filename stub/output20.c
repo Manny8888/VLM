@@ -190,7 +190,7 @@ goto illegaloperand;
 /* ======================= */
 
 pushsparepointer3 : if (_trace) printf("pushsparepointer3:\n");
-arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction); // Get operand
+arg1 = *(uint64_t *)&(((CACHELINEP)iCP)->instruction); // Get operand
 /* This instruction has not been written yet. */
 arg5 = 0;
 arg2 = 38;
@@ -208,7 +208,7 @@ goto illegaloperand;
 /* ======================= */
 
 pushsparepointer4 : if (_trace) printf("pushsparepointer4:\n");
-arg1 = *(u64 *)&(((CACHELINEP)iCP)->instruction); // Get operand
+arg1 = *(uint64_t *)&(((CACHELINEP)iCP)->instruction); // Get operand
 /* This instruction has not been written yet. */
 arg5 = 0;
 arg2 = 38;
@@ -248,7 +248,7 @@ nativeinstruction : if (_trace) printf("nativeinstruction:\n");
 arg1 = iPC & ~1L; // arg1 is instruction address*2 here
 arg1 = arg1 + arg1; // Select the DATA address
 arg1 = (ivory * 4) + arg1; // Add in the memory base
-r0 = (*(u64(*)(u64, u64))arg1)(arg1, arg2); /* jsr */ // Jump into the Ivory code
+r0 = (*(uint64_t(*)(uint64_t, uint64_t))arg1)(arg1, arg2); /* jsr */ // Jump into the Ivory code
 
 /* end nativeinstruction */
 /* End of Fullword instruction - nativeinstruction */
@@ -257,7 +257,7 @@ r0 = (*(u64(*)(u64, u64))arg1)(arg1, arg2); /* jsr */ // Jump into the Ivory cod
 /* start resumeemulated */
 
 resumeemulated : if (_trace) printf("resumeemulated:\n");
-arg2 = *(u64 *)&(((CACHELINEP)iCP)->annotation);
+arg2 = *(uint64_t *)&(((CACHELINEP)iCP)->annotation);
 iPC = (ivory * 4) - arg1;
 iPC = zero - iPC;
 iPC = iPC >> 1;

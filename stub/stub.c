@@ -6,22 +6,23 @@
 #include <fenv.h>
 
 #include "../std.h"
+#include "../utilities.h"
 
-#include "aihead.h"
-#include "ivoryrep.h"
-#include "embed.h"
-#include "traps.h"
+#include "../emulator/aihead.h"
+#include "../emulator/ivoryrep.h"
+#include "../emulator/traps.h"
+#include "../emulator/ivory.h"
 
-#include "ivory.h"
+#include "../life-support/embed.h"
 
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
-typedef unsigned long u64;
+// typedef unsigned char uint8_t;
+// typedef unsigned short u16;
+// typedef unsigned int uint32_t;
+// typedef unsigned long uint64_t;
 
-typedef char s8;
-typedef int s32;
-typedef long s64;
+// typedef char int8_t;
+// typedef int int32_t;
+// typedef long int64_t;
 
 #define MemoryActionIndirect 01
 #define MemoryActionMonitor 02
@@ -85,8 +86,8 @@ fwdispatch      21      ; = ARG6 (the fullword dispatch table
 hwdispatch      22      ; = T9 (the halfword dispatch table)
 */
 
-////u64 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15;
-// static u64 r0, instn, iword, ecp, ocp, icsize, epc, opc, count;
+////uint64_t r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15;
+// static uint64_t r0, instn, iword, ecp, ocp, icsize, epc, opc, count;
 
 #define r1 instn
 #define r2 iword
@@ -96,11 +97,11 @@ hwdispatch      22      ; = T9 (the halfword dispatch table)
 #define r6 epc
 #define r7 opc
 #define r8 count
-// static u64 r9, r10, r11, r12, r13, r14, r15;
-// static u64 r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r29;
-// static u64 sp;
+// static uint64_t r9, r10, r11, r12, r13, r14, r15;
+// static uint64_t r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r29;
+// static uint64_t sp;
 #define r30 sp
-// static u64 r31 = 0;
+// static uint64_t r31 = 0;
 
 //#define zero 0
 #define zero r31
@@ -147,17 +148,17 @@ hwdispatch      22      ; = T9 (the halfword dispatch table)
 #define hwdispatch r22
 
 // these need to be in-line for DECODEFAULT to work
-#define LDQ_U(ptr) *(u64 *)(ptr & ~7L)
-#define STQ_U(ptr, v) *(u64 *)(ptr & ~7L) = v
+#define LDQ_U(ptr) *(uint64_t *)(ptr & ~7L)
+#define STQ_U(ptr, v) *(uint64_t *)(ptr & ~7L) = v
 
-static u64 f0, f1, f2, f3, f31;
+static uint64_t f0, f1, f2, f3, f31;
 
 #include "float.c"
 
-u64 CMPBGE(u64 a, u64 b)
+uint64_t CMPBGE(uint64_t a, uint64_t b)
 {
-    u64 res = 0;
-    u8 aa, bb;
+    uint64_t res = 0;
+    uint8_t aa, bb;
     int i;
 
     //  printf("CMPBGE %p %p ", a, b);
@@ -177,22 +178,26 @@ u64 CMPBGE(u64 a, u64 b)
 
 #define CHECK_OFLO32(r)                                                                                                \
     if (((r)&0x8000000000000000) == 0 && ((r) >> 31)) {                                                                \
+        LogMessage("Arithmetic Exception", "arithmeticexception; oflo32 file %s line %d\n", __FILE__, __LINE__);       \
         printf("arithmeticexception; oflo32 file %s line %d\n", __FILE__, __LINE__);                                   \
         goto arithmeticexception;                                                                                      \
     }
 
 #define CHECK_OFLO()                                                                                                   \
     if (oflo) {                                                                                                        \
+        LogMessage("Arithmetic Exception", "arithmeticexception; file %s line %d\n", __FILE__, __LINE__);              \
         printf("arithmeticexception; file %s line %d\n", __FILE__, __LINE__);                                          \
         goto arithmeticexception;                                                                                      \
     }
 
 int oflo;
 
-void exception(int which, u64 r)
+void exception(int which, uint64_t r)
 {
-    if (r & 0x8000000000000000)
+    if (r & 0x8000000000000000) {
         return;
+    }
+    LogMessage("exception", "exception(%d, %p)!!!\n", which, r);
     printf("exception(%d, %p)!!!\n", which, r);
 }
 
@@ -491,17 +496,17 @@ void dumpstack(void) {}
 int iInterpret(PROCESSORSTATEP ivoryp)
 {
     PROCESSORSTATEP processor;
-    u64 ivory = (u64)ivoryp;
+    uint64_t ivory = (uint64_t)ivoryp;
     int loops = 0;
     int _trace = 0;
     int _show = 0;
-    u64 cpustack[1024];
+    uint64_t cpustack[1024];
 
-    u64 r0, instn, iword, ecp, ocp, icsize, epc, opc, count;
-    u64 r9, r10, r11, r12, r13, r14, r15;
-    u64 r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r29;
-    u64 sp;
-    u64 r31 = 0;
+    uint64_t r0, instn, iword, ecp, ocp, icsize, epc, opc, count;
+    uint64_t r9, r10, r11, r12, r13, r14, r15;
+    uint64_t r16, r17, r18, r19, r20, r21, r22, r23, r24, r25, r26, r27, r29;
+    uint64_t sp;
+    uint64_t r31 = 0;
 
 #include "dispatch"
 
@@ -541,16 +546,16 @@ int iInterpret(PROCESSORSTATEP ivoryp)
     // void show_loc(void)
     // {
     //     static int c = 0;
-    //     static u64 bsp;
-    //     u64 *p = (u64 *)iSP;
-    //     u64 tos = *p;
-    //     u32 cc, t, v;
+    //     static uint64_t bsp;
+    //     uint64_t *p = (uint64_t *)iSP;
+    //     uint64_t tos = *p;
+    //     uint32_t cc, t, v;
     //     char *str = 0;
     //     int i;
 
     //     cc = ((tos >> 32) & 0xc0) >> 6;
     //     t = (tos >> 32) & 0x3f;
-    //     v = (u32)tos;
+    //     v = (uint32_t)tos;
 
     //     c++;
     //     //  if (c >= 20) exit(1);
@@ -571,13 +576,22 @@ int iInterpret(PROCESSORSTATEP ivoryp)
     //         (int)(0xf8000101 + ((iSP - bsp) / 8)), cc, t, v, str ? " " : "", str ? str : "");
     // }
 
+    LogMessage("stub.c file", "[iInterpret]");
     printf("[iInterpret]\n");
 
     processor = (PROCESSORSTATEP)((char *)ivory - PROCESSORSTATE_SIZE);
+    LogMessage("stub.c file", "%p\n", processor);
     printf("%p\n", processor);
+
+    LogMessage("stub.c file", "ivory %p", ivory);
     printf("ivory %p\n", ivory);
+
+    LogMessage("stub.c file", "epc %p, fp %p, lp %p, sp %p, cp %p", processor->epc, processor->fp, processor->lp,
+        processor->sp, processor->cp);
     printf("epc %p, fp %p, lp %p, sp %p, cp %p\n", processor->epc, processor->fp, processor->lp, processor->sp,
         processor->cp);
+
+    LogMessage("stub.c file", "icachebase %p, endicache %p\n", processor->icachebase, processor->endicache);
     printf("icachebase %p, endicache %p\n", processor->icachebase, processor->endicache);
 
     /* i still can't believe this works */
@@ -591,10 +605,10 @@ int iInterpret(PROCESSORSTATEP ivoryp)
 
     processor->stop_interpreter = 0;
 
-    arg1 = (u64)ivoryp;
-    ra = (u64) && iguessimdone;
+    arg1 = (uint64_t)ivoryp;
+    ra = (uint64_t) && iguessimdone;
 
-    sp = (u64)&cpustack[1024];
+    sp = (uint64_t)&cpustack[1024];
 
     if (processor->epc > 0x1f0000000) {
 #if 0
@@ -615,6 +629,7 @@ int iInterpret(PROCESSORSTATEP ivoryp)
     goto iinterpret;
 
 iguessimdone:
+    LogMessage("stub.c file", "I guess I'm done!! r1 %p\n", (int)r1);
     printf("I guess I'm done!! r1 %p\n", (int)r1);
     // if (_show) while (1);
     return r1;

@@ -18,9 +18,9 @@ DoEphemeralpIM : if (_trace) printf("DoEphemeralpIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment45652 : if (_trace) printf("force_alignment45652:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t)arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindoephemeralp;
 
 DoEphemeralpSP : if (_trace) printf("DoEphemeralpSP:\n");
@@ -36,32 +36,32 @@ DoEphemeralpFP : if (_trace) printf("DoEphemeralpFP:\n");
 
 headdoephemeralp : if (_trace) printf("headdoephemeralp:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindoephemeralp : if (_trace) printf("begindoephemeralp:\n");
 /* arg1 has the operand, sign extended if immediate. */
-t1 = *(u64 *)&(processor->ptrtype); // ptr type array
+t1 = *(uint64_t *)&(processor->ptrtype); // ptr type array
 arg2 = arg1 >> 32;
-arg1 = (u32)arg1;
+arg1 = (uint32_t)arg1;
 /* TagType. */
 arg2 = arg2 & 63;
 t2 = (arg2 * 4) + t1;
 arg1 = arg1 >> 27;
-t3 = *(s32 *)t2; // =0 if not a pointer
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+t3 = *(int32_t *)t2; // =0 if not a pointer
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 if (arg1 != 0) // J. if zone not ephemeral
     goto nonephem;
 if (t3 == 0) // J. if not a pointer
     goto nonephem;
-t6 = *(u64 *)&(processor->taddress);
-*(u64 *)(iSP + 8) = t6; // push the data
+t6 = *(uint64_t *)&(processor->taddress);
+*(uint64_t *)(iSP + 8) = t6; // push the data
 iSP = iSP + 8;
 goto cachevalid;
 
 nonephem : if (_trace) printf("nonephem:\n");
-t6 = *(u64 *)&(processor->niladdress);
-*(u64 *)(iSP + 8) = t6; // push the data
+t6 = *(uint64_t *)&(processor->niladdress);
+*(uint64_t *)(iSP + 8) = t6; // push the data
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -87,40 +87,40 @@ DoUnsignedLesspFP : if (_trace) printf("DoUnsignedLesspFP:\n");
 
 headdounsignedlessp : if (_trace) printf("headdounsignedlessp:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindounsignedlessp : if (_trace) printf("begindounsignedlessp:\n");
 /* arg1 has the operand, not sign extended if immediate. */
-t2 = *(s32 *)iSP; // Get data from arg1
+t2 = *(int32_t *)iSP; // Get data from arg1
 arg3 = arg3 >> 12;
-t11 = *(u64 *)&(processor->niladdress);
-t4 = (u32)arg1; // Get unsigned data from arg2
-t12 = *(u64 *)&(processor->taddress);
+t11 = *(uint64_t *)&(processor->niladdress);
+t4 = (uint32_t)arg1; // Get unsigned data from arg2
+t12 = *(uint64_t *)&(processor->taddress);
 arg3 = arg3 & 1; // 1 if no-pop, 0 if pop
-t2 = (u32)t2; // Unsigned arg1
+t2 = (uint32_t)t2; // Unsigned arg1
 iSP = (arg3 * 8) + iSP; // Either a stack-push or a stack-write
 t6 = t4 - t2; // t6:=arg2-arg1 unsigned
-if ((s64)t6 > 0)
+if ((int64_t)t6 > 0)
     t11 = t12;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u64 *)iSP = t11;
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint64_t *)iSP = t11;
 goto cachevalid;
 
 DoUnsignedLesspIM : if (_trace) printf("DoUnsignedLesspIM:\n");
-t2 = *(s32 *)iSP; // Get data from arg1
+t2 = *(int32_t *)iSP; // Get data from arg1
 arg3 = arg3 >> 12;
-t11 = *(u64 *)&(processor->niladdress);
-t2 = (u32)t2; // ...
-t12 = *(u64 *)&(processor->taddress);
+t11 = *(uint64_t *)&(processor->niladdress);
+t2 = (uint32_t)t2; // ...
+t12 = *(uint64_t *)&(processor->taddress);
 arg3 = arg3 & 1; // 1 if no-pop, 0 if pop
 t6 = arg2 - t2; // t6:=arg2-arg1 unsigned
 iSP = (arg3 * 8) + iSP; // Either a stack-push or a stack-write
-if ((s64)t6 > 0)
+if ((int64_t)t6 > 0)
     t11 = t12;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u64 *)iSP = t11;
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint64_t *)iSP = t11;
 goto cachevalid;
 
 /* end DoUnsignedLessp */
@@ -134,8 +134,8 @@ doallocatelistblock : if (_trace) printf("doallocatelistblock:\n");
 
 DoAllocateListBlockIM : if (_trace) printf("DoAllocateListBlockIM:\n");
 /* This sequence is lukewarm */
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindoallocatelistblock;
 
 DoAllocateListBlockSP : if (_trace) printf("DoAllocateListBlockSP:\n");
@@ -151,41 +151,41 @@ DoAllocateListBlockFP : if (_trace) printf("DoAllocateListBlockFP:\n");
 
 headdoallocatelistblock : if (_trace) printf("headdoallocatelistblock:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindoallocatelistblock : if (_trace) printf("begindoallocatelistblock:\n");
 /* arg1 has the operand, not sign extended if immediate. */
-t1 = *(u64 *)&(processor->lcarea);
-arg3 = *(u64 *)iSP;
+t1 = *(uint64_t *)&(processor->lcarea);
+arg3 = *(uint64_t *)iSP;
 arg2 = arg1 >> 32;
-arg1 = (u32)arg1;
+arg1 = (uint32_t)arg1;
 t5 = arg2 - Type_Fixnum;
 t5 = t5 & 63; // Strip CDR code
 if (t5 != 0)
     goto i_allocate_block45653;
-t4 = *(s32 *)&processor->lclength;
+t4 = *(int32_t *)&processor->lclength;
 t2 = (arg3 == t1) ? 1 : 0;
 if (t2 == 0) // Wrong area
     goto i_allocate_block45654;
 t2 = t4 - arg1; // Effectively an unsigned 32-bit compare
-if ((s64)t2 < 0) // Insufficient cache
+if ((int64_t)t2 < 0) // Insufficient cache
     goto i_allocate_block45654;
-t1 = *(u64 *)&(processor->lcaddress); // Fetch address
+t1 = *(uint64_t *)&(processor->lcaddress); // Fetch address
 t3 = (-16384) << 16;
-t3 = (u32)t3;
-*(u32 *)&processor->lclength = t2; // Store remaining length
-*(u64 *)iSP = t1; // Cache address/tag -> TOS
-*(u32 *)&processor->bar1 = t1; // Cache address -> BAR1
-t1 = (u32)t1;
-t4 = *(s32 *)&processor->control; // Verify trap mode
+t3 = (uint32_t)t3;
+*(uint32_t *)&processor->lclength = t2; // Store remaining length
+*(uint64_t *)iSP = t1; // Cache address/tag -> TOS
+*(uint32_t *)&processor->bar1 = t1; // Cache address -> BAR1
+t1 = (uint32_t)t1;
+t4 = *(int32_t *)&processor->control; // Verify trap mode
 t1 = t1 + arg1; // Increment address
-*(u32 *)&processor->lcaddress = t1; // Store updated address
+*(uint32_t *)&processor->lcaddress = t1; // Store updated address
 t3 = t3 & t4;
 if (t3 != 0) // Already above emulator mode
     goto NEXTINSTRUCTION;
 t3 = (16384) << 16;
 t4 = t4 | t3;
-*(u32 *)&processor->control = t4;
+*(uint32_t *)&processor->control = t4;
 goto NEXTINSTRUCTION;
 
 i_allocate_block45653 : if (_trace) printf("i_allocate_block45653:\n");
@@ -213,8 +213,8 @@ doallocatestructureblock : if (_trace) printf("doallocatestructureblock:\n");
 
 DoAllocateStructureBlockIM : if (_trace) printf("DoAllocateStructureBlockIM:\n");
 /* This sequence is lukewarm */
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindoallocatestructureblock;
 
 DoAllocateStructureBlockSP : if (_trace) printf("DoAllocateStructureBlockSP:\n");
@@ -230,41 +230,41 @@ DoAllocateStructureBlockFP : if (_trace) printf("DoAllocateStructureBlockFP:\n")
 
 headdoallocatestructureblock : if (_trace) printf("headdoallocatestructureblock:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindoallocatestructureblock : if (_trace) printf("begindoallocatestructureblock:\n");
 /* arg1 has the operand, not sign extended if immediate. */
-t1 = *(u64 *)&(processor->scarea);
-arg3 = *(u64 *)iSP;
+t1 = *(uint64_t *)&(processor->scarea);
+arg3 = *(uint64_t *)iSP;
 arg2 = arg1 >> 32;
-arg1 = (u32)arg1;
+arg1 = (uint32_t)arg1;
 t5 = arg2 - Type_Fixnum;
 t5 = t5 & 63; // Strip CDR code
 if (t5 != 0)
     goto i_allocate_block45655;
-t4 = *(s32 *)&processor->sclength;
+t4 = *(int32_t *)&processor->sclength;
 t2 = (arg3 == t1) ? 1 : 0;
 if (t2 == 0) // Wrong area
     goto i_allocate_block45656;
 t2 = t4 - arg1; // Effectively an unsigned 32-bit compare
-if ((s64)t2 < 0) // Insufficient cache
+if ((int64_t)t2 < 0) // Insufficient cache
     goto i_allocate_block45656;
-t1 = *(u64 *)&(processor->scaddress); // Fetch address
+t1 = *(uint64_t *)&(processor->scaddress); // Fetch address
 t3 = (-16384) << 16;
-t3 = (u32)t3;
-*(u32 *)&processor->sclength = t2; // Store remaining length
-*(u64 *)iSP = t1; // Cache address/tag -> TOS
-*(u32 *)&processor->bar1 = t1; // Cache address -> BAR1
-t1 = (u32)t1;
-t4 = *(s32 *)&processor->control; // Verify trap mode
+t3 = (uint32_t)t3;
+*(uint32_t *)&processor->sclength = t2; // Store remaining length
+*(uint64_t *)iSP = t1; // Cache address/tag -> TOS
+*(uint32_t *)&processor->bar1 = t1; // Cache address -> BAR1
+t1 = (uint32_t)t1;
+t4 = *(int32_t *)&processor->control; // Verify trap mode
 t1 = t1 + arg1; // Increment address
-*(u32 *)&processor->scaddress = t1; // Store updated address
+*(uint32_t *)&processor->scaddress = t1; // Store updated address
 t3 = t3 & t4;
 if (t3 != 0) // Already above emulator mode
     goto NEXTINSTRUCTION;
 t3 = (16384) << 16;
 t4 = t4 | t3;
-*(u32 *)&processor->control = t4;
+*(uint32_t *)&processor->control = t4;
 goto NEXTINSTRUCTION;
 
 i_allocate_block45655 : if (_trace) printf("i_allocate_block45655:\n");
@@ -303,30 +303,30 @@ DoPointerDifferenceFP : if (_trace) printf("DoPointerDifferenceFP:\n");
 
 headdopointerdifference : if (_trace) printf("headdopointerdifference:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindopointerdifference : if (_trace) printf("begindopointerdifference:\n");
 /* arg1 has the operand, not sign extended if immediate. */
-t1 = *(s32 *)iSP; // Get the data of ARG1
-t2 = (u32)arg1; // Get the data of ARG2
-t3 = (s32)t1 - (s32)t2; // (%32-bit-difference (data arg1) (data arg2))
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+t1 = *(int32_t *)iSP; // Get the data of ARG1
+t2 = (uint32_t)arg1; // Get the data of ARG2
+t3 = (int32_t)t1 - (int32_t)t2; // (%32-bit-difference (data arg1) (data arg2))
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t4 = Type_Fixnum;
-*(u32 *)iSP = t3; // Save result and coerce to a FIXNUM
-*(u32 *)(iSP + 4) = t4; // write the stack cache
+*(uint32_t *)iSP = t3; // Save result and coerce to a FIXNUM
+*(uint32_t *)(iSP + 4) = t4; // write the stack cache
 goto cachevalid;
 
 DoPointerDifferenceIM : if (_trace) printf("DoPointerDifferenceIM:\n");
 t2 = arg2 << 56;
-t1 = *(s32 *)iSP; // Get the data of arg1
-t2 = (s64)t2 >> 56;
-t3 = (s32)t1 - (s32)t2; // (%32-bit-difference (data arg1) (data arg2))
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+t1 = *(int32_t *)iSP; // Get the data of arg1
+t2 = (int64_t)t2 >> 56;
+t3 = (int32_t)t1 - (int32_t)t2; // (%32-bit-difference (data arg1) (data arg2))
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t4 = Type_Fixnum;
-*(u32 *)iSP = t3; // Save result and coerce to a FIXNUM
-*(u32 *)(iSP + 4) = t4; // write the stack cache
+*(uint32_t *)iSP = t3; // Save result and coerce to a FIXNUM
+*(uint32_t *)(iSP + 4) = t4; // write the stack cache
 goto cachevalid;
 
 /* end DoPointerDifference */
@@ -352,11 +352,11 @@ DoPointerIncrementFP : if (_trace) printf("DoPointerIncrementFP:\n");
 begindopointerincrement : if (_trace) printf("begindopointerincrement:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t2 = *(s32 *)arg1; // Get the data of arg2
-t3 = (s32)t2 + (s32)1; // (%32-bit-plus (data arg1) 1)
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u32 *)arg1 = t3; // Put result back
+t2 = *(int32_t *)arg1; // Get the data of arg2
+t3 = (int32_t)t2 + (int32_t)1; // (%32-bit-plus (data arg1) 1)
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint32_t *)arg1 = t3; // Put result back
 goto cachevalid;
 
 DoPointerIncrementIM : goto doistageerror;
@@ -375,9 +375,9 @@ DoStoreConditionalIM : if (_trace) printf("DoStoreConditionalIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment45673 : if (_trace) printf("force_alignment45673:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t)arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindostoreconditional;
 
 DoStoreConditionalSP : if (_trace) printf("DoStoreConditionalSP:\n");
@@ -393,20 +393,20 @@ DoStoreConditionalFP : if (_trace) printf("DoStoreConditionalFP:\n");
 
 headdostoreconditional : if (_trace) printf("headdostoreconditional:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindostoreconditional : if (_trace) printf("begindostoreconditional:\n");
 /* arg1 has the operand, sign extended if immediate. */
 arg2 = arg1 >> 32;
-arg4 = *(s32 *)iSP; // old tag and data
-arg3 = *(s32 *)(iSP + 4); // old tag and data
+arg4 = *(int32_t *)iSP; // old tag and data
+arg3 = *(int32_t *)(iSP + 4); // old tag and data
 iSP = iSP - 8; // Pop Stack.
-arg4 = (u32)arg4;
-arg1 = (u32)arg1;
-arg6 = *(s32 *)iSP; // address tag and data
-arg5 = *(s32 *)(iSP + 4); // address tag and data
+arg4 = (uint32_t)arg4;
+arg1 = (uint32_t)arg1;
+arg6 = *(int32_t *)iSP; // address tag and data
+arg5 = *(int32_t *)(iSP + 4); // address tag and data
 iSP = iSP - 8; // Pop Stack.
-arg6 = (u32)arg6;
+arg6 = (uint32_t)arg6;
 /* TagType. */
 t1 = arg5 & 63;
 t2 = t1 - Type_Locative;
@@ -416,26 +416,26 @@ if (t2 != 0)
 /* Read the location, checking write access */
 /* Memory Read Internal */
 
-vma_memory_read45657 : t1 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read45657 : t1 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t3 = arg6 + ivory;
-t2 = *(s32 *)&processor->scovlimit;
+t2 = *(int32_t *)&processor->scovlimit;
 t5 = (t3 * 4);
 t4 = LDQ_U(t3);
 t1 = arg6 - t1; // Stack cache offset
-t2 = ((u64)t1 < (u64)t2) ? 1 : 0; // In range?
-t5 = *(s32 *)t5;
-t4 = (u8)(t4 >> ((t3 & 7) * 8));
+t2 = ((uint64_t)t1 < (uint64_t)t2) ? 1 : 0; // In range?
+t5 = *(int32_t *)t5;
+t4 = (uint8_t)(t4 >> ((t3 & 7) * 8));
 if (t2 != 0)
     goto vma_memory_read45659;
 
-vma_memory_read45658 : t1 = *(u64 *)&(processor->dataread_mask);
+vma_memory_read45658 : t1 = *(uint64_t *)&(processor->dataread_mask);
 t3 = zero + 240;
 t1 = t1 >> (t4 & 63);
 t3 = t3 >> (t4 & 63);
 if (t1 & 1)
     goto vma_memory_read45661;
 
-vma_memory_read45668 : t1 = (s32)arg4 - (s32)t5; // Check for data match - NOT
+vma_memory_read45668 : t1 = (int32_t)arg4 - (int32_t)t5; // Check for data match - NOT
 t2 = arg3 ^ t4; // Zero if tags match
 if (t1 != 0) // Jump if data didn't match
     goto storecondnil;
@@ -446,35 +446,35 @@ if (t2 != 0) // Jump if tags don't match
 t1 = arg2 & 63; // Strip CDR-CODE
 t4 = t4 & 192; // Retain CDR-CODE
 t4 = t1 | t4; // Merge new tag with old CDR-CODE
-t2 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
 t1 = arg6 + ivory;
-t6 = *(s32 *)&processor->scovlimit;
+t6 = *(int32_t *)&processor->scovlimit;
 t5 = (t1 * 4);
 t3 = LDQ_U(t1);
 t2 = arg6 - t2; // Stack cache offset
-t6 = ((u64)t2 < (u64)t6) ? 1 : 0; // In range?
+t6 = ((uint64_t)t2 < (uint64_t)t6) ? 1 : 0; // In range?
 t2 = (t4 & 0xff) << ((t1 & 7) * 8);
 t3 = t3 & ~(0xffL << (t1 & 7) * 8);
 
 force_alignment45671 : if (_trace) printf("force_alignment45671:\n");
 t3 = t3 | t2;
 STQ_U(t1, t3);
-*(u32 *)t5 = arg1;
+*(uint32_t *)t5 = arg1;
 if (t6 != 0) // J. if in cache
     goto vma_memory_write45670;
 
-vma_memory_write45669 : iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-t6 = *(u64 *)&(processor->taddress);
-*(u64 *)(iSP + 8) = t6; // push the data
+vma_memory_write45669 : iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+t6 = *(uint64_t *)&(processor->taddress);
+*(uint64_t *)(iSP + 8) = t6; // push the data
 iSP = iSP + 8;
 goto cachevalid;
 
 storecondnil : if (_trace) printf("storecondnil:\n");
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-t6 = *(u64 *)&(processor->niladdress);
-*(u64 *)(iSP + 8) = t6; // push the data
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+t6 = *(uint64_t *)&(processor->niladdress);
+*(uint64_t *)(iSP + 8) = t6; // push the data
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -484,36 +484,36 @@ arg2 = 65;
 goto illegaloperand;
 
 vma_memory_write45670 : if (_trace) printf("vma_memory_write45670:\n");
-t2 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
 
 force_alignment45672 : if (_trace) printf("force_alignment45672:\n");
-t1 = *(u64 *)&(processor->stackcachedata);
+t1 = *(uint64_t *)&(processor->stackcachedata);
 t2 = arg6 - t2; // Stack cache offset
 t1 = (t2 * 8) + t1; // reconstruct SCA
-*(u32 *)t1 = arg1; // Store in stack
-*(u32 *)(t1 + 4) = t4; // write the stack cache
+*(uint32_t *)t1 = arg1; // Store in stack
+*(uint32_t *)(t1 + 4) = t4; // write the stack cache
 goto vma_memory_write45669;
 
 vma_memory_read45659 : if (_trace) printf("vma_memory_read45659:\n");
-t2 = *(u64 *)&(processor->stackcachedata);
+t2 = *(uint64_t *)&(processor->stackcachedata);
 t1 = (t1 * 8) + t2; // reconstruct SCA
-t5 = *(s32 *)t1;
-t4 = *(s32 *)(t1 + 4); // Read from stack cache
+t5 = *(int32_t *)t1;
+t4 = *(int32_t *)(t1 + 4); // Read from stack cache
 goto vma_memory_read45658;
 
 vma_memory_read45661 : if (_trace) printf("vma_memory_read45661:\n");
 if ((t3 & 1) == 0)
     goto vma_memory_read45660;
-arg6 = (u32)t5; // Do the indirect thing
+arg6 = (uint32_t)t5; // Do the indirect thing
 goto vma_memory_read45657;
 
 vma_memory_read45660 : if (_trace) printf("vma_memory_read45660:\n");
-t1 = *(u64 *)&(processor->dataread); // Load the memory action table for cycle
+t1 = *(uint64_t *)&(processor->dataread); // Load the memory action table for cycle
 /* TagType. */
 t3 = t4 & 63; // Discard the CDR code
-*(u64 *)&processor->vma = arg6; // stash the VMA for the (likely) trap
+*(uint64_t *)&processor->vma = arg6; // stash the VMA for the (likely) trap
 t3 = (t3 * 4) + t1; // Adjust for a longword load
-t1 = *(s32 *)t3; // Get the memory action
+t1 = *(int32_t *)t3; // Get the memory action
 
 vma_memory_read45665 : if (_trace) printf("vma_memory_read45665:\n");
 t3 = t1 & MemoryActionTransform;
@@ -546,9 +546,9 @@ DoMemoryWriteIM : if (_trace) printf("DoMemoryWriteIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment45677 : if (_trace) printf("force_alignment45677:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t)arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindomemorywrite;
 
 DoMemoryWriteSP : if (_trace) printf("DoMemoryWriteSP:\n");
@@ -564,44 +564,44 @@ DoMemoryWriteFP : if (_trace) printf("DoMemoryWriteFP:\n");
 
 headdomemorywrite : if (_trace) printf("headdomemorywrite:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindomemorywrite : if (_trace) printf("begindomemorywrite:\n");
 /* arg1 has the operand, sign extended if immediate. */
-arg4 = *(s32 *)iSP;
-arg3 = *(s32 *)(iSP + 4);
+arg4 = *(int32_t *)iSP;
+arg3 = *(int32_t *)(iSP + 4);
 iSP = iSP - 8; // Pop Stack.
-arg4 = (u32)arg4;
+arg4 = (uint32_t)arg4;
 arg2 = arg1 >> 32;
-arg1 = (u32)arg1;
-t2 = *(u64 *)&(processor->stackcachebasevma);
+arg1 = (uint32_t)arg1;
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
 t1 = arg4 + ivory;
-t5 = *(s32 *)&processor->scovlimit;
+t5 = *(int32_t *)&processor->scovlimit;
 t4 = (t1 * 4);
 t3 = LDQ_U(t1);
 t2 = arg4 - t2; // Stack cache offset
-t5 = ((u64)t2 < (u64)t5) ? 1 : 0; // In range?
+t5 = ((uint64_t)t2 < (uint64_t)t5) ? 1 : 0; // In range?
 t2 = (arg2 & 0xff) << ((t1 & 7) * 8);
 t3 = t3 & ~(0xffL << (t1 & 7) * 8);
 
 force_alignment45675 : if (_trace) printf("force_alignment45675:\n");
 t3 = t3 | t2;
 STQ_U(t1, t3);
-*(u32 *)t4 = arg1;
+*(uint32_t *)t4 = arg1;
 if (t5 != 0) // J. if in cache
     goto vma_memory_write45674;
 goto NEXTINSTRUCTION;
 goto NEXTINSTRUCTION;
 
 vma_memory_write45674 : if (_trace) printf("vma_memory_write45674:\n");
-t2 = *(u64 *)&(processor->stackcachebasevma);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
 
 force_alignment45676 : if (_trace) printf("force_alignment45676:\n");
-t1 = *(u64 *)&(processor->stackcachedata);
+t1 = *(uint64_t *)&(processor->stackcachedata);
 t2 = arg4 - t2; // Stack cache offset
 t1 = (t2 * 8) + t1; // reconstruct SCA
-*(u32 *)t1 = arg1; // Store in stack
-*(u32 *)(t1 + 4) = arg2; // write the stack cache
+*(uint32_t *)t1 = arg1; // Store in stack
+*(uint32_t *)(t1 + 4) = arg2; // write the stack cache
 goto NEXTINSTRUCTION;
 
 /* end DoMemoryWrite */
@@ -618,9 +618,9 @@ DoPStoreContentsIM : if (_trace) printf("DoPStoreContentsIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment45690 : if (_trace) printf("force_alignment45690:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t)arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindopstorecontents;
 
 DoPStoreContentsSP : if (_trace) printf("DoPStoreContentsSP:\n");
@@ -636,27 +636,27 @@ DoPStoreContentsFP : if (_trace) printf("DoPStoreContentsFP:\n");
 
 headdopstorecontents : if (_trace) printf("headdopstorecontents:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindopstorecontents : if (_trace) printf("begindopstorecontents:\n");
 /* arg1 has the operand, sign extended if immediate. */
-arg4 = *(s32 *)iSP; // address tag and data
-arg3 = *(s32 *)(iSP + 4); // address tag and data
+arg4 = *(int32_t *)iSP; // address tag and data
+arg3 = *(int32_t *)(iSP + 4); // address tag and data
 iSP = iSP - 8; // Pop Stack.
-arg4 = (u32)arg4;
+arg4 = (uint32_t)arg4;
 arg2 = arg1 >> 32;
-arg1 = (u32)arg1;
+arg1 = (uint32_t)arg1;
 /* Memory Read Internal */
 
-vma_memory_read45678 : t6 = *(u64 *)&(processor->stackcachebasevma); // Base of stack cache
+vma_memory_read45678 : t6 = *(uint64_t *)&(processor->stackcachebasevma); // Base of stack cache
 t8 = arg4 + ivory;
-t7 = *(s32 *)&processor->scovlimit;
+t7 = *(int32_t *)&processor->scovlimit;
 t5 = (t8 * 4);
 t4 = LDQ_U(t8);
 t6 = arg4 - t6; // Stack cache offset
-t7 = ((u64)t6 < (u64)t7) ? 1 : 0; // In range?
-t5 = *(s32 *)t5;
-t4 = (u8)(t4 >> ((t8 & 7) * 8));
+t7 = ((uint64_t)t6 < (uint64_t)t7) ? 1 : 0; // In range?
+t5 = *(int32_t *)t5;
+t4 = (uint8_t)(t4 >> ((t8 & 7) * 8));
 if (t7 != 0)
     goto vma_memory_read45680;
 
@@ -668,41 +668,41 @@ vma_memory_read45679 :
     = arg2 & 63;
 t4 = t4 & 192;
 t4 = t4 | t5;
-t7 = *(u64 *)&(processor->stackcachebasevma);
+t7 = *(uint64_t *)&(processor->stackcachebasevma);
 t6 = arg4 + ivory;
-t9 = *(s32 *)&processor->scovlimit;
+t9 = *(int32_t *)&processor->scovlimit;
 t5 = (t6 * 4);
 t8 = LDQ_U(t6);
 t7 = arg4 - t7; // Stack cache offset
-t9 = ((u64)t7 < (u64)t9) ? 1 : 0; // In range?
+t9 = ((uint64_t)t7 < (uint64_t)t9) ? 1 : 0; // In range?
 t7 = (t4 & 0xff) << ((t6 & 7) * 8);
 t8 = t8 & ~(0xffL << (t6 & 7) * 8);
 
 force_alignment45688 : if (_trace) printf("force_alignment45688:\n");
 t8 = t8 | t7;
 STQ_U(t6, t8);
-*(u32 *)t5 = arg1;
+*(uint32_t *)t5 = arg1;
 if (t9 != 0) // J. if in cache
     goto vma_memory_write45687;
 goto NEXTINSTRUCTION;
 goto NEXTINSTRUCTION;
 
 vma_memory_write45687 : if (_trace) printf("vma_memory_write45687:\n");
-t7 = *(u64 *)&(processor->stackcachebasevma);
+t7 = *(uint64_t *)&(processor->stackcachebasevma);
 
 force_alignment45689 : if (_trace) printf("force_alignment45689:\n");
-t6 = *(u64 *)&(processor->stackcachedata);
+t6 = *(uint64_t *)&(processor->stackcachedata);
 t7 = arg4 - t7; // Stack cache offset
 t6 = (t7 * 8) + t6; // reconstruct SCA
-*(u32 *)t6 = arg1; // Store in stack
-*(u32 *)(t6 + 4) = t4; // write the stack cache
+*(uint32_t *)t6 = arg1; // Store in stack
+*(uint32_t *)(t6 + 4) = t4; // write the stack cache
 goto NEXTINSTRUCTION;
 
 vma_memory_read45680 : if (_trace) printf("vma_memory_read45680:\n");
-t7 = *(u64 *)&(processor->stackcachedata);
+t7 = *(uint64_t *)&(processor->stackcachedata);
 t6 = (t6 * 8) + t7; // reconstruct SCA
-t5 = *(s32 *)t6;
-t4 = *(s32 *)(t6 + 4); // Read from stack cache
+t5 = *(int32_t *)t6;
+t4 = *(int32_t *)(t6 + 4); // Read from stack cache
 goto vma_memory_read45679;
 
 /* end DoPStoreContents */
@@ -728,12 +728,12 @@ DoSetCdrCode1FP : if (_trace) printf("DoSetCdrCode1FP:\n");
 begindosetcdrcode1 : if (_trace) printf("begindosetcdrcode1:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t1 = *(s32 *)(arg1 + 4); // Get CDR CODE/TAG of operand
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+t1 = *(int32_t *)(arg1 + 4); // Get CDR CODE/TAG of operand
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t1 = t1 & 63; // Strip off any existing CDR code bits
 t1 = t1 | 64; // OR in the CDR
-*(u32 *)(arg1 + 4) = t1; // Replace the CDE CODE/TAG
+*(uint32_t *)(arg1 + 4) = t1; // Replace the CDE CODE/TAG
 goto cachevalid;
 
 DoSetCdrCode1IM : goto doistageerror;
@@ -761,12 +761,12 @@ DoSetCdrCode2FP : if (_trace) printf("DoSetCdrCode2FP:\n");
 begindosetcdrcode2 : if (_trace) printf("begindosetcdrcode2:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t1 = *(s32 *)(arg1 + 4); // Get CDR CODE/TAG of operand
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+t1 = *(int32_t *)(arg1 + 4); // Get CDR CODE/TAG of operand
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t1 = t1 & 63; // Strip off any existing CDR code bits
 t1 = t1 | 128; // OR in the CDR
-*(u32 *)(arg1 + 4) = t1; // Replace the CDE CODE/TAG
+*(uint32_t *)(arg1 + 4) = t1; // Replace the CDE CODE/TAG
 goto cachevalid;
 
 DoSetCdrCode2IM : goto doistageerror;
@@ -794,9 +794,9 @@ DoJumpFP : if (_trace) printf("DoJumpFP:\n");
 begindojump : if (_trace) printf("begindojump:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t4 = *(s32 *)arg1; // Read address and even/odd PC tag.
-t3 = *(s32 *)(arg1 + 4);
-t4 = (u32)t4;
+t4 = *(int32_t *)arg1; // Read address and even/odd PC tag.
+t3 = *(int32_t *)(arg1 + 4);
+t4 = (uint32_t)t4;
 t5 = t3 - Type_EvenPC;
 t5 = t5 & 62; // Strip CDR code, low bits
 if (t5 != 0)
@@ -809,12 +809,12 @@ if (t5 == 0)
     goto interpretinstructionforjump;
 /* Bit 39=1 indicates we need to update control reg */
 t6 = t3 & 64; // Get the cleanup bit
-t5 = *(u64 *)&(processor->control); // Processor control register.
+t5 = *(uint64_t *)&(processor->control); // Processor control register.
 t6 = t6 << 17; // shift into cleanup-in-progress place
 t7 = (128) << 16;
 t5 = t5 & ~t7; // Mask
 t5 = t5 | t6; // Set
-*(u64 *)&processor->control = t5;
+*(uint64_t *)&processor->control = t5;
 goto interpretinstructionforjump;
 
 jexc : if (_trace) printf("jexc:\n");
@@ -841,16 +841,16 @@ DoCheckPreemptRequestSP : if (_trace) printf("DoCheckPreemptRequestSP:\n");
 DoCheckPreemptRequestLP : if (_trace) printf("DoCheckPreemptRequestLP:\n");
 
 DoCheckPreemptRequestFP : if (_trace) printf("DoCheckPreemptRequestFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t)(arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-t1 = *(s32 *)&processor->interruptreg;
+t1 = *(int32_t *)&processor->interruptreg;
 t2 = t1 & 2;
 t2 = (t2 == 2) ? 1 : 0;
 t1 = t1 | t2;
-*(u32 *)&processor->interruptreg = t1;
+*(uint32_t *)&processor->interruptreg = t1;
 if (t1 == 0)
     goto NEXTINSTRUCTION;
-*(u64 *)&processor->stop_interpreter = t1;
+*(uint64_t *)&processor->stop_interpreter = t1;
 goto NEXTINSTRUCTION;
 
 /* end DoCheckPreemptRequest */
@@ -869,11 +869,11 @@ DoHaltSP : if (_trace) printf("DoHaltSP:\n");
 DoHaltLP : if (_trace) printf("DoHaltLP:\n");
 
 DoHaltFP : if (_trace) printf("DoHaltFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t)(arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-t1 = *(s32 *)&processor->control;
+t1 = *(int32_t *)&processor->control;
 t1 = t1 >> 30; // Isolate current trap mode (FEP mode = -1)
-t1 = (s32)t1 + (s32)1; // t1 is zero iff we're in trap mode FEP
+t1 = (int32_t)t1 + (int32_t)1; // t1 is zero iff we're in trap mode FEP
 if (t1 != 0)
     goto haltexc;
 goto haltmachine;
@@ -900,7 +900,7 @@ DoNoOpSP : if (_trace) printf("DoNoOpSP:\n");
 DoNoOpLP : if (_trace) printf("DoNoOpLP:\n");
 
 DoNoOpFP : if (_trace) printf("DoNoOpFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t)(arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
 goto NEXTINSTRUCTION;
 
@@ -918,9 +918,9 @@ DoAluIM : if (_trace) printf("DoAluIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment45761 : if (_trace) printf("force_alignment45761:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t)arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindoalu;
 
 DoAluSP : if (_trace) printf("DoAluSP:\n");
@@ -936,15 +936,15 @@ DoAluFP : if (_trace) printf("DoAluFP:\n");
 
 headdoalu : if (_trace) printf("headdoalu:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindoalu : if (_trace) printf("begindoalu:\n");
 /* arg1 has the operand, sign extended if immediate. */
 arg2 = arg1 >> 32; // Get tag of ARG2
-arg1 = (u32)arg1; // Get data of ARG2
-arg4 = *(s32 *)iSP; // Get ARG1
-arg3 = *(s32 *)(iSP + 4);
-arg4 = (u32)arg4;
+arg1 = (uint32_t)arg1; // Get data of ARG2
+arg4 = *(int32_t *)iSP; // Get ARG1
+arg3 = *(int32_t *)(iSP + 4);
+arg4 = (uint32_t)arg4;
 t1 = arg2 - Type_Fixnum;
 t1 = t1 & 63; // Strip CDR code
 if (t1 != 0)
@@ -953,9 +953,9 @@ t1 = arg3 - Type_Fixnum;
 t1 = t1 & 63; // Strip CDR code
 if (t1 != 0)
     goto aluexc;
-arg5 = *(u64 *)&(processor->aluop);
-*(u64 *)&processor->aluoverflow = zero;
-arg6 = *(u64 *)&(processor->aluandrotatecontrol);
+arg5 = *(uint64_t *)&(processor->aluop);
+*(uint64_t *)&processor->aluoverflow = zero;
+arg6 = *(uint64_t *)&(processor->aluandrotatecontrol);
 t1 = (arg5 == ALUFunction_Boolean) ? 1 : 0;
 
 force_alignment45751 : if (_trace) printf("force_alignment45751:\n");
@@ -1122,7 +1122,7 @@ if (t1 == 0)
 t10 = ~zero;
 
 basic_dispatch45693 : if (_trace) printf("basic_dispatch45693:\n");
-*(u32 *)iSP = t10;
+*(uint32_t *)iSP = t10;
 goto NEXTINSTRUCTION;
 
 basic_dispatch45692 : if (_trace) printf("basic_dispatch45692:\n");
@@ -1132,8 +1132,8 @@ force_alignment45752 : if (_trace) printf("force_alignment45752:\n");
 if (t1 == 0)
     goto basic_dispatch45727;
 /* Here if argument ALUFunctionByte */
-t2 = *(u64 *)&(processor->byterotate); // Get rotate
-t3 = *(u64 *)&(processor->bytesize); // Get bytesize
+t2 = *(uint64_t *)&(processor->byterotate); // Get rotate
+t3 = *(uint64_t *)&(processor->bytesize); // Get bytesize
 /* Get background */
 t1 = arg6 >> 10;
 t1 = t1 & 3; // Extract the byte background
@@ -1149,12 +1149,12 @@ basic_dispatch45729 : if (_trace) printf("basic_dispatch45729:\n");
 t5 = arg6 >> 12;
 t5 = t5 & 1; // Extractthe byte rotate latch
 t10 = arg1 << (t2 & 63);
-t4 = (u32)(t10 >> ((4 & 7) * 8));
-t10 = (u32)t10;
+t4 = (uint32_t)(t10 >> ((4 & 7) * 8));
+t10 = (uint32_t)t10;
 t10 = t10 | t4; // OP2 rotated
 if (t5 == 0) // Don't update rotate latch if not requested
     goto alu_function_byte45728;
-*(u64 *)&processor->rotatelatch = t10;
+*(uint64_t *)&processor->rotatelatch = t10;
 
 alu_function_byte45728 : if (_trace) printf("alu_function_byte45728:\n");
 t5 = zero + -2;
@@ -1175,7 +1175,7 @@ basic_dispatch45735 : if (_trace) printf("basic_dispatch45735:\n");
 t10 = t10 & t5; // rotated&mask
 t1 = t1 & ~t5; // background&~mask
 t10 = t10 | t1;
-*(u32 *)iSP = t10;
+*(uint32_t *)iSP = t10;
 goto NEXTINSTRUCTION;
 
 basic_dispatch45727 : if (_trace) printf("basic_dispatch45727:\n");
@@ -1204,25 +1204,25 @@ t3 = t10 >> 31; // Sign bit
 t4 = t10 >> 32; // Next bit
 t3 = t3 ^ t4; // Low bit is now overflow indicator
 t4 = arg6 >> 24; // Get the load-carry-in bit
-*(u64 *)&processor->aluoverflow = t3;
+*(uint64_t *)&processor->aluoverflow = t3;
 if ((t4 & 1) == 0)
     goto alu_function_adder45741;
-t3 = (u32)(t10 >> ((4 & 7) * 8)); // Get the carry
+t3 = (uint32_t)(t10 >> ((4 & 7) * 8)); // Get the carry
 t4 = zero + 1024;
 arg6 = arg6 & ~t4;
 t4 = t3 & 1;
 t4 = t4 << 10;
 arg6 = arg6 | t4; // Set the adder carry in
-*(u64 *)&processor->aluandrotatecontrol = arg6;
+*(uint64_t *)&processor->aluandrotatecontrol = arg6;
 
 alu_function_adder45741 : if (_trace) printf("alu_function_adder45741:\n");
-t3 = ((s64)arg4 < (s64)t1) ? 1 : 0;
-*(u64 *)&processor->aluborrow = t3;
-arg4 = (s32)arg4;
-arg1 = (s32)arg1;
-t3 = ((s64)arg4 < (s64)t1) ? 1 : 0;
-*(u64 *)&processor->alulessthan = t3;
-*(u32 *)iSP = t10;
+t3 = ((int64_t)arg4 < (int64_t)t1) ? 1 : 0;
+*(uint64_t *)&processor->aluborrow = t3;
+arg4 = (int32_t)arg4;
+arg1 = (int32_t)arg1;
+t3 = ((int64_t)arg4 < (int64_t)t1) ? 1 : 0;
+*(uint64_t *)&processor->alulessthan = t3;
+*(uint32_t *)iSP = t10;
 goto NEXTINSTRUCTION;
 
 basic_dispatch45740 : if (_trace) printf("basic_dispatch45740:\n");
@@ -1236,7 +1236,7 @@ if (t1 == 0)
 arg5 = 0;
 arg2 = 38;
 goto illegaloperand;
-*(u32 *)iSP = t10;
+*(uint32_t *)iSP = t10;
 goto NEXTINSTRUCTION;
 
 basic_dispatch45691 : if (_trace) printf("basic_dispatch45691:\n");
@@ -1263,9 +1263,9 @@ force_alignment45756 : if (_trace) printf("force_alignment45756:\n");
 if (t4 == 0)
     goto basic_dispatch45745;
 /* Here if argument ALUAdderOp2Invert */
-t1 = (s32)arg1;
+t1 = (int32_t)arg1;
 t1 = zero - t1;
-t1 = (u32)t1;
+t1 = (uint32_t)t1;
 goto basic_dispatch45742;
 
 basic_dispatch45745 : if (_trace) printf("basic_dispatch45745:\n");
@@ -1276,7 +1276,7 @@ if (t4 == 0)
     goto basic_dispatch45742;
 /* Here if argument ALUAdderOp2MinusOne */
 t1 = ~zero;
-t1 = (u32)t1;
+t1 = (uint32_t)t1;
 goto basic_dispatch45742;
 
 basic_dispatch45736 : if (_trace) printf("basic_dispatch45736:\n");
@@ -1294,7 +1294,7 @@ force_alignment45759 : if (_trace) printf("force_alignment45759:\n");
 if (t4 == 0)
     goto basic_dispatch45731;
 /* Here if argument ALUByteBackgroundRotateLatch */
-t1 = *(u64 *)&(processor->rotatelatch);
+t1 = *(uint64_t *)&(processor->rotatelatch);
 goto basic_dispatch45729;
 
 basic_dispatch45731 : if (_trace) printf("basic_dispatch45731:\n");
@@ -1323,9 +1323,9 @@ DoSpareOpSP : if (_trace) printf("DoSpareOpSP:\n");
 DoSpareOpLP : if (_trace) printf("DoSpareOpLP:\n");
 
 DoSpareOpFP : if (_trace) printf("DoSpareOpFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t)(arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-t1 = *(u64 *)&(((CACHELINEP)iCP)->instruction); // Get the instruction
+t1 = *(uint64_t *)&(((CACHELINEP)iCP)->instruction); // Get the instruction
 t1 = t1 >> 10; // Position the opcode
 t1 = t1 & 255; // Extract it
 arg1 = 0; // arg1 = instruction arity
@@ -1344,14 +1344,14 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterFP : if (_trace) printf("ReadRegisterFP:\n");
 /* Convert stack cache address to VMA */
-t5 = *(u64 *)&(processor->stackcachedata);
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t5 = *(uint64_t *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 t5 = iFP - t5; // stack cache base relative offset
 t5 = t5 >> 3; // convert byte address to word address
 t4 = t5 + t4; // reconstruct VMA
 t5 = Type_Locative;
-*(u32 *)(iSP + 8) = t4;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t4;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1360,14 +1360,14 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterLP : if (_trace) printf("ReadRegisterLP:\n");
 /* Convert stack cache address to VMA */
-t5 = *(u64 *)&(processor->stackcachedata);
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t5 = *(uint64_t *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 t5 = iLP - t5; // stack cache base relative offset
 t5 = t5 >> 3; // convert byte address to word address
 t4 = t5 + t4; // reconstruct VMA
 t5 = Type_Locative;
-*(u32 *)(iSP + 8) = t4;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t4;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1376,14 +1376,14 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterSP : if (_trace) printf("ReadRegisterSP:\n");
 /* Convert stack cache address to VMA */
-t5 = *(u64 *)&(processor->stackcachedata);
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t5 = *(uint64_t *)&(processor->stackcachedata);
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 t5 = iSP - t5; // stack cache base relative offset
 t5 = t5 >> 3; // convert byte address to word address
 t4 = t5 + t4; // reconstruct VMA
 t5 = Type_Locative;
-*(u32 *)(iSP + 8) = t4;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t4;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1391,10 +1391,10 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterStackCacheLowerBound */
 
 ReadRegisterStackCacheLowerBound : if (_trace) printf("ReadRegisterStackCacheLowerBound:\n");
-t3 = *(u64 *)&(processor->stackcachebasevma);
+t3 = *(uint64_t *)&(processor->stackcachebasevma);
 t5 = Type_Locative;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1403,14 +1403,14 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterBARx : if (_trace) printf("ReadRegisterBARx:\n");
 t2 = arg1 >> 7; // BAR number into T2
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-t1 = (u64)&processor->bar0;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+t1 = (uint64_t)&processor->bar0;
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t1 = (t2 * 8) + t1; // Now T1 points to the BAR
-t3 = *(u64 *)t1;
+t3 = *(uint64_t *)t1;
 t4 = Type_Locative;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t4; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t4; // write the stack cache
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -1418,21 +1418,21 @@ goto cachevalid;
 /* start ReadRegisterContinuation */
 
 ReadRegisterContinuation : if (_trace) printf("ReadRegisterContinuation:\n");
-t3 = *(u64 *)&(processor->continuation);
+t3 = *(uint64_t *)&(processor->continuation);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterContinuation */
 /* start ReadRegisterAluAndRotateControl */
 
 ReadRegisterAluAndRotateControl : if (_trace) printf("ReadRegisterAluAndRotateControl:\n");
-t3 = *(u64 *)&(processor->aluandrotatecontrol);
+t3 = *(uint64_t *)&(processor->aluandrotatecontrol);
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1440,10 +1440,10 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterControlRegister */
 
 ReadRegisterControlRegister : if (_trace) printf("ReadRegisterControlRegister:\n");
-t3 = *(s32 *)&processor->control;
+t3 = *(int32_t *)&processor->control;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1451,11 +1451,11 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterCRArgumentSize */
 
 ReadRegisterCRArgumentSize : if (_trace) printf("ReadRegisterCRArgumentSize:\n");
-t3 = *(s32 *)&processor->control;
+t3 = *(int32_t *)&processor->control;
 t3 = t3 & 255; // Get the argument size field
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1463,10 +1463,10 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterEphemeralOldspaceRegister */
 
 ReadRegisterEphemeralOldspaceRegister : if (_trace) printf("ReadRegisterEphemeralOldspaceRegister:\n");
-t3 = *(s32 *)&processor->ephemeraloldspace;
+t3 = *(int32_t *)&processor->ephemeraloldspace;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1474,10 +1474,10 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterZoneOldspaceRegister */
 
 ReadRegisterZoneOldspaceRegister : if (_trace) printf("ReadRegisterZoneOldspaceRegister:\n");
-t3 = *(s32 *)&processor->zoneoldspace;
+t3 = *(int32_t *)&processor->zoneoldspace;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1487,8 +1487,8 @@ goto NEXTINSTRUCTION;
 ReadRegisterChipRevision : if (_trace) printf("ReadRegisterChipRevision:\n");
 t3 = 5;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1497,8 +1497,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterFPCoprocessorPresent : if (_trace) printf("ReadRegisterFPCoprocessorPresent:\n");
 t4 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t4; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t4; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1506,11 +1506,11 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterPreemptRegister */
 
 ReadRegisterPreemptRegister : if (_trace) printf("ReadRegisterPreemptRegister:\n");
-t3 = *(s32 *)&processor->interruptreg;
+t3 = *(int32_t *)&processor->interruptreg;
 t3 = t3 & 3;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1519,8 +1519,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterIcacheControl : if (_trace) printf("ReadRegisterIcacheControl:\n");
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1529,8 +1529,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterPrefetcherControl : if (_trace) printf("ReadRegisterPrefetcherControl:\n");
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1539,8 +1539,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterMapCacheControl : if (_trace) printf("ReadRegisterMapCacheControl:\n");
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1549,8 +1549,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterMemoryControl : if (_trace) printf("ReadRegisterMemoryControl:\n");
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1558,12 +1558,12 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterStackCacheOverflowLimit */
 
 ReadRegisterStackCacheOverflowLimit : if (_trace) printf("ReadRegisterStackCacheOverflowLimit:\n");
-t3 = *(s32 *)&processor->scovlimit;
-t4 = *(u64 *)&(processor->stackcachebasevma);
+t3 = *(int32_t *)&processor->scovlimit;
+t4 = *(uint64_t *)&(processor->stackcachebasevma);
 t3 = t3 + t4;
 t4 = Type_Locative;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t4; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t4; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1572,8 +1572,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterMicrosecondClock : if (_trace) printf("ReadRegisterMicrosecondClock:\n");
 t1 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1581,21 +1581,21 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterTOS */
 
 ReadRegisterTOS : if (_trace) printf("ReadRegisterTOS:\n");
-t1 = *(u64 *)iSP;
+t1 = *(uint64_t *)iSP;
 iSP = iSP + 8;
 t2 = t1 << 26;
 t2 = t2 >> 26;
-*(u64 *)iSP = t2; // Push CDR-NEXT TOS
+*(uint64_t *)iSP = t2; // Push CDR-NEXT TOS
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterTOS */
 /* start ReadRegisterEventCount */
 
 ReadRegisterEventCount : if (_trace) printf("ReadRegisterEventCount:\n");
-t3 = *(u64 *)&(processor->areventcount);
+t3 = *(uint64_t *)&(processor->areventcount);
 t4 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t4; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t4; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1603,32 +1603,32 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterBindingStackPointer */
 
 ReadRegisterBindingStackPointer : if (_trace) printf("ReadRegisterBindingStackPointer:\n");
-t3 = *(u64 *)&(processor->bindingstackpointer);
+t3 = *(uint64_t *)&(processor->bindingstackpointer);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterBindingStackPointer */
 /* start ReadRegisterCatchBlockList */
 
 ReadRegisterCatchBlockList : if (_trace) printf("ReadRegisterCatchBlockList:\n");
-t3 = *(u64 *)&(processor->catchblock);
+t3 = *(uint64_t *)&(processor->catchblock);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterCatchBlockList */
 /* start ReadRegisterControlStackLimit */
 
 ReadRegisterControlStackLimit : if (_trace) printf("ReadRegisterControlStackLimit:\n");
-t3 = *(s32 *)&processor->cslimit;
+t3 = *(int32_t *)&processor->cslimit;
 t5 = Type_Locative;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1636,10 +1636,10 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterControlStackExtraLimit */
 
 ReadRegisterControlStackExtraLimit : if (_trace) printf("ReadRegisterControlStackExtraLimit:\n");
-t3 = *(s32 *)&processor->csextralimit;
+t3 = *(int32_t *)&processor->csextralimit;
 t5 = Type_Locative;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1647,11 +1647,11 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterBindingStackLimit */
 
 ReadRegisterBindingStackLimit : if (_trace) printf("ReadRegisterBindingStackLimit:\n");
-t3 = *(u64 *)&(processor->bindingstacklimit);
+t3 = *(uint64_t *)&(processor->bindingstacklimit);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterBindingStackLimit */
@@ -1659,8 +1659,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterPHTBase : if (_trace) printf("ReadRegisterPHTBase:\n");
 t5 = Type_Locative;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1669,8 +1669,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterPHTMask : if (_trace) printf("ReadRegisterPHTMask:\n");
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1679,8 +1679,8 @@ goto NEXTINSTRUCTION;
 
 ReadRegisterCountMapReloads : if (_trace) printf("ReadRegisterCountMapReloads:\n");
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = zero;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = zero;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1688,32 +1688,32 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterListCacheArea */
 
 ReadRegisterListCacheArea : if (_trace) printf("ReadRegisterListCacheArea:\n");
-t3 = *(u64 *)&(processor->lcarea);
+t3 = *(uint64_t *)&(processor->lcarea);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterListCacheArea */
 /* start ReadRegisterListCacheAddress */
 
 ReadRegisterListCacheAddress : if (_trace) printf("ReadRegisterListCacheAddress:\n");
-t3 = *(u64 *)&(processor->lcaddress);
+t3 = *(uint64_t *)&(processor->lcaddress);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterListCacheAddress */
 /* start ReadRegisterListCacheLength */
 
 ReadRegisterListCacheLength : if (_trace) printf("ReadRegisterListCacheLength:\n");
-t3 = *(s32 *)&processor->lclength;
+t3 = *(int32_t *)&processor->lclength;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1721,32 +1721,32 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterStructureCacheArea */
 
 ReadRegisterStructureCacheArea : if (_trace) printf("ReadRegisterStructureCacheArea:\n");
-t3 = *(u64 *)&(processor->scarea);
+t3 = *(uint64_t *)&(processor->scarea);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterStructureCacheArea */
 /* start ReadRegisterStructureCacheAddress */
 
 ReadRegisterStructureCacheAddress : if (_trace) printf("ReadRegisterStructureCacheAddress:\n");
-t3 = *(u64 *)&(processor->scaddress);
+t3 = *(uint64_t *)&(processor->scaddress);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterStructureCacheAddress */
 /* start ReadRegisterStructureCacheLength */
 
 ReadRegisterStructureCacheLength : if (_trace) printf("ReadRegisterStructureCacheLength:\n");
-t3 = *(s32 *)&processor->sclength;
+t3 = *(int32_t *)&processor->sclength;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1754,32 +1754,32 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterDynamicBindingCacheBase */
 
 ReadRegisterDynamicBindingCacheBase : if (_trace) printf("ReadRegisterDynamicBindingCacheBase:\n");
-t3 = *(u64 *)&(processor->dbcbase);
+t3 = *(uint64_t *)&(processor->dbcbase);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterDynamicBindingCacheBase */
 /* start ReadRegisterDynamicBindingCacheMask */
 
 ReadRegisterDynamicBindingCacheMask : if (_trace) printf("ReadRegisterDynamicBindingCacheMask:\n");
-t3 = *(u64 *)&(processor->dbcmask);
+t3 = *(uint64_t *)&(processor->dbcmask);
 iSP = iSP + 8;
 t5 = t3 << 26;
 t5 = t5 >> 26;
-*(u64 *)iSP = t5;
+*(uint64_t *)iSP = t5;
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterDynamicBindingCacheMask */
 /* start ReadRegisterChoicePointer */
 
 ReadRegisterChoicePointer : if (_trace) printf("ReadRegisterChoicePointer:\n");
-t3 = *(s32 *)&processor->choiceptr;
+t3 = *(int32_t *)&processor->choiceptr;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1787,10 +1787,10 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterStructureStackChoicePointer */
 
 ReadRegisterStructureStackChoicePointer : if (_trace) printf("ReadRegisterStructureStackChoicePointer:\n");
-t3 = *(s32 *)&processor->sstkchoiceptr;
+t3 = *(int32_t *)&processor->sstkchoiceptr;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1798,7 +1798,7 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterFEPModeTrapVectorAddress */
 
 ReadRegisterFEPModeTrapVectorAddress : if (_trace) printf("ReadRegisterFEPModeTrapVectorAddress:\n");
-t3 = *(u64 *)&(processor->fepmodetrapvecaddress);
+t3 = *(uint64_t *)&(processor->fepmodetrapvecaddress);
 goto NEXTINSTRUCTION;
 
 /* end ReadRegisterFEPModeTrapVectorAddress */
@@ -1807,8 +1807,8 @@ goto NEXTINSTRUCTION;
 ReadRegisterStackFrameMaximumSize : if (_trace) printf("ReadRegisterStackFrameMaximumSize:\n");
 t3 = zero + 128;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1818,8 +1818,8 @@ goto NEXTINSTRUCTION;
 ReadRegisterStackCacheDumpQuantum : if (_trace) printf("ReadRegisterStackCacheDumpQuantum:\n");
 t3 = zero + 896;
 t5 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t3;
-*(u32 *)(iSP + 12) = t5; // write the stack cache
+*(uint32_t *)(iSP + 8) = t3;
+*(uint32_t *)(iSP + 12) = t5; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1827,8 +1827,8 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterConstantNIL */
 
 ReadRegisterConstantNIL : if (_trace) printf("ReadRegisterConstantNIL:\n");
-t5 = *(u64 *)&(processor->taddress);
-*(u64 *)(iSP + 8) = t5; // push the data
+t5 = *(uint64_t *)&(processor->taddress);
+*(uint64_t *)(iSP + 8) = t5; // push the data
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1836,8 +1836,8 @@ goto NEXTINSTRUCTION;
 /* start ReadRegisterConstantT */
 
 ReadRegisterConstantT : if (_trace) printf("ReadRegisterConstantT:\n");
-t5 = *(u64 *)&(processor->niladdress);
-*(u64 *)(iSP + 8) = t5; // push the data
+t5 = *(uint64_t *)&(processor->niladdress);
+*(uint64_t *)(iSP + 8) = t5; // push the data
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 
@@ -1887,7 +1887,7 @@ goto illegaloperand;
 WriteRegisterContinuation : if (_trace) printf("WriteRegisterContinuation:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->continuation = arg4;
+*(uint64_t *)&processor->continuation = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterContinuation */
@@ -1896,42 +1896,42 @@ goto NEXTINSTRUCTION;
 WriteRegisterAluAndRotateControl : if (_trace) printf("WriteRegisterAluAndRotateControl:\n");
 t1 = arg3 >> 14;
 t1 = t1 & 3; // Extract the function class bits
-*(u64 *)&processor->aluandrotatecontrol = arg3;
+*(uint64_t *)&processor->aluandrotatecontrol = arg3;
 t2 = arg3 >> 5;
 t2 = t2 & 31; // Extract the byte size
-*(u64 *)&processor->aluop = t1;
+*(uint64_t *)&processor->aluop = t1;
 t3 = arg3 & 31; // Extract the Byte Rotate
-*(u64 *)&processor->bytesize = t2;
-*(u64 *)&processor->byterotate = t3;
+*(uint64_t *)&processor->bytesize = t2;
+*(uint64_t *)&processor->byterotate = t3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterAluAndRotateControl */
 /* start WriteRegisterControlRegister */
 
 WriteRegisterControlRegister : if (_trace) printf("WriteRegisterControlRegister:\n");
-*(u32 *)&processor->control = arg3;
+*(uint32_t *)&processor->control = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterControlRegister */
 /* start WriteRegisterEphemeralOldspaceRegister */
 
 WriteRegisterEphemeralOldspaceRegister : if (_trace) printf("WriteRegisterEphemeralOldspaceRegister:\n");
-*(u64 *)&processor->ac0array = zero;
-*(u64 *)&processor->ac1array = zero;
-*(u64 *)&processor->ac2array = zero;
-*(u64 *)&processor->ac3array = zero;
-*(u64 *)&processor->ac4array = zero;
-*(u64 *)&processor->ac5array = zero;
-*(u64 *)&processor->ac6array = zero;
-*(u64 *)&processor->ac7array = zero;
-*(u32 *)&processor->ephemeraloldspace = arg3;
+*(uint64_t *)&processor->ac0array = zero;
+*(uint64_t *)&processor->ac1array = zero;
+*(uint64_t *)&processor->ac2array = zero;
+*(uint64_t *)&processor->ac3array = zero;
+*(uint64_t *)&processor->ac4array = zero;
+*(uint64_t *)&processor->ac5array = zero;
+*(uint64_t *)&processor->ac6array = zero;
+*(uint64_t *)&processor->ac7array = zero;
+*(uint32_t *)&processor->ephemeraloldspace = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterEphemeralOldspaceRegister */
 /* start WriteRegisterZoneOldspaceRegister */
 
 WriteRegisterZoneOldspaceRegister : if (_trace) printf("WriteRegisterZoneOldspaceRegister:\n");
-*(u32 *)&processor->zoneoldspace = arg3;
+*(uint32_t *)&processor->zoneoldspace = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterZoneOldspaceRegister */
@@ -1944,24 +1944,24 @@ goto NEXTINSTRUCTION;
 /* start WriteRegisterPreemptRegister */
 
 WriteRegisterPreemptRegister : if (_trace) printf("WriteRegisterPreemptRegister:\n");
-t3 = *(s32 *)&processor->interruptreg;
+t3 = *(int32_t *)&processor->interruptreg;
 t3 = t3 & ~3L;
 arg3 = arg3 & 3;
 t3 = t3 | arg3;
-*(u32 *)&processor->interruptreg = t3;
+*(uint32_t *)&processor->interruptreg = t3;
 if ((t3 & 1) == 0)
     goto NEXTINSTRUCTION;
-*(u64 *)&processor->stop_interpreter = t3;
+*(uint64_t *)&processor->stop_interpreter = t3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterPreemptRegister */
 /* start WriteRegisterStackCacheOverflowLimit */
 
 WriteRegisterStackCacheOverflowLimit : if (_trace) printf("WriteRegisterStackCacheOverflowLimit:\n");
-t1 = *(u64 *)&(processor->stackcachebasevma);
-t1 = (u32)t1;
+t1 = *(uint64_t *)&(processor->stackcachebasevma);
+t1 = (uint32_t)t1;
 t1 = arg3 - t1;
-*(u32 *)&processor->scovlimit = t1;
+*(uint32_t *)&processor->scovlimit = t1;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterStackCacheOverflowLimit */
@@ -1974,7 +1974,7 @@ goto NEXTINSTRUCTION;
 /* start WriteRegisterEventCount */
 
 WriteRegisterEventCount : if (_trace) printf("WriteRegisterEventCount:\n");
-*(u64 *)&processor->areventcount = arg3;
+*(uint64_t *)&processor->areventcount = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterEventCount */
@@ -1983,7 +1983,7 @@ goto NEXTINSTRUCTION;
 WriteRegisterBindingStackPointer : if (_trace) printf("WriteRegisterBindingStackPointer:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->bindingstackpointer = arg4;
+*(uint64_t *)&processor->bindingstackpointer = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterBindingStackPointer */
@@ -1992,21 +1992,21 @@ goto NEXTINSTRUCTION;
 WriteRegisterCatchBlockList : if (_trace) printf("WriteRegisterCatchBlockList:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->catchblock = arg4;
+*(uint64_t *)&processor->catchblock = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterCatchBlockList */
 /* start WriteRegisterControlStackLimit */
 
 WriteRegisterControlStackLimit : if (_trace) printf("WriteRegisterControlStackLimit:\n");
-*(u32 *)&processor->cslimit = arg3;
+*(uint32_t *)&processor->cslimit = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterControlStackLimit */
 /* start WriteRegisterControlStackExtraLimit */
 
 WriteRegisterControlStackExtraLimit : if (_trace) printf("WriteRegisterControlStackExtraLimit:\n");
-*(u32 *)&processor->csextralimit = arg3;
+*(uint32_t *)&processor->csextralimit = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterControlStackExtraLimit */
@@ -2015,7 +2015,7 @@ goto NEXTINSTRUCTION;
 WriteRegisterBindingStackLimit : if (_trace) printf("WriteRegisterBindingStackLimit:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->bindingstacklimit = arg4;
+*(uint64_t *)&processor->bindingstacklimit = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterBindingStackLimit */
@@ -2024,7 +2024,7 @@ goto NEXTINSTRUCTION;
 WriteRegisterListCacheArea : if (_trace) printf("WriteRegisterListCacheArea:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->lcarea = arg4;
+*(uint64_t *)&processor->lcarea = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterListCacheArea */
@@ -2033,14 +2033,14 @@ goto NEXTINSTRUCTION;
 WriteRegisterListCacheAddress : if (_trace) printf("WriteRegisterListCacheAddress:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->lcaddress = arg4;
+*(uint64_t *)&processor->lcaddress = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterListCacheAddress */
 /* start WriteRegisterListCacheLength */
 
 WriteRegisterListCacheLength : if (_trace) printf("WriteRegisterListCacheLength:\n");
-*(u32 *)&processor->lclength = arg3;
+*(uint32_t *)&processor->lclength = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterListCacheLength */
@@ -2049,7 +2049,7 @@ goto NEXTINSTRUCTION;
 WriteRegisterStructureCacheArea : if (_trace) printf("WriteRegisterStructureCacheArea:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->scarea = arg4;
+*(uint64_t *)&processor->scarea = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterStructureCacheArea */
@@ -2058,14 +2058,14 @@ goto NEXTINSTRUCTION;
 WriteRegisterStructureCacheAddress : if (_trace) printf("WriteRegisterStructureCacheAddress:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->scaddress = arg4;
+*(uint64_t *)&processor->scaddress = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterStructureCacheAddress */
 /* start WriteRegisterStructureCacheLength */
 
 WriteRegisterStructureCacheLength : if (_trace) printf("WriteRegisterStructureCacheLength:\n");
-*(u32 *)&processor->sclength = arg3;
+*(uint32_t *)&processor->sclength = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterStructureCacheLength */
@@ -2074,7 +2074,7 @@ goto NEXTINSTRUCTION;
 WriteRegisterDynamicBindingCacheBase : if (_trace) printf("WriteRegisterDynamicBindingCacheBase:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->dbcbase = arg4;
+*(uint64_t *)&processor->dbcbase = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterDynamicBindingCacheBase */
@@ -2083,28 +2083,28 @@ goto NEXTINSTRUCTION;
 WriteRegisterDynamicBindingCacheMask : if (_trace) printf("WriteRegisterDynamicBindingCacheMask:\n");
 arg4 = arg2 << 32;
 arg4 = arg4 | arg3; // construct the combined word
-*(u64 *)&processor->dbcmask = arg4;
+*(uint64_t *)&processor->dbcmask = arg4;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterDynamicBindingCacheMask */
 /* start WriteRegisterChoicePointer */
 
 WriteRegisterChoicePointer : if (_trace) printf("WriteRegisterChoicePointer:\n");
-*(u32 *)&processor->choiceptr = arg3;
+*(uint32_t *)&processor->choiceptr = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterChoicePointer */
 /* start WriteRegisterStructureStackChoicePointer */
 
 WriteRegisterStructureStackChoicePointer : if (_trace) printf("WriteRegisterStructureStackChoicePointer:\n");
-*(u32 *)&processor->sstkchoiceptr = arg3;
+*(uint32_t *)&processor->sstkchoiceptr = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterStructureStackChoicePointer */
 /* start WriteRegisterFEPModeTrapVectorAddress */
 
 WriteRegisterFEPModeTrapVectorAddress : if (_trace) printf("WriteRegisterFEPModeTrapVectorAddress:\n");
-*(u32 *)&processor->fepmodetrapvecaddress = arg3;
+*(uint32_t *)&processor->fepmodetrapvecaddress = arg3;
 goto NEXTINSTRUCTION;
 
 /* end WriteRegisterFEPModeTrapVectorAddress */
@@ -2138,37 +2138,37 @@ DoCoprocessorReadSP : if (_trace) printf("DoCoprocessorReadSP:\n");
 DoCoprocessorReadLP : if (_trace) printf("DoCoprocessorReadLP:\n");
 
 DoCoprocessorReadFP : if (_trace) printf("DoCoprocessorReadFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t)(arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-r0 = *(u64 *)&(processor->coprocessorreadhook);
-*(u64 *)&processor->cp = iCP;
-*(u64 *)&processor->epc = iPC;
-*(u64 *)&processor->sp = iSP;
-*(u64 *)&processor->fp = iFP;
-*(u64 *)&processor->lp = iLP;
-r9 = *(u64 *)&(processor->asrr9);
-r10 = *(u64 *)&(processor->asrr10);
-r11 = *(u64 *)&(processor->asrr11);
-r12 = *(u64 *)&(processor->asrr12);
-r13 = *(u64 *)&(processor->asrr13);
-r15 = *(u64 *)&(processor->asrr15);
-r27 = *(u64 *)&(processor->asrr27);
-r29 = *(u64 *)&(processor->asrr29);
+r0 = *(uint64_t *)&(processor->coprocessorreadhook);
+*(uint64_t *)&processor->cp = iCP;
+*(uint64_t *)&processor->epc = iPC;
+*(uint64_t *)&processor->sp = iSP;
+*(uint64_t *)&processor->fp = iFP;
+*(uint64_t *)&processor->lp = iLP;
+r9 = *(uint64_t *)&(processor->asrr9);
+r10 = *(uint64_t *)&(processor->asrr10);
+r11 = *(uint64_t *)&(processor->asrr11);
+r12 = *(uint64_t *)&(processor->asrr12);
+r13 = *(uint64_t *)&(processor->asrr13);
+r15 = *(uint64_t *)&(processor->asrr15);
+r27 = *(uint64_t *)&(processor->asrr27);
+r29 = *(uint64_t *)&(processor->asrr29);
 pv = r0;
-r0 = (*(u64(*)(u64, u64))r0)(arg1, arg2); /* jsr */
-r9 = *(u64 *)&(processor->asrr9);
-r10 = *(u64 *)&(processor->asrr10);
-r11 = *(u64 *)&(processor->asrr11);
-r12 = *(u64 *)&(processor->asrr12);
-r13 = *(u64 *)&(processor->asrr13);
-r15 = *(u64 *)&(processor->asrr15);
-r27 = *(u64 *)&(processor->asrr27);
-r29 = *(u64 *)&(processor->asrr29);
-iCP = *(u64 *)&(processor->cp);
-iPC = *(u64 *)&(processor->epc);
-iSP = *(u64 *)&(processor->sp);
-iFP = *(u64 *)&(processor->fp);
-iLP = *(u64 *)&(processor->lp);
+r0 = (*(uint64_t(*)(uint64_t, uint64_t))r0)(arg1, arg2); /* jsr */
+r9 = *(uint64_t *)&(processor->asrr9);
+r10 = *(uint64_t *)&(processor->asrr10);
+r11 = *(uint64_t *)&(processor->asrr11);
+r12 = *(uint64_t *)&(processor->asrr12);
+r13 = *(uint64_t *)&(processor->asrr13);
+r15 = *(uint64_t *)&(processor->asrr15);
+r27 = *(uint64_t *)&(processor->asrr27);
+r29 = *(uint64_t *)&(processor->asrr29);
+iCP = *(uint64_t *)&(processor->cp);
+iPC = *(uint64_t *)&(processor->epc);
+iSP = *(uint64_t *)&(processor->sp);
+iFP = *(uint64_t *)&(processor->fp);
+iLP = *(uint64_t *)&(processor->lp);
 /* Long -1 is never a valid LISP value */
 t1 = zero + -1;
 t1 = (r0 == t1) ? 1 : 0;
@@ -2177,7 +2177,7 @@ if (t1 != 0) // J. if CoprocessorRead exception return
 iSP = iSP + 8;
 t1 = r0 << 26;
 t1 = t1 >> 26;
-*(u64 *)iSP = t1; // Push the result of coprocessor read!
+*(uint64_t *)iSP = t1; // Push the result of coprocessor read!
 goto NEXTINSTRUCTION;
 
 cpreadexc : if (_trace) printf("cpreadexc:\n");
@@ -2201,80 +2201,80 @@ DoCoprocessorWriteSP : if (_trace) printf("DoCoprocessorWriteSP:\n");
 DoCoprocessorWriteLP : if (_trace) printf("DoCoprocessorWriteLP:\n");
 
 DoCoprocessorWriteFP : if (_trace) printf("DoCoprocessorWriteFP:\n");
-arg1 = (u16)(arg3 >> ((4 & 7) * 8));
+arg1 = (uint16_t)(arg3 >> ((4 & 7) * 8));
 /* arg1 has operand preloaded. */
-arg2 = *(u64 *)iSP; // The value to be written
+arg2 = *(uint64_t *)iSP; // The value to be written
 iSP = iSP - 8; // Pop Stack.
 t2 = zero + CoprocessorRegister_UnwindStackForRestartOrApply;
 t2 = arg1 - t2;
 if (t2 != 0)
     goto mondo_dispatch45763;
 /* Here if argument CoprocessorRegisterUnwindStackForRestartOrApply */
-t1 = *(s32 *)iSP; // peek at new continuation to look at tag
-t2 = *(s32 *)(iSP + 4);
-t1 = (u32)t1;
+t1 = *(int32_t *)iSP; // peek at new continuation to look at tag
+t2 = *(int32_t *)(iSP + 4);
+t1 = (uint32_t)t1;
 t3 = t2 - Type_EvenPC;
 t3 = t3 & 62; // Strip CDR code, low bits
 if (t3 != 0)
     goto unwindillegalcontinuation;
-t1 = *(u64 *)iSP; // Get new continuation
+t1 = *(uint64_t *)iSP; // Get new continuation
 iSP = iSP - 8; // Pop Stack.
-*(u64 *)&processor->continuation = t1; // Update continuation register
-*(u64 *)&processor->continuationcp = zero;
-t1 = *(s32 *)iSP; // Get new FP
-t2 = *(s32 *)(iSP + 4); // Get new FP
+*(uint64_t *)&processor->continuation = t1; // Update continuation register
+*(uint64_t *)&processor->continuationcp = zero;
+t1 = *(int32_t *)iSP; // Get new FP
+t2 = *(int32_t *)(iSP + 4); // Get new FP
 iSP = iSP - 8; // Pop Stack.
-t1 = (u32)t1;
+t1 = (uint32_t)t1;
 t3 = t2 - Type_Locative;
 t3 = t3 & 63; // Strip CDR code
 if (t3 != 0)
     goto unwindillegalfp;
 /* Convert VMA to stack cache address */
-t2 = *(u64 *)&(processor->stackcachebasevma);
-iFP = *(u64 *)&(processor->stackcachedata);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
+iFP = *(uint64_t *)&(processor->stackcachedata);
 t2 = t1 - t2; // stack cache base relative offset
 iFP = (t2 * 8) + iFP; // reconstruct SCA
-t1 = *(s32 *)iSP; // Get new LP
-t2 = *(s32 *)(iSP + 4); // Get new LP
+t1 = *(int32_t *)iSP; // Get new LP
+t2 = *(int32_t *)(iSP + 4); // Get new LP
 iSP = iSP - 8; // Pop Stack.
-t1 = (u32)t1;
+t1 = (uint32_t)t1;
 t3 = t2 - Type_Locative;
 t3 = t3 & 63; // Strip CDR code
 if (t3 != 0)
     goto unwindillegallp;
 /* Convert VMA to stack cache address */
-t2 = *(u64 *)&(processor->stackcachebasevma);
-iLP = *(u64 *)&(processor->stackcachedata);
+t2 = *(uint64_t *)&(processor->stackcachebasevma);
+iLP = *(uint64_t *)&(processor->stackcachedata);
 t2 = t1 - t2; // stack cache base relative offset
 iLP = (t2 * 8) + iLP; // reconstruct SCA
 /* Update CDR-CODEs to make it a legitimate frame */
-t1 = *(s32 *)(iFP + 4); // Tag of saved continuation register
-t2 = *(s32 *)(iFP + 12); // Tag of saved control register
+t1 = *(int32_t *)(iFP + 4); // Tag of saved continuation register
+t2 = *(int32_t *)(iFP + 12); // Tag of saved control register
 t1 = t1 | 192; // Set CDR-CODE to 3
-*(u32 *)(iFP + 4) = t1; // Put it back
+*(uint32_t *)(iFP + 4) = t1; // Put it back
 t2 = t2 | 192; // Set CDR-CODE to 3
-*(u32 *)(iFP + 12) = t2; // Put it back
+*(uint32_t *)(iFP + 12) = t2; // Put it back
 /* Copy the current trap-on-exit bit into the saved control register */
-t1 = *(s32 *)&processor->control; // Get control register
-t2 = *(s32 *)(iFP + 8); // Get saved control register
-t2 = (u32)t2;
+t1 = *(int32_t *)&processor->control; // Get control register
+t2 = *(int32_t *)(iFP + 8); // Get saved control register
+t2 = (uint32_t)t2;
 t3 = (256) << 16;
 t2 = t2 & ~t3; // Remove saved control register's trap-on-exit bit
 t1 = t1 & t3; // Extract control register's trap-on-exit bit
 t2 = t2 | t1; // Copy it into saved control register
-*(u32 *)(iFP + 8) = t2; // Update saved control register
+*(uint32_t *)(iFP + 8) = t2; // Update saved control register
 /* Restore the new control register with proper trap mode */
-t1 = *(s32 *)iSP; // peek at new control register to look at tag
-t2 = *(s32 *)(iSP + 4);
-t1 = (u32)t1;
+t1 = *(int32_t *)iSP; // peek at new control register to look at tag
+t2 = *(int32_t *)(iSP + 4);
+t1 = (uint32_t)t1;
 t3 = t2 - Type_Fixnum;
 t3 = t3 & 63; // Strip CDR code
 if (t3 != 0)
     goto unwindillegalcontrol;
-t1 = *(s32 *)iSP; // Get new control register
+t1 = *(int32_t *)iSP; // Get new control register
 iSP = iSP - 8; // Pop Stack.
-t1 = (u32)t1;
-*(u32 *)&processor->control = t1;
+t1 = (uint32_t)t1;
+*(uint32_t *)&processor->control = t1;
 goto mondo_dispatch45762;
 
 mondo_dispatch45763 : if (_trace) printf("mondo_dispatch45763:\n");
@@ -2286,36 +2286,36 @@ if (t2 != 0)
 /* We're about to flush the instruction cache so we can't rely */
 /* on ContinueToNextInstruction working.  Instead, we must load */
 /* the next PC now and explicitly fill the cache. */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-t1 = *(u64 *)&(processor->flushcaches_hook);
-*(u64 *)&processor->cp = iCP;
-*(u64 *)&processor->epc = iPC;
-*(u64 *)&processor->sp = iSP;
-*(u64 *)&processor->fp = iFP;
-*(u64 *)&processor->lp = iLP;
-r9 = *(u64 *)&(processor->asrr9);
-r10 = *(u64 *)&(processor->asrr10);
-r11 = *(u64 *)&(processor->asrr11);
-r12 = *(u64 *)&(processor->asrr12);
-r13 = *(u64 *)&(processor->asrr13);
-r15 = *(u64 *)&(processor->asrr15);
-r27 = *(u64 *)&(processor->asrr27);
-r29 = *(u64 *)&(processor->asrr29);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+t1 = *(uint64_t *)&(processor->flushcaches_hook);
+*(uint64_t *)&processor->cp = iCP;
+*(uint64_t *)&processor->epc = iPC;
+*(uint64_t *)&processor->sp = iSP;
+*(uint64_t *)&processor->fp = iFP;
+*(uint64_t *)&processor->lp = iLP;
+r9 = *(uint64_t *)&(processor->asrr9);
+r10 = *(uint64_t *)&(processor->asrr10);
+r11 = *(uint64_t *)&(processor->asrr11);
+r12 = *(uint64_t *)&(processor->asrr12);
+r13 = *(uint64_t *)&(processor->asrr13);
+r15 = *(uint64_t *)&(processor->asrr15);
+r27 = *(uint64_t *)&(processor->asrr27);
+r29 = *(uint64_t *)&(processor->asrr29);
 pv = t1;
-r0 = (*(u64(*)(u64, u64))t1)(arg1, arg2); /* jsr */
-r9 = *(u64 *)&(processor->asrr9);
-r10 = *(u64 *)&(processor->asrr10);
-r11 = *(u64 *)&(processor->asrr11);
-r12 = *(u64 *)&(processor->asrr12);
-r13 = *(u64 *)&(processor->asrr13);
-r15 = *(u64 *)&(processor->asrr15);
-r27 = *(u64 *)&(processor->asrr27);
-r29 = *(u64 *)&(processor->asrr29);
-iCP = *(u64 *)&(processor->cp);
-iPC = *(u64 *)&(processor->epc);
-iSP = *(u64 *)&(processor->sp);
-iFP = *(u64 *)&(processor->fp);
-iLP = *(u64 *)&(processor->lp);
+r0 = (*(uint64_t(*)(uint64_t, uint64_t))t1)(arg1, arg2); /* jsr */
+r9 = *(uint64_t *)&(processor->asrr9);
+r10 = *(uint64_t *)&(processor->asrr10);
+r11 = *(uint64_t *)&(processor->asrr11);
+r12 = *(uint64_t *)&(processor->asrr12);
+r13 = *(uint64_t *)&(processor->asrr13);
+r15 = *(uint64_t *)&(processor->asrr15);
+r27 = *(uint64_t *)&(processor->asrr27);
+r29 = *(uint64_t *)&(processor->asrr29);
+iCP = *(uint64_t *)&(processor->cp);
+iPC = *(uint64_t *)&(processor->epc);
+iSP = *(uint64_t *)&(processor->sp);
+iFP = *(uint64_t *)&(processor->fp);
+iLP = *(uint64_t *)&(processor->lp);
 /* Compute proper iCP after FlushCaches resets it. */
 goto ICACHEMISS;
 goto mondo_dispatch45762;
@@ -2326,11 +2326,11 @@ t2 = arg1 - t2;
 if (t2 != 0)
     goto mondo_dispatch45765;
 /* Here if argument CoprocessorRegisterFlushCachesForVMA */
-arg2 = (u32)arg2; // Extract the VMA
+arg2 = (uint32_t)arg2; // Extract the VMA
 t1 = arg2 << 1; // convert continuation to an even pc
 /* Convert a halfword address into a CP pointer. */
 t2 = t1 >> (CacheLine_RShift & 63); // Get third byte into bottom
-t4 = *(u64 *)&(processor->icachebase); // get the base of the icache
+t4 = *(uint64_t *)&(processor->icachebase); // get the base of the icache
 t3 = zero + -1;
 t3 = t3 + ((4) << 16);
 t2 = t2 << (CacheLine_LShift & 63); // Now third byte is zero-shifted
@@ -2340,12 +2340,12 @@ t3 = t2 << 5; // temp=cpos*32
 t2 = t2 << 4; // cpos=cpos*16
 t4 = t4 + t3; // temp2=base+cpos*32
 t2 = t4 + t2; // cpos=base+cpos*48
-t3 = *(u64 *)&(((CACHELINEP)t2)->pcdata);
+t3 = *(uint64_t *)&(((CACHELINEP)t2)->pcdata);
 t3 = (t1 == t3) ? 1 : 0; // Is this VMA in the cache?
 if (t3 == 0) // No.
     goto dcwnotincache;
-*(u64 *)&((CACHELINEP)t2)->pcdata = zero; // Yes, flush it
-*((u64 *)(&((CACHELINEP)t2)->pcdata) + CACHELINESIZE / 8) = zero;
+*(uint64_t *)&((CACHELINEP)t2)->pcdata = zero; // Yes, flush it
+*((uint64_t *)(&((CACHELINEP)t2)->pcdata) + CACHELINESIZE / 8) = zero;
 
 dcwnotincache : if (_trace) printf("dcwnotincache:\n");
 goto mondo_dispatch45762;
@@ -2356,16 +2356,16 @@ t2 = arg1 - t2;
 if (t2 != 0)
     goto mondo_dispatch45766;
 /* Here if argument CoprocessorRegisterFlushHiddenArrayRegisters */
-arg2 = (u32)arg2; // Get the VMA of the new stack array
+arg2 = (uint32_t)arg2; // Get the VMA of the new stack array
 t8 = zero + AutoArrayRegMask;
 t8 = arg2 & t8;
-t7 = (u64)&processor->ac0array;
+t7 = (uint64_t)&processor->ac0array;
 t7 = t7 + t8; // Here is our array register block
-t8 = *(u64 *)&(((ARRAYCACHEP)t7)->array); // And here is the cached array
+t8 = *(uint64_t *)&(((ARRAYCACHEP)t7)->array); // And here is the cached array
 t8 = (arg2 == t8) ? 1 : 0; // t8==1 iff cached array is ours
 if (t8 == 0)
     goto arraynotincache;
-*(u64 *)&((ARRAYCACHEP)t7)->array = zero; // Flush it
+*(uint64_t *)&((ARRAYCACHEP)t7)->array = zero; // Flush it
 
 arraynotincache : if (_trace) printf("arraynotincache:\n");
 goto mondo_dispatch45762;
@@ -2373,35 +2373,35 @@ goto mondo_dispatch45762;
 mondo_dispatch45766 : if (_trace) printf("mondo_dispatch45766:\n");
 /* Here for all other cases */
 /* Standard coprocessor register processing */
-r0 = *(u64 *)&(processor->coprocessorwritehook);
-*(u64 *)&processor->cp = iCP;
-*(u64 *)&processor->epc = iPC;
-*(u64 *)&processor->sp = iSP;
-*(u64 *)&processor->fp = iFP;
-*(u64 *)&processor->lp = iLP;
-r9 = *(u64 *)&(processor->asrr9);
-r10 = *(u64 *)&(processor->asrr10);
-r11 = *(u64 *)&(processor->asrr11);
-r12 = *(u64 *)&(processor->asrr12);
-r13 = *(u64 *)&(processor->asrr13);
-r15 = *(u64 *)&(processor->asrr15);
-r27 = *(u64 *)&(processor->asrr27);
-r29 = *(u64 *)&(processor->asrr29);
+r0 = *(uint64_t *)&(processor->coprocessorwritehook);
+*(uint64_t *)&processor->cp = iCP;
+*(uint64_t *)&processor->epc = iPC;
+*(uint64_t *)&processor->sp = iSP;
+*(uint64_t *)&processor->fp = iFP;
+*(uint64_t *)&processor->lp = iLP;
+r9 = *(uint64_t *)&(processor->asrr9);
+r10 = *(uint64_t *)&(processor->asrr10);
+r11 = *(uint64_t *)&(processor->asrr11);
+r12 = *(uint64_t *)&(processor->asrr12);
+r13 = *(uint64_t *)&(processor->asrr13);
+r15 = *(uint64_t *)&(processor->asrr15);
+r27 = *(uint64_t *)&(processor->asrr27);
+r29 = *(uint64_t *)&(processor->asrr29);
 pv = r0;
-r0 = (*(u64(*)(u64, u64))r0)(arg1, arg2); /* jsr */
-r9 = *(u64 *)&(processor->asrr9);
-r10 = *(u64 *)&(processor->asrr10);
-r11 = *(u64 *)&(processor->asrr11);
-r12 = *(u64 *)&(processor->asrr12);
-r13 = *(u64 *)&(processor->asrr13);
-r15 = *(u64 *)&(processor->asrr15);
-r27 = *(u64 *)&(processor->asrr27);
-r29 = *(u64 *)&(processor->asrr29);
-iCP = *(u64 *)&(processor->cp);
-iPC = *(u64 *)&(processor->epc);
-iSP = *(u64 *)&(processor->sp);
-iFP = *(u64 *)&(processor->fp);
-iLP = *(u64 *)&(processor->lp);
+r0 = (*(uint64_t(*)(uint64_t, uint64_t))r0)(arg1, arg2); /* jsr */
+r9 = *(uint64_t *)&(processor->asrr9);
+r10 = *(uint64_t *)&(processor->asrr10);
+r11 = *(uint64_t *)&(processor->asrr11);
+r12 = *(uint64_t *)&(processor->asrr12);
+r13 = *(uint64_t *)&(processor->asrr13);
+r15 = *(uint64_t *)&(processor->asrr15);
+r27 = *(uint64_t *)&(processor->asrr27);
+r29 = *(uint64_t *)&(processor->asrr29);
+iCP = *(uint64_t *)&(processor->cp);
+iPC = *(uint64_t *)&(processor->epc);
+iSP = *(uint64_t *)&(processor->sp);
+iFP = *(uint64_t *)&(processor->fp);
+iLP = *(uint64_t *)&(processor->lp);
 if (r0 == 0) // J. if CoprocessorWrite exception return
     goto cpreadexc;
 goto mondo_dispatch45762;
@@ -2456,7 +2456,7 @@ arg1 = arg1 << 25;
 
 spinwheelaxis : if (_trace) printf("spinwheelaxis:\n");
 arg1 = arg1 + -1;
-if ((s64)arg1 > 0)
+if ((int64_t)arg1 > 0)
     goto spinwheelaxis;
 goto *ra; /* ret */
 

@@ -27,12 +27,12 @@ DoUnaryMinusFP : if (_trace) printf("DoUnaryMinusFP:\n");
 begindounaryminus : if (_trace) printf("begindounaryminus:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-t6 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-t7 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-arg5 = *(s32 *)(arg1 + 4); // tag of ARG2
-arg6 = *(s32 *)arg1;
-t2 = *(u64 *)&(processor->mostnegativefixnum);
-LDS(1, f1, *(u32 *)arg1);
+t6 = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+t7 = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+arg5 = *(int32_t *)(arg1 + 4); // tag of ARG2
+arg6 = *(int32_t *)arg1;
+t2 = *(uint64_t *)&(processor->mostnegativefixnum);
+LDS(1, f1, *(uint32_t *)arg1);
 t5 = arg5 & 63; // Strip off any CDR code bits.
 t4 = (t5 == Type_Fixnum) ? 1 : 0;
 
@@ -40,14 +40,14 @@ force_alignment45061 : if (_trace) printf("force_alignment45061:\n");
 if (t4 == 0)
     goto basic_dispatch45057;
 /* Here if argument TypeFixnum */
-t2 = (s32)arg6 - (s32)t2;
-arg2 = (s32)zero - (s32)arg6;
+t2 = (int32_t) arg6 - (int32_t) t2;
+arg2 = (int32_t) zero - (int32_t) arg6;
 if (t2 == 0)
     goto unaryminusexc;
 iPC = t6;
-*(u32 *)(iSP + 12) = t5; // Semi-cheat, we know t5 has CDRNext/TypeFixnum
+*(uint32_t *)(iSP + 12) = t5; // Semi-cheat, we know t5 has CDRNext/TypeFixnum
 iCP = t7;
-*(u32 *)(iSP + 8) = arg2; // Push the data
+*(uint32_t *)(iSP + 8) = arg2; // Push the data
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -62,9 +62,9 @@ if (t4 == 0)
 SUBS(0, f0, 3, f31, 1, f1); /* subs */
 /* trapb force the trap to occur here */ // Force the trap to occur here
 iPC = t6;
-*(u32 *)(iSP + 12) = t5; // Semi-cheat, we know t5 has CDRNext/TypeSingleFloat
+*(uint32_t *)(iSP + 12) = t5; // Semi-cheat, we know t5 has CDRNext/TypeSingleFloat
 iCP = t7;
-STS((u32 *)(iSP + 8), 0, f0); // Push the data
+STS((uint32_t *)(iSP + 8), 0, f0); // Push the data
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -81,12 +81,12 @@ goto unarynumericexception;
 basic_dispatch45056 : if (_trace) printf("basic_dispatch45056:\n");
 
 DoUnaryMinusIM : if (_trace) printf("DoUnaryMinusIM:\n");
-arg2 = (s32)zero - (s32)arg2; // Negate the 8 bit immediate operand
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+arg2 = (int32_t) zero - (int32_t) arg2; // Negate the 8 bit immediate operand
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t7 = Type_Fixnum;
-*(u32 *)(iSP + 8) = arg2;
-*(u32 *)(iSP + 12) = t7; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg2;
+*(uint32_t *)(iSP + 12) = t7; // write the stack cache
 iSP = iSP + 8;
 goto cachevalid;
 
@@ -103,7 +103,7 @@ DoMultiplySP : if (_trace) printf("DoMultiplySP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindomultiply;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -114,12 +114,12 @@ DoMultiplyFP : if (_trace) printf("DoMultiplyFP:\n");
 begindomultiply : if (_trace) printf("begindomultiply:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-LDS(1, f1, *(u32 *)iSP);
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // ARG1 tag
-t3 = *(s32 *)(arg1 + 4); // ARG2 tag
-t2 = (s32)arg6; // ARG1 data
-t4 = *(s32 *)arg1; // ARG2 data
-LDS(2, f2, *(u32 *)arg1);
+LDS(1, f1, *(uint32_t *)iSP);
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // ARG1 tag
+t3 = *(int32_t *)(arg1 + 4); // ARG2 tag
+t2 = (int32_t) arg6; // ARG1 data
+t4 = *(int32_t *)arg1; // ARG2 data
+LDS(2, f2, *(uint32_t *)arg1);
 /* NIL */
 t9 = t1 & 63; // Strip off any CDR code bits.
 t11 = t3 & 63; // Strip off any CDR code bits.
@@ -135,15 +135,15 @@ force_alignment45079 : if (_trace) printf("force_alignment45079:\n");
 if (t12 == 0)
     goto basic_dispatch45075;
 /* Here if argument TypeFixnum */
-t6 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-t5 = (s64)((s32)t2 * (s64)(s32)t4); /* mull/v */ // compute 64-bit result
+t6 = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+t5 = (int64_t) ((int32_t) t2 * (int64_t) (int32_t) t4); /* mull/v */ // compute 64-bit result
 if (t5 >> 31)
     exception(3, t5); // WARNING !!! THIS SHOULD REFLECT THE DIFF FILE
-t7 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+t7 = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 /* trapb force the trap to occur here */ // Force the trap to occur here
-*(u32 *)(iSP + 4) = t9; // Semi-cheat, we know temp2 has CDRNext/TypeFixnum
+*(uint32_t *)(iSP + 4) = t9; // Semi-cheat, we know temp2 has CDRNext/TypeFixnum
 iPC = t6;
-*(u32 *)iSP = t5;
+*(uint32_t *)iSP = t5;
 iCP = t7;
 goto cachevalid;
 
@@ -188,11 +188,11 @@ if (t12 == 0)
 simple_binary_arithmetic_operation45063 : if (_trace) printf("simple_binary_arithmetic_operation45063:\n");
 MULS(0, f0, 1, f1, 2, f2); /* muls */
 /* trapb force the trap to occur here */ // Force the trap to occur here
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 goto cachevalid;
 
 basic_dispatch45084 : if (_trace) printf("basic_dispatch45084:\n");
@@ -215,8 +215,8 @@ if (t12 == 0)
 /* Here if argument TypeDoubleFloat */
 
 simple_binary_arithmetic_operation45066 : if (_trace) printf("simple_binary_arithmetic_operation45066:\n");
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 goto simple_binary_arithmetic_operation45067;
 
 basic_dispatch45083 : if (_trace) printf("basic_dispatch45083:\n");
@@ -234,29 +234,29 @@ force_alignment45097 : if (_trace) printf("force_alignment45097:\n");
 if (t12 == 0)
     goto basic_dispatch45093;
 /* Here if argument TypeDoubleFloat */
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
-arg2 = (u32)t2;
-r0 = (u64) && return0049;
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
+arg2 = (uint32_t) t2;
+r0 = (uint64_t)  && return0049;
 goto fetchdoublefloat;
 return0049 : LDT(1, f1, processor->fp0);
 
 simple_binary_arithmetic_operation45067 : if (_trace) printf("simple_binary_arithmetic_operation45067:\n");
-arg2 = (u32)t4;
-r0 = (u64) && return0050;
+arg2 = (uint32_t) t4;
+r0 = (uint64_t)  && return0050;
 goto fetchdoublefloat;
 return0050 : LDT(2, f2, processor->fp0);
 
 simple_binary_arithmetic_operation45064 : if (_trace) printf("simple_binary_arithmetic_operation45064:\n");
 MULT(0, f0, 1, f1, 2, f2);
-STT((u64 *)&processor->fp0, 0, f0);
-r0 = (u64) && return0051;
+STT((uint64_t *)&processor->fp0, 0, f0);
+r0 = (uint64_t)  && return0051;
 goto consdoublefloat;
-return0051 : iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+return0051 : iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t8 = Type_DoubleFloat;
-*(u32 *)iSP = arg2;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
+*(uint32_t *)iSP = arg2;
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
 goto cachevalid;
 
 basic_dispatch45093 : if (_trace) printf("basic_dispatch45093:\n");
@@ -268,10 +268,10 @@ if (t12 == 0)
 /* Here if argument TypeSingleFloat */
 
 simple_binary_arithmetic_operation45065 : if (_trace) printf("simple_binary_arithmetic_operation45065:\n");
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
-arg2 = (u32)t2;
-r0 = (u64) && return0052;
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
+arg2 = (uint32_t) t2;
+r0 = (uint64_t)  && return0052;
 goto fetchdoublefloat;
 return0052 : LDT(1, f1, processor->fp0);
 goto simple_binary_arithmetic_operation45064;
@@ -312,9 +312,9 @@ basic_dispatch45072 : if (_trace) printf("basic_dispatch45072:\n");
 
 DoMultiplyIM : if (_trace) printf("DoMultiplyIM:\n");
 arg2 = arg2 << 56;
-t1 = (u32)(arg6 >> ((4 & 7) * 8));
-t2 = (s32)arg6; // get ARG1 tag/data
-arg2 = (s64)arg2 >> 56;
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8));
+t2 = (int32_t) arg6; // get ARG1 tag/data
+arg2 = (int64_t) arg2 >> 56;
 t11 = t1 & 63; // Strip off any CDR code bits.
 t12 = (t11 == Type_Fixnum) ? 1 : 0;
 
@@ -323,22 +323,22 @@ if (t12 == 0)
     goto basic_dispatch45106;
 /* Here if argument TypeFixnum */
 t3 = t2 * arg2; // compute 64-bit result
-t4 = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-t10 = (s32)t3; // compute 32-bit sign-extended result
-t5 = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+t4 = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+t10 = (int32_t) t3; // compute 32-bit sign-extended result
+t5 = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 t10 = (t3 == t10) ? 1 : 0; // is it the same as the 64-bit result?
 if (t10 == 0) // if not, we overflowed
     goto domulovfl;
-*(u32 *)(iSP + 4) = t11; // Semi-cheat, we know temp2 has CDRNext/TypeFixnum
+*(uint32_t *)(iSP + 4) = t11; // Semi-cheat, we know temp2 has CDRNext/TypeFixnum
 iPC = t4;
-*(u32 *)iSP = t3;
+*(uint32_t *)iSP = t3;
 iCP = t5;
 goto cachevalid;
 
 basic_dispatch45106 : if (_trace) printf("basic_dispatch45106:\n");
 /* Here for all other cases */
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = (u64)&processor->immediate_arg;
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = (uint64_t) &processor->immediate_arg;
 arg2 = zero;
 goto begindomultiply;
 
@@ -350,12 +350,12 @@ basic_dispatch45105 : if (_trace) printf("basic_dispatch45105:\n");
 
 binaryarithmeticdivisionprelude : if (_trace) printf("binaryarithmeticdivisionprelude:\n");
 sp = sp + -8;
-LDS(1, f1, *(u32 *)iSP);
-t2 = (s32)arg6; // ARG1 data
-t4 = *(s32 *)arg1; // ARG2 data
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // ARG1 tag
-t3 = *(s32 *)(arg1 + 4); // ARG2 tag
-LDS(2, f2, *(u32 *)arg1);
+LDS(1, f1, *(uint32_t *)iSP);
+t2 = (int32_t) arg6; // ARG1 data
+t4 = *(int32_t *)arg1; // ARG2 data
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // ARG1 tag
+t3 = *(int32_t *)(arg1 + 4); // ARG2 tag
+LDS(2, f2, *(uint32_t *)arg1);
 t9 = t1 & 63; // Strip off any CDR code bits.
 t11 = t3 & 63; // Strip off any CDR code bits.
 t10 = (t9 == Type_Fixnum) ? 1 : 0;
@@ -417,8 +417,8 @@ if (t12 == 0)
 /* Here if argument TypeDoubleFloat */
 
 binary_arithmetic_division_prelude45112 : if (_trace) printf("binary_arithmetic_division_prelude45112:\n");
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
 goto binary_arithmetic_division_prelude45113;
 
 basic_dispatch45128 : if (_trace) printf("basic_dispatch45128:\n");
@@ -436,21 +436,21 @@ force_alignment45142 : if (_trace) printf("force_alignment45142:\n");
 if (t12 == 0)
     goto basic_dispatch45138;
 /* Here if argument TypeDoubleFloat */
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
-arg2 = (u32)t2;
-*(u64 *)sp = r0;
-r0 = (u64) && return0053;
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
+arg2 = (uint32_t) t2;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0053;
 goto fetchdoublefloat;
-return0053 : r0 = *(u64 *)sp;
+return0053 : r0 = *(uint64_t *)sp;
 LDT(1, f1, processor->fp0);
 
 binary_arithmetic_division_prelude45113 : if (_trace) printf("binary_arithmetic_division_prelude45113:\n");
-arg2 = (u32)t4;
-*(u64 *)sp = r0;
-r0 = (u64) && return0054;
+arg2 = (uint32_t) t4;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0054;
 goto fetchdoublefloat;
-return0054 : r0 = *(u64 *)sp;
+return0054 : r0 = *(uint64_t *)sp;
 LDT(2, f2, processor->fp0);
 goto binary_arithmetic_division_prelude45110;
 
@@ -464,13 +464,13 @@ if (t12 == 0)
 
 binary_arithmetic_division_prelude45111 : if (_trace) printf("binary_arithmetic_division_prelude45111:\n");
 t3 = t1; // contagion
-t11 = *(u64 *)&(processor->stackcachebasevma);
-t12 = *(s32 *)&processor->scovlimit; // Size of the stack cache (words)
-arg2 = (u32)t2;
-*(u64 *)sp = r0;
-r0 = (u64) && return0055;
+t11 = *(uint64_t *)&(processor->stackcachebasevma);
+t12 = *(int32_t *)&processor->scovlimit; // Size of the stack cache (words)
+arg2 = (uint32_t) t2;
+*(uint64_t *)sp = r0;
+r0 = (uint64_t)  && return0055;
 goto fetchdoublefloat;
-return0055 : r0 = *(u64 *)sp;
+return0055 : r0 = *(uint64_t *)sp;
 LDT(1, f1, processor->fp0);
 goto binary_arithmetic_division_prelude45110;
 
@@ -541,16 +541,16 @@ DoQuotientIM : if (_trace) printf("DoQuotientIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindoquotient;
 
 DoQuotientSP : if (_trace) printf("DoQuotientSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindoquotient;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -561,7 +561,7 @@ DoQuotientFP : if (_trace) printf("DoQuotientFP:\n");
 begindoquotient : if (_trace) printf("begindoquotient:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-r0 = (u64) && return0056;
+r0 = (uint64_t)  && return0056;
 goto binaryarithmeticdivisionprelude;
 return0056 : t8 = t3 & 63; // Strip off any CDR code bits.
 t9 = (t8 == Type_Fixnum) ? 1 : 0;
@@ -575,12 +575,12 @@ CVTTQVC(0, f0, f31, 0, f0);
 CVTQLV(0, f0, f31, 0, f0);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 
 basic_dispatch45152 : if (_trace) printf("basic_dispatch45152:\n");
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 goto cachevalid;
 
 basic_dispatch45153 : if (_trace) printf("basic_dispatch45153:\n");
@@ -593,8 +593,8 @@ if (t9 == 0)
 DIVS(0, f0, 1, f1, 2, f2); /* divs */
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 goto basic_dispatch45152;
 
 basic_dispatch45154 : if (_trace) printf("basic_dispatch45154:\n");
@@ -605,12 +605,12 @@ if (t9 == 0)
     goto basic_dispatch45152;
 /* Here if argument TypeDoubleFloat */
 DIVT(0, f0, 1, f1, 2, f2);
-STT((u64 *)&processor->fp0, 0, f0);
-r0 = (u64) && return0057;
+STT((uint64_t *)&processor->fp0, 0, f0);
+r0 = (uint64_t)  && return0057;
 goto consdoublefloat;
 return0057 : t8 = Type_DoubleFloat;
-*(u32 *)iSP = arg2;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
+*(uint32_t *)iSP = arg2;
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
 goto basic_dispatch45152;
 
 /* end DoQuotient */
@@ -627,16 +627,16 @@ DoRationalQuotientIM : if (_trace) printf("DoRationalQuotientIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindorationalquotient;
 
 DoRationalQuotientSP : if (_trace) printf("DoRationalQuotientSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindorationalquotient;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -647,7 +647,7 @@ DoRationalQuotientFP : if (_trace) printf("DoRationalQuotientFP:\n");
 begindorationalquotient : if (_trace) printf("begindorationalquotient:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-r0 = (u64) && return0058;
+r0 = (uint64_t)  && return0058;
 goto binaryarithmeticdivisionprelude;
 return0058 : t8 = t3 & 63; // Strip off any CDR code bits.
 t9 = (t8 == Type_Fixnum) ? 1 : 0;
@@ -661,12 +661,12 @@ CVTTQSVI(0, f0, f31, 0, f0);
 CVTQLV(0, f0, f31, 0, f0);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 
 basic_dispatch45160 : if (_trace) printf("basic_dispatch45160:\n");
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 goto cachevalid;
 
 basic_dispatch45161 : if (_trace) printf("basic_dispatch45161:\n");
@@ -679,8 +679,8 @@ if (t9 == 0)
 DIVS(0, f0, 1, f1, 2, f2); /* divs */
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 goto basic_dispatch45160;
 
 basic_dispatch45162 : if (_trace) printf("basic_dispatch45162:\n");
@@ -691,12 +691,12 @@ if (t9 == 0)
     goto basic_dispatch45160;
 /* Here if argument TypeDoubleFloat */
 DIVT(0, f0, 1, f1, 2, f2);
-STT((u64 *)&processor->fp0, 0, f0);
-r0 = (u64) && return0059;
+STT((uint64_t *)&processor->fp0, 0, f0);
+r0 = (uint64_t)  && return0059;
 goto consdoublefloat;
 return0059 : t8 = Type_DoubleFloat;
-*(u32 *)iSP = arg2;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
+*(uint32_t *)iSP = arg2;
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
 goto basic_dispatch45160;
 
 /* end DoRationalQuotient */
@@ -713,16 +713,16 @@ DoFloorIM : if (_trace) printf("DoFloorIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindofloor;
 
 DoFloorSP : if (_trace) printf("DoFloorSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindofloor;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -733,7 +733,7 @@ DoFloorFP : if (_trace) printf("DoFloorFP:\n");
 begindofloor : if (_trace) printf("begindofloor:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-r0 = (u64) && return0060;
+r0 = (uint64_t)  && return0060;
 goto binaryarithmeticdivisionprelude;
 return0060 : DIVT(0, f0, 1, f1, 2, f2);
 CVTTQVM(0, f0, f31, 0, f0);
@@ -752,16 +752,16 @@ CVTTQ(3, f3, f31, 3, f3);
 CVTQL(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 
 basic_dispatch45168 : if (_trace) printf("basic_dispatch45168:\n");
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 goto cachevalid;
 
 basic_dispatch45169 : if (_trace) printf("basic_dispatch45169:\n");
@@ -774,11 +774,11 @@ if (t9 == 0)
 CVTTS(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 goto basic_dispatch45168;
 
@@ -790,15 +790,15 @@ if (t9 == 0)
     goto basic_dispatch45168;
 /* Here if argument TypeDoubleFloat */
 /* trapb force the trap to occur here */ // Force the trap to occur here
-STT((u64 *)&processor->fp0, 3, f3);
-r0 = (u64) && return0061;
+STT((uint64_t *)&processor->fp0, 3, f3);
+r0 = (uint64_t)  && return0061;
 goto consdoublefloat;
 return0061 : t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_DoubleFloat;
-*(u32 *)(iSP + 8) = arg2;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg2;
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
 iSP = iSP + 8;
 goto basic_dispatch45168;
 
@@ -816,16 +816,16 @@ DoCeilingIM : if (_trace) printf("DoCeilingIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindoceiling;
 
 DoCeilingSP : if (_trace) printf("DoCeilingSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindoceiling;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -836,7 +836,7 @@ DoCeilingFP : if (_trace) printf("DoCeilingFP:\n");
 begindoceiling : if (_trace) printf("begindoceiling:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-r0 = (u64) && return0062;
+r0 = (uint64_t)  && return0062;
 goto binaryarithmeticdivisionprelude;
 return0062 : CPYSN(2, f2, 2, f2, 2, f2);
 DIVT(0, f0, 1, f1, 2, f2);
@@ -858,16 +858,16 @@ CVTTQ(3, f3, f31, 3, f3);
 CVTQL(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 
 basic_dispatch45176 : if (_trace) printf("basic_dispatch45176:\n");
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 goto cachevalid;
 
 basic_dispatch45177 : if (_trace) printf("basic_dispatch45177:\n");
@@ -880,11 +880,11 @@ if (t9 == 0)
 CVTTS(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 goto basic_dispatch45176;
 
@@ -896,15 +896,15 @@ if (t9 == 0)
     goto basic_dispatch45176;
 /* Here if argument TypeDoubleFloat */
 /* trapb force the trap to occur here */ // Force the trap to occur here
-STT((u64 *)&processor->fp0, 3, f3);
-r0 = (u64) && return0063;
+STT((uint64_t *)&processor->fp0, 3, f3);
+r0 = (uint64_t)  && return0063;
 goto consdoublefloat;
 return0063 : t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_DoubleFloat;
-*(u32 *)(iSP + 8) = arg2;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg2;
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
 iSP = iSP + 8;
 goto basic_dispatch45176;
 
@@ -922,16 +922,16 @@ DoTruncateIM : if (_trace) printf("DoTruncateIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindotruncate;
 
 DoTruncateSP : if (_trace) printf("DoTruncateSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindotruncate;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -942,7 +942,7 @@ DoTruncateFP : if (_trace) printf("DoTruncateFP:\n");
 begindotruncate : if (_trace) printf("begindotruncate:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-r0 = (u64) && return0064;
+r0 = (uint64_t)  && return0064;
 goto binaryarithmeticdivisionprelude;
 return0064 : DIVT(0, f0, 1, f1, 2, f2);
 CVTTQVC(0, f0, f31, 0, f0);
@@ -961,16 +961,16 @@ CVTTQ(3, f3, f31, 3, f3);
 CVTQL(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 
 basic_dispatch45184 : if (_trace) printf("basic_dispatch45184:\n");
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 goto cachevalid;
 
 basic_dispatch45185 : if (_trace) printf("basic_dispatch45185:\n");
@@ -983,11 +983,11 @@ if (t9 == 0)
 CVTTS(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 goto basic_dispatch45184;
 
@@ -999,15 +999,15 @@ if (t9 == 0)
     goto basic_dispatch45184;
 /* Here if argument TypeDoubleFloat */
 /* trapb force the trap to occur here */ // Force the trap to occur here
-STT((u64 *)&processor->fp0, 3, f3);
-r0 = (u64) && return0065;
+STT((uint64_t *)&processor->fp0, 3, f3);
+r0 = (uint64_t)  && return0065;
 goto consdoublefloat;
 return0065 : t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_DoubleFloat;
-*(u32 *)(iSP + 8) = arg2;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg2;
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
 iSP = iSP + 8;
 goto basic_dispatch45184;
 
@@ -1025,16 +1025,16 @@ DoRoundIM : if (_trace) printf("DoRoundIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindoround;
 
 DoRoundSP : if (_trace) printf("DoRoundSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindoround;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -1045,7 +1045,7 @@ DoRoundFP : if (_trace) printf("DoRoundFP:\n");
 begindoround : if (_trace) printf("begindoround:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-r0 = (u64) && return0066;
+r0 = (uint64_t)  && return0066;
 goto binaryarithmeticdivisionprelude;
 return0066 : DIVT(0, f0, 1, f1, 2, f2);
 CVTTQV(0, f0, f31, 0, f0);
@@ -1064,16 +1064,16 @@ CVTTQ(3, f3, f31, 3, f3);
 CVTQL(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 
 basic_dispatch45192 : if (_trace) printf("basic_dispatch45192:\n");
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 goto cachevalid;
 
 basic_dispatch45193 : if (_trace) printf("basic_dispatch45193:\n");
@@ -1086,11 +1086,11 @@ if (t9 == 0)
 CVTTS(3, f3, f31, 3, f3);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
-STS((u32 *)(iSP + 8), 3, f3);
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
+STS((uint32_t *)(iSP + 8), 3, f3);
 iSP = iSP + 8;
 goto basic_dispatch45192;
 
@@ -1102,15 +1102,15 @@ if (t9 == 0)
     goto basic_dispatch45192;
 /* Here if argument TypeDoubleFloat */
 /* trapb force the trap to occur here */ // Force the trap to occur here
-STT((u64 *)&processor->fp0, 3, f3);
-r0 = (u64) && return0067;
+STT((uint64_t *)&processor->fp0, 3, f3);
+r0 = (uint64_t)  && return0067;
 goto consdoublefloat;
 return0067 : t8 = Type_Fixnum;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 0, f0);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 0, f0);
 t8 = Type_DoubleFloat;
-*(u32 *)(iSP + 8) = arg2;
-*(u32 *)(iSP + 12) = t8; // write the stack cache
+*(uint32_t *)(iSP + 8) = arg2;
+*(uint32_t *)(iSP + 12) = t8; // write the stack cache
 iSP = iSP + 8;
 goto basic_dispatch45192;
 
@@ -1129,16 +1129,16 @@ DoMaxIM : if (_trace) printf("DoMaxIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindomax;
 
 DoMaxSP : if (_trace) printf("DoMaxSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindomax;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -1149,12 +1149,12 @@ DoMaxFP : if (_trace) printf("DoMaxFP:\n");
 begindomax : if (_trace) printf("begindomax:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-LDS(1, f1, *(u32 *)iSP);
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // ARG1 tag
-t3 = *(s32 *)(arg1 + 4); // ARG2 tag
-t2 = (s32)arg6; // ARG1 data
-t4 = *(s32 *)arg1; // ARG2 data
-LDS(2, f2, *(u32 *)arg1);
+LDS(1, f1, *(uint32_t *)iSP);
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // ARG1 tag
+t3 = *(int32_t *)(arg1 + 4); // ARG2 tag
+t2 = (int32_t) arg6; // ARG1 data
+t4 = *(int32_t *)arg1; // ARG2 data
+LDS(2, f2, *(uint32_t *)arg1);
 t9 = t1 & 63; // Strip off any CDR code bits.
 t11 = t3 & 63; // Strip off any CDR code bits.
 t10 = (t9 == Type_Fixnum) ? 1 : 0;
@@ -1170,12 +1170,12 @@ if (t12 == 0)
     goto basic_dispatch45209;
 /* Here if argument TypeFixnum */
 t5 = t2 - t4;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-if ((s64)t5 > 0)
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+if ((int64_t) t5 > 0)
     t4 = t2;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u32 *)iSP = t4; // We know temp2 has CDRNext/TypeFixnum
-*(u32 *)(iSP + 4) = t9; // write the stack cache
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint32_t *)iSP = t4; // We know temp2 has CDRNext/TypeFixnum
+*(uint32_t *)(iSP + 4) = t9; // write the stack cache
 goto cachevalid;
 
 basic_dispatch45209 : if (_trace) printf("basic_dispatch45209:\n");
@@ -1208,14 +1208,14 @@ if (t12 == 0)
 simple_binary_minmax45201 : if (_trace) printf("simple_binary_minmax45201:\n");
 /* NIL */
 SUBS(0, f0, 1, f1, 2, f2); /* subs */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 if (FLTU64(0, f0) > 0.0)
     f2 = f1;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 2, f2);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 2, f2);
 goto cachevalid;
 
 basic_dispatch45216 : if (_trace) printf("basic_dispatch45216:\n");
@@ -1266,16 +1266,16 @@ DoMinIM : if (_trace) printf("DoMinIM:\n");
 /* This sequence only sucks a moderate amount */
 arg1 = arg2 << 56; // sign extend the byte argument.
 arg2 = zero;
-arg1 = (s64)arg1 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg1;
-arg1 = (u64)&processor->immediate_arg;
+arg1 = (int64_t) arg1 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg1;
+arg1 = (uint64_t) &processor->immediate_arg;
 goto begindomin;
 
 DoMinSP : if (_trace) printf("DoMinSP:\n");
 arg1 = arg5; // Assume SP mode
 if (arg2 != 0)
     goto begindomin;
-arg6 = *(u64 *)arg4; // SP-pop, Reload TOS
+arg6 = *(uint64_t *)arg4; // SP-pop, Reload TOS
 arg1 = iSP; // SP-pop mode
 iSP = arg4; // Adjust SP
 
@@ -1286,12 +1286,12 @@ DoMinFP : if (_trace) printf("DoMinFP:\n");
 begindomin : if (_trace) printf("begindomin:\n");
 /* arg1 has the operand address. */
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-LDS(1, f1, *(u32 *)iSP);
-t1 = (u32)(arg6 >> ((4 & 7) * 8)); // ARG1 tag
-t3 = *(s32 *)(arg1 + 4); // ARG2 tag
-t2 = (s32)arg6; // ARG1 data
-t4 = *(s32 *)arg1; // ARG2 data
-LDS(2, f2, *(u32 *)arg1);
+LDS(1, f1, *(uint32_t *)iSP);
+t1 = (uint32_t) (arg6 >> ((4 & 7) * 8)); // ARG1 tag
+t3 = *(int32_t *)(arg1 + 4); // ARG2 tag
+t2 = (int32_t) arg6; // ARG1 data
+t4 = *(int32_t *)arg1; // ARG2 data
+LDS(2, f2, *(uint32_t *)arg1);
 t9 = t1 & 63; // Strip off any CDR code bits.
 t11 = t3 & 63; // Strip off any CDR code bits.
 t10 = (t9 == Type_Fixnum) ? 1 : 0;
@@ -1307,12 +1307,12 @@ if (t12 == 0)
     goto basic_dispatch45234;
 /* Here if argument TypeFixnum */
 t5 = t2 - t4;
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
-if ((s64)t5 < 0)
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
+if ((int64_t) t5 < 0)
     t4 = t2;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
-*(u32 *)iSP = t4; // We know temp2 has CDRNext/TypeFixnum
-*(u32 *)(iSP + 4) = t9; // write the stack cache
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
+*(uint32_t *)iSP = t4; // We know temp2 has CDRNext/TypeFixnum
+*(uint32_t *)(iSP + 4) = t9; // write the stack cache
 goto cachevalid;
 
 basic_dispatch45234 : if (_trace) printf("basic_dispatch45234:\n");
@@ -1345,14 +1345,14 @@ if (t12 == 0)
 simple_binary_minmax45226 : if (_trace) printf("simple_binary_minmax45226:\n");
 /* NIL */
 SUBS(0, f0, 1, f1, 2, f2); /* subs */
-iPC = *(u64 *)&(((CACHELINEP)iCP)->nextpcdata);
+iPC = *(uint64_t *)&(((CACHELINEP)iCP)->nextpcdata);
 if (FLTU64(0, f0) < 0.0)
     f2 = f1;
-iCP = *(u64 *)&(((CACHELINEP)iCP)->nextcp);
+iCP = *(uint64_t *)&(((CACHELINEP)iCP)->nextcp);
 /* trapb force the trap to occur here */ // Force the trap to occur here
 t8 = Type_SingleFloat;
-*(u32 *)(iSP + 4) = t8; // write the stack cache
-STS((u32 *)iSP, 2, f2);
+*(uint32_t *)(iSP + 4) = t8; // write the stack cache
+STS((uint32_t *)iSP, 2, f2);
 goto cachevalid;
 
 basic_dispatch45241 : if (_trace) printf("basic_dispatch45241:\n");
@@ -1403,9 +1403,9 @@ DoMultiplyDoubleIM : if (_trace) printf("DoMultiplyDoubleIM:\n");
 arg2 = arg2 << 56; // sign extend the byte argument.
 
 force_alignment45250 : if (_trace) printf("force_alignment45250:\n");
-arg2 = (s64)arg2 >> 56; // Rest of sign extension
-*(u32 *)&processor->immediate_arg = arg2;
-arg1 = *(u64 *)&(processor->immediate_arg);
+arg2 = (int64_t) arg2 >> 56; // Rest of sign extension
+*(uint32_t *)&processor->immediate_arg = arg2;
+arg1 = *(uint64_t *)&(processor->immediate_arg);
 goto begindomultiplydouble;
 
 DoMultiplyDoubleSP : if (_trace) printf("DoMultiplyDoubleSP:\n");
@@ -1421,14 +1421,14 @@ DoMultiplyDoubleFP : if (_trace) printf("DoMultiplyDoubleFP:\n");
 
 headdomultiplydouble : if (_trace) printf("headdomultiplydouble:\n");
 arg1 = (arg2 * 8) + arg1; // Compute operand address
-arg1 = *(u64 *)arg1; // Get the operand
+arg1 = *(uint64_t *)arg1; // Get the operand
 
 begindomultiplydouble : if (_trace) printf("begindomultiplydouble:\n");
 /* arg1 has the operand, sign extended if immediate. */
 t2 = arg1 >> 32; // ARG2 tag
-t3 = *(s32 *)iSP; // ARG1 data, sign extended
-t4 = (s32)arg1 + (s32)0; // ARG2 data, sign extended
-t1 = *(s32 *)(iSP + 4); // ARG1 tag
+t3 = *(int32_t *)iSP; // ARG1 data, sign extended
+t4 = (int32_t) arg1 + (int32_t) 0; // ARG2 data, sign extended
+t1 = *(int32_t *)(iSP + 4); // ARG1 tag
 /* TagType. */
 t1 = t1 & 63; // Strip CDR code if any.
 t1 = t1 - Type_Fixnum;
@@ -1440,12 +1440,12 @@ if (t1 != 0)
     goto muldexc;
 if (t2 != 0)
     goto muldexc;
-t6 = (u32)t5; // Get the low 32 bit half.
-t5 = (u32)(t5 >> ((4 & 7) * 8)); // Get the high 32 bit half.
-*(u32 *)iSP = t6; // Put the result back on the stack
+t6 = (uint32_t) t5; // Get the low 32 bit half.
+t5 = (uint32_t) (t5 >> ((4 & 7) * 8)); // Get the high 32 bit half.
+*(uint32_t *)iSP = t6; // Put the result back on the stack
 t1 = Type_Fixnum;
-*(u32 *)(iSP + 8) = t5; // Push high order half
-*(u32 *)(iSP + 12) = t1; // write the stack cache
+*(uint32_t *)(iSP + 8) = t5; // Push high order half
+*(uint32_t *)(iSP + 12) = t1; // write the stack cache
 iSP = iSP + 8;
 goto NEXTINSTRUCTION;
 

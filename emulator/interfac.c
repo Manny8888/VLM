@@ -63,19 +63,20 @@ char *haltreason(int reason)
   OSF Realtime (POSIX.4) and SVR4 compliance.
 */
 
-/* In memory.c */
+// In memory.c
 extern void segv_handler(int sigval, siginfo_t *si, void *uc);
 
 extern void DoIStageError();
-/* Just jam the PC to DoIStageError, which will "do the right thing"!!! */
+
+// Just jam the PC to DoIStageError, which will "do the right thing"!!!
 void ill_handler(int sigval, siginfo_t *si, void *uc)
 {
     ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP] = (uint64_t)DoIStageError;
 }
 
 extern void ARITHMETICEXCEPTION();
-/* Just jam the PC to ArithmeticException, which will "do the right thing"!!!
- */
+
+// Just jam the PC to ArithmeticException, which will "do the right thing"!!!
 void fpe_handler(int sigval, siginfo_t *si, void *uc)
 {
     ((struct ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP] = (uint64_t)ARITHMETICEXCEPTION;
@@ -121,6 +122,7 @@ int InstructionSequencer(void)
         return (reason);
 
     } else if (pthread_delay_np(&interpreterSleep)) {
+        LogMessage("InstructionSequencer", "Unable to sleep in the main interpreter thread.");
         vpunt(NULL, "Unable to sleep in the main interpreter thread.");
     }
 
@@ -154,7 +156,7 @@ void PushOneFakeFrame(void)
     processor->control = (unsigned int)TrapMode_FEP << 30;
     WriteControlArgumentSize(processor->control, 2);
     WriteControlCallerFrameSize(processor->control, fp - ((LispObjRecordp)(processor->fp)));
-    if (processor->epc & 1) { /* Odd PC */
+    if (processor->epc & 1) { // Odd PC
         SetIvoryWord(&(processor->continuation), Type_OddPC, processor->epc >> 1);
     } else {
         SetIvoryWord(&(processor->continuation), Type_EvenPC, processor->epc >> 1);
@@ -233,8 +235,10 @@ void MakeArrayFromBits(uint64_t bits, char **tablePointer)
     int *table, i;
 
     *tablePointer = (char *)malloc(64 * sizeof(int));
-    if (NULL == (table = (int *)*tablePointer))
+    if (NULL == (table = (int *)*tablePointer)) {
+        LogMessage("MakeArrayFromBits", "Unable to allocate internal data structures");
         vpunt(NULL, "Unable to allocate internal data structures");
+    }
 
     for (i = 0; i < 64; i++) {
         table[i] = (bits & 1) != 0;
@@ -262,8 +266,10 @@ void CheckMat()
     for (i = 0, matline = debugcopymat; i < 13; i++, matline += 64) {
         int *e;
         for (e = &MemoryActionTable[i][0], j = 0; e < &MemoryActionTable[i][64]; e++, j++) {
-            if (matline[j] != *e)
+            if (matline[j] != *e) {
+                LogMessage("CheckMat", "MAT difference found at [i=%d,j=%d] MAT=%d copymat=%d\n", i, j, *e, matline[j]);
                 vwarn(NULL, "MAT difference found at [i=%d,j=%d] MAT=%d copymat=%d\n", i, j, *e, matline[j]);
+            }
         }
     }
 }
@@ -295,21 +301,25 @@ static void RunPOST(int64_t speed)
     struct tms tms;
     int64_t tps = sysconf(_SC_CLK_TCK);
 
-    printf("RunPOST\n");
+    LogMessage("RunPOST", "Starting RunPOST");
+
     if (TestFunction) {
         InitializeTestFunction();
     } else {
         InitializeFIBTest(); /* This is the Power on self test */
     }
-    if (Trace)
+    if (Trace) {
         InitializeTracing(1000, processor->epc >> 1, 0, NULL);
+    }
     times(&tms);
     mstimeb = (int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps);
-    if (result = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0)), result != HaltReason_Halted)
+    if (result = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0)), result != HaltReason_Halted) {
+        LogMessage("RunPOST", "FAILED: %s", haltreason(result));
         vwarn("POST", "FAILED: %s", haltreason(result));
-    else {
+    } else {
         times(&tms);
         mstimea = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
+        LogMessage("RunPOST", "OK %d %ld", mstimea - mstimeb, speed);
         vwarn("POST", "OK %d %ld", mstimea - mstimeb, speed);
     }
     if (Trace) {
@@ -341,23 +351,29 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
         if (state_page
             != mmap(state_page, 2 * ALPHAPAGESIZE, PROT_READ | PROT_WRITE, /* pr */
-                MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0))
+                MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0)) {
+            LogMessage("InitializeIvoryProcessor", "Couldn't create processor state page");
             vpunt(NULL, "Couldn't create processor state page");
-        /* allocate processor-state block (aligned to end of d-cache) */
+        }
+        // allocate processor-state block (aligned to end of d-cache)
         processor = (PROCESSORSTATEP)(state_page + 2 * ALPHAPAGESIZE - PROCESSORSTATE_SIZE); /* pr */
-        /* allocate stack-cache in the same page (aligned at 0 relative to
-         * d-cache) */
+
+        // allocate stack-cache in the same page (aligned at 0 relative to d-cache)
         stackcache = (LispObjRecordp)state_page;
 
-        block = (caddr_t)malloc((16 * 64 * sizeof(int)) /* 16 vs. 13 to get full block */
-            + 2 * ALPHAPAGESIZE);
-        if (block == NULL)
+        // 16 vs. 13 to get full block
+        block = (caddr_t)malloc((16 * 64 * sizeof(int)) + 2 * ALPHAPAGESIZE);
+        if (block == NULL) {
+            LogMessage("InitializeIvoryProcessor", "Unable to allocate internal data structures");
             vpunt(NULL, "Unable to allocate internal data structures");
-        /* align block */
+        }
+
+        // align block
         block = (caddr_t)(((uint64_t)block + ALPHAPAGESIZE - 1) & (~(ALPHAPAGESIZE - 1)));
-        /* allocate mat block (aligned at 0 relative to d-cache again) */
+        // allocate mat block (aligned at 0 relative to d-cache again)
         debugcopymat = copymat = (int *)block;
-        /* skip (.5x d-cache size) */
+
+        // skip (.5x d-cache size)
         block += (16 * 64 * sizeof(int));
     }
 
@@ -365,24 +381,28 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
     processor->vmattributetable = (char *)&VMAttributeTable;
 
-    if (first_time)
-        /* Create the initial stack pages */
+    /* Create the initial stack pages */
+    if (first_time) {
         EnsureVirtualAddressRange(BootStackBase, 0x4000, FALSE);
+    }
 
     /* Initialize magic state */
     if (processor->taddress != MakeLispObj(Type_Symbol, Address_T)) {
         float fpconstant1 = 1.0;
         int *fpp = (int *)(&fpconstant1);
-        /* Prevent overwriting the machine state on subsequent initializations
-         */
-        printf("processor %p\n", processor);
+
+        // Prevent overwriting the machine state on subsequent initializations
+        LogMessage("InitializeIvoryProcessor", "processor %p", processor);
         processor->please_stop = 0;
         processor->please_trap = 0;
         processor->immediate_arg = MakeLispObj(Type_Fixnum, 0);
         processor->stop_interpreter = 0;
-        if (first_time)
+        if (first_time) {
             processor->runningp = 1;
-        processor->cp = NULL; /* This is important for the first time */
+        }
+
+        // This is important for the first time
+        processor->cp = NULL;
         processor->epc = (0xF8000000L) << 1;
         processor->control = 0;
         processor->continuation = 0;
@@ -408,7 +428,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         processor->scaddress = 0;
         processor->icachebase = NULL;
         processor->endicache = NULL;
-        /* must be power of two and less than one page */
+        // must be power of two and less than one page
         processor->interruptreg = 0;
         processor->ephemeraloldspace = 0;
         processor->zoneoldspace = 0;
@@ -419,6 +439,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         processor->trapvecbase = 0xF8040000L;
         processor->fepmodetrapvecaddress = 0xF8040A47L;
         processor->tvi = 0;
+
         for (i = 0, maskPointer = &processor->dataread_mask, tablePointer = &processor->dataread, matline = copymat;
              i < 13; i++, maskPointer += 2, tablePointer += 2, matline += 64) {
             int *e;
@@ -430,12 +451,15 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
             for (e = &MemoryActionTable[i][0], j = 0; e < &MemoryActionTable[i][64]; e++, j++) {
                 *e &= ~MemoryAction_Transport;
                 if (*e) {
-                    mask |= (1L << j); /* accumulate mask of types with action */
+                    // accumulate mask of types with action
+                    mask |= (1L << j);
                 }
-                matline[j] = *e; /* copy bits into copymat */
+                // copy bits into copymat
+                matline[j] = *e;
             }
             *maskPointer = mask;
         }
+
         /* ---*** TODO: WHY IS THIS HERE?
             processor->long_pad1=0x34000000FFL; */
         processor->cdrcodemask = 0xC000000000L;
@@ -443,10 +467,10 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         SetIvoryWord(&(processor->niladdress), Type_NIL, Address_NIL);
         SetIvoryWord(&(processor->taddress), Type_Symbol, Address_T);
 
-        /* double-float, bignum, big-ratio, complex, and spare */
+        // double-float, bignum, big-ratio, complex, and spare
         processor->eqnoteql = (uint64_t)0x000000000000F800L;
 
-        /* The 32 bit value of most positive and most negative fixnum */
+        // The 32 bit value of most positive and most negative fixnum
         processor->mostpositivefixnum = (int64_t)((~(-1 << 31)) & 0xFFFFFFFF);
         processor->mostnegativefixnum = (int64_t)(((-1 << 31)) & 0xFFFFFFFF);
 
@@ -466,7 +490,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         processor->flushcaches_hook = (char *)&FlushCaches;
         processor->statistics = (char *)malloc(0x2000 * sizeof(int64_t));
 
-        /* Add the native code callout trampolines */
+        // Add the native code callout trampolines
         processor->resumeema = (int64_t)(&resumeemulated);
         processor->carsubroutine = (int64_t)(&CarSubroutine);
         processor->cdrsubroutine = (int64_t)(&CdrSubroutine);
@@ -477,14 +501,12 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
     processor->instruction_count = 0;
 
-    /* Flush and initialize the instruction cache */
-
+    // Flush and initialize the instruction cache
     InitializeInstructionCache();
     processor->icachebase = (char *)instructioncache;
     processor->endicache = ((char *)instructioncache) + icachesize * sizeof(CACHELINE);
 
-    /* Initialize the stack cache */
-
+    // Initialize the stack cache
     InitializeStackCache();
     processor->stackcachebasevma = BootStackBase;
     processor->cslimit = processor->stackcachebasevma + 0x800; /* pr */
@@ -494,7 +516,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
     processor->stackcachesize = (uint64_t)stackcachesize;
     processor->stackcachedata = (char *)stackcache;
 
-    /* Processor Initialization */
+    // Processor Initialization
 
     processor->fp = (int64_t)processor->stackcachedata;
     processor->sp = (int64_t)processor->stackcachedata;
@@ -502,13 +524,13 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
     processor->control = 2;
 
-    /* MS clock -- initial values */
+    // MS clock -- initial values
     processor->mscmultiplier = 109051; /* 6.5 ns clock RPCC N=1 */
     processor->msclockcache = 0;
     processor->previousrcpp = 0;
 
-    /* Initialize the interpreter state */
-    /* Push an Initial Frame */
+    // Initialize the interpreter state
+    // Push an Initial Frame
     *((int64_t *)(processor->sp)) = ((((int64_t)Type_NIL) << 32) | 037001011000L);
     processor->sp += 8;
     *((int64_t *)(processor->sp)) = ((((int64_t)Type_NIL) << 32) | 037001011000L);
@@ -536,7 +558,7 @@ void HaltMachine(void)
 {
     if (Runningp()) {
         processor->please_stop = HaltReason_SpyCalled;
-        printf("HaltMachine!!!\n");
+        LogMessage("HaltMachine", "HaltMachine!!!");
         processor->stop_interpreter = 1;
     }
 }
@@ -592,13 +614,14 @@ void SendInterruptToEmulator(void)
     }
 }
 
-/* Convert a stack cache address to a vma */
+// Convert a stack cache address to a vma
 #define SCAtoVMA(sca) ((((uint64_t)(((char *)sca) - processor->stackcachedata)) >> 3) + processor->stackcachebasevma)
 
-/* Convert a vma to a stack cache address */
+// Convert a vma to a stack cache address
 #define VMAtoSCA(vma) ((int64_t)((((uint64_t)vma - processor->stackcachebasevma) << 3) + processor->stackcachedata))
 
-/* Halfword PC to PC:
+/*
+   Halfword PC to PC:
    OK, here it goes.  We keep PC's internally as a halfword address.  This
    darling little macro takes one of these guys and converts it into a good
    ol' Ivory PC with a DTP-EvenPC or DTP-OddPC ... so there
@@ -637,7 +660,7 @@ LispObj WriteInternalRegister(int regno, LispObj val)
         break;
 
     case InternalRegister_BAR1:
-        printf("**set bar1 %p\n", object);
+        LogMessage("WriteInternalRegister", "**set bar1 %p", object);
         *((LispObjRecordp) & (processor->bar1)) = object;
         break;
 
