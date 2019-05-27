@@ -13,6 +13,7 @@
 #include <X11/Xresource.h>
 
 #include "std.h"
+#include "utilities.h"
 
 #include "VLM_configuration.h"
 #include "life-support/life_types.h"
@@ -66,7 +67,6 @@ static int PrintMessage(char *section, char *format, va_list arguments)
 
     return (strlen(name));
 }
-
 void LogMessage(char *function, char *formatString, ...)
 {
     va_list ap;
@@ -106,9 +106,9 @@ void vpunt(char *section, char *format, ...)
     if (errno) {
         errmsg = strerror(errno);
         if (NULL == format) {
-            LogMessage(section, "%*s%s", "", errmsg);
+            Log2Message(section, "%*s%s", "", errmsg);
         } else {
-            LogMessage(section, "%*s%s", prefixLength, errmsg);
+            Log2Message(section, "%*s%s", prefixLength, errmsg);
         }
     }
 
@@ -194,8 +194,13 @@ void BuildConfiguration(VLMConfig *config, int argc, char **argv)
     XrmDatabase options = NULL;
     char *homeDir, workingDir[_POSIX_PATH_MAX + 1], configFile[_POSIX_PATH_MAX + 1];
 
+    Log0Message("BuildConfiguration", "Calling XrmInitialize()");
     XrmInitialize();
+
+    Log0Message("BuildConfiguration", "Calling GetDefaultConfiguration()");
     GetDefaultConfiguration(config, &options);
+
+    Log0Message("BuildConfiguration", "Calling MaybeReadConfigurationFile() from DefaultVLMConfigFilePathname");
     MaybeReadConfigurationFile(config, &options, DefaultVLMConfigFilePathname);
 
     if ((homeDir = getenv("HOME")) != NULL) {
@@ -208,7 +213,10 @@ void BuildConfiguration(VLMConfig *config, int argc, char **argv)
         MaybeReadConfigurationFile(config, &options, configFile);
     }
 
+    Log0Message("BuildConfiguration", "Calling ProcessCommandArguments()");
     ProcessCommandArguments(config, &options, argc, argv);
+
+    Log0Message("BuildConfiguration", "Calling InterpretOptions()");
     InterpretOptions(config, options);
 }
 

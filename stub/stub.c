@@ -178,14 +178,14 @@ uint64_t CMPBGE(uint64_t a, uint64_t b)
 
 #define CHECK_OFLO32(r)                                                                                                \
     if (((r)&0x8000000000000000) == 0 && ((r) >> 31)) {                                                                \
-        LogMessage("Arithmetic Exception", "arithmeticexception; oflo32 file %s line %d\n", __FILE__, __LINE__);       \
+        Log2Message("Arithmetic Exception", "arithmeticexception; oflo32 file %s line %d\n", __FILE__, __LINE__);      \
         printf("arithmeticexception; oflo32 file %s line %d\n", __FILE__, __LINE__);                                   \
         goto arithmeticexception;                                                                                      \
     }
 
 #define CHECK_OFLO()                                                                                                   \
     if (oflo) {                                                                                                        \
-        LogMessage("Arithmetic Exception", "arithmeticexception; file %s line %d\n", __FILE__, __LINE__);              \
+        Log2Message("Arithmetic Exception", "arithmeticexception; file %s line %d\n", __FILE__, __LINE__);             \
         printf("arithmeticexception; file %s line %d\n", __FILE__, __LINE__);                                          \
         goto arithmeticexception;                                                                                      \
     }
@@ -197,7 +197,7 @@ void exception(int which, uint64_t r)
     if (r & 0x8000000000000000) {
         return;
     }
-    LogMessage("exception", "exception(%d, %p)!!!\n", which, r);
+    Log2Message("exception", "exception(%d, %p)!!!\n", which, r);
     printf("exception(%d, %p)!!!\n", which, r);
 }
 
@@ -576,14 +576,14 @@ int iInterpret(PROCESSORSTATEP ivoryp)
     //         (int)(0xf8000101 + ((iSP - bsp) / 8)), cc, t, v, str ? " " : "", str ? str : "");
     // }
 
-    LogMessage("stub.c file", "[iInterpret]");
+    Log0Message("stub.c file", "[iInterpret]");
     printf("[iInterpret]\n");
 
     processor = (PROCESSORSTATEP)((char *)ivory - PROCESSORSTATE_SIZE);
-    LogMessage("stub.c file", "%p\n", processor);
+    Log1Message("stub.c file", "%p\n", processor);
     printf("%p\n", processor);
 
-    LogMessage("stub.c file", "ivory %p", ivory);
+    Log1Message("stub.c file", "ivory %p", ivory);
     printf("ivory %p\n", ivory);
 
     LogMessage("stub.c file", "epc %p, fp %p, lp %p, sp %p, cp %p", processor->epc, processor->fp, processor->lp,
@@ -591,7 +591,7 @@ int iInterpret(PROCESSORSTATEP ivoryp)
     printf("epc %p, fp %p, lp %p, sp %p, cp %p\n", processor->epc, processor->fp, processor->lp, processor->sp,
         processor->cp);
 
-    LogMessage("stub.c file", "icachebase %p, endicache %p\n", processor->icachebase, processor->endicache);
+    Log2Message("stub.c file", "icachebase %p, endicache %p\n", processor->icachebase, processor->endicache);
     printf("icachebase %p, endicache %p\n", processor->icachebase, processor->endicache);
 
     /* i still can't believe this works */

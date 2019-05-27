@@ -9,6 +9,7 @@
 #define _IVORYREP_
 
 #include <stdint.h>
+
 #include "../alpha-emulator/aistat.h"
 
 typedef struct _LispObj {
@@ -33,9 +34,9 @@ typedef uint64_t LispObj;
 
 /* From C-emulator for compatibility */
 typedef int Boolean;
-typedef unsigned char Byte;
-typedef unsigned char Tag;
-typedef unsigned int Integer;
+typedef uint8_t Byte;
+typedef uint8_t Tag;
+typedef uint32_t Integer;
 char *TagSpaceLoc();
 char *DataSpaceLoc();
 
@@ -104,4 +105,4 @@ extern Boolean Trace;
 extern Boolean TestFunction;
 
 /* Fin */
-#endif
+#endif // _IVORYREP_

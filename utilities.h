@@ -5,6 +5,136 @@
 
 #include "VLM_configuration.h"
 
+#define PuntWorld(world, msg, arg)                                                                                     \
+    {                                                                                                                  \
+        CloseWorldFile(world, TRUE);                                                                                   \
+        {                                                                                                              \
+            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
+            fprintf(log_fd, msg, arg);                                                                                 \
+            fflush(log_fd);                                                                                            \
+            fclose(log_fd);                                                                                            \
+        }                                                                                                              \
+        vpunt(NULL, msg, arg);                                                                                         \
+    }
+
+#define PuntWorld2(world, msg, arg1, arg2)                                                                             \
+    {                                                                                                                  \
+        CloseWorldFile(world, TRUE);                                                                                   \
+        {                                                                                                              \
+            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
+            fprintf(log_fd, msg, arg1, arg2);                                                                          \
+            fflush(log_fd);                                                                                            \
+            fclose(log_fd);                                                                                            \
+        }                                                                                                              \
+    }
+
+#define PuntWorld3(world, msg, arg1, arg2, arg3)                                                                       \
+    {                                                                                                                  \
+        CloseWorldFile(world, TRUE);                                                                                   \
+        {                                                                                                              \
+            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
+            fprintf(log_fd, msg, arg1, arg2, arg3);                                                                    \
+            fflush(log_fd);                                                                                            \
+            fclose(log_fd);                                                                                            \
+        }                                                                                                              \
+        vpunt(NULL, msg, arg1, arg2, arg3);                                                                            \
+    }
+
+#define Log0Message(function, formatString)                                                                            \
+    {                                                                                                                  \
+        if (ECHO_ON_SCREEN_P) {                                                                                        \
+            printf("Function: %s", function);                                                                          \
+            printf(" --- ");                                                                                           \
+            printf(formatString);                                                                                      \
+            printf("\n");                                                                                              \
+        }                                                                                                              \
+                                                                                                                       \
+        FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
+        fprintf(log_fd, "Function: ");                                                                                 \
+        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, " --- ");                                                                                      \
+        fprintf(log_fd, formatString);                                                                                 \
+        fprintf(log_fd, "\n");                                                                                         \
+        fflush(log_fd);                                                                                                \
+        fclose(log_fd);                                                                                                \
+    }
+
+#define Log1Message(function, formatString, arg)                                                                       \
+    {                                                                                                                  \
+        if (ECHO_ON_SCREEN_P) {                                                                                        \
+            printf("Function: %s", function);                                                                          \
+            printf(" --- ");                                                                                           \
+            printf(formatString, arg);                                                                                 \
+            printf("\n");                                                                                              \
+        }                                                                                                              \
+                                                                                                                       \
+        FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
+        fprintf(log_fd, "Function: ");                                                                                 \
+        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, " --- ");                                                                                      \
+        fprintf(log_fd, formatString, arg);                                                                            \
+        fprintf(log_fd, "\n");                                                                                         \
+        fflush(log_fd);                                                                                                \
+        fclose(log_fd);                                                                                                \
+    }
+
+#define Log2Message(function, formatString, arg1, arg2)                                                                \
+    {                                                                                                                  \
+        if (ECHO_ON_SCREEN_P) {                                                                                        \
+            printf("Function: %s", function);                                                                          \
+            printf(" --- ");                                                                                           \
+            printf(formatString, arg1, arg2);                                                                          \
+            printf("\n");                                                                                              \
+        }                                                                                                              \
+                                                                                                                       \
+        FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
+        fprintf(log_fd, "Function: ");                                                                                 \
+        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, " --- ");                                                                                      \
+        fprintf(log_fd, formatString, arg1, arg2);                                                                     \
+        fprintf(log_fd, "\n");                                                                                         \
+        fflush(log_fd);                                                                                                \
+        fclose(log_fd);                                                                                                \
+    }
+
+#define Log3Message(function, formatString, arg1, arg2, arg3)                                                          \
+    {                                                                                                                  \
+        if (ECHO_ON_SCREEN_P) {                                                                                        \
+            printf("Function: %s", function);                                                                          \
+            printf(" --- ");                                                                                           \
+            printf(formatString, arg1, arg2, arg3);                                                                    \
+            printf("\n");                                                                                              \
+        }                                                                                                              \
+                                                                                                                       \
+        FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
+        fprintf(log_fd, "Function: ");                                                                                 \
+        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, " --- ");                                                                                      \
+        fprintf(log_fd, formatString, arg1, arg2, arg3);                                                               \
+        fprintf(log_fd, "\n");                                                                                         \
+        fflush(log_fd);                                                                                                \
+        fclose(log_fd);                                                                                                \
+    }
+
+#define Log4Message(function, formatString, arg1, arg2, arg3, arg4)                                                    \
+    {                                                                                                                  \
+        if (ECHO_ON_SCREEN_P) {                                                                                        \
+            printf("Function: %s", function);                                                                          \
+            printf(" --- ");                                                                                           \
+            printf(formatString, arg1, arg2, arg3, arg4);                                                              \
+            printf("\n");                                                                                              \
+        }                                                                                                              \
+                                                                                                                       \
+        FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
+        fprintf(log_fd, "Function: ");                                                                                 \
+        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, " --- ");                                                                                      \
+        fprintf(log_fd, formatString, arg1, arg2, arg3, arg4);                                                         \
+        fprintf(log_fd, "\n");                                                                                         \
+        fflush(log_fd);                                                                                                \
+        fclose(log_fd);                                                                                                \
+    }
+
 void LogMessage(char *function, char *formatString, ...);
 
 void verror(char *section, char *format, ...);

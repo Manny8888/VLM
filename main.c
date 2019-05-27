@@ -3,17 +3,17 @@
 #include <signal.h>
 
 #include "std.h"
-#include "VLM_configuration.h"
-#include "world_tools.h"
+#include "spy.h"
 #include "utilities.h"
+#include "world_tools.h"
+
+#include "VLM_configuration.h"
 #include "life-support/life_prototypes.h"
 #include "life-support/SystemComm.h"
 #include "emulator/aihead.h"
+#include "emulator/ivoryrep.h"
 
 // TODO: Check if really needed #include "aistat.h"
-
-#include "emulator/ivoryrep.h"
-#include "spy.h"
 
 #define MBToWords(MB) ((MB * 1024 * 1024) + 4) / 5 // TODO: Why /5?
 #define WordsToMB(words) ((5 * words) + (1024 * 1024) - 1) / (1024 * 1024)
@@ -36,23 +36,23 @@ static void MaybeTerminateVLM(int signal)
     if (EmbCommAreaPtr->guestStatus > StartedGuestStatus) {
         if (RunningGuestStatus == EmbCommAreaPtr->guestStatus) {
 
-            LogMessage("MaybeTerminateVLM", "Lisp is running!\n");
+            Log0Message("MaybeTerminateVLM", "Lisp is running!\n");
 
         } else {
-            LogMessage("MaybeTerminateVLM", "Lisp WAS running!\n");
+            Log0Message("MaybeTerminateVLM", "Lisp WAS running!\n");
         }
 
-        LogMessage("MaybeTerminateVLM", "If you exit, the current state of Lisp will be lost.");
-        LogMessage("MaybeTerminateVLM", "All information in its memory image (e.g., any modified editor");
-        LogMessage("MaybeTerminateVLM", "buffers) will be irretrievably lost.  Further, Lisp will abandon");
-        LogMessage("MaybeTerminateVLM", "any tasks it is performing for its clients.");
-        LogMessage("MaybeTerminateVLM", "");
-        LogMessage("MaybeTerminateVLM", "Do you still wish to exit?  (yes or no) ");
+        Log0Message("MaybeTerminateVLM", "If you exit, the current state of Lisp will be lost.");
+        Log0Message("MaybeTerminateVLM", "All information in its memory image (e.g., any modified editor");
+        Log0Message("MaybeTerminateVLM", "buffers) will be irretrievably lost.  Further, Lisp will abandon");
+        Log0Message("MaybeTerminateVLM", "any tasks it is performing for its clients.");
+        Log0Message("MaybeTerminateVLM", "");
+        Log0Message("MaybeTerminateVLM", "Do you still wish to exit?  (yes or no) ");
 
         while (TRUE) {
             nRead = getline(&answer, answerSize_p, stdin);
             if (nRead < 0) {
-                LogMessage("MaybeTerminateVLM", "Unexpected EOF on standard input");
+                Log0Message("MaybeTerminateVLM", "Unexpected EOF on standard input");
                 vpunt(NULL, "Unexpected EOF on standard input");
             }
             answer[nRead - 1] = '\0';
@@ -61,7 +61,7 @@ static void MaybeTerminateVLM(int signal)
             } else if (0 == strcmp(answer, "no")) {
                 return;
             } else {
-                LogMessage("MaybeTerminateVLM", "Please answer 'yes' or 'no'.");
+                Log0Message("MaybeTerminateVLM", "Please answer 'yes' or 'no'.");
             }
         }
     }
@@ -82,12 +82,18 @@ int main(int argc, char **argv)
     char *message;
     int reason;
 
+    Log0Message("main", "Starting main");
+
+    Log0Message("main", "Calling BuildConfiguration()");
     BuildConfiguration(&config, argc, argv);
     EnableIDS = config.enableIDS;
 
     TestFunction = config.testFunction;
     Trace = config.tracing.tracePOST;
-    InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
+
+    // TEMP_DISABLED
+    // LogMessage("main", "Calling InitializeIvoryProcessor()");
+    // InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
 
     // No tracing for the moment - Not defined in c-emulator
     // Trace = config.tracing.traceP;
@@ -95,7 +101,9 @@ int main(int argc, char **argv)
     //     InitializeTracing(
     //         config.tracing.bufferSize, config.tracing.startPC, config.tracing.stopPC, config.tracing.outputFile);
 
-    InitializeLifeSupport(&config);
+    // TEMP_DISABLED
+    // LogMessage("main", "Calling InitializeLifeSupport()");
+    // InitializeLifeSupport(&config);
 
 #ifdef FE_NOMASK_ENV
     fesetenv(FE_NOMASK_ENV);
@@ -104,7 +112,7 @@ int main(int argc, char **argv)
 #endif
 
     if (pthread_key_create(&mainThread, NULL)) {
-        LogMessage("main", "Unable to establish per-thread data.");
+        Log0Message("main", "Unable to establish per-thread data.");
         vpunt(NULL, "Unable to establish per-thread data.");
     }
 
@@ -114,37 +122,41 @@ int main(int argc, char **argv)
     sigemptyset(&sigAction.sa_mask);
     sigAction.sa_flags = 0;
     if (sigaction(SIGINT, &sigAction, NULL)) {
-        LogMessage("main", "Unable to establish per-thread data.");
+        Log0Message("main", "Unable to establish per-thread data.");
         vpunt(NULL, "Unable to establish SIGINT handler.");
     }
     if (sigaction(SIGTERM, &sigAction, NULL)) {
-        LogMessage("main", "Unable to establish SIGTERM handler.");
+        Log0Message("main", "Unable to establish SIGTERM handler.");
         vpunt(NULL, "Unable to establish SIGTERM handler.");
     }
     if (sigaction(SIGHUP, &sigAction, NULL)) {
-        LogMessage("main", "Unable to establish SIGHUP handler.");
+        Log0Message("main", "Unable to establish SIGHUP handler.");
         vpunt(NULL, "Unable to establish SIGHUP handler.");
     }
     if (sigaction(SIGQUIT, &sigAction, NULL)) {
-        LogMessage("main", "Unable to establish SIGQUIT handler.");
+        Log0Message("main", "Unable to establish SIGQUIT handler.");
         vpunt(NULL, "Unable to establish SIGQUIT handler.");
     }
 
+    Log0Message("main", "Calling LoadWorld()");
     worldImageSize = LoadWorld(&config);
 
+    Log0Message("main", "Calling LoadVLMDebugger()");
     LoadVLMDebugger(&config);
 
     worldImageMB = WordsToMB(worldImageSize);
-    if (worldImageMB > config.virtualMemory)
-        vpunt(NULL,
-            "World file %s won't fit within the requested virtual memory "
-            "(%dMB)",
-            config.worldPath, config.virtualMemory);
-    if ((2 * worldImageMB) > config.virtualMemory)
-        vwarn(NULL,
-            "Only %dMB of virtual memory unused after loading world file "
-            "%s\n",
+    if (worldImageMB > config.virtualMemory) {
+        Log2Message("main", "World file %s won't fit within the requested virtual memory (%dMB)", config.worldPath,
+            config.virtualMemory);
+        vpunt(NULL, "World file %s won't fit within the requested virtual memory (%dMB)", config.worldPath,
+            config.virtualMemory);
+    }
+    if ((2 * worldImageMB) > config.virtualMemory) {
+        Log2Message("main", "Only %dMB of virtual memory unused after loading world file %s\n",
             (config.virtualMemory - worldImageMB), config.worldPath);
+        vwarn(NULL, "Only %dMB of virtual memory unused after loading world file %s\n",
+            (config.virtualMemory - worldImageMB), config.worldPath);
+    }
 
     VirtualMemoryWrite(SystemCommSlotAddress(enableSysoutAtColdBoot),
         (LispObj *)(EnableIDS ? processor->taddress : processor->niladdress));
@@ -152,8 +164,9 @@ int main(int argc, char **argv)
     EmbCommAreaPtr->virtualMemorySize = MBToWords(config.virtualMemory);
     EmbCommAreaPtr->worldImageSize = worldImageSize;
 
-    if (config.enableSpy)
+    if (config.enableSpy) {
         InitializeSpy(TRUE, config.diagnosticIPAddress.s_addr);
+    }
 
 #ifdef AUTOSTART
     if (!IvoryProcessorSystemStartup(TRUE)) {
@@ -166,6 +179,7 @@ int main(int argc, char **argv)
     }
 
     while (config.enableSpy ? TRUE : Runningp()) {
+        Log0Message("main", "Starting InstructionSequencer.");
         reason = InstructionSequencer();
         if (reason) {
             switch (reason) {

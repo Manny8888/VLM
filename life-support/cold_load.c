@@ -183,18 +183,18 @@ static void open_display(XParams *params, boolean noWaiting)
         } else {
             verror("Cold Load", NULL);
             vwarn("Cold Load", "Waiting for X server... ");
-            LogMessage("open_display", "Cold load - Waiting for X server...");
+            Log0Message("open_display", "Cold load - Waiting for X server...");
             while (display == NULL) {
                 openSleep.tv_sec = 5;
                 openSleep.tv_nsec = 0;
                 if (pthread_delay_np(&openSleep)) {
-                    LogMessage("open_display", "Unable to sleep in thread %lx", pthread_self());
+                    Log1Message("open_display", "Unable to sleep in thread %lx", pthread_self());
                     vpunt(NULL, "Unable to sleep in thread %lx", pthread_self());
                 }
 
                 display = XOpenDisplay(display_name);
             }
-            LogMessage("open_display", "Done");
+            Log0Message("open_display", "Done");
         }
     }
 
@@ -854,7 +854,7 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
     keycode1 = XKeysymToKeycode(display, XK_ISO_Left_Tab); /* Linux X server */
     keycode2 = XKeysymToKeycode(display, XK_Aring); /* Apple X11 */
 
-    LogMessage("get_keyboard_modifier_codes", "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
+    Log2Message("get_keyboard_modifier_codes", "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
 
     if (keycode1 != 0 || keycode2 != 0) {
         keyboardType = Apple_Pro;
@@ -889,8 +889,8 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
         *hyper_code = keycode1;
 
         // OSF 4.0 with CDE makes shift+Space be the Multi-Key code, don't get confused
-        LogMessage("get_keyboard_modifier_codes", "dec keyboard");
-        LogMessage("get_keyboard_modifier_codes", "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
+        Log0Message("get_keyboard_modifier_codes", "dec keyboard");
+        Log2Message("get_keyboard_modifier_codes", "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
         
         if (keycode1 == keycode2) {
             *hyper_code = 0;

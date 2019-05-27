@@ -51,11 +51,12 @@ typedef struct NetworkInterface {
 #define DefaultHostBufferSpace 15000
 #define DefaultGuestBufferSpace 100000
 
-#define DefaultVLMConfigFilePathname "/var/lib/symbolics/.VLM"
-
+// #define DefaultVLMConfigFilePathname "/var/lib/symbolics/.VLM"
+#define DefaultVLMConfigFilePathname "./dot.VLM"
 #define DefaultVLMDebuggerPathname "/usr/lib/symbolics/VLM_debugger"
 
-#define DefaultGeneraWorldPathname "/usr/lib/symbolics/Genera-8-5.vlod"
+// #define DefaultGeneraWorldPathname "/usr/lib/symbolics/Genera-8-5.vlod"
+#define DefaultGeneraWorldPathname "../Genera-8-5-xlib-patched.vlod"
 #define DefaultMinimaWorldPathname "/usr/lib/symbolics/Minima.mlod"
 #define DefaultWorldSearchPath "/var/lib/symbolics:/usr/lib/symbolics"
 

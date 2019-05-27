@@ -14,7 +14,6 @@
 
 // A single load map entry -- See SYS:NETBOOT;WORLD-SUBSTRATE.LISP for details
 
-
 typedef struct {
     Integer address; /* VMA to be filled in by this load map entry */
     struct {
@@ -41,7 +40,7 @@ enum LoadMapEntryOpcode {
 /* Description of an open world file */
 typedef struct World {
     char *pathname; /* -> Pathname of the world file */
-    int fd; /* Unix filedes # if the world file is open */
+    FILE *fd; /* Unix filedes # if the world file is open */
     int format; /* A LoadFileFormat indicating the type of file */
     int byteSwapped; /* World is byte swapped on this machine (VLM only) */
     int vlmDataPageBase; /* Block number of first page of data (VLM only) */

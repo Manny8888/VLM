@@ -8,11 +8,12 @@
 #ifndef _EMBED_
 #define _EMBED_
 
+#include <stdbool.h>
 #include <sys/types.h>
 #include <pthread.h>
 #include <sys/uio.h>
-#include "pfilt_wrapper.h"
 
+#include "pfilt_wrapper.h"
 #include "life_types.h"
 
 /*** Signal Handlers ***/

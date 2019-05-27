@@ -1,4 +1,7 @@
-/* VLM World File Tools */
+
+//
+// VLM World File Tools 
+//
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -21,41 +24,6 @@
 #include "utilities.h"
 #include "life-support/SystemComm.h"
 
-#define PuntWorld(world, msg, arg)                                                                                     \
-    {                                                                                                                  \
-        CloseWorldFile(world, TRUE);                                                                                   \
-        {                                                                                                              \
-            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
-            fprintf(log_fd, msg, arg);                                                                                 \
-            fflush(log_fd);                                                                                            \
-            fclose(log_fd);                                                                                            \
-        }                                                                                                              \
-        vpunt(NULL, msg, arg);                                                                                         \
-    }
-
-#define PuntWorld2(world, msg, arg1, arg2)                                                                             \
-    {                                                                                                                  \
-        CloseWorldFile(world, TRUE);                                                                                   \
-        {                                                                                                              \
-            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
-            fprintf(log_fd, msg, arg1, arg2);                                                                          \
-            fflush(log_fd);                                                                                            \
-            fclose(log_fd);                                                                                            \
-        }                                                                                                              \
-    }
-
-#define PuntWorld3(world, msg, arg1, arg2, arg3)                                                                       \
-    {                                                                                                                  \
-        CloseWorldFile(world, TRUE);                                                                                   \
-        {                                                                                                              \
-            FILE *log_fd = fopen(log_file_genera, "a");                                                                \
-            fprintf(log_fd, msg, arg1, arg2, arg3);                                                                    \
-            fflush(log_fd);                                                                                            \
-            fclose(log_fd);                                                                                            \
-        }                                                                                                              \
-        vpunt(NULL, msg, arg1, arg2, arg3);                                                                            \
-    }
-
 // Load the VLM debugger into the VLM's memory
 void LoadVLMDebugger(VLMConfig *config)
 {
@@ -65,14 +33,14 @@ void LoadVLMDebugger(VLMConfig *config)
     world.pathname = config->vlmDebuggerPath;
     OpenWorldFile(&world, TRUE);
 
-    if (world.nUnwiredMapEntries > 0)
-        PuntWorld(&world,
-            "World file %s contains unwired pages; it can't be a VLM "
-            "debugger",
-            world.pathname);
-
-    for (i = 0; i < world.nWiredMapEntries; i++)
+    if (world.nUnwiredMapEntries > 0) {
+        Log1Message(
+            "LoadVLMDebugger", "World file %s contains unwired pages; it can't be a VLM debugger", world.pathname);
+        PuntWorld(&world, "World file %s contains unwired pages; it can't be a VLM debugger", world.pathname);
+    }
+    for (i = 0; i < world.nWiredMapEntries; i++) {
         LoadMapData(&world, &world.wiredMapEntries[i]);
+    }
 
     CloseWorldFile(&world, TRUE);
 }
@@ -84,18 +52,20 @@ Integer LoadWorld(VLMConfig *config)
     Integer worldImageSize;
     int i;
 
-    world.pathname = config->worldPath;
+    // HARDCODED
+    // world.pathname = config->worldPath;
+    world.pathname = "../Genera-8-5-xlib-patched.vlod";
     OpenWorldFile(&world, TRUE);
     MergeLoadMaps(&world, config->worldSearchPath);
 
     worldImageSize = 0;
 
-    for (i = 0; i < world.nMergedWiredMapEntries; i++)
+    for (i = 0; i < world.nMergedWiredMapEntries; i++) {
         worldImageSize += LoadMapData(&world, &world.mergedWiredMapEntries[i]);
-
-    for (i = 0; i < world.nMergedUnwiredMapEntries; i++)
+    }
+    for (i = 0; i < world.nMergedUnwiredMapEntries; i++) {
         worldImageSize += LoadMapData(&world, &world.mergedUnwiredMapEntries[i]);
-
+    }
     CloseWorldFile(&world, TRUE);
 
     // Flush any bogus error code set during parent search
@@ -223,11 +193,13 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     world->mergedWiredMapEntries = world->mergedUnwiredMapEntries = NULL;
     world->parentWorld = NULL;
 
-    LogMessage("OpenWorldFile", "Opening the world file.");
-    if ((world->fd = open(world->pathname, O_RDONLY)) < 0) {
+    // HARDCODED
+    // world->pathname replaced by "../Genera-8-5-xlib-patched.vlod"
+    LogMessage("OpenWorldFile", "Opening the world file %s.", "../Genera-8-5-xlib-patched.vlod");
+    if ((world->fd = fopen("../Genera-8-5-xlib-patched.vlod", "r")) < 0) {
         if (puntOnErrors) {
-            LogMessage("OpenWorldFile", "Unable to open world file %s", world->pathname);
-            vpunt(NULL, "Unable to open world file %s", world->pathname);
+            Log1Message("OpenWorldFile", "Unable to open world file %s", "../Genera-8-5-xlib-patched.vlod");
+            vpunt(NULL, "Unable to open world file %s", "../Genera-8-5-xlib-patched.vlod");
         } else {
             return (FALSE);
         }
@@ -235,9 +207,9 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
         LogMessage("OpenWorldFile", "Opening OK.");
     }
 
-    if (read(world->fd, (char *)&cookie, sizeof(int)) != sizeof(int)) {
+    if (fread(world->fd, (char *)&cookie, sizeof(int)) != sizeof(int)) {
         if (puntOnErrors) {
-            LogMessage("OpenWorldFile", "Reading world file %s cookie", world->pathname);
+            Log1Message("OpenWorldFile", "Reading world file %s cookie", world->pathname);
             PuntWorld(world, "Reading world file %s cookie", world->pathname);
         } else
             return (FALSE);
@@ -256,6 +228,7 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
         firstSysoutQ = IvoryWorldFileFirstSysoutQ;
         firstMapQ = IvoryWorldFileFirstMapQ;
     } else if (puntOnErrors) {
+        Log1Message("OpenWorldFile", "Format of world file %s is unrecognized", world->pathname);
         PuntWorld(world, "Format of world file %s is unrecognized", world->pathname);
     } else {
         return (FALSE);
@@ -263,7 +236,7 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     world->ivoryDataPage = (byte *)malloc(IvoryPageSizeBytes);
     if (NULL == world->ivoryDataPage) {
         if (puntOnErrors) {
-            LogMessage("OpenWorldFile", "Unable to allocate space for data buffer for world file %s", world->pathname);
+            Log1Message("OpenWorldFile", "Unable to allocate space for data buffer for world file %s", world->pathname);
             PuntWorld(world, "Unable to allocate space for data buffer for world file %s", world->pathname);
             return (FALSE);
         } else {
@@ -272,9 +245,9 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
     }
     world->currentPageNumber = -1;
 
-    /* The header and load maps for both VLM and Ivory world files are stored
-       using Ivory file format settings (i.e., 256 Qs per 1280 byte page) */
-
+    // The header and load maps for both VLM and Ivory world files are stored using Ivory file format settings (i.e.,
+    // 256 Qs per 1280 byte page)
+    Log0Message("OpenWorldFile", "Calling ReadIvoryWorldFilePage");
     ReadIvoryWorldFilePage(world, 0);
 
     if (VLMWorldFormat == world->format) {
@@ -300,7 +273,7 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
         world->wiredMapEntries = (LoadMapEntry *)malloc(world->nWiredMapEntries * sizeof(LoadMapEntry));
         if (NULL == world->wiredMapEntries) {
             if (puntOnErrors) {
-                LogMessage(
+                Log1Message(
                     "OpenWorldFile", "Unable to allocate space for wired load map for world file %s", world->pathname);
                 PuntWorld(world, "Unable to allocate space for wired load map for world file %s", world->pathname);
             } else
