@@ -40,10 +40,10 @@
         vpunt(NULL, msg, arg1, arg2, arg3);                                                                            \
     }
 
-#define Log0Message(function, formatString)                                                                            \
+#define LogMessage0(formatString)                                                                                      \
     {                                                                                                                  \
         if (ECHO_ON_SCREEN_P) {                                                                                        \
-            printf("Function: %s", function);                                                                          \
+            printf("Function: %s", __func__);                                                                          \
             printf(" --- ");                                                                                           \
             printf(formatString);                                                                                      \
             printf("\n");                                                                                              \
@@ -51,7 +51,7 @@
                                                                                                                        \
         FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
         fprintf(log_fd, "Function: ");                                                                                 \
-        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, __func__);                                                                                     \
         fprintf(log_fd, " --- ");                                                                                      \
         fprintf(log_fd, formatString);                                                                                 \
         fprintf(log_fd, "\n");                                                                                         \
@@ -59,10 +59,10 @@
         fclose(log_fd);                                                                                                \
     }
 
-#define Log1Message(function, formatString, arg)                                                                       \
+#define LogMessage1(formatString, arg)                                                                                 \
     {                                                                                                                  \
         if (ECHO_ON_SCREEN_P) {                                                                                        \
-            printf("Function: %s", function);                                                                          \
+            printf("Function: %s", __func__);                                                                          \
             printf(" --- ");                                                                                           \
             printf(formatString, arg);                                                                                 \
             printf("\n");                                                                                              \
@@ -70,7 +70,7 @@
                                                                                                                        \
         FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
         fprintf(log_fd, "Function: ");                                                                                 \
-        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, __func__);                                                                                     \
         fprintf(log_fd, " --- ");                                                                                      \
         fprintf(log_fd, formatString, arg);                                                                            \
         fprintf(log_fd, "\n");                                                                                         \
@@ -78,10 +78,10 @@
         fclose(log_fd);                                                                                                \
     }
 
-#define Log2Message(function, formatString, arg1, arg2)                                                                \
+#define LogMessage2(formatString, arg1, arg2)                                                                          \
     {                                                                                                                  \
         if (ECHO_ON_SCREEN_P) {                                                                                        \
-            printf("Function: %s", function);                                                                          \
+            printf("Function: %s", __func__);                                                                          \
             printf(" --- ");                                                                                           \
             printf(formatString, arg1, arg2);                                                                          \
             printf("\n");                                                                                              \
@@ -89,7 +89,7 @@
                                                                                                                        \
         FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
         fprintf(log_fd, "Function: ");                                                                                 \
-        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, __func__);                                                                                     \
         fprintf(log_fd, " --- ");                                                                                      \
         fprintf(log_fd, formatString, arg1, arg2);                                                                     \
         fprintf(log_fd, "\n");                                                                                         \
@@ -97,10 +97,10 @@
         fclose(log_fd);                                                                                                \
     }
 
-#define Log3Message(function, formatString, arg1, arg2, arg3)                                                          \
+#define LogMessage3(formatString, arg1, arg2, arg3)                                                                    \
     {                                                                                                                  \
         if (ECHO_ON_SCREEN_P) {                                                                                        \
-            printf("Function: %s", function);                                                                          \
+            printf("Function: %s", __func__);                                                                          \
             printf(" --- ");                                                                                           \
             printf(formatString, arg1, arg2, arg3);                                                                    \
             printf("\n");                                                                                              \
@@ -108,7 +108,7 @@
                                                                                                                        \
         FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
         fprintf(log_fd, "Function: ");                                                                                 \
-        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, __func__);                                                                                     \
         fprintf(log_fd, " --- ");                                                                                      \
         fprintf(log_fd, formatString, arg1, arg2, arg3);                                                               \
         fprintf(log_fd, "\n");                                                                                         \
@@ -116,10 +116,10 @@
         fclose(log_fd);                                                                                                \
     }
 
-#define Log4Message(function, formatString, arg1, arg2, arg3, arg4)                                                    \
+#define LogMessage4(formatString, arg1, arg2, arg3, arg4)                                                              \
     {                                                                                                                  \
         if (ECHO_ON_SCREEN_P) {                                                                                        \
-            printf("Function: %s", function);                                                                          \
+            printf("Function: %s", __func__);                                                                          \
             printf(" --- ");                                                                                           \
             printf(formatString, arg1, arg2, arg3, arg4);                                                              \
             printf("\n");                                                                                              \
@@ -127,7 +127,7 @@
                                                                                                                        \
         FILE *log_fd = fopen(log_file_genera, "a");                                                                    \
         fprintf(log_fd, "Function: ");                                                                                 \
-        fprintf(log_fd, function);                                                                                     \
+        fprintf(log_fd, __func__);                                                                                     \
         fprintf(log_fd, " --- ");                                                                                      \
         fprintf(log_fd, formatString, arg1, arg2, arg3, arg4);                                                         \
         fprintf(log_fd, "\n");                                                                                         \

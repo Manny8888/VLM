@@ -113,7 +113,7 @@ int InstructionSequencer(void)
         //     vpunt(NULL, "Unable to establish floating point exception handler");
         // }
 
-        Log0Message("InstructionSequencer", "Calling: iInterpret.");
+        LogMessage0("Calling: iInterpret.");
         reason = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0));
         processor->please_stop = 0;
         processor->please_trap = 0; /* ????? */
@@ -123,7 +123,7 @@ int InstructionSequencer(void)
         return (reason);
 
     } else if (pthread_delay_np(&interpreterSleep)) {
-        Log0Message("InstructionSequencer", "Unable to sleep in the main interpreter thread.");
+        LogMessage0("Unable to sleep in the main interpreter thread.");
         vpunt(NULL, "Unable to sleep in the main interpreter thread.");
     }
 
@@ -237,7 +237,7 @@ void MakeArrayFromBits(uint64_t bits, char **tablePointer)
 
     *tablePointer = (char *)malloc(64 * sizeof(int));
     if (NULL == (table = (int *)*tablePointer)) {
-        Log0Message("MakeArrayFromBits", "Unable to allocate internal data structures");
+        LogMessage0("Unable to allocate internal data structures");
         vpunt(NULL, "Unable to allocate internal data structures");
     }
 
@@ -302,7 +302,7 @@ static void RunPOST(int64_t speed)
     struct tms tms;
     int64_t tps = sysconf(_SC_CLK_TCK);
 
-    Log0Message("RunPOST", "Starting RunPOST");
+    LogMessage0("Starting RunPOST");
 
     if (TestFunction) {
         InitializeTestFunction();
@@ -315,12 +315,12 @@ static void RunPOST(int64_t speed)
     times(&tms);
     mstimeb = (int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps);
     if (result = iInterpret((PROCESSORSTATEP)MapVirtualAddressTag(0)), result != HaltReason_Halted) {
-        Log1Message("RunPOST", "FAILED: %s", haltreason(result));
+        LogMessage1("FAILED: %s", haltreason(result));
         vwarn("POST", "FAILED: %s", haltreason(result));
     } else {
         times(&tms);
         mstimea = ((int)((int64_t)(tms.tms_utime + tms.tms_stime) * 1000000 / tps));
-        Log2Message("RunPOST", "OK %d %ld", mstimea - mstimeb, speed);
+        LogMessage2("OK %d %ld", mstimea - mstimeb, speed);
         vwarn("POST", "OK %d %ld", mstimea - mstimeb, speed);
     }
     if (Trace) {
@@ -354,7 +354,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         if (state_page
             != mmap(state_page, 2 * ALPHAPAGESIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1,
                 0)) {
-            Log0Message("InitializeIvoryProcessor", "Calling: Couldn't create processor state page");
+            LogMessage0("Calling: Couldn't create processor state page");
             vpunt(NULL, "Couldn't create processor state page");
         }
         // allocate processor-state block (aligned to end of d-cache)
@@ -366,7 +366,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         // 16 vs. 13 to get full block
         block = (caddr_t)malloc((16 * 64 * sizeof(int)) + 2 * ALPHAPAGESIZE);
         if (block == NULL) {
-            Log0Message("InitializeIvoryProcessor", "Calling: Unable to allocate internal data structures");
+            LogMessage0("Calling: Unable to allocate internal data structures");
             vpunt(NULL, "Unable to allocate internal data structures");
         }
 
@@ -394,7 +394,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         int *fpp = (int *)(&fpconstant1);
 
         // Prevent overwriting the machine state on subsequent initializations
-        Log1Message("InitializeIvoryProcessor", "Calling: processor %p", processor);
+        LogMessage1("Calling: processor %p", processor);
         processor->please_stop = 0;
         processor->please_trap = 0;
         processor->immediate_arg = MakeLispObj(Type_Fixnum, 0);
@@ -498,7 +498,7 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         processor->cdrsubroutine = (int64_t)(&CdrSubroutine);
         processor->carcdrsubroutine = (int64_t)(&CarCdrSubroutine);
 
-        Log0Message("InitializeIvoryProcessor", "Calling: InitializeStatistics()");
+        LogMessage0("Calling: InitializeStatistics()");
         InitializeStatistics();
     }
 
@@ -506,13 +506,13 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
 
     // Flush and initialize the instruction cache
 
-    Log0Message("InitializeIvoryProcessor", "Calling: InitializeInstructionCache");
+    LogMessage0("Calling: InitializeInstructionCache");
     InitializeInstructionCache();
     processor->icachebase = (char *)instructioncache;
     processor->endicache = ((char *)instructioncache) + icachesize * sizeof(CACHELINE);
 
     // Initialize the stack cache
-    Log0Message("InitializeIvoryProcessor", "Calling: InitializeStackCache()");
+    LogMessage0("Calling: InitializeStackCache()");
     InitializeStackCache();
     processor->stackcachebasevma = BootStackBase;
     processor->cslimit = processor->stackcachebasevma + 0x800; /* pr */
@@ -552,16 +552,16 @@ void InitializeIvoryProcessor(Integer *basedata, Tag *basetag)
         processor->lp = plp, processor->sp = psp, processor->fp = pfp;
     }
 
-    Log0Message("InitializeIvoryProcessor", "Calling: ResetMachine()");
+    LogMessage0("Calling: ResetMachine()");
     ResetMachine();
 
-    Log0Message("InitializeIvoryProcessor", "Calling: PushOneFakeFrame()");
+    LogMessage0("Calling: PushOneFakeFrame()");
     PushOneFakeFrame();
 
-    Log0Message("InitializeIvoryProcessor", "Calling: PushOneFakeFrame()");
+    LogMessage0("Calling: PushOneFakeFrame()");
     PushOneFakeFrame();
 
-    Log0Message("InitializeIvoryProcessor", "Calling: CheckMat()");
+    LogMessage0("Calling: CheckMat()");
     CheckMat();
 }
 
@@ -571,7 +571,7 @@ void HaltMachine(void)
 {
     if (Runningp()) {
         processor->please_stop = HaltReason_SpyCalled;
-        Log0Message("HaltMachine", "HaltMachine!!!");
+        LogMessage0("HaltMachine!!!");
         processor->stop_interpreter = 1;
     }
 }
@@ -669,19 +669,22 @@ LispObj WriteInternalRegister(int regno, LispObj val)
         break;
 
     case InternalRegister_BAR0:
+        LogMessage1("**set bar0 %p", object);
         *((LispObjRecordp) & (processor->bar0)) = object;
         break;
 
     case InternalRegister_BAR1:
-        Log1Message("WriteInternalRegister", "**set bar1 %p", object);
+        LogMessage1("**set bar1 %p", object);
         *((LispObjRecordp) & (processor->bar1)) = object;
         break;
 
     case InternalRegister_BAR2:
+        LogMessage1("**set bar3 %p", object);
         *((LispObjRecordp) & (processor->bar2)) = object;
         break;
 
     case InternalRegister_BAR3:
+        LogMessage1("**set bar3 %p", object);
         *((LispObjRecordp) & (processor->bar3)) = object;
         break;
 

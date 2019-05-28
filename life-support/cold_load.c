@@ -183,18 +183,18 @@ static void open_display(XParams *params, boolean noWaiting)
         } else {
             verror("Cold Load", NULL);
             vwarn("Cold Load", "Waiting for X server... ");
-            Log0Message("open_display", "Cold load - Waiting for X server...");
+            LogMessage0( "Cold load - Waiting for X server...");
             while (display == NULL) {
                 openSleep.tv_sec = 5;
                 openSleep.tv_nsec = 0;
                 if (pthread_delay_np(&openSleep)) {
-                    Log1Message("open_display", "Unable to sleep in thread %lx", pthread_self());
+                    LogMessage1( "Unable to sleep in thread %lx", pthread_self());
                     vpunt(NULL, "Unable to sleep in thread %lx", pthread_self());
                 }
 
                 display = XOpenDisplay(display_name);
             }
-            Log0Message("open_display", "Done");
+            LogMessage0( "Done");
         }
     }
 
@@ -854,7 +854,7 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
     keycode1 = XKeysymToKeycode(display, XK_ISO_Left_Tab); /* Linux X server */
     keycode2 = XKeysymToKeycode(display, XK_Aring); /* Apple X11 */
 
-    Log2Message("get_keyboard_modifier_codes", "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
+    LogMessage2( "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
 
     if (keycode1 != 0 || keycode2 != 0) {
         keyboardType = Apple_Pro;
@@ -868,7 +868,7 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
                room for Super/Hyper */
             removeNumLockModifier = TRUE;
         } else {
-            // ---*** TODO: Find out what KeySym is labelled CLEAR 
+            // ---*** TODO: Find out what KeySym is labelled CLEAR
             skMap->keysym = 0; /* Apple X11 */
         }
         *super_code = XKeysymToKeycode(display, XK_Down);
@@ -876,7 +876,7 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
     }
 
     else {
-        // Assume it's a DEC keyboard 
+        // Assume it's a DEC keyboard
 
         /* Special knowledge -- DEC's LK401-AA has two Multi-Key keys labelled
            Compose Character. The call to XKeysymToKeycode returns the code
@@ -889,14 +889,14 @@ static void get_keyboard_modifier_codes(KeyCode *control_l_code, KeyCode *contro
         *hyper_code = keycode1;
 
         // OSF 4.0 with CDE makes shift+Space be the Multi-Key code, don't get confused
-        Log0Message("get_keyboard_modifier_codes", "dec keyboard");
-        Log2Message("get_keyboard_modifier_codes", "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
-        
+        LogMessage0( "dec keyboard");
+        LogMessage2( "keycode1 %d, keycode2 %d\n", keycode1, keycode2);
+
         if (keycode1 == keycode2) {
             *hyper_code = 0;
         }
 
-        // If XK_Multi_key's code is 0, then we must have the PC-style DEC keyboard. 
+        // If XK_Multi_key's code is 0, then we must have the PC-style DEC keyboard.
         if (*hyper_code == 0) {
             keyboardType = DEC_PC;
             skMap = (coldmapentry *)&coldmapDECPC;

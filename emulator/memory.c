@@ -213,21 +213,21 @@ Integer MapWorldLoad(Integer vma, int length, FILE *worldfile, off_t dataoffset,
 
             dataCount = sizeof(Integer) * words;
             if (dataoffset != fseek(worldfile, dataoffset, SEEK_SET)) {
-                Log1Message("MapWorldLoad", "Unable to seek to data offset %d in world file", dataoffset);
+                LogMessage1("Unable to seek to data offset %d in world file", dataoffset);
                 vpunt(NULL, "Unable to seek to data offset %d in world file", dataoffset);
             }
             if (dataCount != fread(MapVirtualAddressData(vma), sizeof(Integer), words, worldfile)) {
-                Log1Message("MapWorldLoad", "Unable to read data page %d from world file", MemoryPageNumber(vma));
+                LogMessage1("Unable to read data page %d from world file", MemoryPageNumber(vma));
                 vpunt(NULL, "Unable to read data page %d from world file", MemoryPageNumber(vma));
             }
 
             tagCount = sizeof(Tag) * words;
             if (tagoffset != fseek(worldfile, tagoffset, SEEK_SET)) {
-                Log1Message("MapWorldLoad", "Unable to seek to tag offset %d in world file", tagoffset);
+                LogMessage1("Unable to seek to tag offset %d in world file", tagoffset);
                 vpunt(NULL, "Unable to seek to tag offset %d in world file", tagoffset);
             }
             if (tagCount != fread(MapVirtualAddressTag(vma), sizeof(Tag), words, worldfile)) {
-                Log1Message("MapWorldLoad", "Unable to read tag page %d from world file", MemoryPageNumber(vma));
+                LogMessage1("Unable to read tag page %d from world file", MemoryPageNumber(vma));
                 vpunt(NULL, "Unable to read tag page %d from world file", MemoryPageNumber(vma));
             }
 
@@ -263,8 +263,8 @@ Integer MapWorldLoad(Integer vma, int length, FILE *worldfile, off_t dataoffset,
                 vpunt(NULL, "Couldn't map %d world data pages at %lx for VMA %x", MemoryPageNumber(words), data, vma);
             }
             if (tag
-                != mmap(tag, tagCount = sizeof(Tag) * words, prot, MAP_FILE | MAP_PRIVATE | MAP_FIXED, fileno(worldfile),
-                    tagoffset)) {
+                != mmap(tag, tagCount = sizeof(Tag) * words, prot, MAP_FILE | MAP_PRIVATE | MAP_FIXED,
+                    fileno(worldfile), tagoffset)) {
                 vpunt(NULL, "Couldn't map %d world tag pages at %lx for VMA %x", MemoryPageNumber(words), tag, vma);
             }
 

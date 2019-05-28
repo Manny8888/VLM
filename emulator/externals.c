@@ -338,7 +338,7 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
     int32_t immediate10BitOperand, immediateFromStackOperand;
 
     if (traceRecord->trap_p) {
-        LogMessage("PrintTraceRecord", "*** Trap %04o @ %x.%02x.%08x, microstate %x.%02x.%08x, VMA %x.%02x.%08x",
+        LogMessage( "*** Trap %04o @ %x.%02x.%08x, microstate %x.%02x.%08x, VMA %x.%02x.%08x",
             LispObjData(traceRecord->trap_data_0), DecodeObject(traceRecord->trap_data_1),
             DecodeObject(traceRecord->trap_data_2), DecodeObject(traceRecord->trap_data_3));
     }
@@ -347,7 +347,7 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
     }
 
     if (lastCR != traceRecord->catch_block_0) {
-        Log2Message("PrintTraceRecord", "*** Control Register %x.%02x.%08x (was %x.%02x.%08x)",
+        LogMessage2( "*** Control Register %x.%02x.%08x (was %x.%02x.%08x)",
             DecodeObject(traceRecord->catch_block_0), DecodeObject(lastCR));
         lastCR = traceRecord->catch_block_0;
     }
@@ -368,39 +368,39 @@ static void PrintTraceRecord(TRACERECORD *traceRecord)
 
     switch (format) {
     case 0x80:
-        Log1Message("PrintTraceRecord", "(%08x)", traceRecord->instruction_data);
+        LogMessage1( "(%08x)", traceRecord->instruction_data);
         break;
     case 0x83:
         if (immediateFromStackOperand > 127) {
             immediateFromStackOperand -= 256;
         }
     case 0x82:
-        Log1Message("PrintTraceRecord", "(%d)", immediateFromStackOperand);
+        LogMessage1( "(%d)", immediateFromStackOperand);
         break;
     case 0x84:
     case 0x90:
-        Log1Message("PrintTraceRecord", "(%d)", traceRecord->operand & 0xFF);
+        LogMessage1( "(%d)", traceRecord->operand & 0xFF);
         break;
     case 0x88:
         if (traceRecord->operand & 0xFF) {
-            Log1Message("PrintTraceRecord", "(%d)", (traceRecord->operand & 0xFF) - 255);
+            LogMessage1( "(%d)", (traceRecord->operand & 0xFF) - 255);
         } else {
-            Log0Message("PrintTraceRecord", "(POP)");
+            LogMessage0( "(POP)");
         }
 
         break;
     case 0xA0:
-        Log1Message("PrintTraceRecord", "(%03x)", immediate10BitOperand);
+        LogMessage1( "(%03x)", immediate10BitOperand);
         break;
     case 0xA1:
-        Log1Message("PrintTraceRecord", "(%d)", immediate10BitOperand);
+        LogMessage1( "(%d)", immediate10BitOperand);
         if (immediate10BitOperand > 511) {
             immediate10BitOperand -= 1024;
         }
 
         break;
     case 0xB0:
-        Log1Message("PrintTraceRecord", "(%08x)", traceRecord->instruction_data);
+        LogMessage1( "(%08x)", traceRecord->instruction_data);
         break;
     }
 

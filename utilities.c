@@ -106,9 +106,9 @@ void vpunt(char *section, char *format, ...)
     if (errno) {
         errmsg = strerror(errno);
         if (NULL == format) {
-            Log2Message(section, "%*s%s", "", errmsg);
+            LogMessage2("Section: %s --- %s", section, errmsg);
         } else {
-            Log2Message(section, "%*s%s", prefixLength, errmsg);
+            LogMessage3("Section: %s --- %s", section, prefixLength, errmsg);
         }
     }
 
@@ -194,13 +194,13 @@ void BuildConfiguration(VLMConfig *config, int argc, char **argv)
     XrmDatabase options = NULL;
     char *homeDir, workingDir[_POSIX_PATH_MAX + 1], configFile[_POSIX_PATH_MAX + 1];
 
-    Log0Message("BuildConfiguration", "Calling XrmInitialize()");
+    LogMessage0("Calling XrmInitialize()");
     XrmInitialize();
 
-    Log0Message("BuildConfiguration", "Calling GetDefaultConfiguration()");
+    LogMessage0("Calling GetDefaultConfiguration()");
     GetDefaultConfiguration(config, &options);
 
-    Log0Message("BuildConfiguration", "Calling MaybeReadConfigurationFile() from DefaultVLMConfigFilePathname");
+    LogMessage0("Calling MaybeReadConfigurationFile() from DefaultVLMConfigFilePathname");
     MaybeReadConfigurationFile(config, &options, DefaultVLMConfigFilePathname);
 
     if ((homeDir = getenv("HOME")) != NULL) {
@@ -213,10 +213,10 @@ void BuildConfiguration(VLMConfig *config, int argc, char **argv)
         MaybeReadConfigurationFile(config, &options, configFile);
     }
 
-    Log0Message("BuildConfiguration", "Calling ProcessCommandArguments()");
+    LogMessage0("Calling ProcessCommandArguments()");
     ProcessCommandArguments(config, &options, argc, argv);
 
-    Log0Message("BuildConfiguration", "Calling InterpretOptions()");
+    LogMessage0("Calling InterpretOptions()");
     InterpretOptions(config, options);
 }
 

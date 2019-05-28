@@ -36,23 +36,23 @@ static void MaybeTerminateVLM(int signal)
     if (EmbCommAreaPtr->guestStatus > StartedGuestStatus) {
         if (RunningGuestStatus == EmbCommAreaPtr->guestStatus) {
 
-            Log0Message("MaybeTerminateVLM", "Lisp is running!\n");
+            LogMessage0( "Lisp is running!\n");
 
         } else {
-            Log0Message("MaybeTerminateVLM", "Lisp WAS running!\n");
+            LogMessage0( "Lisp WAS running!\n");
         }
 
-        Log0Message("MaybeTerminateVLM", "If you exit, the current state of Lisp will be lost.");
-        Log0Message("MaybeTerminateVLM", "All information in its memory image (e.g., any modified editor");
-        Log0Message("MaybeTerminateVLM", "buffers) will be irretrievably lost.  Further, Lisp will abandon");
-        Log0Message("MaybeTerminateVLM", "any tasks it is performing for its clients.");
-        Log0Message("MaybeTerminateVLM", "");
-        Log0Message("MaybeTerminateVLM", "Do you still wish to exit?  (yes or no) ");
+        LogMessage0( "If you exit, the current state of Lisp will be lost.");
+        LogMessage0( "All information in its memory image (e.g., any modified editor");
+        LogMessage0( "buffers) will be irretrievably lost.  Further, Lisp will abandon");
+        LogMessage0( "any tasks it is performing for its clients.");
+        LogMessage0( "");
+        LogMessage0( "Do you still wish to exit?  (yes or no) ");
 
         while (TRUE) {
             nRead = getline(&answer, answerSize_p, stdin);
             if (nRead < 0) {
-                Log0Message("MaybeTerminateVLM", "Unexpected EOF on standard input");
+                LogMessage0( "Unexpected EOF on standard input");
                 vpunt(NULL, "Unexpected EOF on standard input");
             }
             answer[nRead - 1] = '\0';
@@ -61,7 +61,7 @@ static void MaybeTerminateVLM(int signal)
             } else if (0 == strcmp(answer, "no")) {
                 return;
             } else {
-                Log0Message("MaybeTerminateVLM", "Please answer 'yes' or 'no'.");
+                LogMessage0( "Please answer 'yes' or 'no'.");
             }
         }
     }
@@ -82,9 +82,9 @@ int main(int argc, char **argv)
     char *message;
     int reason;
 
-    Log0Message("main", "Starting main");
+    LogMessage0( "Starting main");
 
-    Log0Message("main", "Calling BuildConfiguration()");
+    LogMessage0( "Calling BuildConfiguration()");
     BuildConfiguration(&config, argc, argv);
     EnableIDS = config.enableIDS;
 
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     Trace = config.tracing.tracePOST;
 
     // TEMP_DISABLED
-    // LogMessage("main", "Calling InitializeIvoryProcessor()");
+    // LogMessage( "Calling InitializeIvoryProcessor()");
     // InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
 
     // No tracing for the moment - Not defined in c-emulator
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     //         config.tracing.bufferSize, config.tracing.startPC, config.tracing.stopPC, config.tracing.outputFile);
 
     // TEMP_DISABLED
-    // LogMessage("main", "Calling InitializeLifeSupport()");
+    // LogMessage( "Calling InitializeLifeSupport()");
     // InitializeLifeSupport(&config);
 
 #ifdef FE_NOMASK_ENV
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 #endif
 
     if (pthread_key_create(&mainThread, NULL)) {
-        Log0Message("main", "Unable to establish per-thread data.");
+        LogMessage0( "Unable to establish per-thread data.");
         vpunt(NULL, "Unable to establish per-thread data.");
     }
 
@@ -122,37 +122,37 @@ int main(int argc, char **argv)
     sigemptyset(&sigAction.sa_mask);
     sigAction.sa_flags = 0;
     if (sigaction(SIGINT, &sigAction, NULL)) {
-        Log0Message("main", "Unable to establish per-thread data.");
+        LogMessage0( "Unable to establish per-thread data.");
         vpunt(NULL, "Unable to establish SIGINT handler.");
     }
     if (sigaction(SIGTERM, &sigAction, NULL)) {
-        Log0Message("main", "Unable to establish SIGTERM handler.");
+        LogMessage0( "Unable to establish SIGTERM handler.");
         vpunt(NULL, "Unable to establish SIGTERM handler.");
     }
     if (sigaction(SIGHUP, &sigAction, NULL)) {
-        Log0Message("main", "Unable to establish SIGHUP handler.");
+        LogMessage0( "Unable to establish SIGHUP handler.");
         vpunt(NULL, "Unable to establish SIGHUP handler.");
     }
     if (sigaction(SIGQUIT, &sigAction, NULL)) {
-        Log0Message("main", "Unable to establish SIGQUIT handler.");
+        LogMessage0( "Unable to establish SIGQUIT handler.");
         vpunt(NULL, "Unable to establish SIGQUIT handler.");
     }
 
-    Log0Message("main", "Calling LoadWorld()");
+    LogMessage0( "Calling LoadWorld()");
     worldImageSize = LoadWorld(&config);
 
-    Log0Message("main", "Calling LoadVLMDebugger()");
+    LogMessage0( "Calling LoadVLMDebugger()");
     LoadVLMDebugger(&config);
 
     worldImageMB = WordsToMB(worldImageSize);
     if (worldImageMB > config.virtualMemory) {
-        Log2Message("main", "World file %s won't fit within the requested virtual memory (%dMB)", config.worldPath,
+        LogMessage2( "World file %s won't fit within the requested virtual memory (%dMB)", config.worldPath,
             config.virtualMemory);
         vpunt(NULL, "World file %s won't fit within the requested virtual memory (%dMB)", config.worldPath,
             config.virtualMemory);
     }
     if ((2 * worldImageMB) > config.virtualMemory) {
-        Log2Message("main", "Only %dMB of virtual memory unused after loading world file %s\n",
+        LogMessage2( "Only %dMB of virtual memory unused after loading world file %s\n",
             (config.virtualMemory - worldImageMB), config.worldPath);
         vwarn(NULL, "Only %dMB of virtual memory unused after loading world file %s\n",
             (config.virtualMemory - worldImageMB), config.worldPath);
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
     }
 
     while (config.enableSpy ? TRUE : Runningp()) {
-        Log0Message("main", "Starting InstructionSequencer.");
+        LogMessage0( "Starting InstructionSequencer.");
         reason = InstructionSequencer();
         if (reason) {
             switch (reason) {
