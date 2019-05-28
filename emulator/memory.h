@@ -6,16 +6,18 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
+#include <stdio.h>
+
 #include "aihead.h"
 #include "ivoryrep.h"
 
 Integer EnsureVirtualAddress(Integer vma, Boolean faultp);
 Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp);
-Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset);
+Integer MapWorldLoad(Integer vma, int length, FILE *worldfile, off_t dataoffset, off_t tagoffset);
 Integer *MapVirtualAddressData(Integer vma);
 Tag *MapVirtualAddressTag(Integer vma);
 
-//LispObj VirtualMemoryRead(Integer vma, LispObj *object);
+// LispObj VirtualMemoryRead(Integer vma, LispObj *object);
 LispObj VirtualMemoryRead(Integer vma);
 void VirtualMemoryWrite(Integer vma, LispObj *object);
 
@@ -26,7 +28,7 @@ void VirtualMemoryReadBlock(Integer vma, LispObj *object, int count);
 void VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count);
 
 void VirtualMemoryReadBlockUncached(Integer vma, LispObj *object, int count);
-void VirtualMemoryWriteBlockUncached(Integer vma, LispObj * object, int count);
+void VirtualMemoryWriteBlockUncached(Integer vma, LispObj *object, int count);
 
 void VirtualMemoryWriteBlockConstant(Integer vma, LispObj *object, int count, int increment);
 void VirtualMemoryWriteBlockConstantUncached(Integer vma, LispObj *object, int count, int increment);

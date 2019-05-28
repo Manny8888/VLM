@@ -187,7 +187,7 @@ static int mapped_world_words = 0;
 static int file_map_entries = 0;
 static int swap_map_entries = 0;
 
-Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset)
+Integer MapWorldLoad(Integer vma, int length, FILE *worldfile, off_t dataoffset, off_t tagoffset)
 {
     caddr_t data, tag;
     // According to the doc, by mapping PRIVATE, writes to the address
@@ -212,16 +212,24 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
             EnsureVirtualAddress(vma, FALSE);
 
             dataCount = sizeof(Integer) * words;
-            if (dataoffset != lseek(worldfile, dataoffset, SEEK_SET))
+            if (dataoffset != fseek(worldfile, dataoffset, SEEK_SET)) {
+                Log1Message("MapWorldLoad", "Unable to seek to data offset %d in world file", dataoffset);
                 vpunt(NULL, "Unable to seek to data offset %d in world file", dataoffset);
-            if (dataCount != read(worldfile, MapVirtualAddressData(vma), dataCount))
+            }
+            if (dataCount != fread(MapVirtualAddressData(vma), sizeof(Integer), words, worldfile)) {
+                Log1Message("MapWorldLoad", "Unable to read data page %d from world file", MemoryPageNumber(vma));
                 vpunt(NULL, "Unable to read data page %d from world file", MemoryPageNumber(vma));
+            }
 
             tagCount = sizeof(Tag) * words;
-            if (tagoffset != lseek(worldfile, tagoffset, SEEK_SET))
+            if (tagoffset != fseek(worldfile, tagoffset, SEEK_SET)) {
+                Log1Message("MapWorldLoad", "Unable to seek to tag offset %d in world file", tagoffset);
                 vpunt(NULL, "Unable to seek to tag offset %d in world file", tagoffset);
-            if (tagCount != read(worldfile, MapVirtualAddressTag(vma), tagCount))
+            }
+            if (tagCount != fread(MapVirtualAddressTag(vma), sizeof(Tag), words, worldfile)) {
+                Log1Message("MapWorldLoad", "Unable to read tag page %d from world file", MemoryPageNumber(vma));
                 vpunt(NULL, "Unable to read tag page %d from world file", MemoryPageNumber(vma));
+            }
 
             // Adjust the protection to catch modifications to world pages */
             SetCreated(vma, FALSE, TRUE);
@@ -242,20 +250,23 @@ Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, o
                 int wadlimit = words + MemoryWad_Size;
                 VMAttribute *pattr = &VMAttributeTable[MemoryPageNumber(vma + words)];
 
-                for (; words < wadlimit; words += MemoryPage_Size, pattr++)
+                for (; words < wadlimit; words += MemoryPage_Size, pattr++) {
                     *pattr = attr;
+                }
             }
 
             data = (caddr_t)&DataSpace[vma];
             tag = (caddr_t)&TagSpace[vma];
             if (data
                 != mmap(data, dataCount = sizeof(Integer) * words, PROT_READ | PROT_WRITE | PROT_EXEC,
-                    MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile, dataoffset))
+                    MAP_FILE | MAP_PRIVATE | MAP_FIXED, fileno(worldfile), dataoffset)) {
                 vpunt(NULL, "Couldn't map %d world data pages at %lx for VMA %x", MemoryPageNumber(words), data, vma);
+            }
             if (tag
-                != mmap(tag, tagCount = sizeof(Tag) * words, prot, MAP_FILE | MAP_PRIVATE | MAP_FIXED, worldfile,
-                    tagoffset))
+                != mmap(tag, tagCount = sizeof(Tag) * words, prot, MAP_FILE | MAP_PRIVATE | MAP_FIXED, fileno(worldfile),
+                    tagoffset)) {
                 vpunt(NULL, "Couldn't map %d world tag pages at %lx for VMA %x", MemoryPageNumber(words), tag, vma);
+            }
 
             vma += words;
             dataoffset += dataCount;

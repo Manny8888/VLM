@@ -1,6 +1,6 @@
 
 //
-// VLM World File Tools 
+// VLM World File Tools
 //
 
 #include <fcntl.h>
@@ -207,7 +207,7 @@ static boolean OpenWorldFile(World *world, boolean puntOnErrors)
         LogMessage("OpenWorldFile", "Opening OK.");
     }
 
-    if (fread(world->fd, (char *)&cookie, sizeof(int)) != sizeof(int)) {
+    if (fread((char *)&cookie, 1, sizeof(int), world->fd) != sizeof(int)) {
         if (puntOnErrors) {
             Log1Message("OpenWorldFile", "Reading world file %s cookie", world->pathname);
             PuntWorld(world, "Reading world file %s cookie", world->pathname);
@@ -348,7 +348,7 @@ static void CreateWorldFile(World *world)
         vpunt(NULL, "Cannot create world files in other than VLM format");
     }
 
-    if ((world->fd = open(world->pathname, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0) {
+    if ((world->fd = fopen(world->pathname, "rw")) < 0) {
         LogMessage("CreateWorldFile", "Unable to create world file %s", world->pathname);
         vpunt(NULL, "Unable to create world file %s", world->pathname);
     }
@@ -387,9 +387,9 @@ static void CreateWorldFile(World *world)
 // Close a world file
 static void CloseWorldFile(World *world, boolean closeParents)
 {
-    if (world->fd > 0) {
-        close(world->fd);
-        world->fd = -1;
+    if (world->fd != NULL) {
+        fclose(world->fd);
+        world->fd = NULL;
     }
 
     if (world->vlmDataPage) {
@@ -496,7 +496,7 @@ static Integer VLMLoadMapData(World *world, LoadMapEntry *mapEntry)
         } else {
             dataOffset = VLMBlockSize * (mapWorld->vlmDataPageBase + pageNumber * VLMBlocksPerDataPage);
             tagOffset = VLMBlockSize * (mapWorld->vlmTagsPageBase + pageNumber * VLMBlocksPerTagsPage);
-            MapWorldLoad(mapEntry->address, (int)mapEntry->op.count, mapWorld->fd, dataOffset, tagOffset);
+            MapWorldLoad(mapEntry->address, (int)mapEntry->op.count, fileno(mapWorld->fd), dataOffset, tagOffset);
         }
         break;
 
@@ -1046,7 +1046,7 @@ static void WriteVLMWorldFileHeader(World *world)
         if (LoadMapDataPages == mapEntry->op.opcode) {
             nBlocks = world->vlmDataPageBase
                 + (LispObjData(mapEntry->data) + (mapEntry->op.count / VLMPageSizeQs) + 1) * VLMBlocksPerDataPage;
-            if (ftruncate(world->fd, nBlocks * VLMBlockSize) < 0) {
+            if (ftruncate(fileno(world->fd), nBlocks * VLMBlockSize) < 0) {
                 PuntWorld2(world, "Unable to grow world file %s to %d bytes", world->pathname, nBlocks * VLMBlockSize);
             }
             break;
@@ -1157,10 +1157,10 @@ static void WriteVLMWorldFilePages(World *world)
         // First, write the data ...
         offset = VLMBlockSize * (world->vlmDataPageBase + pageNumber * VLMBlocksPerDataPage);
         byteCount = wordCount * sizeof(Integer);
-        if (offset != lseek(world->fd, offset, SEEK_SET)) {
+        if (offset != fseek(world->fd, offset, SEEK_SET)) {
             PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
         }
-        if (byteCount != write(world->fd, MapVirtualAddressData(mapEntry->address), byteCount)) {
+        if (byteCount != write(fileno(world->fd), MapVirtualAddressData(mapEntry->address), byteCount)) {
             PuntWorld2(world, "Unable to write data page %d into world file %s", pageNumber, world->pathname);
         }
 
@@ -1170,10 +1170,10 @@ static void WriteVLMWorldFilePages(World *world)
         // ... then, write the tags
         offset = VLMBlockSize * (world->vlmTagsPageBase + pageNumber * VLMBlocksPerTagsPage);
         byteCount = wordCount * sizeof(Tag);
-        if (offset != lseek(world->fd, offset, SEEK_SET)) {
+        if (offset != fseek(world->fd, offset, SEEK_SET)) {
             PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
         }
-        if (byteCount != write(world->fd, MapVirtualAddressTag(mapEntry->address), byteCount)) {
+        if (byteCount != write(fileno(world->fd), MapVirtualAddressTag(mapEntry->address), byteCount)) {
             PuntWorld2(world, "Unable to write tags page %d into world file %s", pageNumber, world->pathname);
         }
 
@@ -1195,11 +1195,11 @@ static void ReadIvoryWorldFilePage(World *world, int pageNumber)
 
     offset = pageNumber * IvoryPageSizeBytes;
 
-    if (offset != lseek(world->fd, offset, SEEK_SET)) {
+    if (offset != fseek(world->fd, offset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
     }
 
-    if (IvoryPageSizeBytes != read(world->fd, world->ivoryDataPage, IvoryPageSizeBytes)) {
+    if (IvoryPageSizeBytes != read(fileno(world->fd), world->ivoryDataPage, IvoryPageSizeBytes)) {
         PuntWorld2(world, "Unable to read page %d from world file %s", pageNumber, world->pathname);
     }
 
@@ -1274,11 +1274,11 @@ static void WriteIvoryWorldFilePage(World *world)
 
     offset = world->currentPageNumber * IvoryPageSizeBytes;
 
-    if (offset != lseek(world->fd, offset, SEEK_SET)) {
+    if (offset != fseek(world->fd, offset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", offset, world->pathname);
     }
 
-    if (IvoryPageSizeBytes != write(world->fd, world->ivoryDataPage, IvoryPageSizeBytes)) {
+    if (IvoryPageSizeBytes != write(fileno(world->fd), world->ivoryDataPage, IvoryPageSizeBytes)) {
         PuntWorld2(world, "Unable to write page %d into world file %s", world->currentPageNumber, world->pathname);
     }
 
@@ -1348,19 +1348,19 @@ static void ReadSwappedVLMWorldFilePage(World *world, int pageNumber)
     dataOffset = VLMBlockSize * (world->vlmDataPageBase + pageNumber * VLMBlocksPerDataPage);
     tagsOffset = VLMBlockSize * (world->vlmTagsPageBase + pageNumber * VLMBlocksPerTagsPage);
 
-    if (dataOffset != lseek(world->fd, dataOffset, SEEK_SET)) {
+    if (dataOffset != fseek(world->fd, dataOffset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", dataOffset, world->pathname);
     }
 
-    if (VLMDataPageSizeBytes != read(world->fd, world->vlmDataPage, VLMDataPageSizeBytes)) {
+    if (VLMDataPageSizeBytes != read(fileno(world->fd), world->vlmDataPage, VLMDataPageSizeBytes)) {
         PuntWorld2(world, "Unable to read page %d from world file %s", pageNumber, world->pathname);
     }
 
-    if (tagsOffset != lseek(world->fd, tagsOffset, SEEK_SET)) {
+    if (tagsOffset != fseek(world->fd, tagsOffset, SEEK_SET)) {
         PuntWorld2(world, "Unable to seek to offset %d in world file %s", tagsOffset, world->pathname);
     }
 
-    if (VLMTagsPageSizeBytes != read(world->fd, world->vlmTagsPage, VLMTagsPageSizeBytes)) {
+    if (VLMTagsPageSizeBytes != read(fileno(world->fd), world->vlmTagsPage, VLMTagsPageSizeBytes)) {
         PuntWorld2(world, "Unable to read page %d from world file %s", pageNumber, world->pathname);
     }
 
@@ -1432,7 +1432,7 @@ static void ByteSwapOneWorld(World *world)
 
     LogMessage("ByteSwapOneWorld", "Swapping bytes in %s ... ", world->pathname);
 
-    if (fstat(world->fd, &worldStat) < 0) {
+    if (fstat(fileno(world->fd), &worldStat) < 0) {
         LogMessage("ByteSwapOneWorld", "Unable to determine attributes of world file %s", world->pathname);
         PuntWorld(world, "Unable to determine attributes of world file %s", world->pathname);
     }
@@ -1463,13 +1463,13 @@ static void ByteSwapOneWorld(World *world)
 
     wordBlockStart = (uint32_t *)&block;
 
-    if (0 != lseek(world->fd, 0, SEEK_SET)) {
+    if (0 != fseek(world->fd, 0, SEEK_SET)) {
         LogMessage("ByteSwapOneWorld", "Unable to seek to start of world file %s", world->pathname);
         PuntWorld(world, "Unable to seek to start of world file %s", world->pathname);
     }
 
     while (offset < worldStat.st_size) {
-        if (VLMBlockSize != read(world->fd, block, VLMBlockSize)) {
+        if (VLMBlockSize != read(fileno(world->fd), block, VLMBlockSize)) {
             LogMessage("ByteSwapOneWorld", "Unable to read data from world file %s", world->pathname);
             PuntWorld(world, "Unable to read data from world file %s", world->pathname);
         }
