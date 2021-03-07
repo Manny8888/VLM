@@ -22,13 +22,11 @@ void segv_handler(int sigval, int code, register struct sigcontext *scp)
 
     ret = mprotect(aligned_vma, PAGESIZE, prot);
     if (ret == -1)
-        printf("mprotect/write failed @ 0x%lxprot %d, errno=%d\n",
-            aligned_vma, prot, errno);
+        printf("mprotect/write failed @ 0x%lxprot %d, errno=%d\n", aligned_vma, prot, errno);
 
     ret = mvalid(aligned_vma, PAGESIZE, prot);
     if (ret == -1)
-        printf("mvalid failed @ 0x%lx prot %d, errno=%d\n", aligned_vma, prot,
-            errno);
+        printf("mvalid failed @ 0x%lx prot %d, errno=%d\n", aligned_vma, prot, errno);
 }
 
 main(int argc, char *argv[])
@@ -51,16 +49,15 @@ main(int argc, char *argv[])
 
     for (i = 0; i < NMAP; i++) {
         if (random() & 01) {
-            maddrarr[i] = (long)mmap(MAPBASE + addrarr[i], MAPSIZE, PROT_READ,
-                MAP_FILE | MAP_PRIVATE | MAP_FIXED, fd, addrarr[i]);
+            maddrarr[i] = (long)mmap(
+                MAPBASE + addrarr[i], MAPSIZE, PROT_READ, MAP_FILE | MAP_PRIVATE | MAP_FIXED, fd, addrarr[i]);
         } else {
-            maddrarr[i] = (long)mmap(MAPBASE + addrarr[i], MAPSIZE, PROT_READ,
-                MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
+            maddrarr[i]
+                = (long)mmap(MAPBASE + addrarr[i], MAPSIZE, PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
         }
 
         if (maddrarr[i] == -1)
-            printf("mmap failed,addr=0x%lx,offset=0x%lx, errno=%d\n",
-                MAPBASE + addrarr[i], addrarr[i], errno);
+            printf("mmap failed,addr=0x%lx,offset=0x%lx, errno=%d\n", MAPBASE + addrarr[i], addrarr[i], errno);
         else
             printf("maddrarr[%d]=0x%lx\n", i, maddrarr[i]);
     }

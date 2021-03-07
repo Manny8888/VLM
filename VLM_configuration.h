@@ -1,6 +1,6 @@
 /* Configuration parameters for the VLM:
-      Defaults can be overridden by either the user's .VLM file or command
-   line arguments */
+ * Defaults can be overridden by either the user's .VLM file or command line arguments 
+ */
 
 #ifndef _VLM_CONFIG_
 #define _VLM_CONFIG_
@@ -14,7 +14,8 @@
 
 /* X window configuration parameters */
 
-typedef struct {
+typedef struct
+{
     char *xpHostName; /* Name of host where screen will appear; NULL for local
                        */
     long xpHostAddress; /* Protocol address of the above */
@@ -30,17 +31,14 @@ typedef struct {
 
 /* Configuration data for a single network interface */
 
-typedef struct NetworkInterface {
+typedef struct NetworkInterface
+{
     boolean present; /* TRUE => this interface is available */
-    char device[_POSIX_PATH_MAX
-        + 1]; /* Optional interface or packet filter name */
+    char device[_POSIX_PATH_MAX + 1]; /* Optional interface or packet filter name */
     unsigned short myProtocol; /* Primary Ethernet protocol */
     struct in_addr myAddress; /* Primary protocol address */
-#ifdef GENERA
     char myOptions[_POSIX_PATH_MAX + 1]; /* Primary network options */
-    struct NetworkInterface
-        *anotherAddress; /* Secondary address for this interface */
-#endif
+    struct NetworkInterface *anotherAddress; /* Secondary address for this interface */
 } NetworkInterface;
 
 #define MaxNetworkInterfaces 8
@@ -55,7 +53,7 @@ typedef struct NetworkInterface {
 #define DefaultHostBufferSpace 15000
 #define DefaultGuestBufferSpace 100000
 
-#define DefaultVLMConfigFilePathname "/var/lib/symbolics/.VLM"
+#define DefaultVLMConfigFilePathname "VLM.conf"
 
 #define DefaultVLMDebuggerPathname "/usr/lib/symbolics/VLM_debugger"
 
@@ -72,8 +70,7 @@ typedef struct NetworkInterface {
 #define DiskQueueSize 32
 #define ConsoleInputQueueSize 50
 #define ConsoleOutputQueueSize 50
-#define NetworkReceiverQueueSize                                             \
-    100 /* was 20, prevents losing so many packets */
+#define NetworkReceiverQueueSize 100 /* was 20, prevents losing so many packets */
 #define NetworkTransmitterQueueSize 20
 #define RPCHostToGuestQueueSize 15
 #define RPCGuestToHostQueueSize 30
@@ -86,7 +83,8 @@ typedef struct NetworkInterface {
 
 /* Instruction tracing configuration data */
 
-typedef struct {
+typedef struct
+{
     boolean traceP; /* TRUE => Enable instruction tracing */
     boolean tracePOST; /* TRUE => Trace the POST test */
     int bufferSize; /* Size of circular trace buffer */
@@ -97,27 +95,22 @@ typedef struct {
 
 /* Main configuration data structure */
 
-typedef struct {
+typedef struct
+{
     boolean enableSpy; /* TRUE => Enable remote memory spy */
     TraceConfig tracing; /* Controls instruction tracing */
     size_t commAreaSize; /* Size of communications area in words */
     size_t hostBufferSpace; /* Words reserved for host buffers */
     size_t guestBufferSpace; /* Words reserved for guest buffers */
-    char vlmDebuggerPath[_POSIX_PATH_MAX
-        + 1]; /* Pathname of VLM debugger to be loaded */
-    char worldPath[_POSIX_PATH_MAX
-        + 1]; /* Pathname of world load to be loaded */
-#ifdef GENERA
+    char vlmDebuggerPath[_POSIX_PATH_MAX + 1]; /* Pathname of VLM debugger to be loaded */
+    char worldPath[_POSIX_PATH_MAX + 1]; /* Pathname of world load to be loaded */
     char *worldSearchPath; /* -> Directories to search for worlds */
     boolean enableIDS; /* TRUE => allow incremental disk saves */
     size_t virtualMemory; /* Size of emulated virtual memory */
-#endif
     XParams coldLoadXParams; /* X parameters for cold load window */
     XParams generaXParams; /* X Parameters for the main screen */
-    struct in_addr
-        diagnosticIPAddress; /* IP address of our diagnostic server */
-    NetworkInterface
-        interfaces[MaxNetworkInterfaces]; /* Network interfaces [8] */
+    struct in_addr diagnosticIPAddress; /* IP address of our diagnostic server */
+    NetworkInterface interfaces[MaxNetworkInterfaces]; /* Network interfaces [8] */
     boolean testFunction; /* TRUE => run TESTFCN instead of FIB for POST */
     /* Other parameters? */
 } VLMConfig;

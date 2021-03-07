@@ -1,6 +1,6 @@
 ;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: Yes -*-
 
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internal)
 
 (eval-when (compile load eval)
   (pushnew :64bitmachine *features*)

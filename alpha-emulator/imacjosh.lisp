@@ -1,6 +1,5 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
  
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internals)
 
 ;;; Macros in support of AI instructions.  These are mostly in ifunjosh.as
 
@@ -60,10 +59,10 @@
 (defmacro bind-location (loctag locdata valtag valdata exclab temp temp2 temp3
                          temp4 temp5 temp6 temp7)
   (check-temporaries (loctag locdata valtag valdata) 
-		     (temp temp2 temp3 temp4 temp5 temp6 temp7))
-  (let ((maketrail (gensym))
-        (maybestructure (gensym))
-        (notrail (gensym)))
+		                 (temp temp2 temp3 temp4 temp5 temp6 temp7))
+  (let ((maketrail (gensym "bind_location"))
+        (maybestructure (gensym "bind_location"))
+        (notrail (gensym "bind_location")))
     `((get-choice-pointer-data ,temp)
       (get-structure-choice-pointer-data ,temp2)
       (SUBQ ,temp ,locdata ,temp4)

@@ -11,11 +11,6 @@
 #include <net/if.h>
 #include <netinet/if_ether.h>
 
-#if defined(OS_OSF)
-#include <net/pfilt.h>
-#define EmbNetFilter struct enfilter
-
-#elif defined(OS_LINUX)
 #include <netpacket/packet.h>
 #include <net/ethernet.h>
 #include <linux/filter.h>
@@ -25,15 +20,5 @@ typedef struct {
     struct sock_fprog fprog;
     struct sock_filter filters[N_FILTERS];
 } EmbNetFilter;
-
-#elif defined(__FreeBSD__)
-#include <pcap.h>
-#define EmbNetFilter struct bpf_program
-#define USE_LIBPCAP
-
-#elif defined(OS_DARWIN)
-#include <net/bpf.h>
-#define EmbNetFilter struct bpf_program
-#endif
 
 #endif

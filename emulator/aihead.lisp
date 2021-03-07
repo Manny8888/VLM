@@ -1,13 +1,9 @@
-;;; -*- Mode: LISP; Package: POWERPC-INTERNALS; Base: 10; Syntax: Common-Lisp; -*-
-;;;
+;;; -*- Mode: LISP; Syntax: Common-Lisp; -*-
+;;
 ;;;  WARNING!!  DO NOT MODIFY THIS FILE!
 ;;;  It was automatically generated from vlm:emulator;aihead.sid.  Any changes made to it will be lost.
 
-#+Alpha-AXP-Emulator
-(in-package "ALPHA-AXP-INTERNALS")
-
-#+PowerPC-Emulator
-(in-package "POWERPC-INTERNALS")
+(in-package :alpha-axp-internal)
 
 (defconstant |type|$k-|null| 0)
 (defconstant |TypeNull| 0)

@@ -269,16 +269,16 @@ const ExceptionInfo InstructionExceptionInfo[0400] = {
 
 static int FetchTrapVectorEntry(Integer index, LispObj *entry)
 {
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     int previous = ReadControlTrapMode(ps->control);
 
     WriteControlTrapMode(ps->control, 3);
-    MemoryReadData(
-        TrapVectorBase + ((previous < 3) ? index : FepModeTrapVector), entry);
-    if (!(TypeEqualP(entry->TAG, TypeOddPC)
-            || TypeEqualP(entry->TAG, TypeEvenPC)))
-        if (previous == 3 || !FetchTrapVectorEntry(index, entry))
+    MemoryReadData(TrapVectorBase + ((previous < 3) ? index : FepModeTrapVector), entry);
+    if (!(TypeEqualP(entry->TAG, TypeOddPC) || TypeEqualP(entry->TAG, TypeEvenPC))) {
+        if (previous == 3 || !FetchTrapVectorEntry(index, entry)) {
             return (0); /* Real hardware would RESET */
+}
+}
 
     WriteControlTrapMode(ps->control, previous);
     return (1);
@@ -286,14 +286,15 @@ static int FetchTrapVectorEntry(Integer index, LispObj *entry)
 
 int TakePreTrap(Integer index, LispObj *extra1, LispObj *extra2)
 {
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     LispObj *oldfp = ps->fp;
     LispObj *restartsp = ps->restartsp;
     LispObj entry;
 
     ps->sp = restartsp;
-    if (ps->sp + 8 > ps->StackCacheLimit)
+    if (ps->sp + 8 > ps->StackCacheLimit) {
         StackCacheScrollUp();
+}
     /* PushContinuation (ps->continuation); */
     ps->sp[1].TAG = 0300 | ps->continuation.TAG;
     ps->sp[1].DATA = ps->continuation.DATA;
@@ -328,10 +329,8 @@ int TakePreTrap(Integer index, LispObj *extra1, LispObj *extra2)
     ps->control =
         /* First clear a bunch of fields */
         (ps->control
-            & ~(ControlApply | ControlTraceBits | ControlCleanupBits
-                  | ControlExtraArgument | ControlCallStarted
-                  | ControlArgumentSize | ControlValueDisposition
-                  | ControlCallerFrameSize))
+            & ~(ControlApply | ControlTraceBits | ControlCleanupBits | ControlExtraArgument | ControlCallStarted
+                | ControlArgumentSize | ControlValueDisposition | ControlCallerFrameSize))
         /* Set CR.ArgumentSize */
         | (ps->lp - ps->fp)
         /* Call for effect */
@@ -340,11 +339,13 @@ int TakePreTrap(Integer index, LispObj *extra1, LispObj *extra2)
         | ((ps->fp - oldfp) << 9);
     /* return to erring instruction (pre-trap) */
     ps->continuation = ps->pc;
-    if (!FetchTrapVectorEntry(index, &entry))
+    if (!FetchTrapVectorEntry(index, &entry)) {
         return (0);
+}
     /* Set Trap Mode */
-    if (ReadControlTrapMode(ps->control) < TagCdr(entry.TAG))
+    if (ReadControlTrapMode(ps->control) < TagCdr(entry.TAG)) {
         WriteControlTrapMode(ps->control, TagCdr(entry.TAG));
+}
     ps->pc = entry;
     /* --- check for control-stack overflow
     if (ps->sp > ControlStackLimit())
@@ -355,16 +356,18 @@ int TakePreTrap(Integer index, LispObj *extra1, LispObj *extra2)
 
 int TakePostTrap(int index, int arity, LispObj *nextpc)
 {
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     LispObj *oldfp = ps->fp;
     LispObj entry;
     int i;
 
-    if (ps->sp + 8 > ps->StackCacheLimit)
+    if (ps->sp + 8 > ps->StackCacheLimit) {
         StackCacheScrollUp();
+}
     /* move operands down to make room for frame */
-    for (i = 0; i < arity; i++)
+    for (i = 0; i < arity; i++) {
         ps->sp[4 - i] = ps->sp[-i];
+}
     ps->fp = ps->sp - (arity - 1);
     ps->sp += 4;
 
@@ -374,8 +377,9 @@ int TakePostTrap(int index, int arity, LispObj *nextpc)
     /* PushControl (ps->control); */
     ps->fp[1].TAG = 0300 | TypeFixnum;
     ps->fp[1].DATA.u = ps->control;
-    if (ReadControlInstructionTrace(ps->control))
+    if (ReadControlInstructionTrace(ps->control)) {
         WriteControlTracePending(ps->fp[1].DATA.u, 1);
+}
     /* PushFixnum(index); */
     ps->fp[2].TAG = TypeFixnum;
     ps->fp[2].DATA.u = index;
@@ -387,10 +391,8 @@ int TakePostTrap(int index, int arity, LispObj *nextpc)
     ps->control =
         /* First clear a bunch of fields */
         (ps->control
-            & ~(ControlApply | ControlTraceBits | ControlCleanupBits
-                  | ControlExtraArgument | ControlCallStarted
-                  | ControlArgumentSize | ControlValueDisposition
-                  | ControlCallerFrameSize))
+            & ~(ControlApply | ControlTraceBits | ControlCleanupBits | ControlExtraArgument | ControlCallStarted
+                | ControlArgumentSize | ControlValueDisposition | ControlCallerFrameSize))
         /* Set CR.ArgumentSize */
         | (ps->lp - ps->fp)
         /* Call for effect */
@@ -399,11 +401,13 @@ int TakePostTrap(int index, int arity, LispObj *nextpc)
         | ((ps->fp - oldfp) << 9);
     /* return to instruction's succesor (post-trap) */
     ps->continuation = *nextpc;
-    if (!FetchTrapVectorEntry(index, &entry))
+    if (!FetchTrapVectorEntry(index, &entry)) {
         return (0);
+}
     /* Set Trap Mode */
-    if (ReadControlTrapMode(ps->control) < TagCdr(entry.TAG))
+    if (ReadControlTrapMode(ps->control) < TagCdr(entry.TAG)) {
         WriteControlTrapMode(ps->control, TagCdr(entry.TAG));
+}
     ps->pc = entry;
     /* --- check for control-stack overflow
     if (ps->sp > ControlStackLimit())
@@ -416,7 +420,7 @@ int TakeInstructionException(int instruction, LispObj *op2, LispObj *nextpc)
 {
     int opcode = ldb(8, 10, instruction);
     const ExceptionInfo *ei = &InstructionExceptionInfo[opcode];
-    register ProcessorState *ps = processor;
+    ProcessorState *ps = processor;
     int vector;
 
     ps->sp = ps->restartsp;
@@ -434,14 +438,13 @@ int TakeInstructionException(int instruction, LispObj *op2, LispObj *nextpc)
         }
     }
 
-    if (!ei->arithp)
+    if (!ei->arithp) {
         vector = InstructionExceptionVector + opcode;
-    else if (ei->arity > 1)
-        vector = ArithmeticInstructionExceptionVector
-            + dpb(opcode, 5, 6, dpb(ps->sp[-1].TAG, 3, 3, ps->sp[0].TAG));
-    else
-        vector = ArithmeticInstructionExceptionVector
-            + dpb(opcode, 5, 6, dpb(ps->sp[0].TAG, 3, 3, 0));
+    } else if (ei->arity > 1) {
+        vector = ArithmeticInstructionExceptionVector + dpb(opcode, 5, 6, dpb(ps->sp[-1].TAG, 3, 3, ps->sp[0].TAG));
+    } else {
+        vector = ArithmeticInstructionExceptionVector + dpb(opcode, 5, 6, dpb(ps->sp[0].TAG, 3, 3, 0));
+}
 
     return (TakePostTrap(vector, ei->arity, nextpc));
 }

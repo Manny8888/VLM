@@ -29,8 +29,7 @@ typedef struct {
 } SignalHandler;
 
 void EmbSendSignal(SignalNumber signal);
-SignalNumber InstallSignalHandler(
-    ProcPtrV singalHandler, PtrV signalArgument, bool inputP);
+SignalNumber InstallSignalHandler(ProcPtrV singalHandler, PtrV signalArgument, bool inputP);
 void RemoveSignalHandler(SignalNumber signal);
 void SignalLater(SignalNumber signal);
 
@@ -86,8 +85,7 @@ typedef struct {
     EmbPtr host_buffer_start; /* Portion of communication memory allocated by
                                  host */
     EmbWord host_buffer_size; /* Number of 32-bit words in that */
-    EmbPtr
-        fep_buffer_start; /* Portion of communication memory used by IFEP */
+    EmbPtr fep_buffer_start; /* Portion of communication memory used by IFEP */
     EmbWord fep_buffer_size; /* Number of 32-bit words in that */
 
     /* Signals */
@@ -114,13 +112,11 @@ typedef struct {
        position in
        this structure as they were added after the initial release */
 
-    SignalNumber
-        clock_signal; /* Send this signal to simulate a clock interrupt */
+    SignalNumber clock_signal; /* Send this signal to simulate a clock interrupt */
     EmbWord clock_interval; /* Approximate clock interrupt interval in
                                microseconds */
     EmbWord run_lights; /* Right-justified bit mask of run lights */
-    EmbWord
-        reset_request; /* Set by guest to request reset, cleared by host */
+    EmbWord reset_request; /* Set by guest to request reset, cleared by host */
     EmbWord board_serial_number; /* Guest board serial number */
     EmbWord board_major_version; /* Guest board major revision level */
     EmbWord board_minor_version; /* Guest board minor revision level */
@@ -157,17 +153,14 @@ typedef struct {
     EmbWord hostVersion3; /* Unused */
     struct {
 #if BYTE_ORDER == LITTLE_ENDIAN
-        EmbWord
-            data : 16; /* Contents of NVRAM maintained by host for MacIvory */
+        EmbWord data : 16; /* Contents of NVRAM maintained by host for MacIvory */
         EmbWord : 16;
 #else
         EmbWord : 16;
-        EmbWord
-            data : 16; /* Contents of NVRAM maintained by host for MacIvory */
+        EmbWord data : 16; /* Contents of NVRAM maintained by host for MacIvory */
 #endif
     } MacIvory_NVRAM_settings;
-    EmbPtr
-        worldPathname; /* Pathname of the world loaded by the VLM command */
+    EmbPtr worldPathname; /* Pathname of the world loaded by the VLM command */
     EmbPtr unixLoginName; /* Login name of user running the emulator ... */
     uEmbWord unixUID; /* ... User ID ... */
     uEmbWord unixGID; /* ... Group ID */
@@ -196,32 +189,26 @@ typedef struct {
 
     EmbWord guestStatus; /* A GuestStatus code */
 
-    pthread_attr_t
-        pollThreadAttrs; /* Attributes used to create polling threads */
-    bool
-        pollThreadAttrsSetup; /* TRUE => Above attributes have been created */
+    pthread_attr_t pollThreadAttrs; /* Attributes used to create polling threads */
+    bool pollThreadAttrsSetup; /* TRUE => Above attributes have been created */
 
-    pthread_attr_t
-        outputThreadAttrs; /* Attributes used to create output threads */
+    pthread_attr_t outputThreadAttrs; /* Attributes used to create output threads */
     bool outputThreadAttrsSetup; /* TRUE => Above attributes have been created
                                   */
 
-    pthread_attr_t
-        inputThreadAttrs; /* Attributes used to create input threads */
+    pthread_attr_t inputThreadAttrs; /* Attributes used to create input threads */
     bool inputThreadAttrsSetup; /* TRUE => Above attributes have been created
                                  */
 
     bool useSignalLocks; /* TRUE => Manipulate signals under the lock */
-    SignalHandler
-        signalHandler[NSignals]; /* The guest-to-host signal handlers */
+    SignalHandler signalHandler[NSignals]; /* The guest-to-host signal handlers */
     SignalMask reawaken; /* Signals to try again on next clock tick */
     pthread_mutex_t signalLock; /* Used to control access to signals */
     bool signalLockSetup; /* TRUE => the above mutex has been created */
     pthread_cond_t signalSignal; /* Used to wakeup signal handlers */
     bool signalSignalSetup; /* TRUE => the above has been created */
 
-    pthread_t
-        pollingThread; /* Life Support polling loop runs in this thread */
+    pthread_t pollingThread; /* Life Support polling loop runs in this thread */
     bool pollingThreadSetup; /* TRUE => Life Support polling thread was
                                 created */
     long pollTime; /* Nanoseconds since we last polled all signals */
@@ -231,8 +218,7 @@ typedef struct {
     bool clockLockSetup; /* TRUE => the above mutex has been created */
     pthread_cond_t clockSignal; /* Used to implement an interval timer */
     bool clockSignalSetup; /* TRUE => the above has been created */
-    pthread_t
-        clockThread; /* The thread which actually implements the timer */
+    pthread_t clockThread; /* The thread which actually implements the timer */
     bool clockThreadSetup; /* TRUE => Above thread has been created */
     long clockTime; /* Microseconds until next interval timer interrupt */
 
@@ -267,20 +253,14 @@ extern EmbCommArea *EmbCommAreaPtr;
 enum system_type {
     SystemTypeUX400G = 01003, /* SGI box with Merlin board in it */
     SystemTypeXL400 = 01004, /* Standalone Merlin-I system */
-    SystemTypeMacIvory1
-    = 01006, /* 2-card NuBus Ivory Macintosh coprocessor (240ns) */
-    SystemTypeMacIvory2
-    = 01006, /* 2-card NuBus Ivory Macintosh coprocessor (140ns) */
-    SystemTypeUX400S
-    = 01007, /* Sun-3/Sun-4 running SunOS with Merlin board in it */
+    SystemTypeMacIvory1 = 01006, /* 2-card NuBus Ivory Macintosh coprocessor (240ns) */
+    SystemTypeMacIvory2 = 01006, /* 2-card NuBus Ivory Macintosh coprocessor (140ns) */
+    SystemTypeUX400S = 01007, /* Sun-3/Sun-4 running SunOS with Merlin board in it */
     SystemTypeXL1200 = 01011, /* Standalone Merlin-II system */
-    SystemTypeUX1200S
-    = 01012, /* Sun-3/Sun-4 running SunOS with Merlin-II board in it */
+    SystemTypeUX1200S = 01012, /* Sun-3/Sun-4 running SunOS with Merlin-II board in it */
     SystemTypeUX1200G = 01013, /* SGI box with Merlin-II board in it */
-    SystemTypeMacIvory3
-    = 01014, /* 1-card NuBus Ivory Macintosh coprocessor (65ns) */
-    SystemTypeNXP1000
-    = 01015, /* Standalone system based on the Domino board design */
+    SystemTypeMacIvory3 = 01014, /* 1-card NuBus Ivory Macintosh coprocessor (65ns) */
+    SystemTypeNXP1000 = 01015, /* Standalone system based on the Domino board design */
     SystemTypeVLM = 01016 /* Virtual Lisp Machine */
 };
 
@@ -304,8 +284,7 @@ enum ResetRequest {
 enum GuestStatus {
     NonexistentGuestStatus = -2, /* No guest hardware present */
     BrokenGuestStatus = -1, /* Host or guest initialization failed */
-    UninitializedGuestStatus
-    = 0, /* Communication area okay; guest not initialized yet */
+    UninitializedGuestStatus = 0, /* Communication area okay; guest not initialized yet */
     InitializingGuestStatus, /* Guest being initialized; running
                                 BootROM/DevicePROM */
     InitializedGuestStatus, /* IFEP running; Hello command not yet issued */
@@ -317,8 +296,7 @@ enum GuestStatus {
 
 /* Values for EmbCommArea.fep.status */
 enum FEPStatus {
-    HaltedFEPStatus
-    = 0xFF, /* FEP has stopped: 0xFF == -1 as unsigned 8-bit value */
+    HaltedFEPStatus = 0xFF, /* FEP has stopped: 0xFF == -1 as unsigned 8-bit value */
     RunningFEPStatus = 0, /* FEP is running */
     IdleFEPStatus = 1 /* FEP is idle (i.e., Lisp is running) */
 };
@@ -359,14 +337,11 @@ void EmbQueuePut(EmbQueue *q, PtrV element); /* Put element into queue */
 bool EmbQueueTake(EmbQueue *q, PtrV element); /* Take element from queue */
 int EmbQueueSpace(EmbQueue *q); /* Number of free elements */
 int EmbQueueFilled(EmbQueue *q); /* Number of non-free elements */
-void EmbQueuePutWord(
-    EmbQueue *q, EmbWord element); /* Put element into word queue */
+void EmbQueuePutWord(EmbQueue *q, EmbWord element); /* Put element into word queue */
 EmbWord EmbQueueTakeWord(EmbQueue *q); /* Take element from word queue */
-void EmbQueuePutByte(
-    EmbQueue *q, byte element); /* Put element into byte queue */
+void EmbQueuePutByte(EmbQueue *q, byte element); /* Put element into byte queue */
 byte EmbQueueTakeByte(EmbQueue *q); /* Take element from byte queue */
-int EmbQueuePutWords(
-    EmbQueue *q, EmbWord *elements, int count); /* Multi-word */
+int EmbQueuePutWords(EmbQueue *q, EmbWord *elements, int count); /* Multi-word */
 int EmbQueueTakeWords(EmbQueue *q, EmbWord *elements, int count);
 int EmbQueuePutBytes(EmbQueue *q, byte *elements, int count); /* Multi-byte */
 int EmbQueueTakeBytes(EmbQueue *q, byte *elements, int count);
@@ -420,8 +395,7 @@ typedef struct {
 #endif
     } flags;
     EmbWord hostState0; /* Pointer to host specific disk channel data ... */
-    EmbWord
-        hostState1; /* ... split into two words to avoid unaligned accesses */
+    EmbWord hostState1; /* ... split into two words to avoid unaligned accesses */
 } EmbDiskChannel;
 
 /* Internal data describing the disk channel */
@@ -429,11 +403,9 @@ typedef struct {
 typedef struct {
     EmbQueue *command_queue_ptr; /* For faster access to the queues ... */
     EmbQueue *status_queue_ptr; /* ... */
-    bool
-        error_pending; /* TRUE => channel is in error and needs to be reset */
+    bool error_pending; /* TRUE => channel is in error and needs to be reset */
     int fd; /* File descriptor of the partition or -1 if not open */
-    struct iovec
-        iovs[NIOVectors]; /* Describes buffers for current transaction */
+    struct iovec iovs[NIOVectors]; /* Describes buffers for current transaction */
 } DiskChannelState;
 
 /* Data structure passed by Lisp via the AttachDiskChannel coprocessor
@@ -444,8 +416,7 @@ typedef struct {
     EmbWord filename; /* Name of file to attach to channel (a DTP-STRING) */
     EmbWord ifNotFoundAction; /* What to do if the file doesn't exist */
     EmbWord minimumLength; /* File must be at least this many bytes */
-    EmbWord
-        result; /* Set to zero if attached, non-zero if an error occured */
+    EmbWord result; /* Set to zero if attached, non-zero if an error occured */
     EmbPtr errorMsg; /* Set to embedded pointer of an error message, if any */
 } AttachDiskChannelRequest;
 
@@ -457,8 +428,7 @@ enum IfNotFoundActions { CreateIfNotFound, ErrorIfNotFound };
 typedef struct {
     EmbPtr diskChannel; /* Embedded pointer to disk channel */
     EmbWord newLength; /* File must be grown to, at least, this many bytes */
-    EmbWord
-        result; /* Set to zero if attached, non-zero if an error occured */
+    EmbWord result; /* Set to zero if attached, non-zero if an error occured */
     EmbPtr errorMsg; /* Set to embedded pointer of an error message, if any */
 } GrowDiskPartitionRequest;
 
@@ -482,8 +452,7 @@ typedef struct {
 #if BYTE_ORDER == LITTLE_ENDIAN
     uEmbWord cmd : 3; /* An EmbDiskCmd code */
     uEmbWord tagged : 1; /* 0 => 32-bit data, 1 => 40-bit data (NYI) */
-    uEmbWord
-        buffered : 1; /* 0 => to main memory (NYI), 1 => to guest buffer */
+    uEmbWord buffered : 1; /* 0 => to main memory (NYI), 1 => to guest buffer */
     uEmbWord : 3;
     uEmbWord suppress_error_recovery : 1; /* Don't attempt any error recovery
                                              (NYI) */
@@ -495,8 +464,7 @@ typedef struct {
     uEmbWord suppress_error_recovery : 1; /* Don't attempt any error recovery
                                              (NYI) */
     uEmbWord : 3;
-    uEmbWord
-        buffered : 1; /* 0 => to main memory (NYI), 1 => to guest buffer */
+    uEmbWord buffered : 1; /* 0 => to main memory (NYI), 1 => to guest buffer */
     uEmbWord tagged : 1; /* 0 => 32-bit data, 1 => 40-bit data (NYI) */
     uEmbWord cmd : 3; /* An EmbDiskCmd code */
 #endif
@@ -516,8 +484,7 @@ typedef struct {
     EmbWord n_addresses; /* Number of memory address pairs */
     EmbWord status; /* An EmbDiskStatus code */
     EmbWord error_code; /* If status == LostStatus, this is an OSErr */
-    EmbAddressPair
-        addresses[1]; /* Describes the guest buffers for this transaction */
+    EmbAddressPair addresses[1]; /* Describes the guest buffers for this transaction */
 } EmbDiskQueueElement;
 
 /*** Console Channel ***/
@@ -526,19 +493,16 @@ typedef struct {
    by this structure which is also included in the channel itself */
 
 typedef struct {
-    EmbWord
-        windowID; /* Identifiers window where the run lights will appear */
+    EmbWord windowID; /* Identifiers window where the run lights will appear */
     EmbWord nLights; /* Number of run lights to be drawn */
     EmbWord lightWidth; /* Width in pixels of an individual run light */
     EmbWord lightHeight; /* Height in pixels ... */
     EmbWord firstLightX; /* Horizontal position of first run light in the
                             window */
     EmbWord firstLightY; /* Verital position ... */
-    EmbWord
-        lightXSpacing; /* Horizontal spacing between run lights in pixels */
+    EmbWord lightXSpacing; /* Horizontal spacing between run lights in pixels */
     EmbWord lightYSpacing; /* Vertical spacing ... */
-    EmbWord
-        lightForeground; /* Foreground color used to draw the run lights */
+    EmbWord lightForeground; /* Foreground color used to draw the run lights */
     EmbWord lightBackground; /* Background color ...*/
     EmbWord lightPlaneMask; /* Plane mask ...*/
 } EmbConsoleRunLights;
@@ -555,22 +519,16 @@ typedef struct {
                                 this queue */
     EmbPtr inputRequestQueue; /* Requests to read data appear in this queue */
     EmbPtr inputReplyQueue; /* The data is placed in this queue */
-    EmbWord
-        hostAddress; /* IP address of host where the console will appear */
-    EmbWord
-        displayNumber; /* Display number on the host; -1 for the default */
+    EmbWord hostAddress; /* IP address of host where the console will appear */
+    EmbWord displayNumber; /* Display number on the host; -1 for the default */
     EmbWord screenNumber; /* Screen number on the host; -1 for the default */
     EmbWord initialState; /* Console's initial state (a WindowInitialState) */
-    EmbPtr
-        geometry; /* String specifying the console's geometry if non-NULL */
-    EmbPtr
-        foregroundColor; /* String naming the foregound color if non-NULL */
-    EmbPtr
-        backgroundColor; /* String naming the background color if non-NULL */
+    EmbPtr geometry; /* String specifying the console's geometry if non-NULL */
+    EmbPtr foregroundColor; /* String naming the foregound color if non-NULL */
+    EmbPtr backgroundColor; /* String naming the background color if non-NULL */
     EmbPtr borderColor; /* String naming the border color if non-NULL */
     EmbPtr borderWidth; /* Width of border in pixels if greater than zero */
-    EmbWord
-        inputAvailableP; /* Non-zero if input is available without blocking */
+    EmbWord inputAvailableP; /* Non-zero if input is available without blocking */
     /* The remaining fields are not visible to Ivory */
     EmbQueue *outputRequestQ; /* For faster access to the queues ... */
     EmbQueue *outputReplyQ; /* ... */
@@ -587,8 +545,7 @@ typedef struct {
     int nextRootDepth; /* Index of said root's next depth ... */
     int nextRootDepthVisual; /* Index of said root's depth's next visual ...*/
     void *rlDisplay; /* Display used to draw the run lights */
-    EmbConsoleRunLights
-        runLights; /* Describes where and how the run lights are drawn */
+    EmbConsoleRunLights runLights; /* Describes where and how the run lights are drawn */
     void *rlGC; /* Graphic context for the run lights */
     EmbWord lastRunLights; /* Value of run lights when we last drew them */
 } EmbConsoleChannel;
@@ -652,8 +609,7 @@ typedef struct {
 
 typedef struct {
     EmbWord timeout; /* Milliseconds to wait for input to be available */
-    EmbWord
-        availableP; /* Set non-zero if input is available; zero if timeout */
+    EmbWord availableP; /* Set non-zero if input is available; zero if timeout */
 } EmbConsoleInputWait;
 
 /*** Cold Load Stream Channel ***/
@@ -674,8 +630,7 @@ typedef struct {
     struct { /* FEP/Lisp progress note ... */
         EmbWord numerator; /* ... same meaning as for a real note */
         EmbWord denominator; /* ... " */
-        EmbWord
-            string_total_size; /* ... maximum size allowed for note's text */
+        EmbWord string_total_size; /* ... maximum size allowed for note's text */
         EmbWord string_length; /* ... non-zero => there's a note to display */
         char string[ColdLoadProgressStringSize]; /* ... the actual text is put
                                                     here */
@@ -686,8 +641,7 @@ typedef struct {
     int fd; /* File descriptor of the display if not -1 */
     bool is_selected; /* non-zero when cold load is selected */
     EmbWord command_history_top; /* last used element of command history */
-    EmbWord
-        command_history_wrapped; /* whether/not history has wrapped around */
+    EmbWord command_history_wrapped; /* whether/not history has wrapped around */
     EmbWord command_history[ColdLoadCommandHistorySize]; /* the history */
 } EmbColdLoadChannel;
 
@@ -695,7 +649,6 @@ typedef struct {
 
 #define MaxEmbNetPacketSize 1516
 
-#ifdef OS_LINUX
 /* ARP table entry a VLM IP address --
    Added to the host's ARP by InitializeLifeSupport and removed by
    TerminateLifeSupport */
@@ -703,7 +656,6 @@ typedef struct EmbNetARPReq {
     struct EmbNetARPReq *next;
     struct arpreq arp;
 } EmbNetARPReq;
-#endif
 
 typedef struct {
     EmbWord type; /* EmbNetworkChannelType */
@@ -727,11 +679,9 @@ typedef struct {
     EmbWord hostPrimaryAddress; /* Host's network address on this interface */
     EmbWord guestPrimaryProtocol; /* Guest's primary network protocol's
                                      Ethernet type */
-    EmbWord
-        guestPrimaryAddress; /* Guest's network address on this interface */
+    EmbWord guestPrimaryAddress; /* Guest's network address on this interface */
     /* Meters */
-    EmbWord
-        nTransmitFailures; /* Counter of unsuccessful packet transmissions */
+    EmbWord nTransmitFailures; /* Counter of unsuccessful packet transmissions */
     EmbWord nReceiveFailures; /* Counter of unsuccessful reads of incoming
                                  packets */
     EmbWord nFalseReceiverWakeups; /* Counter of read timeouts */
@@ -749,11 +699,8 @@ typedef struct {
     pcap_t *pcap;
 #else
     int fd; /* File descriptor of our filter or -1 if not open */
-#ifdef OS_LINUX
     struct sockaddr_ll sll; /* Contains information needed to write packets */
-    EmbNetARPReq
-        *arpReq; /* List of ARP entries associated with this channel */
-#endif
+    EmbNetARPReq *arpReq; /* List of ARP entries associated with this channel */
 #endif
     EmbNetFilter filter; /* Our packet filter psuedo-code */
     pthread_t receiverThread; /* Packet receiver runs in this thread */
@@ -764,8 +711,8 @@ typedef struct {
 
 /* Flags defined in the channel's status slot */
 
-#define EmbNetStatusHostReady                                                \
-    1 /* Alpha side of Ethernet channel is ready                             \
+#define EmbNetStatusHostReady                                                                                          \
+    1 /* Alpha side of Ethernet channel is ready                                                                       \
        */
 #define EmbNetStatusGuestReady 2 /* VLM side of Ethernet channel is ready */
 
@@ -784,17 +731,14 @@ typedef struct {
     EmbPtr next; /* Next channel in list of all channels */
     EmbWord subtype; /* Specific type of I/O (serial, X window, etc.) */
     EmbPtr guestToHostQueue; /* Guest to host outgoing commands/data */
-    EmbPtr
-        guestToHostReturnQueue; /* ... return queue for the above buffers */
+    EmbPtr guestToHostReturnQueue; /* ... return queue for the above buffers */
     EmbWord guestToHostImpulse; /* Non-zero => Guest is requesting immediate
                                    action */
     EmbPtr hostToGuestQueue; /* Host to guest incoming status/data */
-    EmbPtr
-        hostToGuestSupplyQueue; /* ... supply queue for the above buffers */
+    EmbPtr hostToGuestSupplyQueue; /* ... supply queue for the above buffers */
     EmbWord hostToGuestImpulse; /* Non-zero => Host is requesting immediate
                                    action */
-    uEmbWord
-        subtypeData0; /* Pointer to subtype specific data structure ... */
+    uEmbWord subtypeData0; /* Pointer to subtype specific data structure ... */
     uEmbWord subtypeData1; /* ... split into two words to avoid unaligned
                               accesses */
 } EmbMessageChannel;
@@ -810,13 +754,11 @@ enum EmbMessageImpulse { EmbMessageImpulseNone = 0 };
 
 /* All subchannel data structures must include the following information */
 
-#define EmbMessageSubtypeDataHeader                                          \
-    struct {                                                                 \
-        EmbMessageChannel                                                    \
-            *nextActiveChannel; /* Pointer to next active message channel */ \
-        EmbCommArea                                                          \
-            *commArea; /* Backpointers for use by the signal handler */      \
-        EmbMessageChannel *messageChannel; /* ... */                         \
+#define EmbMessageSubtypeDataHeader                                                                                    \
+    struct {                                                                                                           \
+        EmbMessageChannel *nextActiveChannel; /* Pointer to next active message channel */                             \
+        EmbCommArea *commArea; /* Backpointers for use by the signal handler */                                        \
+        EmbMessageChannel *messageChannel; /* ... */                                                                   \
     } header
 
 typedef struct {
@@ -826,16 +768,16 @@ typedef struct {
 /* Queues contain pointers to the following command/data/status blocks */
 
 #if BYTE_ORDER == LITTLE_ENDIAN
-#define EmbMessageBufferHeader                                               \
-    struct {                                                                 \
-        EmbWord length : 24; /* Amount of data in buffer in bytes */         \
-        EmbWord opcode : 8; /* Subtype specific opcode */                    \
+#define EmbMessageBufferHeader                                                                                         \
+    struct {                                                                                                           \
+        EmbWord length : 24; /* Amount of data in buffer in bytes */                                                   \
+        EmbWord opcode : 8; /* Subtype specific opcode */                                                              \
     } header
 #else
-#define EmbMessageBufferHeader                                               \
-    struct {                                                                 \
-        EmbWord opcode : 8; /* Subtype specific opcode */                    \
-        EmbWord length : 24; /* Amount of data in buffer in bytes */         \
+#define EmbMessageBufferHeader                                                                                         \
+    struct {                                                                                                           \
+        EmbWord opcode : 8; /* Subtype specific opcode */                                                              \
+        EmbWord length : 24; /* Amount of data in buffer in bytes */                                                   \
     } header
 #endif
 
@@ -856,21 +798,19 @@ enum EmbCommandBufferOpcode {
     EmbCommandBufferStartMBIN = 1 /* Activate an MBIN message channel */
 };
 
-#define EmbCommandBufferHeader                                               \
-    EmbMessageBufferHeader;                                                  \
-    EmbWord resultCode /* Non-zero if the command wasn't executed            \
+#define EmbCommandBufferHeader                                                                                         \
+    EmbMessageBufferHeader;                                                                                            \
+    EmbWord resultCode /* Non-zero if the command wasn't executed                                                      \
                           successfully */
 
 typedef struct {
     EmbCommandBufferHeader;
-    EmbWord
-        operands[1]; /* Operands for the command as supplied by the guest */
+    EmbWord operands[1]; /* Operands for the command as supplied by the guest */
 } EmbCommandBuffer;
 
 typedef struct {
     EmbCommandBufferHeader;
-    EmbPtr
-        mbinChannel; /* Pointer to MBIN message channel to be made active */
+    EmbPtr mbinChannel; /* Pointer to MBIN message channel to be made active */
 } EmbCommandStartMBINBuffer;
 
 /* Minima ROM MBIN protocol -- Unlike other message channels, the buffers in

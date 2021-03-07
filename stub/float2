@@ -22,16 +22,14 @@ enum {
 #define STS(d, rn, r) *d = _STS(rn, r);
 #define STT(d, rn, r) *d = _STT(rn, r);
 
-u64
-_LDS(int regnum, u64/*u32*/ v)
+u64 _LDS(int regnum, u64/*u32*/ v)
 {
   fregstate[regnum] = FPS_LOADS;
   //printf("_LDS: %d %p\n", regnum, v);
   return v;
 }
 
-u64
-_LDT(int regnum, u64 v)
+u64 _LDT(int regnum, u64 v)
 {
   fregstate[regnum] = FPS_LOADT;
   return v;

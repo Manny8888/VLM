@@ -4,7 +4,7 @@
 ;;;  It was automatically generated from vlm:alpha-emulator;aistat.sid.  Any changes made to it will be lost.
 
 #+Alpha-AXP-Emulator
-(in-package "ALPHA-AXP-INTERNALS")
+(in-package :alpha-axp-internal)
 
 #+PowerPC-Emulator
 (in-package "POWERPC-INTERNALS")

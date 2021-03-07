@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#include "../std.h"
+#include "SystemComm.h"
 #include "emulator.h"
 #include "ivory.h"
 #include "memory.h"
@@ -17,7 +19,6 @@ static void quit_handler(int number)
 }
 
 static ProcessorState ps;
-
 ProcessorState *processor = &ps;
 
 Boolean Runningp(void) { return run; }
@@ -31,7 +32,7 @@ void HaltMachine(void)
 
 void ResetMachine(void) {}
 
-void StartMachine(void)
+void StartMachine(Boolean resumeP)
 {
     run = 1;
     suspend = 0;
@@ -41,17 +42,12 @@ Boolean IvoryProcessorSystemStartup(Boolean bootingP)
 {
     LispObj q;
     if (bootingP) {
-        InitializeIvoryProcessor(
-            MapVirtualAddressData(0), MapVirtualAddressTag(0));
-        if ((!ReadVirtualMemory(0xf8041002L, &q)
-                && (LispObjTag(q) == TypeCompiledFunction))
-            ||
+        InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
+        if ((!ReadVirtualMemory(0xf8041002L, &q) && (LispObjTag(q) == TypeCompiledFunction)) ||
 #ifndef MINIMA
-            (!ReadVirtualMemory(0xf8041102L, &q)
-                && (LispObjTag(q) == TypeCompiledFunction))
+            (!ReadVirtualMemory(SystemCommAreaAddress, &q) && (LispObjTag(q) == TypeCompiledFunction))
 #else
-            (!ReadVirtualMemory(0xf8041100L, &q)
-                && (LispObjTag(q) == TypeCompiledFunction))
+            (!ReadVirtualMemory(0xf8041100L, &q) && (LispObjTag(q) == TypeCompiledFunction))
 #endif
         ) {
             processor->fp[0].TAG = 0xc0 | TypeEvenPC;
@@ -63,7 +59,7 @@ Boolean IvoryProcessorSystemStartup(Boolean bootingP)
     /* Pop our two fake frames */
     PopOneFakeFrame();
     PopOneFakeFrame();
-    StartMachine();
+    StartMachine(TRUE);
     return (TRUE);
 }
 
@@ -92,8 +88,7 @@ void PopOneFakeFrame()
     processor->pc = processor->continuation;
     processor->continuation = fp[0];
     processor->control = fp[1].DATA.u;
-    processor->lp
-        = processor->fp + ReadControlArgumentSize(processor->control);
+    processor->lp = processor->fp + ReadControlArgumentSize(processor->control);
 }
 
 void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase)
@@ -102,18 +97,16 @@ void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase)
     int i, j;
 
     if (!allocatedCaches) {
-        processor->InstructionCache = (InstructionCacheLine *)malloc(
-            sizeof(InstructionCacheLine) * InstructionCacheSize);
-        if (!processor->InstructionCache)
-            OutOfMemory("Initialize InstructionCache",
-                sizeof(InstructionCacheLine) * InstructionCacheSize);
-        processor->StackCache
-            = (LispObj *)malloc(sizeof(LispObj) * PageSize * StackCacheSize);
-        if (!processor->StackCache)
-            OutOfMemory("Initialize StackCache",
-                sizeof(LispObj) * PageSize * StackCacheSize);
-        processor->StackCacheLimit
-            = processor->StackCache + PageSize * StackCacheSize - 128;
+        processor->InstructionCache
+            = (InstructionCacheLine *)malloc(sizeof(InstructionCacheLine) * InstructionCacheSize);
+        if (!processor->InstructionCache) {
+            OutOfMemory("Initialize InstructionCache", sizeof(InstructionCacheLine) * InstructionCacheSize);
+}
+        processor->StackCache = (LispObj *)malloc(sizeof(LispObj) * PageSize * StackCacheSize);
+        if (!processor->StackCache) {
+            OutOfMemory("Initialize StackCache", sizeof(LispObj) * PageSize * StackCacheSize);
+}
+        processor->StackCacheLimit = processor->StackCache + PageSize * StackCacheSize - 128;
         allocatedCaches = TRUE;
     }
 
@@ -154,15 +147,13 @@ void InitializeIvoryProcessor(Integer *dataBase, Tag *tagsBase)
     PushOneFakeFrame();
     PushOneFakeFrame();
 
-    EnsureVirtualAddressRange(
-        0xf8000100, 0xf00); /* 0xf8000100 - 0xf8001000 */
-    EnsureVirtualAddressRange(
-        0xf8062000, 0x9e000); /* 0xf8062000 - 0xf8100000 */
+    EnsureVirtualAddressRange(0xf8000100, 0xf00, FALSE); /* 0xf8000100 - 0xf8001000 */
+    EnsureVirtualAddressRange(0xf8062000, 0x9e000, FALSE); /* 0xf8062000 - 0xf8100000 */
 }
 
 void OutOfMemory(char *Where, int HowMuch)
 {
-    fprintf(stderr, "%s was unable to allocate %ld bytes.\n", Where, HowMuch);
+    fprintf(stderr, "%s was unable to allocate %d bytes.\n", Where, HowMuch);
     exit(-1);
 }
 
@@ -171,20 +162,17 @@ Boolean ReadInternalRegister(int regno, LispObj *val)
     switch (regno) {
     case InternalRegisterFP:
         val->TAG = TypeLocative;
-        val->DATA.u = processor->StackCacheBase
-            + (processor->fp - processor->StackCache);
+        val->DATA.u = processor->StackCacheBase + (processor->fp - processor->StackCache);
         break;
 
     case InternalRegisterLP:
         val->TAG = TypeLocative;
-        val->DATA.u = processor->StackCacheBase
-            + (processor->lp - processor->StackCache);
+        val->DATA.u = processor->StackCacheBase + (processor->lp - processor->StackCache);
         break;
 
     case InternalRegisterSP:
         val->TAG = TypeLocative;
-        val->DATA.u = processor->StackCacheBase
-            + (processor->sp - processor->StackCache);
+        val->DATA.u = processor->StackCacheBase + (processor->sp - processor->StackCache);
         break;
 
     case InternalRegisterBAR0:
@@ -214,22 +202,21 @@ Boolean WriteInternalRegister(int regno, LispObj *val)
 {
     switch (regno) {
     case InternalRegisterFP:
-        processor->fp = processor->StackCache
-            + (val->DATA.u - processor->StackCacheBase);
-        while (processor->fp < processor->StackCache)
+        processor->fp = processor->StackCache + (val->DATA.u - processor->StackCacheBase);
+        while (processor->fp < processor->StackCache) {
             StackCacheScrollDown();
-        while (processor->fp > processor->StackCacheLimit)
+}
+        while (processor->fp > processor->StackCacheLimit) {
             StackCacheScrollUp();
+}
         break;
 
     case InternalRegisterSP:
-        processor->sp = processor->StackCache
-            + (val->DATA.u - processor->StackCacheBase);
+        processor->sp = processor->StackCache + (val->DATA.u - processor->StackCacheBase);
         break;
 
     case InternalRegisterLP:
-        processor->lp = processor->StackCache
-            + (val->DATA.u - processor->StackCacheBase);
+        processor->lp = processor->StackCache + (val->DATA.u - processor->StackCacheBase);
         break;
 
     case InternalRegisterBAR0:

@@ -18,27 +18,23 @@
 void InitializeConsoleChannel(VLMConfig *config)
 {
     EmbPtr cp = EmbCommAreaAlloc(sizeof(EmbConsoleChannel));
-    register EmbConsoleChannel *p = (EmbConsoleChannel *)HostPointer(cp);
+    EmbConsoleChannel *p = (EmbConsoleChannel *)HostPointer(cp);
 
     p->type = EmbConsoleChannelType;
     p->unit = 0;
-    p->next = EmbCommAreaPtr
-                  ->channel_table; /* Thread into list of all channels */
+    p->next = EmbCommAreaPtr->channel_table; /* Thread into list of all channels */
     EmbCommAreaPtr->channel_table = cp;
     EmbCommAreaPtr->consoleChannel = cp; /* Make it easy to find */
 
-    p->outputRequestQueue
-        = CreateQueue(ConsoleOutputQueueSize, sizeof(EmbPtr));
+    p->outputRequestQueue = CreateQueue(ConsoleOutputQueueSize, sizeof(EmbPtr));
     p->outputRequestQ = (EmbQueue *)HostPointer(p->outputRequestQueue);
-    p->outputRequestQ->signal
-        = InstallSignalHandler((ProcPtrV)&ConsoleOutput, (PtrV)p, FALSE);
+    p->outputRequestQ->signal = InstallSignalHandler((ProcPtrV)&ConsoleOutput, (PtrV)p, FALSE);
     p->outputReplyQueue = CreateQueue(ConsoleOutputQueueSize, sizeof(EmbPtr));
     p->outputReplyQ = (EmbQueue *)HostPointer(p->outputReplyQueue);
 
     p->inputRequestQueue = CreateQueue(ConsoleInputQueueSize, sizeof(EmbPtr));
     p->inputRequestQ = (EmbQueue *)HostPointer(p->inputRequestQueue);
-    p->inputRequestQ->signal
-        = InstallSignalHandler((ProcPtrV)&ConsoleInput, (PtrV)p, TRUE);
+    p->inputRequestQ->signal = InstallSignalHandler((ProcPtrV)&ConsoleInput, (PtrV)p, TRUE);
     p->inputReplyQueue = CreateQueue(ConsoleInputQueueSize, sizeof(EmbPtr));
     p->inputReplyQ = (EmbQueue *)HostPointer(p->inputReplyQueue);
 
@@ -48,10 +44,8 @@ void InitializeConsoleChannel(VLMConfig *config)
     p->screenNumber = config->generaXParams.xpScreen;
     p->initialState = config->generaXParams.xpInitialState;
     p->geometry = MakeEmbString(config->generaXParams.xpGeometry);
-    p->foregroundColor
-        = MakeEmbString(config->generaXParams.xpForegroundColor);
-    p->backgroundColor
-        = MakeEmbString(config->generaXParams.xpBackgroundColor);
+    p->foregroundColor = MakeEmbString(config->generaXParams.xpForegroundColor);
+    p->backgroundColor = MakeEmbString(config->generaXParams.xpBackgroundColor);
     p->borderColor = MakeEmbString(config->generaXParams.xpBorderColor);
     p->borderWidth = config->generaXParams.xpBorderWidth;
 
@@ -59,18 +53,17 @@ void InitializeConsoleChannel(VLMConfig *config)
     p->openingState = OpeningStateNone;
     p->rlDisplay = NULL;
 
-    if (pthread_create(&p->drawRunLights, &EmbCommAreaPtr->pollThreadAttrs,
-            (pthread_startroutine_t)&DrawRunLights, p))
+    if (pthread_create(&p->drawRunLights, &EmbCommAreaPtr->pollThreadAttrs, (pthread_startroutine_t)&DrawRunLights, p)) {
         vpunt(NULL, "Unable to create the console channel polling thread");
+}
     p->drawRunLightsSetup = TRUE;
 }
 
 /* Do console I/O -- Available as a coprocessor call */
 
-void DoConsoleIO(
-    EmbConsoleChannel *consoleChannel, EmbConsoleBuffer *pCommand)
+void DoConsoleIO(EmbConsoleChannel *consoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleBuffer *command = pCommand;
+    EmbConsoleBuffer *command = pCommand;
 
     switch (command->opcode) {
     case EmbConsoleCommandOpenDisplay:
@@ -87,26 +80,28 @@ void DoConsoleIO(
         break;
 
     case EmbConsoleCommandWrite:
-        if (OpeningStatePrefix == consoleChannel->openingState)
+        if (OpeningStatePrefix == consoleChannel->openingState) {
             command->result = ESUCCESS;
-        else
+        } else {
             command->result = ConsoleWrite(consoleChannel, command);
+}
         break;
 
     case EmbConsoleCommandRead:
-        if (consoleChannel->openingState != OpeningStateNone)
-            command->result
-                = ProcessConnectionRequest(consoleChannel, command);
-        else
+        if (consoleChannel->openingState != OpeningStateNone) {
+            command->result = ProcessConnectionRequest(consoleChannel, command);
+        } else {
             command->result = ConsoleRead(consoleChannel, command);
+}
         break;
 
     case EmbConsoleCommandInputWait:
         if (consoleChannel->openingState != OpeningStateNone) {
             ((EmbConsoleInputWait *)&command->data[0])->availableP = TRUE;
             command->result = ESUCCESS;
-        } else
+        } else {
             command->result = ConsoleInputWait(consoleChannel, command);
+}
         break;
 
     case EmbConsoleCommandEnableRunLights:
@@ -123,12 +118,11 @@ void DoConsoleIO(
 
 /* Process requests from the VLM */
 
-static void ConsoleDriver(EmbConsoleChannel *consoleChannel,
-    EmbQueue *pRequestQueue, EmbQueue *pReplyQueue)
+static void ConsoleDriver(EmbConsoleChannel *consoleChannel, EmbQueue *pRequestQueue, EmbQueue *pReplyQueue)
 {
-    register EmbQueue *requestQueue = pRequestQueue;
-    register EmbQueue *replyQueue = pReplyQueue;
-    register EmbConsoleBuffer *command;
+    EmbQueue *requestQueue = pRequestQueue;
+    EmbQueue *replyQueue = pReplyQueue;
+    EmbConsoleBuffer *command;
     EmbPtr commandPtr;
 
     while (EmbQueueFilled(requestQueue)) {
@@ -152,44 +146,39 @@ static void ConsoleDriver(EmbConsoleChannel *consoleChannel,
 
 static void ConsoleOutput(EmbConsoleChannel *consoleChannel)
 {
-    ConsoleDriver(consoleChannel, consoleChannel->outputRequestQ,
-        consoleChannel->outputReplyQ);
+    ConsoleDriver(consoleChannel, consoleChannel->outputRequestQ, consoleChannel->outputReplyQ);
 }
 
 static void ConsoleInput(EmbConsoleChannel *consoleChannel)
 {
-    ConsoleDriver(consoleChannel, consoleChannel->inputRequestQ,
-        consoleChannel->inputReplyQ);
+    ConsoleDriver(consoleChannel, consoleChannel->inputRequestQ, consoleChannel->inputReplyQ);
 }
 
 /* Open the display */
 
-static int OpenDisplay(
-    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
+static int OpenDisplay(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleOpenDisplay *openDisplay
-        = (EmbConsoleOpenDisplay *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleOpenDisplay *openDisplay = (EmbConsoleOpenDisplay *)&command->data[0];
     char displayName[BUFSIZ];
     int result;
 
-    if (consoleChannel->display != NULL)
+    if (consoleChannel->display != NULL) {
         return (EBUSY);
+}
 
-    BuildXDisplayName(displayName, consoleChannel->hostName,
-        consoleChannel->displayNumber, consoleChannel->screenNumber);
+    BuildXDisplayName(
+        displayName, consoleChannel->hostName, consoleChannel->displayNumber, consoleChannel->screenNumber);
 
     begin_MUTEX_LOCKED(XLock);
 
     consoleChannel->display = XOpenDisplay(displayName);
 
     if (consoleChannel->display) {
-        consoleChannel->fd
-            = XConnectionNumber((Display *)consoleChannel->display);
+        consoleChannel->fd = XConnectionNumber((Display *)consoleChannel->display);
         consoleChannel->openingState = OpeningStatePrefix;
-        openDisplay->lastRequestNumber
-            = ((struct _XDisplay *)consoleChannel->display)->request;
+        openDisplay->lastRequestNumber = ((struct _XDisplay *)consoleChannel->display)->request;
         result = ESUCCESS;
     }
 
@@ -217,15 +206,12 @@ static int OpenDisplay(
    finite-state machine is used to determine what piece of data will be
    returned next */
 
-static int ProcessConnectionRequest(
-    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
+static int ProcessConnectionRequest(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    EmbConsoleDataTransfer *dataTransfer
-        = (EmbConsoleDataTransfer *)&command->data[0];
-    register struct _XDisplay *display
-        = (struct _XDisplay *)consoleChannel->display;
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
+    struct _XDisplay *display = (struct _XDisplay *)consoleChannel->display;
     char *data;
     xConnSetupPrefix setupPrefix;
     xConnSetup setup;
@@ -277,8 +263,7 @@ static int ProcessConnectionRequest(
         break;
 
     case OpeningStatePixmapFormat:
-        screenFormat
-            = &display->pixmap_format[consoleChannel->nextPixmapFormat];
+        screenFormat = &display->pixmap_format[consoleChannel->nextPixmapFormat];
         pixmapFormat.depth = screenFormat->depth;
         pixmapFormat.bitsPerPixel = screenFormat->bits_per_pixel;
         pixmapFormat.scanLinePad = screenFormat->scanline_pad;
@@ -340,9 +325,8 @@ static int ProcessConnectionRequest(
 
 static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register struct _XDisplay *display
-        = (struct _XDisplay *)consoleChannel->display;
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    struct _XDisplay *display = (struct _XDisplay *)consoleChannel->display;
     Screen *screen;
     Depth *depth;
 
@@ -362,18 +346,21 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
         } else if (display->nscreens > 0) {
             consoleChannel->openingState = OpeningStateRoot;
             consoleChannel->nextRoot = 0;
-        } else
+        } else {
             consoleChannel->openingState = OpeningStateNone;
+}
         break;
 
     case OpeningStatePixmapFormat:
         consoleChannel->nextPixmapFormat++;
-        if (consoleChannel->nextPixmapFormat >= display->nformats)
+        if (consoleChannel->nextPixmapFormat >= display->nformats) {
             if (display->nscreens > 0) {
                 consoleChannel->openingState = OpeningStateRoot;
                 consoleChannel->nextRoot = 0;
-            } else
+            } else {
                 consoleChannel->openingState = OpeningStateNone;
+}
+}
         break;
 
     case OpeningStateRoot:
@@ -383,8 +370,9 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
             consoleChannel->nextRootDepth = 0;
         } else {
             consoleChannel->nextRoot++;
-            if (consoleChannel->nextRoot >= display->nscreens)
+            if (consoleChannel->nextRoot >= display->nscreens) {
                 consoleChannel->openingState = OpeningStateNone;
+}
         }
         break;
 
@@ -398,8 +386,9 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
             consoleChannel->nextRootDepth++;
             if (consoleChannel->nextRootDepth >= screen->ndepths) {
                 consoleChannel->nextRoot++;
-                if (consoleChannel->nextRoot >= display->nscreens)
+                if (consoleChannel->nextRoot >= display->nscreens) {
                     consoleChannel->openingState = OpeningStateNone;
+}
             }
         }
         break;
@@ -412,10 +401,11 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
             consoleChannel->nextRootDepth++;
             if (consoleChannel->nextRootDepth >= screen->ndepths) {
                 consoleChannel->nextRoot++;
-                if (consoleChannel->nextRoot >= display->nscreens)
+                if (consoleChannel->nextRoot >= display->nscreens) {
                     consoleChannel->openingState = OpeningStateNone;
-                else
+                } else {
                     consoleChannel->openingState = OpeningStateRoot;
+}
             } else {
                 consoleChannel->openingState = OpeningStateRootDepth;
             }
@@ -426,13 +416,11 @@ static void AdvanceOpeningState(EmbConsoleChannel *pConsoleChannel)
 
 /* Write data to the server */
 
-static int ConsoleWrite(
-    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
+static int ConsoleWrite(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleDataTransfer *dataTransfer
-        = (EmbConsoleDataTransfer *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
     struct pollfd pollDisplay;
     char *data;
     ssize_t nBytes, actualBytes;
@@ -454,9 +442,9 @@ static int ConsoleWrite(
 
         if (pollDisplay.revents & POLLOUT) {
             actualBytes = write(consoleChannel->fd, data, nBytes);
-            if (actualBytes == nBytes)
+            if (actualBytes == nBytes) {
                 result = ESUCCESS;
-            else {
+            } else {
                 /* Might be a partial write */
                 result = (actualBytes < 0) ? errno : EWOULDBLOCK;
                 nBytes -= (actualBytes < 0) ? 0 : actualBytes;
@@ -464,14 +452,15 @@ static int ConsoleWrite(
             }
         }
 
-        else if (pollDisplay.revents & POLLNVAL)
+        else if (pollDisplay.revents & POLLNVAL) {
             result = EBADF;
 
-        else if (pollDisplay.revents & POLLHUP)
+        } else if (pollDisplay.revents & POLLHUP) {
             result = ENXIO;
 
-        else if (pollDisplay.revents & POLLERR)
+        } else if (pollDisplay.revents & POLLERR) {
             result = EIO;
+}
     }
 
     return (result);
@@ -479,13 +468,11 @@ static int ConsoleWrite(
 
 /* Read data from the server */
 
-static int ConsoleRead(
-    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
+static int ConsoleRead(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleDataTransfer *dataTransfer
-        = (EmbConsoleDataTransfer *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleDataTransfer *dataTransfer = (EmbConsoleDataTransfer *)&command->data[0];
     struct pollfd pollDisplay;
     char *data;
     ssize_t nBytes, actualBytes;
@@ -507,11 +494,11 @@ static int ConsoleRead(
 
         if (pollDisplay.revents & POLLIN) {
             actualBytes = read(consoleChannel->fd, data, nBytes);
-            if (actualBytes == nBytes)
+            if (actualBytes == nBytes) {
                 result = ESUCCESS;
-            else if ((0 == actualBytes) && (EWOULDBLOCK != errno))
+            } else if ((0 == actualBytes) && (EWOULDBLOCK != errno)) {
                 result = ENOSPC; /* End-of-File */
-            else {
+            } else {
                 /* Might be a partial read */
                 result = (actualBytes < 0) ? errno : EWOULDBLOCK;
                 nBytes -= (actualBytes < 0) ? 0 : actualBytes;
@@ -519,14 +506,15 @@ static int ConsoleRead(
             }
         }
 
-        else if (pollDisplay.revents & POLLNVAL)
+        else if (pollDisplay.revents & POLLNVAL) {
             result = EBADF;
 
-        else if (pollDisplay.revents & POLLHUP)
+        } else if (pollDisplay.revents & POLLHUP) {
             result = ENXIO;
 
-        else if (pollDisplay.revents & POLLERR)
+        } else if (pollDisplay.revents & POLLERR) {
             result = EIO;
+}
     }
 
     return (result);
@@ -536,15 +524,15 @@ static int ConsoleRead(
 
 boolean ConsoleInputAvailableP()
 {
-    EmbConsoleChannel *consoleChannel
-        = (EmbConsoleChannel *)HostPointer(EmbCommAreaPtr->consoleChannel);
+    EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)HostPointer(EmbCommAreaPtr->consoleChannel);
     struct pollfd pollDisplay;
 
-    if (NULL == consoleChannel->display)
+    if (NULL == consoleChannel->display) {
         return (FALSE);
 
-    else if (consoleChannel->openingState != OpeningStateNone)
+    } else if (consoleChannel->openingState != OpeningStateNone) {
         return (TRUE);
+}
 
     pollDisplay.fd = consoleChannel->fd;
     pollDisplay.events = POLLIN;
@@ -555,13 +543,11 @@ boolean ConsoleInputAvailableP()
 
 /* Wait until data is available from the server */
 
-static int ConsoleInputWait(
-    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
+static int ConsoleInputWait(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
-    register EmbConsoleInputWait *inputWait
-        = (EmbConsoleInputWait *)&command->data[0];
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
+    EmbConsoleInputWait *inputWait = (EmbConsoleInputWait *)&command->data[0];
     struct pollfd pollDisplay;
     int result;
 
@@ -581,14 +567,15 @@ static int ConsoleInputWait(
         inputWait->availableP = TRUE;
     }
 
-    else if (pollDisplay.revents & POLLNVAL)
+    else if (pollDisplay.revents & POLLNVAL) {
         result = EBADF;
 
-    else if (pollDisplay.revents & POLLHUP)
+    } else if (pollDisplay.revents & POLLHUP) {
         result = ENXIO;
 
-    else if (pollDisplay.revents & POLLERR)
+    } else if (pollDisplay.revents & POLLERR) {
         result = EIO;
+}
 
     return (result);
 }
@@ -609,17 +596,16 @@ static void CloseDisplay(EmbConsoleChannel *consoleChannel)
 
 /* Enable drawing of run lights */
 
-static void EnableRunLights(
-    EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
+static void EnableRunLights(EmbConsoleChannel *pConsoleChannel, EmbConsoleBuffer *pCommand)
 {
-    register EmbConsoleChannel *consoleChannel = pConsoleChannel;
-    register EmbConsoleBuffer *command = pCommand;
+    EmbConsoleChannel *consoleChannel = pConsoleChannel;
+    EmbConsoleBuffer *command = pCommand;
     EmbConsoleRunLights *runLights = (EmbConsoleRunLights *)&command->data[0];
     char displayName[BUFSIZ];
     XGCValues gcValues;
 
-    BuildXDisplayName(displayName, consoleChannel->hostName,
-        consoleChannel->displayNumber, consoleChannel->screenNumber);
+    BuildXDisplayName(
+        displayName, consoleChannel->hostName, consoleChannel->displayNumber, consoleChannel->screenNumber);
 
     begin_MUTEX_LOCKED(XLock);
 
@@ -629,14 +615,12 @@ static void EnableRunLights(
         consoleChannel->rlGC = malloc(sizeof(GC));
 
         if (NULL != consoleChannel->rlGC) {
-            memcpy(&consoleChannel->runLights, runLights,
-                sizeof(EmbConsoleRunLights));
+            memcpy(&consoleChannel->runLights, runLights, sizeof(EmbConsoleRunLights));
 
             gcValues.foreground = consoleChannel->runLights.lightForeground;
             gcValues.background = consoleChannel->runLights.lightBackground;
             gcValues.plane_mask = consoleChannel->runLights.lightPlaneMask;
-            *(GC *)consoleChannel->rlGC = XCreateGC(consoleChannel->rlDisplay,
-                consoleChannel->runLights.windowID,
+            *(GC *)consoleChannel->rlGC = XCreateGC(consoleChannel->rlDisplay, consoleChannel->runLights.windowID,
                 (GCForeground | GCBackground | GCPlaneMask), &gcValues);
         }
     }
@@ -652,14 +636,12 @@ static void EnableRunLights(
 
 static void DrawRunLights(pthread_addr_t argument)
 {
-    register EmbConsoleChannel *consoleChannel
-        = (EmbConsoleChannel *)argument;
+    EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)argument;
     pthread_t self = pthread_self();
     struct timespec drlSleep;
     int changed, i, bit, x;
 
-    pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
+    pthread_cleanup_push((pthread_cleanuproutine_t)pthread_detach, (void *)self);
 
     WaitUntilInitializationComplete();
 
@@ -670,36 +652,33 @@ static void DrawRunLights(pthread_addr_t argument)
         if (consoleChannel->rlDisplay != NULL) {
             begin_MUTEX_LOCKED(XLock);
 
-            changed
-                = consoleChannel->lastRunLights ^ EmbCommAreaPtr->run_lights;
+            changed = consoleChannel->lastRunLights ^ EmbCommAreaPtr->run_lights;
             consoleChannel->lastRunLights = EmbCommAreaPtr->run_lights;
             x = consoleChannel->runLights.firstLightX;
 
-            for (i = 0, bit = 1, x = consoleChannel->runLights.firstLightX;
-                 i < consoleChannel->runLights.nLights; i++, bit = bit << 1,
-                x += consoleChannel->runLights.lightXSpacing)
-                if (changed & bit)
-                    if (consoleChannel->lastRunLights & bit)
-                        XFillRectangle(consoleChannel->rlDisplay,
-                            consoleChannel->runLights.windowID,
-                            *(GC *)consoleChannel->rlGC, x,
-                            consoleChannel->runLights.firstLightY,
-                            consoleChannel->runLights.lightWidth,
-                            consoleChannel->runLights.lightHeight);
-                    else
-                        XClearArea(consoleChannel->rlDisplay,
-                            consoleChannel->runLights.windowID, x,
-                            consoleChannel->runLights.firstLightY,
-                            consoleChannel->runLights.lightWidth,
+            for (i = 0, bit = 1, x = consoleChannel->runLights.firstLightX; i < consoleChannel->runLights.nLights;
+                 i++, bit = bit << 1, x += consoleChannel->runLights.lightXSpacing) {
+                if (changed & bit) {
+                    if (consoleChannel->lastRunLights & bit) {
+                        XFillRectangle(consoleChannel->rlDisplay, consoleChannel->runLights.windowID,
+                            *(GC *)consoleChannel->rlGC, x, consoleChannel->runLights.firstLightY,
+                            consoleChannel->runLights.lightWidth, consoleChannel->runLights.lightHeight);
+                    } else {
+                        XClearArea(consoleChannel->rlDisplay, consoleChannel->runLights.windowID, x,
+                            consoleChannel->runLights.firstLightY, consoleChannel->runLights.lightWidth,
                             consoleChannel->runLights.lightHeight, FALSE);
+}
+}
+}
 
             XFlush(consoleChannel->rlDisplay);
 
             end_MUTEX_LOCKED(XLock);
         }
 
-        if (pthread_delay_np(&drlSleep))
+        if (pthread_delay_np(&drlSleep)) {
             vpunt(NULL, "Unable to sleep in thread %lx", self);
+}
     }
 
     pthread_cleanup_pop(TRUE);
@@ -728,7 +707,7 @@ static void DisableRunLights(EmbConsoleChannel *consoleChannel)
 
 void ResetConsoleChannel(EmbChannel *channel)
 {
-    register EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)channel;
+    EmbConsoleChannel *consoleChannel = (EmbConsoleChannel *)channel;
 
     ResetIncomingQueue(consoleChannel->outputRequestQ);
     ResetOutgoingQueue(consoleChannel->outputReplyQ);
@@ -742,13 +721,13 @@ void ResetConsoleChannel(EmbChannel *channel)
 void TerminateConsoleChannel(void)
 {
     void *exit_value;
-    register EmbConsoleChannel *consoleChannel;
+    EmbConsoleChannel *consoleChannel;
 
-    if (NullEmbPtr == EmbCommAreaPtr->consoleChannel)
+    if (NullEmbPtr == EmbCommAreaPtr->consoleChannel) {
         return;
-    else
-        consoleChannel = (EmbConsoleChannel *)HostPointer(
-            EmbCommAreaPtr->consoleChannel);
+    } else {
+        consoleChannel = (EmbConsoleChannel *)HostPointer(EmbCommAreaPtr->consoleChannel);
+}
 
     if (consoleChannel->drawRunLightsSetup) {
         pthread_cancel(consoleChannel->drawRunLights);

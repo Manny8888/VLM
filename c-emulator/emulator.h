@@ -3,11 +3,13 @@
 #ifndef _EMULATOR_H
 #define _EMULATOR_H
 
+#include <stdio.h>
+#include <stdint.h>
 #include <limits.h>
 
 typedef unsigned char Byte;
 typedef unsigned char Tag;
-typedef unsigned int Integer;
+typedef uint64_t Integer;
 typedef int Boolean;
 typedef float Float;
 typedef void *Pointer;
@@ -16,42 +18,44 @@ typedef void *Pointer;
 #define True 1
 
 #define ldb(ss, pp, source) ((int)(((source) >> (pp)) & ((1 << (ss)) - 1)))
-#define dpb(field, ss, pp, background)                                       \
-    ((((field) & ((1 << (ss)) - 1)) << (pp))                                 \
-        | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
+#define dpb(field, ss, pp, background)                                                                                 \
+    ((((field) & ((1 << (ss)) - 1)) << (pp)) | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
 #define ceiling(n, d) (((n) + ((d)-1)) / (d))
+
+#define WORD_BIT 32
 #if (WORD_BIT == 32)
 #define SignExtend8(i) (((int)((unsigned int)i << 24)) / 16777216)
 #define SignExtend10(i) (((int)((unsigned int)i << 22)) / 4194304)
 #else
-#define SignExtend8(i)                                                       \
-    (((int)((unsigned int)i << (WORD_BIT - 8))) / (1 << (WORD_BIT - 8)))
-#define SignExtend10(i)                                                      \
-    (((int)((unsigned int)i << (WORD_BIT - 10))) / (1 << (WORD_BIT - 10)))
+#define SignExtend8(i) (((int)((unsigned int)i << (WORD_BIT - 8))) / (1 << (WORD_BIT - 8)))
+#define SignExtend10(i) (((int)((unsigned int)i << (WORD_BIT - 10))) / (1 << (WORD_BIT - 10)))
 #endif
 
 typedef union {
     struct _LispObj {
-#if (LONG_BIT == 64)
-        unsigned int tag;
-#else
-        unsigned char tag;
-#endif
+        uint32_t tag;
         union {
-            unsigned int u;
-            signed int s;
+            uint32_t u;
+            int32_t s;
             float f;
         } data;
     } parts;
-#if (LONG_BIT == 64)
-    unsigned long whole;
-#endif
+    uint64_t whole;
 } LispObj, PC;
+
 #define DATA parts.data
 #define TAG parts.tag
 
-#define LispObjTag(lo) (((LispObj *)(&lo))->TAG)
-#define LispObjData(lo) (((LispObj *)(&lo))->DATA.u)
+uint32_t LispObjTag(LispObj lo);
+uint32_t LispObjData(LispObj lo);
+void WriteLispObjectTag(LispObj *lo, uint32_t newtag);
+void WriteLispObjData(LispObj *lo, uint32_t newdata);
+
+
+//((LispObj *)(&lo)->TAG)
+// #define LispObjData(lo) ((LispObj *)(&lo))->DATA.u)
+
+extern LispObj *MakeLispObj(uint32_t tag, uint32_t data);
 
 typedef struct _InstructionCacheLine {
     PC pc;
@@ -76,8 +80,7 @@ typedef struct _InstructionCacheLine {
 #define AddressQuantumShift 20
 
 #define AddressQuantumNumber(vma) ((vma) >> AddressQuantumShift)
-#define AddressQuantumOffset(vma)                                            \
-    (((vma) & (QuantumSize - 1)) >> AddressPageShift)
+#define AddressQuantumOffset(vma) (((vma) & (QuantumSize - 1)) >> AddressPageShift)
 #define AddressPageNumber(vma) ((vma) >> AddressPageShift)
 #define AddressPageOffset(vma) ((vma) & (PageSize - 1))
 
@@ -88,7 +91,9 @@ typedef struct _ProcessorState {
     LispObj *restartsp;
     LispObj *fp;
     LispObj *lp;
-    PC pc;
+    PC pc; // This counter increases 1 by 1 and therefore alternates between even
+           // and odd addresses. The tag memory and data memory spaces are separate. // Therefore, loading 64 bits will
+           // load 2 consecutive tags and 2 consecutive addresses (think cons or list structure).
     PC continuation;
     InstructionCacheLine *InstructionCache;
     LispObj *StackCache;
@@ -102,7 +107,7 @@ typedef struct _ProcessorState {
     LispObj StructureCacheArea;
     LispObj StructureCacheAddress;
     LispObj CatchBlockPointer;
-    /* Integer fields are at the end for better alignment */
+    // Integer fields were at the end for better alignment - but their size now matches architecture size (32 or 64 bits
     Integer control;
     Integer StackCacheBase;
     Integer ArrayEventCount;
@@ -142,14 +147,17 @@ extern Boolean Runningp(void);
 extern void PushOneFakeFrame(void);
 extern void PopOneFakeFrame(void);
 extern void HaltMachine(void);
-extern void StartMachine(void);
+extern void StartMachine(Boolean resumeP);
 extern void ResetMachine(void);
 Boolean ReadInternalRegister(int regno, LispObj *val);
 Boolean WriteInternalRegister(int regno, LispObj *val);
 extern void SendInterruptToEmulator(void);
 extern void SendInterruptToLifeSupport(void);
 
-extern void InstructionSequencer(void);
+extern void TakeMemoryTrap(int vector, Integer vma);
+extern Boolean OldspaceP(LispObj *obj);
+Boolean OldspaceAddressP(Integer vma);
+extern int InstructionSequencer(void);
 extern void OutOfMemory(char *Where, int HowMuch);
 extern void StackCacheScrollDown(void);
 extern void StackCacheScrollUp(void);
@@ -185,15 +193,10 @@ extern Byte MemoryActionTable[12][64];
 extern Integer MemoryReadInternal(Integer vma, LispObj *object, Byte row[]);
 extern int StoreContentsInternal(Integer vma, LispObj *object, Byte row[]);
 
-#define MemoryRead(vma, object, cycle)                                       \
-    MemoryReadInternal(vma, object, MemoryActionTable[cycle])
-#define MemoryReadData(vma, object)                                          \
-    MemoryReadInternal(vma, object, MemoryActionTable[CycleDataRead])
-#define MemoryReadHeader(vma, object)                                        \
-    MemoryReadInternal(vma, object, MemoryActionTable[CycleHeader])
-#define MemoryReadCdr(vma, object)                                           \
-    MemoryReadInternal(vma, object, MemoryActionTable[CycleCdr])
-#define StoreContents(vma, object, cycle)                                    \
-    StoreContentsInternal(vma, object, MemoryActionTable[cycle])
+#define MemoryRead(vma, object, cycle) MemoryReadInternal(vma, object, MemoryActionTable[cycle])
+#define MemoryReadData(vma, object) MemoryReadInternal(vma, object, MemoryActionTable[CycleDataRead])
+#define MemoryReadHeader(vma, object) MemoryReadInternal(vma, object, MemoryActionTable[CycleHeader])
+#define MemoryReadCdr(vma, object) MemoryReadInternal(vma, object, MemoryActionTable[CycleCdr])
+#define StoreContents(vma, object, cycle) StoreContentsInternal(vma, object, MemoryActionTable[cycle])
 
 #endif

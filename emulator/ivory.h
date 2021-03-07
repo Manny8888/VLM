@@ -94,8 +94,7 @@ typedef enum _IvoryCdr { CdrNext, CdrNil, CdrNormal } IvoryCdr;
 #define TypeEqualP(tag1, tag2) (((tag1 ^ tag2) & TagTypeMask) == 0)
 #define TypeFixnumP(tag) TypeEqualP(tag, TypeFixnum)
 #define PackedInstructionP(tag) ((tag & 060) == 060)
-#define BinaryTypeFixnumP(tag1, tag2)                                        \
-    (((((tag1) ^ TypeFixnum) | ((tag2) ^ TypeFixnum)) & TagTypeMask) == 0)
+#define BinaryTypeFixnumP(tag1, tag2) (((((tag1) ^ TypeFixnum) | ((tag2) ^ TypeFixnum)) & TagTypeMask) == 0)
 
 #define ArrayHeaderTag (0100 | TypeHeaderI)
 
@@ -445,8 +444,6 @@ typedef enum _InternalRegisters {
     InternalRegisterConstantT = 01041
 } InternalRegisters;
 
-typedef enum _CoprocessorRegisters {
-    CoprocessorRegisterMicrosecondClock = 01002
-} CoprocessorRegisters;
+typedef enum _CoprocessorRegisters { CoprocessorRegisterMicrosecondClock = 01002 } CoprocessorRegisters;
 
 #endif

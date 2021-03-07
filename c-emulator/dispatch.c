@@ -13,8 +13,8 @@ typedef struct _DecoderPair {
     void (*decode)();
 } DecoderPair;
 
-static const int ReturnInstructionDecoder[3] = { DispatchReturnSingleNIL,
-    DispatchReturnSingleT, DispatchReturnSingleTOS };
+static const int ReturnInstructionDecoder[3]
+    = { DispatchReturnSingleNIL, DispatchReturnSingleT, DispatchReturnSingleTOS };
 
 static const int WordInstructionDecoder[64] = {
     DispatchPushNull,
@@ -344,46 +344,22 @@ static const int PopInstructionDecoder[256] = {
 
 static const int IllegalInstructionDecoder = DispatchIllegalInstruction;
 
-static void DecodeNoneFunction(int i, InstructionCacheLine *cp)
-{
-    cp->operand = 0;
-}
+static void DecodeNoneFunction(int i, InstructionCacheLine *cp) { cp->operand = 0; }
 
 static InstructionCacheLine InstructionCacheLookupCPRepresentation
-    = { TypeOddPC, -1, TypeOddPC, -1, DispatchInstructionCacheLookup, 0, 0,
-          NULL };
+    = { TypeOddPC, -1, TypeOddPC, -1, DispatchInstructionCacheLookup, 0, 0, NULL };
 
-static void Decode8BitUnsignedOperandFunction(int i, InstructionCacheLine *cp)
-{
-    cp->operand = i & 0377;
-}
+static void Decode8BitUnsignedOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = i & 0377; }
 
-static void Decode8BitSignedOperandFunction(int i, InstructionCacheLine *cp)
-{
-    cp->operand = SignExtend8(i);
-}
+static void Decode8BitSignedOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = SignExtend8(i); }
 
-static void Decode10BitUnsignedOperandFunction(
-    int i, InstructionCacheLine *cp)
-{
-    cp->operand = i & 01777;
-}
+static void Decode10BitUnsignedOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = i & 01777; }
 
-static void Decode12BitUnsignedOperandFunction(
-    int i, InstructionCacheLine *cp)
-{
-    cp->operand = i & 07777;
-}
+static void Decode12BitUnsignedOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = i & 07777; }
 
-static void DecodeFPOperandFunction(int i, InstructionCacheLine *cp)
-{
-    cp->operand = (i & 0377);
-}
+static void DecodeFPOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = (i & 0377); }
 
-static void DecodeLPOperandFunction(int i, InstructionCacheLine *cp)
-{
-    cp->operand = (i & 0377);
-}
+static void DecodeLPOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = (i & 0377); }
 
 static void DecodeSPOperandFunction(int i, InstructionCacheLine *cp)
 {
@@ -392,14 +368,12 @@ static void DecodeSPOperandFunction(int i, InstructionCacheLine *cp)
     if (offset == 0) {
         cp->code = PopInstructionDecoder[ldb(8, 10, i)];
         cp->operand = 0;
-    } else
+    } else {
         cp->operand = (offset - 255);
 }
-
-static void DecodeBranchOperandFunction(int i, InstructionCacheLine *cp)
-{
-    cp->operand = SignExtend10(i);
 }
+
+static void DecodeBranchOperandFunction(int i, InstructionCacheLine *cp) { cp->operand = SignExtend10(i); }
 
 static void DecodeReturnOperandFunction(int i, InstructionCacheLine *cp)
 {
@@ -452,8 +426,7 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchRestoreBindingStackFP, DecodeFPOperandFunction },
     { DispatchRestoreBindingStackLP, DecodeLPOperandFunction },
     { DispatchRestoreBindingStackSP, DecodeSPOperandFunction },
-    { DispatchRestoreBindingStackImmediate,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchRestoreBindingStackImmediate, Decode8BitUnsignedOperandFunction },
     { DispatchEphemeralpFP, DecodeFPOperandFunction },
     { DispatchEphemeralpLP, DecodeLPOperandFunction },
     { DispatchEphemeralpSP, DecodeSPOperandFunction },
@@ -646,14 +619,10 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchBranchTrueElseNoPop, DecodeBranchOperandFunction },
     { DispatchBranchTrueElseNoPop, DecodeBranchOperandFunction },
     { DispatchBranchTrueElseNoPop, DecodeBranchOperandFunction },
-    { DispatchBranchTrueAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
-    { DispatchBranchTrueAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
-    { DispatchBranchTrueAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
-    { DispatchBranchTrueAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
+    { DispatchBranchTrueAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
+    { DispatchBranchTrueAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
+    { DispatchBranchTrueAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
+    { DispatchBranchTrueAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
     { DispatchBranchFalse, DecodeBranchOperandFunction },
     { DispatchBranchFalse, DecodeBranchOperandFunction },
     { DispatchBranchFalse, DecodeBranchOperandFunction },
@@ -682,14 +651,10 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchBranchFalseElseNoPop, DecodeBranchOperandFunction },
     { DispatchBranchFalseElseNoPop, DecodeBranchOperandFunction },
     { DispatchBranchFalseElseNoPop, DecodeBranchOperandFunction },
-    { DispatchBranchFalseAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
-    { DispatchBranchFalseAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
-    { DispatchBranchFalseAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
-    { DispatchBranchFalseAndNoPopElseNoPopExtraPop,
-        DecodeBranchOperandFunction },
+    { DispatchBranchFalseAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
+    { DispatchBranchFalseAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
+    { DispatchBranchFalseAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
+    { DispatchBranchFalseAndNoPopElseNoPopExtraPop, DecodeBranchOperandFunction },
     { DispatchPushFP, DecodeFPOperandFunction },
     { DispatchPushLP, DecodeLPOperandFunction },
     { DispatchPushSP, DecodeSPOperandFunction },
@@ -701,13 +666,11 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchPushAddressSpRelativeFP, DecodeFPOperandFunction },
     { DispatchPushAddressSpRelativeLP, DecodeLPOperandFunction },
     { DispatchPushAddressSpRelativeSP, DecodeSPOperandFunction },
-    { DispatchPushAddressSpRelativeImmediate,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressSpRelativeImmediate, Decode8BitUnsignedOperandFunction },
     { DispatchPushLocalLogicVariablesFP, DecodeFPOperandFunction },
     { DispatchPushLocalLogicVariablesLP, DecodeLPOperandFunction },
     { DispatchPushLocalLogicVariablesSP, DecodeSPOperandFunction },
-    { DispatchPushLocalLogicVariablesImmediate,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchPushLocalLogicVariablesImmediate, Decode8BitUnsignedOperandFunction },
     { DispatchReturnMultipleFP, DecodeFPOperandFunction },
     { DispatchReturnMultipleLP, DecodeLPOperandFunction },
     { DispatchReturnMultipleSP, DecodeSPOperandFunction },
@@ -728,30 +691,18 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchPushInstanceVariable, Decode8BitUnsignedOperandFunction },
     { DispatchPushInstanceVariable, Decode8BitUnsignedOperandFunction },
     { DispatchPushInstanceVariable, Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariable,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariable,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariable,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariable,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchPushAddressInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariable, Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariable, Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariable, Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariable, Decode8BitUnsignedOperandFunction },
+    { DispatchPushInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchPushInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchPushInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchPushInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchPushAddressInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
     { DispatchUnaryMinusFP, DecodeFPOperandFunction },
     { DispatchUnaryMinusLP, DecodeLPOperandFunction },
     { DispatchUnaryMinusSP, DecodeSPOperandFunction },
@@ -875,8 +826,7 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchSetSpToAddressSaveTosFP, DecodeFPOperandFunction },
     { DispatchSetSpToAddressSaveTosLP, DecodeLPOperandFunction },
     { DispatchSetSpToAddressSaveTosSP, DecodeSPOperandFunction },
-    { DispatchSetSpToAddressSaveTosImmediate,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchSetSpToAddressSaveTosImmediate, Decode8BitUnsignedOperandFunction },
     { DispatchIllegalInstruction, DecodeNoneFunction },
     { DispatchIllegalInstruction, DecodeNoneFunction },
     { DispatchIllegalInstruction, DecodeNoneFunction },
@@ -1244,8 +1194,7 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchMultiplyBignumStepFP, DecodeFPOperandFunction },
     { DispatchMultiplyBignumStepLP, DecodeLPOperandFunction },
     { DispatchMultiplyBignumStepSP, DecodeSPOperandFunction },
-    { DispatchMultiplyBignumStepImmediate,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchMultiplyBignumStepImmediate, Decode8BitUnsignedOperandFunction },
     { DispatchDivideBignumStepFP, DecodeFPOperandFunction },
     { DispatchDivideBignumStepLP, DecodeLPOperandFunction },
     { DispatchDivideBignumStepSP, DecodeSPOperandFunction },
@@ -1273,8 +1222,7 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchAllocateStructureBlockFP, DecodeFPOperandFunction },
     { DispatchAllocateStructureBlockLP, DecodeLPOperandFunction },
     { DispatchAllocateStructureBlockSP, DecodeSPOperandFunction },
-    { DispatchAllocateStructureBlockImmediate,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchAllocateStructureBlockImmediate, Decode8BitUnsignedOperandFunction },
     { DispatchArrayLeaderFP, DecodeFPOperandFunction },
     { DispatchArrayLeaderLP, DecodeLPOperandFunction },
     { DispatchArrayLeaderSP, DecodeSPOperandFunction },
@@ -1295,14 +1243,10 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchPopInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
     { DispatchPopInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
     { DispatchPopInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
-    { DispatchMovemInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchMovemInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchMovemInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
-    { DispatchMovemInstanceVariableOrdered,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchMovemInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchMovemInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchMovemInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
+    { DispatchMovemInstanceVariableOrdered, Decode8BitUnsignedOperandFunction },
     { DispatchInstanceRefFP, DecodeFPOperandFunction },
     { DispatchInstanceRefLP, DecodeLPOperandFunction },
     { DispatchInstanceRefSP, DecodeSPOperandFunction },
@@ -1342,8 +1286,7 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchUnsignedLesspNoPopFP, DecodeFPOperandFunction },
     { DispatchUnsignedLesspNoPopLP, DecodeLPOperandFunction },
     { DispatchUnsignedLesspNoPopSP, DecodeSPOperandFunction },
-    { DispatchUnsignedLesspNoPopImmediate,
-        Decode8BitUnsignedOperandFunction },
+    { DispatchUnsignedLesspNoPopImmediate, Decode8BitUnsignedOperandFunction },
     { DispatchIllegalInstruction, DecodeNoneFunction },
     { DispatchIllegalInstruction, DecodeNoneFunction },
     { DispatchIllegalInstruction, DecodeNoneFunction },
@@ -1482,208 +1425,129 @@ static const DecoderPair PackedInstructionDecoder[1024] = {
     { DispatchHack, Decode10BitUnsignedOperandFunction },
 };
 
-const char *ivory_dispatch_names[] = { "CarFP", "CarLP", "CarSP",
-    "CarImmediate", "CarPop", "CdrFP", "CdrLP", "CdrSP", "CdrImmediate",
-    "CdrPop", "EndpFP", "EndpLP", "EndpSP", "EndpImmediate", "EndpPop",
-    "Setup1dArrayFP", "Setup1dArrayLP", "Setup1dArraySP",
-    "Setup1dArrayImmediate", "Setup1dArrayPop", "SetupForce1dArrayFP",
-    "SetupForce1dArrayLP", "SetupForce1dArraySP",
-    "SetupForce1dArrayImmediate", "SetupForce1dArrayPop", "BindLocativeFP",
-    "BindLocativeLP", "BindLocativeSP", "BindLocativeImmediate",
-    "BindLocativePop", "RestoreBindingStackFP", "RestoreBindingStackLP",
-    "RestoreBindingStackSP", "RestoreBindingStackImmediate",
-    "RestoreBindingStackPop", "EphemeralpFP", "EphemeralpLP", "EphemeralpSP",
-    "EphemeralpImmediate", "EphemeralpPop", "StartCallFP", "StartCallLP",
-    "StartCallSP", "StartCallImmediate", "StartCallPop", "JumpFP", "JumpLP",
-    "JumpSP", "JumpImmediate", "JumpPop", "TagFP", "TagLP", "TagSP",
-    "TagImmediate", "TagPop", "DereferenceFP", "DereferenceLP",
-    "DereferenceSP", "DereferenceImmediate", "DereferencePop",
-    "LogicTailTestFP", "LogicTailTestLP", "LogicTailTestSP",
-    "LogicTailTestImmediate", "LogicTailTestPop", "ProcBreakpointFP",
-    "ProcBreakpointLP", "ProcBreakpointSP", "ProcBreakpointImmediate",
-    "ProcBreakpointPop", "PushLexicalVarFP", "PushLexicalVarLP",
-    "PushLexicalVarSP", "PushLexicalVarImmediate", "PushLexicalVarPop",
-    "Block0WriteFP", "Block0WriteLP", "Block0WriteSP", "Block0WriteImmediate",
-    "Block0WritePop", "Block1WriteFP", "Block1WriteLP", "Block1WriteSP",
-    "Block1WriteImmediate", "Block1WritePop", "Block2WriteFP",
-    "Block2WriteLP", "Block2WriteSP", "Block2WriteImmediate",
-    "Block2WritePop", "Block3WriteFP", "Block3WriteLP", "Block3WriteSP",
-    "Block3WriteImmediate", "Block3WritePop", "ZeropFP", "ZeropLP", "ZeropSP",
-    "ZeropImmediate", "ZeropPop", "MinuspFP", "MinuspLP", "MinuspSP",
-    "MinuspImmediate", "MinuspPop", "PluspFP", "PluspLP", "PluspSP",
-    "PluspImmediate", "PluspPop", "TypeMember", "TypeMemberNoPop",
-    "LocateLocals", "CatchClose", "GenericDispatch", "MessageDispatch",
-    "CheckPreemptRequest", "PushGlobalLogicVariable", "NoOp", "Halt",
-    "BranchTrue", "BranchTrueElseExtraPop", "BranchTrueAndExtraPop",
-    "BranchTrueExtraPop", "BranchTrueNoPop", "BranchTrueAndNoPop",
-    "BranchTrueElseNoPop", "BranchTrueAndNoPopElseNoPopExtraPop",
-    "BranchFalse", "BranchFalseElseExtraPop", "BranchFalseAndExtraPop",
-    "BranchFalseExtraPop", "BranchFalseNoPop", "BranchFalseAndNoPop",
-    "BranchFalseElseNoPop", "BranchFalseAndNoPopElseNoPopExtraPop", "PushFP",
-    "PushLP", "PushSP", "PushImmediate", "PushPop", "PushNNils",
-    "PushAddressSpRelativeFP", "PushAddressSpRelativeLP",
-    "PushAddressSpRelativeSP", "PushAddressSpRelativeImmediate",
-    "PushAddressSpRelativePop", "PushLocalLogicVariablesFP",
-    "PushLocalLogicVariablesLP", "PushLocalLogicVariablesSP",
-    "PushLocalLogicVariablesImmediate", "PushLocalLogicVariablesPop",
-    "ReturnMultipleFP", "ReturnMultipleLP", "ReturnMultipleSP",
-    "ReturnMultipleImmediate", "ReturnMultiplePop", "ReturnKludgeFP",
-    "ReturnKludgeLP", "ReturnKludgeSP", "ReturnKludgeImmediate",
-    "ReturnKludgePop", "TakeValues", "UnbindNImmediate", "UnbindNPop",
-    "PushInstanceVariable", "PushAddressInstanceVariable",
-    "PushInstanceVariableOrdered", "PushAddressInstanceVariableOrdered",
-    "UnaryMinusFP", "UnaryMinusLP", "UnaryMinusSP", "UnaryMinusImmediate",
-    "UnaryMinusPop", "ReturnSingleNIL", "ReturnSingleT", "ReturnSingleTOS",
-    "MemoryRead", "MemoryReadAddress", "Block0Read", "Block1Read",
-    "Block2Read", "Block3Read", "Block0ReadShift", "Block1ReadShift",
-    "Block2ReadShift", "Block3ReadShift", "Block0ReadTest", "Block1ReadTest",
-    "Block2ReadTest", "Block3ReadTest", "FinishCallN", "FinishCallNApply",
-    "FinishCallTos", "FinishCallTosApply", "SetToCarFP", "SetToCarLP",
-    "SetToCarSP", "SetToCarImmediate", "SetToCarPop", "SetToCdrFP",
-    "SetToCdrLP", "SetToCdrSP", "SetToCdrImmediate", "SetToCdrPop",
-    "SetToCdrPushCarFP", "SetToCdrPushCarLP", "SetToCdrPushCarSP",
-    "SetToCdrPushCarImmediate", "SetToCdrPushCarPop", "IncrementFP",
-    "IncrementLP", "IncrementSP", "IncrementImmediate", "IncrementPop",
-    "DecrementFP", "DecrementLP", "DecrementSP", "DecrementImmediate",
-    "DecrementPop", "PointerIncrementFP", "PointerIncrementLP",
-    "PointerIncrementSP", "PointerIncrementImmediate", "PointerIncrementPop",
-    "SetCdrCode1FP", "SetCdrCode1LP", "SetCdrCode1SP", "SetCdrCode1Immediate",
-    "SetCdrCode1Pop", "SetCdrCode2FP", "SetCdrCode2LP", "SetCdrCode2SP",
-    "SetCdrCode2Immediate", "SetCdrCode2Pop", "PushAddressFP",
-    "PushAddressLP", "PushAddressSP", "PushAddressImmediate",
-    "PushAddressPop", "SetSpToAddressFP", "SetSpToAddressLP",
-    "SetSpToAddressSP", "SetSpToAddressImmediate", "SetSpToAddressPop",
-    "SetSpToAddressSaveTosFP", "SetSpToAddressSaveTosLP",
-    "SetSpToAddressSaveTosSP", "SetSpToAddressSaveTosImmediate",
-    "SetSpToAddressSaveTosPop", "ReadInternalRegister",
-    "WriteInternalRegister", "CoprocessorRead", "CoprocessorWrite",
-    "Block0ReadAluFP", "Block0ReadAluLP", "Block0ReadAluSP",
-    "Block0ReadAluImmediate", "Block0ReadAluPop", "Block1ReadAluFP",
-    "Block1ReadAluLP", "Block1ReadAluSP", "Block1ReadAluImmediate",
-    "Block1ReadAluPop", "Block2ReadAluFP", "Block2ReadAluLP",
-    "Block2ReadAluSP", "Block2ReadAluImmediate", "Block2ReadAluPop",
-    "Block3ReadAluFP", "Block3ReadAluLP", "Block3ReadAluSP",
-    "Block3ReadAluImmediate", "Block3ReadAluPop", "Ldb", "CharLdb", "PLdb",
-    "PTagLdb", "Branch", "LoopDecrementTos", "EntryRestAccepted",
-    "EntryRestNotAccepted", "RplacaFP", "RplacaLP", "RplacaSP",
-    "RplacaImmediate", "RplacaPop", "RplacdFP", "RplacdLP", "RplacdSP",
-    "RplacdImmediate", "RplacdPop", "MultiplyFP", "MultiplyLP", "MultiplySP",
-    "MultiplyImmediate", "MultiplyPop", "QuotientFP", "QuotientLP",
-    "QuotientSP", "QuotientImmediate", "QuotientPop", "CeilingFP",
-    "CeilingLP", "CeilingSP", "CeilingImmediate", "CeilingPop", "FloorFP",
-    "FloorLP", "FloorSP", "FloorImmediate", "FloorPop", "TruncateFP",
-    "TruncateLP", "TruncateSP", "TruncateImmediate", "TruncatePop", "RoundFP",
-    "RoundLP", "RoundSP", "RoundImmediate", "RoundPop", "RationalQuotientFP",
-    "RationalQuotientLP", "RationalQuotientSP", "RationalQuotientImmediate",
-    "RationalQuotientPop", "MinFP", "MinLP", "MinSP", "MinImmediate",
-    "MinPop", "MaxFP", "MaxLP", "MaxSP", "MaxImmediate", "MaxPop", "AluFP",
-    "AluLP", "AluSP", "AluImmediate", "AluPop", "LogandFP", "LogandLP",
-    "LogandSP", "LogandImmediate", "LogandPop", "LogxorFP", "LogxorLP",
-    "LogxorSP", "LogxorImmediate", "LogxorPop", "LogiorFP", "LogiorLP",
-    "LogiorSP", "LogiorImmediate", "LogiorPop", "RotFP", "RotLP", "RotSP",
-    "RotImmediate", "RotPop", "LshFP", "LshLP", "LshSP", "LshImmediate",
-    "LshPop", "MultiplyDoubleFP", "MultiplyDoubleLP", "MultiplyDoubleSP",
-    "MultiplyDoubleImmediate", "MultiplyDoublePop", "LshcBignumStepFP",
-    "LshcBignumStepLP", "LshcBignumStepSP", "LshcBignumStepImmediate",
-    "LshcBignumStepPop", "StackBltFP", "StackBltLP", "StackBltSP",
-    "StackBltImmediate", "StackBltPop", "RgetfFP", "RgetfLP", "RgetfSP",
-    "RgetfImmediate", "RgetfPop", "MemberFP", "MemberLP", "MemberSP",
-    "MemberImmediate", "MemberPop", "AssocFP", "AssocLP", "AssocSP",
-    "AssocImmediate", "AssocPop", "PointerPlusFP", "PointerPlusLP",
-    "PointerPlusSP", "PointerPlusImmediate", "PointerPlusPop",
-    "PointerDifferenceFP", "PointerDifferenceLP", "PointerDifferenceSP",
-    "PointerDifferenceImmediate", "PointerDifferencePop", "AshFP", "AshLP",
-    "AshSP", "AshImmediate", "AshPop", "StoreConditionalFP",
-    "StoreConditionalLP", "StoreConditionalSP", "StoreConditionalImmediate",
-    "StoreConditionalPop", "MemoryWriteFP", "MemoryWriteLP", "MemoryWriteSP",
-    "MemoryWriteImmediate", "MemoryWritePop", "PStoreContentsFP",
-    "PStoreContentsLP", "PStoreContentsSP", "PStoreContentsImmediate",
-    "PStoreContentsPop", "BindLocativeToValueFP", "BindLocativeToValueLP",
-    "BindLocativeToValueSP", "BindLocativeToValueImmediate",
-    "BindLocativeToValuePop", "UnifyFP", "UnifyLP", "UnifySP",
-    "UnifyImmediate", "UnifyPop", "PopLexicalVarFP", "PopLexicalVarLP",
-    "PopLexicalVarSP", "PopLexicalVarImmediate", "PopLexicalVarPop",
-    "MovemLexicalVarFP", "MovemLexicalVarLP", "MovemLexicalVarSP",
-    "MovemLexicalVarImmediate", "MovemLexicalVarPop", "EqualNumberFP",
-    "EqualNumberLP", "EqualNumberSP", "EqualNumberImmediate",
-    "EqualNumberPop", "LesspFP", "LesspLP", "LesspSP", "LesspImmediate",
-    "LesspPop", "GreaterpFP", "GreaterpLP", "GreaterpSP", "GreaterpImmediate",
-    "GreaterpPop", "EqlFP", "EqlLP", "EqlSP", "EqlImmediate", "EqlPop",
-    "EqualNumberNoPopFP", "EqualNumberNoPopLP", "EqualNumberNoPopSP",
-    "EqualNumberNoPopImmediate", "EqualNumberNoPopPop", "LesspNoPopFP",
-    "LesspNoPopLP", "LesspNoPopSP", "LesspNoPopImmediate", "LesspNoPopPop",
-    "GreaterpNoPopFP", "GreaterpNoPopLP", "GreaterpNoPopSP",
-    "GreaterpNoPopImmediate", "GreaterpNoPopPop", "EqlNoPopFP", "EqlNoPopLP",
-    "EqlNoPopSP", "EqlNoPopImmediate", "EqlNoPopPop", "EqFP", "EqLP", "EqSP",
-    "EqImmediate", "EqPop", "LogtestFP", "LogtestLP", "LogtestSP",
-    "LogtestImmediate", "LogtestPop", "EqNoPopFP", "EqNoPopLP", "EqNoPopSP",
-    "EqNoPopImmediate", "EqNoPopPop", "LogtestNoPopFP", "LogtestNoPopLP",
-    "LogtestNoPopSP", "LogtestNoPopImmediate", "LogtestNoPopPop", "AddFP",
-    "AddLP", "AddSP", "AddImmediate", "AddPop", "SubFP", "SubLP", "SubSP",
-    "SubImmediate", "SubPop", "32BitPlusFP", "32BitPlusLP", "32BitPlusSP",
-    "32BitPlusImmediate", "32BitPlusPop", "32BitDifferenceFP",
-    "32BitDifferenceLP", "32BitDifferenceSP", "32BitDifferenceImmediate",
-    "32BitDifferencePop", "AddBignumStepFP", "AddBignumStepLP",
-    "AddBignumStepSP", "AddBignumStepImmediate", "AddBignumStepPop",
-    "SubBignumStepFP", "SubBignumStepLP", "SubBignumStepSP",
-    "SubBignumStepImmediate", "SubBignumStepPop", "MultiplyBignumStepFP",
-    "MultiplyBignumStepLP", "MultiplyBignumStepSP",
-    "MultiplyBignumStepImmediate", "MultiplyBignumStepPop",
-    "DivideBignumStepFP", "DivideBignumStepLP", "DivideBignumStepSP",
-    "DivideBignumStepImmediate", "DivideBignumStepPop", "Aset1FP", "Aset1LP",
-    "Aset1SP", "Aset1Immediate", "Aset1Pop", "AllocateListBlockFP",
-    "AllocateListBlockLP", "AllocateListBlockSP",
-    "AllocateListBlockImmediate", "AllocateListBlockPop", "Aref1FP",
-    "Aref1LP", "Aref1SP", "Aref1Immediate", "Aref1Pop", "Aloc1FP", "Aloc1LP",
-    "Aloc1SP", "Aloc1Immediate", "Aloc1Pop", "StoreArrayLeaderFP",
-    "StoreArrayLeaderLP", "StoreArrayLeaderSP", "StoreArrayLeaderImmediate",
-    "StoreArrayLeaderPop", "AllocateStructureBlockFP",
-    "AllocateStructureBlockLP", "AllocateStructureBlockSP",
-    "AllocateStructureBlockImmediate", "AllocateStructureBlockPop",
-    "ArrayLeaderFP", "ArrayLeaderLP", "ArrayLeaderSP", "ArrayLeaderImmediate",
-    "ArrayLeaderPop", "AlocLeaderFP", "AlocLeaderLP", "AlocLeaderSP",
-    "AlocLeaderImmediate", "AlocLeaderPop", "PopInstanceVariable",
-    "MovemInstanceVariable", "PopInstanceVariableOrdered",
-    "MovemInstanceVariableOrdered", "InstanceRefFP", "InstanceRefLP",
-    "InstanceRefSP", "InstanceRefImmediate", "InstanceRefPop",
-    "InstanceSetFP", "InstanceSetLP", "InstanceSetSP", "InstanceSetImmediate",
-    "InstanceSetPop", "InstanceLocFP", "InstanceLocLP", "InstanceLocSP",
-    "InstanceLocImmediate", "InstanceLocPop", "SetTagFP", "SetTagLP",
-    "SetTagSP", "SetTagImmediate", "SetTagPop", "UnsignedLesspFP",
-    "UnsignedLesspLP", "UnsignedLesspSP", "UnsignedLesspImmediate",
-    "UnsignedLesspPop", "UnsignedLesspNoPopFP", "UnsignedLesspNoPopLP",
-    "UnsignedLesspNoPopSP", "UnsignedLesspNoPopImmediate",
-    "UnsignedLesspNoPopPop", "PopFP", "PopLP", "PopSP", "PopImmediate",
-    "PopPop", "MovemFP", "MovemLP", "MovemSP", "MovemImmediate", "MovemPop",
-    "MergeCdrNoPopFP", "MergeCdrNoPopLP", "MergeCdrNoPopSP",
-    "MergeCdrNoPopImmediate", "MergeCdrNoPopPop", "FastAref1FP",
-    "FastAref1LP", "FastAref1SP", "FastAref1Immediate", "FastAref1Pop",
-    "FastAset1FP", "FastAset1LP", "FastAset1SP", "FastAset1Immediate",
-    "FastAset1Pop", "StackBltAddressFP", "StackBltAddressLP",
-    "StackBltAddressSP", "StackBltAddressImmediate", "StackBltAddressPop",
-    "Dpb", "CharDpb", "PDpb", "PTagDpb", "LoopIncrementTosLessThan",
-    "CatchOpen", "Hack", "PushNull", "PushMonitorForward", "PushHeaderP",
-    "PushHeaderI", "PushExternalValueCellPointer", "PushOneQForward",
-    "PushHeaderForward", "PushElementForward", "PushFixnum", "PushSmallRatio",
-    "PushSingleFloat", "PushDoubleFloat", "PushBignum", "PushBigRatio",
-    "PushComplex", "PushSpareNumber", "PushInstance", "PushListInstance",
-    "PushArrayInstance", "PushStringInstance", "PushNil", "PushList",
-    "PushArray", "PushString", "PushSymbol", "PushLocative",
-    "PushLexicalClosure", "PushDynamicClosure", "PushCompiledFunction",
-    "PushGenericFunction", "PushSparePointer1", "PushSparePointer2",
-    "PushPhysicalAddress", "PushSpareImmediate1", "PushBoundLocation",
-    "PushCharacter", "PushLogicVariable", "PushGcForward", "PushEvenPc",
-    "PushOddPc", "CallCompiledEven", "CallCompiledOdd", "CallIndirect",
-    "CallGeneric", "CallCompiledEvenPrefetch", "CallCompiledOddPrefetch",
-    "CallIndirectPrefetch", "CallGenericPrefetch", "PushPackedInstruction60",
-    "PushPackedInstruction61", "PushPackedInstruction62",
-    "PushPackedInstruction63", "PushPackedInstruction64",
-    "PushPackedInstruction65", "PushPackedInstruction66",
-    "PushPackedInstruction67", "PushPackedInstruction70",
-    "PushPackedInstruction71", "PushPackedInstruction72",
-    "PushPackedInstruction73", "PushPackedInstruction74",
-    "PushPackedInstruction75", "PushPackedInstruction76",
-    "PushPackedInstruction77", "InstructionCacheLookup",
+const char *ivory_dispatch_names[] = { "CarFP", "CarLP", "CarSP", "CarImmediate", "CarPop", "CdrFP", "CdrLP", "CdrSP",
+    "CdrImmediate", "CdrPop", "EndpFP", "EndpLP", "EndpSP", "EndpImmediate", "EndpPop", "Setup1dArrayFP",
+    "Setup1dArrayLP", "Setup1dArraySP", "Setup1dArrayImmediate", "Setup1dArrayPop", "SetupForce1dArrayFP",
+    "SetupForce1dArrayLP", "SetupForce1dArraySP", "SetupForce1dArrayImmediate", "SetupForce1dArrayPop",
+    "BindLocativeFP", "BindLocativeLP", "BindLocativeSP", "BindLocativeImmediate", "BindLocativePop",
+    "RestoreBindingStackFP", "RestoreBindingStackLP", "RestoreBindingStackSP", "RestoreBindingStackImmediate",
+    "RestoreBindingStackPop", "EphemeralpFP", "EphemeralpLP", "EphemeralpSP", "EphemeralpImmediate", "EphemeralpPop",
+    "StartCallFP", "StartCallLP", "StartCallSP", "StartCallImmediate", "StartCallPop", "JumpFP", "JumpLP", "JumpSP",
+    "JumpImmediate", "JumpPop", "TagFP", "TagLP", "TagSP", "TagImmediate", "TagPop", "DereferenceFP", "DereferenceLP",
+    "DereferenceSP", "DereferenceImmediate", "DereferencePop", "LogicTailTestFP", "LogicTailTestLP", "LogicTailTestSP",
+    "LogicTailTestImmediate", "LogicTailTestPop", "ProcBreakpointFP", "ProcBreakpointLP", "ProcBreakpointSP",
+    "ProcBreakpointImmediate", "ProcBreakpointPop", "PushLexicalVarFP", "PushLexicalVarLP", "PushLexicalVarSP",
+    "PushLexicalVarImmediate", "PushLexicalVarPop", "Block0WriteFP", "Block0WriteLP", "Block0WriteSP",
+    "Block0WriteImmediate", "Block0WritePop", "Block1WriteFP", "Block1WriteLP", "Block1WriteSP", "Block1WriteImmediate",
+    "Block1WritePop", "Block2WriteFP", "Block2WriteLP", "Block2WriteSP", "Block2WriteImmediate", "Block2WritePop",
+    "Block3WriteFP", "Block3WriteLP", "Block3WriteSP", "Block3WriteImmediate", "Block3WritePop", "ZeropFP", "ZeropLP",
+    "ZeropSP", "ZeropImmediate", "ZeropPop", "MinuspFP", "MinuspLP", "MinuspSP", "MinuspImmediate", "MinuspPop",
+    "PluspFP", "PluspLP", "PluspSP", "PluspImmediate", "PluspPop", "TypeMember", "TypeMemberNoPop", "LocateLocals",
+    "CatchClose", "GenericDispatch", "MessageDispatch", "CheckPreemptRequest", "PushGlobalLogicVariable", "NoOp",
+    "Halt", "BranchTrue", "BranchTrueElseExtraPop", "BranchTrueAndExtraPop", "BranchTrueExtraPop", "BranchTrueNoPop",
+    "BranchTrueAndNoPop", "BranchTrueElseNoPop", "BranchTrueAndNoPopElseNoPopExtraPop", "BranchFalse",
+    "BranchFalseElseExtraPop", "BranchFalseAndExtraPop", "BranchFalseExtraPop", "BranchFalseNoPop",
+    "BranchFalseAndNoPop", "BranchFalseElseNoPop", "BranchFalseAndNoPopElseNoPopExtraPop", "PushFP", "PushLP", "PushSP",
+    "PushImmediate", "PushPop", "PushNNils", "PushAddressSpRelativeFP", "PushAddressSpRelativeLP",
+    "PushAddressSpRelativeSP", "PushAddressSpRelativeImmediate", "PushAddressSpRelativePop",
+    "PushLocalLogicVariablesFP", "PushLocalLogicVariablesLP", "PushLocalLogicVariablesSP",
+    "PushLocalLogicVariablesImmediate", "PushLocalLogicVariablesPop", "ReturnMultipleFP", "ReturnMultipleLP",
+    "ReturnMultipleSP", "ReturnMultipleImmediate", "ReturnMultiplePop", "ReturnKludgeFP", "ReturnKludgeLP",
+    "ReturnKludgeSP", "ReturnKludgeImmediate", "ReturnKludgePop", "TakeValues", "UnbindNImmediate", "UnbindNPop",
+    "PushInstanceVariable", "PushAddressInstanceVariable", "PushInstanceVariableOrdered",
+    "PushAddressInstanceVariableOrdered", "UnaryMinusFP", "UnaryMinusLP", "UnaryMinusSP", "UnaryMinusImmediate",
+    "UnaryMinusPop", "ReturnSingleNIL", "ReturnSingleT", "ReturnSingleTOS", "MemoryRead", "MemoryReadAddress",
+    "Block0Read", "Block1Read", "Block2Read", "Block3Read", "Block0ReadShift", "Block1ReadShift", "Block2ReadShift",
+    "Block3ReadShift", "Block0ReadTest", "Block1ReadTest", "Block2ReadTest", "Block3ReadTest", "FinishCallN",
+    "FinishCallNApply", "FinishCallTos", "FinishCallTosApply", "SetToCarFP", "SetToCarLP", "SetToCarSP",
+    "SetToCarImmediate", "SetToCarPop", "SetToCdrFP", "SetToCdrLP", "SetToCdrSP", "SetToCdrImmediate", "SetToCdrPop",
+    "SetToCdrPushCarFP", "SetToCdrPushCarLP", "SetToCdrPushCarSP", "SetToCdrPushCarImmediate", "SetToCdrPushCarPop",
+    "IncrementFP", "IncrementLP", "IncrementSP", "IncrementImmediate", "IncrementPop", "DecrementFP", "DecrementLP",
+    "DecrementSP", "DecrementImmediate", "DecrementPop", "PointerIncrementFP", "PointerIncrementLP",
+    "PointerIncrementSP", "PointerIncrementImmediate", "PointerIncrementPop", "SetCdrCode1FP", "SetCdrCode1LP",
+    "SetCdrCode1SP", "SetCdrCode1Immediate", "SetCdrCode1Pop", "SetCdrCode2FP", "SetCdrCode2LP", "SetCdrCode2SP",
+    "SetCdrCode2Immediate", "SetCdrCode2Pop", "PushAddressFP", "PushAddressLP", "PushAddressSP", "PushAddressImmediate",
+    "PushAddressPop", "SetSpToAddressFP", "SetSpToAddressLP", "SetSpToAddressSP", "SetSpToAddressImmediate",
+    "SetSpToAddressPop", "SetSpToAddressSaveTosFP", "SetSpToAddressSaveTosLP", "SetSpToAddressSaveTosSP",
+    "SetSpToAddressSaveTosImmediate", "SetSpToAddressSaveTosPop", "ReadInternalRegister", "WriteInternalRegister",
+    "CoprocessorRead", "CoprocessorWrite", "Block0ReadAluFP", "Block0ReadAluLP", "Block0ReadAluSP",
+    "Block0ReadAluImmediate", "Block0ReadAluPop", "Block1ReadAluFP", "Block1ReadAluLP", "Block1ReadAluSP",
+    "Block1ReadAluImmediate", "Block1ReadAluPop", "Block2ReadAluFP", "Block2ReadAluLP", "Block2ReadAluSP",
+    "Block2ReadAluImmediate", "Block2ReadAluPop", "Block3ReadAluFP", "Block3ReadAluLP", "Block3ReadAluSP",
+    "Block3ReadAluImmediate", "Block3ReadAluPop", "Ldb", "CharLdb", "PLdb", "PTagLdb", "Branch", "LoopDecrementTos",
+    "EntryRestAccepted", "EntryRestNotAccepted", "RplacaFP", "RplacaLP", "RplacaSP", "RplacaImmediate", "RplacaPop",
+    "RplacdFP", "RplacdLP", "RplacdSP", "RplacdImmediate", "RplacdPop", "MultiplyFP", "MultiplyLP", "MultiplySP",
+    "MultiplyImmediate", "MultiplyPop", "QuotientFP", "QuotientLP", "QuotientSP", "QuotientImmediate", "QuotientPop",
+    "CeilingFP", "CeilingLP", "CeilingSP", "CeilingImmediate", "CeilingPop", "FloorFP", "FloorLP", "FloorSP",
+    "FloorImmediate", "FloorPop", "TruncateFP", "TruncateLP", "TruncateSP", "TruncateImmediate", "TruncatePop",
+    "RoundFP", "RoundLP", "RoundSP", "RoundImmediate", "RoundPop", "RationalQuotientFP", "RationalQuotientLP",
+    "RationalQuotientSP", "RationalQuotientImmediate", "RationalQuotientPop", "MinFP", "MinLP", "MinSP", "MinImmediate",
+    "MinPop", "MaxFP", "MaxLP", "MaxSP", "MaxImmediate", "MaxPop", "AluFP", "AluLP", "AluSP", "AluImmediate", "AluPop",
+    "LogandFP", "LogandLP", "LogandSP", "LogandImmediate", "LogandPop", "LogxorFP", "LogxorLP", "LogxorSP",
+    "LogxorImmediate", "LogxorPop", "LogiorFP", "LogiorLP", "LogiorSP", "LogiorImmediate", "LogiorPop", "RotFP",
+    "RotLP", "RotSP", "RotImmediate", "RotPop", "LshFP", "LshLP", "LshSP", "LshImmediate", "LshPop", "MultiplyDoubleFP",
+    "MultiplyDoubleLP", "MultiplyDoubleSP", "MultiplyDoubleImmediate", "MultiplyDoublePop", "LshcBignumStepFP",
+    "LshcBignumStepLP", "LshcBignumStepSP", "LshcBignumStepImmediate", "LshcBignumStepPop", "StackBltFP", "StackBltLP",
+    "StackBltSP", "StackBltImmediate", "StackBltPop", "RgetfFP", "RgetfLP", "RgetfSP", "RgetfImmediate", "RgetfPop",
+    "MemberFP", "MemberLP", "MemberSP", "MemberImmediate", "MemberPop", "AssocFP", "AssocLP", "AssocSP",
+    "AssocImmediate", "AssocPop", "PointerPlusFP", "PointerPlusLP", "PointerPlusSP", "PointerPlusImmediate",
+    "PointerPlusPop", "PointerDifferenceFP", "PointerDifferenceLP", "PointerDifferenceSP", "PointerDifferenceImmediate",
+    "PointerDifferencePop", "AshFP", "AshLP", "AshSP", "AshImmediate", "AshPop", "StoreConditionalFP",
+    "StoreConditionalLP", "StoreConditionalSP", "StoreConditionalImmediate", "StoreConditionalPop", "MemoryWriteFP",
+    "MemoryWriteLP", "MemoryWriteSP", "MemoryWriteImmediate", "MemoryWritePop", "PStoreContentsFP", "PStoreContentsLP",
+    "PStoreContentsSP", "PStoreContentsImmediate", "PStoreContentsPop", "BindLocativeToValueFP",
+    "BindLocativeToValueLP", "BindLocativeToValueSP", "BindLocativeToValueImmediate", "BindLocativeToValuePop",
+    "UnifyFP", "UnifyLP", "UnifySP", "UnifyImmediate", "UnifyPop", "PopLexicalVarFP", "PopLexicalVarLP",
+    "PopLexicalVarSP", "PopLexicalVarImmediate", "PopLexicalVarPop", "MovemLexicalVarFP", "MovemLexicalVarLP",
+    "MovemLexicalVarSP", "MovemLexicalVarImmediate", "MovemLexicalVarPop", "EqualNumberFP", "EqualNumberLP",
+    "EqualNumberSP", "EqualNumberImmediate", "EqualNumberPop", "LesspFP", "LesspLP", "LesspSP", "LesspImmediate",
+    "LesspPop", "GreaterpFP", "GreaterpLP", "GreaterpSP", "GreaterpImmediate", "GreaterpPop", "EqlFP", "EqlLP", "EqlSP",
+    "EqlImmediate", "EqlPop", "EqualNumberNoPopFP", "EqualNumberNoPopLP", "EqualNumberNoPopSP",
+    "EqualNumberNoPopImmediate", "EqualNumberNoPopPop", "LesspNoPopFP", "LesspNoPopLP", "LesspNoPopSP",
+    "LesspNoPopImmediate", "LesspNoPopPop", "GreaterpNoPopFP", "GreaterpNoPopLP", "GreaterpNoPopSP",
+    "GreaterpNoPopImmediate", "GreaterpNoPopPop", "EqlNoPopFP", "EqlNoPopLP", "EqlNoPopSP", "EqlNoPopImmediate",
+    "EqlNoPopPop", "EqFP", "EqLP", "EqSP", "EqImmediate", "EqPop", "LogtestFP", "LogtestLP", "LogtestSP",
+    "LogtestImmediate", "LogtestPop", "EqNoPopFP", "EqNoPopLP", "EqNoPopSP", "EqNoPopImmediate", "EqNoPopPop",
+    "LogtestNoPopFP", "LogtestNoPopLP", "LogtestNoPopSP", "LogtestNoPopImmediate", "LogtestNoPopPop", "AddFP", "AddLP",
+    "AddSP", "AddImmediate", "AddPop", "SubFP", "SubLP", "SubSP", "SubImmediate", "SubPop", "32BitPlusFP",
+    "32BitPlusLP", "32BitPlusSP", "32BitPlusImmediate", "32BitPlusPop", "32BitDifferenceFP", "32BitDifferenceLP",
+    "32BitDifferenceSP", "32BitDifferenceImmediate", "32BitDifferencePop", "AddBignumStepFP", "AddBignumStepLP",
+    "AddBignumStepSP", "AddBignumStepImmediate", "AddBignumStepPop", "SubBignumStepFP", "SubBignumStepLP",
+    "SubBignumStepSP", "SubBignumStepImmediate", "SubBignumStepPop", "MultiplyBignumStepFP", "MultiplyBignumStepLP",
+    "MultiplyBignumStepSP", "MultiplyBignumStepImmediate", "MultiplyBignumStepPop", "DivideBignumStepFP",
+    "DivideBignumStepLP", "DivideBignumStepSP", "DivideBignumStepImmediate", "DivideBignumStepPop", "Aset1FP",
+    "Aset1LP", "Aset1SP", "Aset1Immediate", "Aset1Pop", "AllocateListBlockFP", "AllocateListBlockLP",
+    "AllocateListBlockSP", "AllocateListBlockImmediate", "AllocateListBlockPop", "Aref1FP", "Aref1LP", "Aref1SP",
+    "Aref1Immediate", "Aref1Pop", "Aloc1FP", "Aloc1LP", "Aloc1SP", "Aloc1Immediate", "Aloc1Pop", "StoreArrayLeaderFP",
+    "StoreArrayLeaderLP", "StoreArrayLeaderSP", "StoreArrayLeaderImmediate", "StoreArrayLeaderPop",
+    "AllocateStructureBlockFP", "AllocateStructureBlockLP", "AllocateStructureBlockSP",
+    "AllocateStructureBlockImmediate", "AllocateStructureBlockPop", "ArrayLeaderFP", "ArrayLeaderLP", "ArrayLeaderSP",
+    "ArrayLeaderImmediate", "ArrayLeaderPop", "AlocLeaderFP", "AlocLeaderLP", "AlocLeaderSP", "AlocLeaderImmediate",
+    "AlocLeaderPop", "PopInstanceVariable", "MovemInstanceVariable", "PopInstanceVariableOrdered",
+    "MovemInstanceVariableOrdered", "InstanceRefFP", "InstanceRefLP", "InstanceRefSP", "InstanceRefImmediate",
+    "InstanceRefPop", "InstanceSetFP", "InstanceSetLP", "InstanceSetSP", "InstanceSetImmediate", "InstanceSetPop",
+    "InstanceLocFP", "InstanceLocLP", "InstanceLocSP", "InstanceLocImmediate", "InstanceLocPop", "SetTagFP", "SetTagLP",
+    "SetTagSP", "SetTagImmediate", "SetTagPop", "UnsignedLesspFP", "UnsignedLesspLP", "UnsignedLesspSP",
+    "UnsignedLesspImmediate", "UnsignedLesspPop", "UnsignedLesspNoPopFP", "UnsignedLesspNoPopLP",
+    "UnsignedLesspNoPopSP", "UnsignedLesspNoPopImmediate", "UnsignedLesspNoPopPop", "PopFP", "PopLP", "PopSP",
+    "PopImmediate", "PopPop", "MovemFP", "MovemLP", "MovemSP", "MovemImmediate", "MovemPop", "MergeCdrNoPopFP",
+    "MergeCdrNoPopLP", "MergeCdrNoPopSP", "MergeCdrNoPopImmediate", "MergeCdrNoPopPop", "FastAref1FP", "FastAref1LP",
+    "FastAref1SP", "FastAref1Immediate", "FastAref1Pop", "FastAset1FP", "FastAset1LP", "FastAset1SP",
+    "FastAset1Immediate", "FastAset1Pop", "StackBltAddressFP", "StackBltAddressLP", "StackBltAddressSP",
+    "StackBltAddressImmediate", "StackBltAddressPop", "Dpb", "CharDpb", "PDpb", "PTagDpb", "LoopIncrementTosLessThan",
+    "CatchOpen", "Hack", "PushNull", "PushMonitorForward", "PushHeaderP", "PushHeaderI", "PushExternalValueCellPointer",
+    "PushOneQForward", "PushHeaderForward", "PushElementForward", "PushFixnum", "PushSmallRatio", "PushSingleFloat",
+    "PushDoubleFloat", "PushBignum", "PushBigRatio", "PushComplex", "PushSpareNumber", "PushInstance",
+    "PushListInstance", "PushArrayInstance", "PushStringInstance", "PushNil", "PushList", "PushArray", "PushString",
+    "PushSymbol", "PushLocative", "PushLexicalClosure", "PushDynamicClosure", "PushCompiledFunction",
+    "PushGenericFunction", "PushSparePointer1", "PushSparePointer2", "PushPhysicalAddress", "PushSpareImmediate1",
+    "PushBoundLocation", "PushCharacter", "PushLogicVariable", "PushGcForward", "PushEvenPc", "PushOddPc",
+    "CallCompiledEven", "CallCompiledOdd", "CallIndirect", "CallGeneric", "CallCompiledEvenPrefetch",
+    "CallCompiledOddPrefetch", "CallIndirectPrefetch", "CallGenericPrefetch", "PushPackedInstruction60",
+    "PushPackedInstruction61", "PushPackedInstruction62", "PushPackedInstruction63", "PushPackedInstruction64",
+    "PushPackedInstruction65", "PushPackedInstruction66", "PushPackedInstruction67", "PushPackedInstruction70",
+    "PushPackedInstruction71", "PushPackedInstruction72", "PushPackedInstruction73", "PushPackedInstruction74",
+    "PushPackedInstruction75", "PushPackedInstruction76", "PushPackedInstruction77", "InstructionCacheLookup",
     "IllegalInstruction" };
 
 int InstructionCacheMiss(void)
@@ -1692,10 +1556,8 @@ int InstructionCacheMiss(void)
     InstructionCacheLine *block_cp;
     LispObj *block_instruction;
 
-    block_vma
-        = (processor->pc.DATA.u & ~((InstructionCacheLineSize >> 1) - 1));
-    block_cp = processor->InstructionCache
-        + ((block_vma << 1) & (InstructionCacheSize - 1));
+    block_vma = (processor->pc.DATA.u & ~((InstructionCacheLineSize >> 1) - 1));
+    block_cp = processor->InstructionCache + ((block_vma << 1) & (InstructionCacheSize - 1));
 
     {
         Integer bound_vma = block_vma + (InstructionCacheLineSize >> 1);
@@ -1706,11 +1568,9 @@ int InstructionCacheMiss(void)
         Tag tag;
         Integer data;
 
-        VirtualMemoryReadBlock(
-            block_vma, instruction_block, (InstructionCacheLineSize >> 1));
+        VirtualMemoryReadBlock(block_vma, instruction_block, (InstructionCacheLineSize >> 1));
 
-        for (vma = block_vma, even_cp = block_cp, odd_cp = block_cp + 1;
-             vma < bound_vma;
+        for (vma = block_vma, even_cp = block_cp, odd_cp = block_cp + 1; vma < bound_vma;
              vma++, instruction++, even_cp += 2, odd_cp += 2) {
             tag = instruction->TAG;
             data = instruction->DATA.u;
@@ -1764,7 +1624,7 @@ int InstructionCacheMiss(void)
             } else {
             DecodePackedWord : {
                 Integer instruction;
-                register const DecoderPair *p;
+                const DecoderPair *p;
 
                 instruction = data & 0777777;
                 even_cp->instruction = instruction;
@@ -1786,17 +1646,22 @@ int InstructionCacheMiss(void)
         assignments we made may actually point out of this cache line.  Go
         back and look at the possibly errant pointers, and force a cache
         lookup if necessary. */
-        if (block_cp->next_pc.DATA.u < block_vma)
+        if (block_cp->next_pc.DATA.u < block_vma) {
             block_cp->next_cp = &InstructionCacheLookupCPRepresentation;
+}
         even_cp = block_cp + InstructionCacheLineSize - 4;
-        if (even_cp->next_pc.DATA.u >= bound_vma)
+        if (even_cp->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
-        if ((++even_cp)->next_pc.DATA.u >= bound_vma)
+}
+        if ((++even_cp)->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
-        if ((++even_cp)->next_pc.DATA.u >= bound_vma)
+}
+        if ((++even_cp)->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
-        if ((++even_cp)->next_pc.DATA.u >= bound_vma)
+}
+        if ((++even_cp)->next_pc.DATA.u >= bound_vma) {
             even_cp->next_cp = &InstructionCacheLookupCPRepresentation;
+}
     }
     return (0);
 }

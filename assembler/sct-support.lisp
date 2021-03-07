@@ -1,5 +1,3 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: SCT; Base: 10; Lowercase: Yes -*-
-
 
 ;;; DSDL files
 
@@ -34,7 +32,7 @@
 		     #'(named-lambda lisp-compile-driver
 				     (source bin module &rest ignore)
 			 bin module
-			 (let ((cl:*package* (pkg-find-package "ALPHA-AXP-INTERNALS")))
+			 (let ((cl:*package* (pkg-find-package :alpha-axp-internal)))
 			   (funcall (intern "DSDL" "ALPHA-AXP-INTERNALS")
 				    source '(:c :asm :lisp))))
 		     '("Translate" "Translating" "Translated")

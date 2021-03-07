@@ -11,8 +11,7 @@
 
 Integer EnsureVirtualAddress(Integer vma, Boolean faultp);
 Integer EnsureVirtualAddressRange(Integer vma, int count, Boolean faultp);
-Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset,
-    off_t tagoffset);
+Integer MapWorldLoad(Integer vma, int length, int worldfile, off_t dataoffset, off_t tagoffset);
 Integer *MapVirtualAddressData(Integer vma);
 Tag *MapVirtualAddressTag(Integer vma);
 LispObj VirtualMemoryRead(Integer vma);
@@ -23,15 +22,12 @@ void VirtualMemoryWrite(Integer vma, LispObj object);
 void VirtualMemoryWriteUncached(Integer vma, LispObj object);
 void VirtualMemoryWriteBlock(Integer vma, LispObj *object, int count);
 void VirtualMemoryWriteBlockUncached(Integer vma, LispObj *object, int count);
-void VirtualMemoryWriteBlockConstant(
-    Integer vma, LispObj object, int count, int increment);
-void VirtualMemoryWriteBlockConstantUncached(
-    Integer vma, LispObj object, int count, int increment);
+void VirtualMemoryWriteBlockConstant(Integer vma, LispObj object, int count, int increment);
+void VirtualMemoryWriteBlockConstantUncached(Integer vma, LispObj object, int count, int increment);
 
 #define ldb(ss, pp, source) ((int)(((source) >> (pp)) & ((1 << (ss)) - 1)))
-#define dpb(field, ss, pp, background)                                       \
-    ((((field) & ((1 << (ss)) - 1)) << (pp))                                 \
-        | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
+#define dpb(field, ss, pp, background)                                                                                 \
+    ((((field) & ((1 << (ss)) - 1)) << (pp)) | ((background) & (~(((1 << (ss)) - 1) << (pp)))))
 
 /* VLM virtual-memory "coprocessor" interface */
 
@@ -92,8 +88,7 @@ int VMCommand(int command);
 #define VMCommandOpcode(command) ((VMOpcode)ldb(13, 19, command))
 #define VMCommandOperand(command) ((int)ldb(19, 0, command))
 
-#define SetVMReplyResult(reply, result)                                      \
-    (dpb((int)(result ? VMResultSuccess : VMResultFailure), 13, 19, reply))
+#define SetVMReplyResult(reply, result) (dpb((int)(result ? VMResultSuccess : VMResultFailure), 13, 19, reply))
 
 typedef struct _VMState {
     Integer CommandRegister;

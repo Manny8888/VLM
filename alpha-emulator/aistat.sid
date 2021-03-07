@@ -1,9 +1,8 @@
-;;; -*- Mode: LISP; Syntax: Common-Lisp; Package: ALPHA-AXP-INTERNALS; Base: 10; Lowercase: T -*-
 
 ;;; The processor state object is the big daddy.  It acts like a data segment
 ;;; for the interpreter.  It constantly resides in a register, and provides
 ;;; direct addressing to its components.  Everything that the interpreter
-;;; needs can be found here.  Note: this object should not be grown larger    
+;;; needs can be found here.  Note: this object should not be grown larger
 ;;; than 64 K bytes or 4K 64 bit words.
 
 ;;; Note well!  All of these slots are grouped in units of four "related"
@@ -17,7 +16,7 @@
 ;;; forwards from Ivory
 
 (define-structure (processorstate)
-		  
+
   ;; *** DO NOT REORDER THE FOLLOWING SLOTS ***
   (:unsigned-long transpare3)
   (:unsigned-long transpare2)
@@ -39,12 +38,12 @@
   (:unsigned-long asrr10)
   (:unsigned-long asrr11)
   (:unsigned-long asrr12)
-  
+
   (:unsigned-long asrr13)
   (:unsigned-long asrr14)
   (:unsigned-long asrr15)
   (:unsigned-long long-pad1)
-  
+
   (:unsigned-long asrr26)
   (:unsigned-long asrr27)
   (:unsigned-long asrr29)
@@ -135,7 +134,7 @@
   (:signed-long bar1)
   (:signed-long bar2)
   (:signed-long bar3)
-  
+
   (:signed-long epc)
   (:signed-long fp)
   (:signed-long lp)
@@ -219,7 +218,7 @@
   (:signed-int please-stop)			; request interpreter to halt if nonzero.
   (:signed-int please-trap)			; request interpreter to trap if nonzero.
   (:signed-long runningp)			; non-zero if running, zero if stopped.
-  
+
   (:unsigned-long ac0array)			; the automatic array register 0
   (:unsigned-long ac0arword)
   (:unsigned-long ac0locat)
@@ -282,7 +281,7 @@
   ;; NEXTPC/NEXTCP, so we put it here to start a fill (even though we
   ;; then have to skip 2 quadwords).
   (:unsigned-long annotation)			; serves multiple purposes
-  
+
   ;; NEXTPCDATA/NEXTPCTAG and NEXTCP get used together, in that order.
   ;; Even though these are not octaword-aligned, we expect cachelines
   ;; for NextInstruction to typically already be loaded.
@@ -332,7 +331,7 @@
 (define-values (|MSclock| :parameter)
   (|UnitsToMSShift| 24)
   (|UnitsPerMicrosecond| 16777216))
-  
+
 
 ;; Stack cache sized to not conflict with processor state in data cache.
 ;; State is aligned to top of cache and is < 2048 bytes, so stack cache
@@ -349,7 +348,7 @@
   )
 
 
-;;; These values represent the shift required to get the base address of ivory 
+;;; These values represent the shift required to get the base address of ivory
 ;;; emulated memory. The data being at 1<<IvoryMemoryData, tags at 1<<IvoryMemoryTag.
 ;;; Note that the Data must be 4*Tags (for the tricky code in memoryem to work).
 (define-values |IvoryMemory|
@@ -396,7 +395,7 @@
   (:pointer records_end)
   (:pointer current_entry)
   (:pointer printer)
-  
+
   (:size size))
 
 (define-structure (tracerecord)
@@ -425,4 +424,3 @@
 (define-values (|CacheMeter| :parameter)
   (|Pwr| 14)
   (|DefaultFreq| 1000))
-

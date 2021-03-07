@@ -14,14 +14,6 @@
 #
 #   The main preprocessor options used throughout the sources are
 #      GENERA to build an emulator that is intended to run Genera
-#      MINIMA to build an emulator that is intended to run Minima
-#      IVERIFY to build an emulator that is intended to run the instruction test suite
-#      TRACING to enable instruction tracing and counting
-#      CACHEMETERING to enable instruction cache metering facilities
-#      TRAPMETERING to enable trap metering facilities
-#      STATISTICS to enable other statistics-gathering facilities
-#      DEBUGGING to enable debugging facilities
-#      DEBUG* to enable other, more specific debugging facilities
 #      AUTOSTART to immediately start execution of the loaded image without waiting for
 #         a :Start Interactor command from the Minima Debugger.  (This option is defined
 #         automatically when the TARGET is "genera".)
@@ -48,35 +40,35 @@
 
 LIFE = ./life-support
 EMULATOR = ./emulator
-G5EMULATOR = ./g5-emulator
 X86EMULATOR = ./x86_64-emulator
 OTHER = ./other
+COMPILER = /usr/bin/clang 
 
 CPU = $(X86EMULATOR)
 
 genera: MAINOPTIONS = -DGENERA -DAUTOSTART -DUSE_TUN
-minima: MAINOPTIONS = -DMINIMA
-iverify: MAINOPTIONS = -DIVERIFY
 
-OPT = -O -mtune=nocona \
--foptimize-sibling-calls -fstrength-reduce \
--fexpensive-optimizations \
--fsched-interblock -fsched-spec -fpeephole2 \
--freorder-blocks  -freorder-functions \
--funit-at-a-time \
--falign-functions  -falign-jumps -falign-loops -falign-labels \
--fcrossjumping \
--finline-functions -fweb -frename-registers -funswitch-loops \
--fregmove \
--fcse-follow-jumps \
--fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse \
--fgcse-lm  -fgcse-sm  -fgcse-las -fdelete-null-pointer-checks \
--foptimize-sibling-calls -fcaller-saves
+# gcc option:
+# OPT = -O -mtune=nocona \
+# -foptimize-sibling-calls -fstrength-reduce \
+# -fexpensive-optimizations \
+# -fsched-interblock -fsched-spec -fpeephole2 \
+# -freorder-blocks  -freorder-functions \
+# -funit-at-a-time \
+# -falign-functions  -falign-jumps -falign-loops -falign-labels \
+# -fcrossjumping \
+# -finline-functions -fweb -frename-registers -funswitch-loops \
+# -fregmove \
+# -fcse-follow-jumps \
+# -fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse \
+# -fgcse-lm  -fgcse-sm  -fgcse-las -fdelete-null-pointer-checks \
+# -foptimize-sibling-calls -fcaller-saves
+
+OPT = 
 
 # broken
 #-fstrict-aliasing
 #-fschedule-insns  -fschedule-insns2
-
 #-fforce-mem -foptimize-sibling-calls -fstrength-reduce -fcse-follow-jumps
 #-fcse-skip-blocks -frerun-cse-after-loop  -frerun-loop-opt -fgcse
 #-fgcse-lm  -fgcse-sm  -fgcse-las -fdelete-null-pointer-checks
@@ -88,17 +80,19 @@ OPT = -O -mtune=nocona \
 
 #-finline-functions -fweb -frename-registers and -funswitch-loops
 
-CFLAGS = $(OPT) -std=gnu99 -g2 -I/usr/X11R6/include -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
+# gcc flags:
+# CFLAGS = $(OPT) -std=gnu99 -g2 -I/usr/X11R6/include -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
+CFLAGS = $(OPT) -g2 -I/usr/X11R6/include -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
 AFLAGS = -g2 -I. -I$(LIFE) -I$(EMULATOR) -I$(X86EMULATOR) $(MAINOPTIONS) $(OPTIONS)
 
 .SUFFIXES:
 .SUFFIXES: .o .c .S
 
 .c.o:
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(COMPILER) $(CFLAGS) -o $@ -c $<
 
 .S.o:
-	$(CC) $(AFLAGS) -o $@ -c $<
+	$(COMPILER) $(AFLAGS) -o $@ -c $<
 
 SRCS = main.c spy.c world_tools.c utilities.c \
        $(LIFE)/cold_load.c $(LIFE)/console.c $(LIFE)/disks.c $(LIFE)/initialization.c \
@@ -107,9 +101,7 @@ SRCS = main.c spy.c world_tools.c utilities.c \
        $(EMULATOR)/interfac.c $(EMULATOR)/interpds.c $(EMULATOR)/externals.c \
        $(EMULATOR)/memory.c
 
-NETWORKSOURCES = $(LIFE)/network-osf.c \
-	$(LIFE)/network-linux.c $(LIFE)/network-tun-linux.c \
-	$(LIFE)/network-darwin.c $(LIFE)/network-libpcap.c
+NETWORKSOURCES = $(LIFE)/network-linux.c $(LIFE)/network-tun-linux.c $(LIFE)/network-libpcap.c
 
 FAKEEMULATOR=y
 ifndef FAKEEMULATOR
@@ -170,17 +162,13 @@ $(EMULATOROBJ): $(ASMS) $(COMPONENTS)
 $(EMULATOR)/externals.o: $(EMULATOR)/externals.c $(EMULATORINCLUDES)
 $(EMULATOR)/interpds.o: $(EMULATOR)/interpds.c $(EMULATORINCLUDES) $(EMULATOR)/asmfuns.h
 $(EMUALTOR)/interfac.o: $(EMULATOR)/interfac.c $(EMULATORINCLUDES)
-spy.o: spy.c $(EMULATORINCLUDES)
+spy.o: environment/spy.c $(EMULATORINCLUDES)
 
 genera: main.o byteswap_world.o $(OBJS) $(OTHEROBJS)
-	cc $(PROFILE) -o genera $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
-	cc $(PROFILE) -o byteswap_world $(EARLYLIBS) $(OTHEROBJS) byteswap_world.o $(OBJS) $(LIBRARIES)
-
-minima: main.o $(OBJS) $(OTHEROBJS)
-	cc $(PROFILE) -o minima $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
-
-iverify: main.o $(OBJS) $(OTHEROBJS)
-	cc $(PROFILE) -o iverify $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
+	$(COMPILER) $(PROFILE) -o genera $(EARLYLIBS) $(OTHEROBJS) main.o $(OBJS) $(LIBRARIES)
+	$(COMPILER) $(PROFILE) -o byteswap_world $(EARLYLIBS) $(OTHEROBJS) byteswap_world.o $(OBJS) $(LIBRARIES)
 
 clean:
 	rm -f main.o byteswap_world.o $(OBJS)
+	rm -f genera 
+

@@ -48,12 +48,7 @@ typedef enum {
     rm_stop
 } remote_memory_opcode;
 
-typedef enum {
-    rm_physical,
-    rm_virtual,
-    rm_register,
-    rm_coprocessor
-} remote_memory_type;
+typedef enum { rm_physical, rm_virtual, rm_register, rm_coprocessor } remote_memory_type;
 
 struct rm_pkt {
     unsigned char rm_pad[2];
@@ -119,24 +114,18 @@ static void bind_a_port(int spy, struct sockaddr_in *sin, int len)
 
 static void signal_handler(int x) { HaltMachine(); }
 
-static int spy_transmit(
-    struct rm_pkt *pkt, int rm_length, struct sockaddr_in *sin)
+static int spy_transmit(struct rm_pkt *pkt, int rm_length, struct sockaddr_in *sin)
 {
     int result = 0;
-    pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_mutex_unlock, (void *)&spyLock);
+    pthread_cleanup_push((pthread_cleanuproutine_t)pthread_mutex_unlock, (void *)&spyLock);
     if (pthread_mutex_lock(&spyLock))
-        vpunt("spy", "Unable to lock the spy lock in thread %x",
-            pthread_self());
-    if (sendto(spy, &pkt->rm_pad[0], rm_length, 0, (struct sockaddr *)sin,
-            sizeof(struct sockaddr_in))
-        < 0) {
+        vpunt("spy", "Unable to lock the spy lock in thread %x", pthread_self());
+    if (sendto(spy, &pkt->rm_pad[0], rm_length, 0, (struct sockaddr *)sin, sizeof(struct sockaddr_in)) < 0) {
         verror("spy", NULL);
         result = 1;
     }
     if (pthread_mutex_unlock(&spyLock))
-        vpunt("spy", "Unable to unlock the spy lock in thread %x",
-            pthread_self());
+        vpunt("spy", "Unable to unlock the spy lock in thread %x", pthread_self());
     pthread_cleanup_pop(FALSE);
     return (result);
 }
@@ -167,8 +156,7 @@ static void SpyTopLevel(pthread_addr_t argument)
 {
     pthread_t self = pthread_self();
 
-    pthread_cleanup_push(
-        (pthread_cleanuproutine_t)pthread_detach, (void *)self);
+    pthread_cleanup_push((pthread_cleanuproutine_t)pthread_detach, (void *)self);
     if (pthread_mutex_lock(&spyLock))
         vpunt("spy", "Unable to lock the spy lock in thread %x", self);
     if (pthread_mutex_unlock(&spyLock))
@@ -179,17 +167,17 @@ static void SpyTopLevel(pthread_addr_t argument)
     pthread_cleanup_pop(TRUE);
 }
 
-#define SuspendVLM()                                                         \
-    if (Runningp()) {                                                        \
-        forciblyHalted = TRUE;                                               \
-        HaltMachine();                                                       \
-        while (Runningp())                                                   \
-            ;                                                                \
+#define SuspendVLM()                                                                                                   \
+    if (Runningp()) {                                                                                                  \
+        forciblyHalted = TRUE;                                                                                         \
+        HaltMachine();                                                                                                 \
+        while (Runningp())                                                                                             \
+            ;                                                                                                          \
     }
-#define ResumeVLM(resumeP)                                                   \
-    if (forciblyHalted) {                                                    \
-        forciblyHalted = FALSE;                                              \
-        StartMachine(resumeP);                                               \
+#define ResumeVLM(resumeP)                                                                                             \
+    if (forciblyHalted) {                                                                                              \
+        forciblyHalted = FALSE;                                                                                        \
+        StartMachine(resumeP);                                                                                         \
     }
 
 static void RemoteMemorySpyLoop()
@@ -218,8 +206,7 @@ static void RemoteMemorySpyLoop()
                 /* this does "remote system halted" */
                 if (trap_sinValid) {
                     reply.rm_opcode = rm_trap;
-                    spy_transmit(
-                        &reply, REMOTE_MEMORY_PACKET_HEADER, &trap_sin);
+                    spy_transmit(&reply, REMOTE_MEMORY_PACKET_HEADER, &trap_sin);
                 }
                 send_trap = 0;
             }
@@ -235,8 +222,7 @@ static void RemoteMemorySpyLoop()
             break;
 
         sinlen = sizeof(struct sockaddr_in);
-        if ((pkt_length = recvfrom(spy, &pkt.rm_pad[0],
-                 REMOTE_MEMORY_PACKET_HEADER + REMOTE_MEMORY_PACKET_DATA, 0,
+        if ((pkt_length = recvfrom(spy, &pkt.rm_pad[0], REMOTE_MEMORY_PACKET_HEADER + REMOTE_MEMORY_PACKET_DATA, 0,
                  (struct sockaddr *)&pkt_source, &sinlen))
             < 0)
             vpunt("spy", "Reading packet from remote debugger");
@@ -254,8 +240,7 @@ static void RemoteMemorySpyLoop()
         case rm_boot:
             SuspendVLM();
             spy_transmit(&reply, reply_length, &pkt_source);
-            InitializeIvoryProcessor(
-                MapVirtualAddressData(0), MapVirtualAddressTag(0));
+            InitializeIvoryProcessor(MapVirtualAddressData(0), MapVirtualAddressTag(0));
             booted = 1;
             ResumeVLM(TRUE);
             break;
@@ -285,8 +270,7 @@ static void RemoteMemorySpyLoop()
 #else
                 /* Use physical addresses to read uncached data */
                 {
-                    void (*old_segv_handler)()
-                        = signal(SIGSEGV, segv_handler);
+                    void (*old_segv_handler)() = signal(SIGSEGV, segv_handler);
                     if (_setjmp(trap_environment)) {
                         signal(SIGSEGV, old_segv_handler);
                         goto READ_WRITE_MEMORY_ERROR;
@@ -333,16 +317,14 @@ static void RemoteMemorySpyLoop()
             case rm_coprocessor:
                 for (i = 0; i < nwords; i++) {
 #ifdef _C_EMULATOR_
-                    vwarn("spy", "Read of coprocessor register %d failed.",
-                        (vma + i));
+                    vwarn("spy", "Read of coprocessor register %d failed.", (vma + i));
 #else
                     buffer[i] = CoprocessorRead(vma + i);
 #endif
                 }
                 break;
             }
-            for (i = 0, bufferp = &buffer[0], p = &reply.data[0]; i < nchunks;
-                 i++, bufferp += 4, p += 20) {
+            for (i = 0, bufferp = &buffer[0], p = &reply.data[0]; i < nchunks; i++, bufferp += 4, p += 20) {
                 p[0] = LispObjTag(bufferp[0]);
                 p[1] = LispObjTag(bufferp[1]);
                 p[2] = LispObjTag(bufferp[2]);
@@ -385,8 +367,7 @@ static void RemoteMemorySpyLoop()
             vma = read_long(&pkt.data[0]);
             nwords = operand & 0x3ff;
             nchunks = (nwords + 3) / 4;
-            for (i = 0, bufferp = &buffer[0], p = &pkt.data[4]; i < nchunks;
-                 i++, bufferp += 4, p += 20) {
+            for (i = 0, bufferp = &buffer[0], p = &pkt.data[4]; i < nchunks; i++, bufferp += 4, p += 20) {
                 LispObjTag(bufferp[0]) = p[0];
                 LispObjTag(bufferp[1]) = p[1];
                 LispObjTag(bufferp[2]) = p[2];
@@ -423,12 +404,10 @@ static void RemoteMemorySpyLoop()
                 for (i = 0; i < nwords; i++) {
 #ifdef _C_EMULATOR_
                     if (!WriteInternalRegister(vma + i, &buffer[i]))
-                        vwarn("spy", "Write of internal register %d failed",
-                            vma + i);
+                        vwarn("spy", "Write of internal register %d failed", vma + i);
 #else
                     if (WriteInternalRegister(vma + i, buffer[i]) == -1)
-                        vwarn("spy", "Write of internal register %d failed",
-                            vma + i);
+                        vwarn("spy", "Write of internal register %d failed", vma + i);
 #endif
                 }
                 break;
@@ -436,13 +415,10 @@ static void RemoteMemorySpyLoop()
             case rm_coprocessor:
                 for (i = 0; i < nwords; i++) {
 #ifdef _C_EMULATOR_
-                    vwarn("spy", "Write of coprocessor register %d failed.",
-                        (vma + i));
+                    vwarn("spy", "Write of coprocessor register %d failed.", (vma + i));
 #else
                     if (!CoprocessorWrite(vma + i, buffer[i]))
-                        vwarn("spy",
-                            "Write of coprocessor register %d failed.",
-                            (vma + i));
+                        vwarn("spy", "Write of coprocessor register %d failed.", (vma + i));
 #endif
                 }
                 break;
@@ -465,20 +441,15 @@ static void RemoteMemorySpyLoop()
                     /* ... */
                     if (MBINHistory[historyID].acked)
                         spy_transmit(&reply, reply_length, &pkt_source);
-                } else if (EmbQueueFilled(
-                               activeMBINChannel->hostToGuestSupplyQueue)
+                } else if (EmbQueueFilled(activeMBINChannel->hostToGuestSupplyQueue)
                     && EmbQueueSpace(activeMBINChannel->hostToGuestQueue)) {
                     /* ... */
-                    bufferEmbPtr = EmbQueueTakeWord(
-                        activeMBINChannel->hostToGuestSupplyQueue);
+                    bufferEmbPtr = EmbQueueTakeWord(activeMBINChannel->hostToGuestSupplyQueue);
                     if (bufferEmbPtr && (bufferEmbPtr != NullEmbPtr)) {
-                        buffer = (struct rm_aligned_pkt *)HostPointer(
-                            bufferEmbPtr);
-                        memcpy(&buffer->rm_id[0], &pkt.rm_id[0],
-                            REMOTE_MEMORY_ALIGNED_PACKET_HEADER);
+                        buffer = (struct rm_aligned_pkt *)HostPointer(bufferEmbPtr);
+                        memcpy(&buffer->rm_id[0], &pkt.rm_id[0], REMOTE_MEMORY_ALIGNED_PACKET_HEADER);
                         memcpy(&buffer->data[0], &pkt.data[0], operand);
-                        EmbQueuePutWord(activeMBINChannel->hostToGuestQueue,
-                            bufferEmbPtr);
+                        EmbQueuePutWord(activeMBINChannel->hostToGuestQueue, bufferEmbPtr);
                         MBINHistory[historyID].id = id;
                         MBINHistory[historyID].acked = FALSE;
                     }
@@ -521,8 +492,7 @@ void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress)
         vpunt("spy", "Unable to create the spy lock");
     spyLockSetup = TRUE;
 
-    if (pthread_create(&spyThread, &EmbCommAreaPtr->pollThreadAttrs,
-            (pthread_startroutine_t)&SpyTopLevel, NULL))
+    if (pthread_create(&spyThread, &EmbCommAreaPtr->pollThreadAttrs, (pthread_startroutine_t)&SpyTopLevel, NULL))
         vpunt("spy", "Unable to create the spy thread");
     spyThreadSetup = TRUE;
 
@@ -532,8 +502,7 @@ void InitializeSpy(boolean sendTrapP, unsigned long diagnosticAddress)
 void ReleaseSpyLock()
 {
     if (pthread_mutex_unlock(&spyLock))
-        vpunt("spy", "Unable to unlock the spy lock in thread %x",
-            pthread_self());
+        vpunt("spy", "Unable to unlock the spy lock in thread %x", pthread_self());
 }
 
 void SendMBINBuffers(EmbMBINChannel *mbinChannel)
@@ -554,14 +523,12 @@ void SendMBINBuffers(EmbMBINChannel *mbinChannel)
             ResetOutgoingQueue(gthrQ);
             ResetIncomingQueue(mbinChannel->hostToGuestSupplyQueue);
             ResetOutgoingQueue(mbinChannel->hostToGuestQueue);
-            mbinChannel->header.messageChannel->guestToHostImpulse
-                = EmbMessageImpulseNone;
+            mbinChannel->header.messageChannel->guestToHostImpulse = EmbMessageImpulseNone;
             UnthreadMessageChannel(mbinChannel->header.messageChannel);
             free(mbinChannel);
             return;
         default:
-            mbinChannel->header.messageChannel->guestToHostImpulse
-                = EmbMessageImpulseNone;
+            mbinChannel->header.messageChannel->guestToHostImpulse = EmbMessageImpulseNone;
             break;
         }
 
@@ -574,8 +541,7 @@ void SendMBINBuffers(EmbMBINChannel *mbinChannel)
         if (bufferPtr && (bufferPtr != NullEmbPtr) && mbin_sinValid) {
             buffer = (struct rm_aligned_pkt *)HostPointer(bufferPtr);
             nBytes = read_long(&buffer->rm_operand[0]) & 0xFFFFFF;
-            memcpy(&pkt.rm_id[0], &buffer->rm_id[0],
-                REMOTE_MEMORY_ALIGNED_PACKET_HEADER);
+            memcpy(&pkt.rm_id[0], &buffer->rm_id[0], REMOTE_MEMORY_ALIGNED_PACKET_HEADER);
             memcpy(&pkt.data[0], &buffer->data[0], nBytes);
             if (rm_ack == buffer->rm_opcode) {
                 id = read_long(&buffer->rm_id[0]);
@@ -583,8 +549,7 @@ void SendMBINBuffers(EmbMBINChannel *mbinChannel)
                 MBINHistory[historyID].id = id;
                 MBINHistory[historyID].acked = TRUE;
             }
-            spy_transmit(
-                &pkt, REMOTE_MEMORY_PACKET_HEADER + nBytes, &mbin_sin);
+            spy_transmit(&pkt, REMOTE_MEMORY_PACKET_HEADER + nBytes, &mbin_sin);
         }
         EmbQueuePutWord(gthrQ, bufferPtr);
     }

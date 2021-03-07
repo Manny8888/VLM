@@ -2048,18 +2048,15 @@
  		  "ifunjosh" "ifuntran"))
     (progn
       (setq count (+ 1 count))
-      (setq outputfilename (format nil "xoutput~D" count))
+      (setq outputfilename (format nil "xoutput~D.c" count))
       (setq inputfilename (format nil "../alpha-emulator/~A.as" file))
       (format t "INPUT: ~A~%" inputfilename)
       (format t "OUTPUT: ~A~%" outputfilename)
-      (process-asm-source
-       inputfilename
-       outputfilename)))
+      (process-asm-source inputfilename outputfilename)))
 
   (format t "DONE:~%"))
 
 (defun load-macros ()
-
   (load "clisp-support.lisp")
   (load "../emulator/aihead.lisp")
   (load "../emulator/errortbl.lisp")
@@ -2080,6 +2077,7 @@
       (setq filename (format nil "../alpha-emulator/~A.lisp" file))
       (load filename))))
 
+;; Unused
 (defun load-macros-old ()
   (load "clisp-support.lisp")
   (load "../emulator/aihead.lisp")
